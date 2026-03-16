@@ -24,6 +24,7 @@
 #include "lib/file/vfs/vfs_path.h"
 #include "lib/posix/posix.h"
 #include "ps/CLogger.h"
+#include "ps/containers/StaticVector.h"
 #include "ps/CStr.h"
 #include "ps/CStrInternStatic.h"
 #include "ps/ConfigDB.h"
@@ -174,27 +175,39 @@ CFont* CFontManager::LoadFont(CStrIntern fontName, CStrIntern locale)
 	// Check for font configuration or fallback.
 	const std::map<CStr, CConfigValueSet> fontToSearch{[&]
 		{
-			std::vector<std::string> candidateFonts;
-			// 3 types * 2 (bold, italic).
-			candidateFonts.reserve(6);
+			// full locale + short locale + global each with up to 3 styles.
+			PS::StaticVector<std::string, 9> candidateFonts;
+
+			auto addCandidate{ [&](const std::string_view localeName)
+			{
+				std::string localePart{localeName};
+				if (!localePart.empty())
+					localePart.push_back('.');
+				if (fontSpec.bold)
+					candidateFonts.push_back(fmt::format("fonts.{}{}.bold", localePart, fontSpec.type));
+				if (fontSpec.italic)
+					candidateFonts.push_back(fmt::format("fonts.{}{}.italic", localePart, fontSpec.type));
+				candidateFonts.push_back(fmt::format("fonts.{}{}.regular", localePart, fontSpec.type));
+			}};
 
 			// TODO: explicit Locale like RTL or Arabic fonts.
-			// 1. Locale-specific fonts first
+			// 1. Locale-specific fonts first.
 			if (!localeToUse.empty())
 			{
-				if (fontSpec.bold)
-					candidateFonts.push_back(fmt::format("fonts.{}.{}.bold", localeToUse, fontSpec.type));
-				if (fontSpec.italic)
-					candidateFonts.push_back(fmt::format("fonts.{}.{}.italic", localeToUse, fontSpec.type));
-				candidateFonts.push_back(fmt::format("fonts.{}.{}.regular", localeToUse, fontSpec.type));
+				// Full locale first, e.g. zh_TW.
+				addCandidate(localeToUse);
+
+				// Then short locale, e.g. zh.
+				if (const size_t pos{localeToUse.find('_')}; pos != std::string::npos)
+				{
+					const std::string shortLocale{localeToUse.substr(0, pos)};
+					addCandidate(shortLocale);
+				}
 			}
 
 			// 2. Then global fonts
-			if (fontSpec.bold)
-				candidateFonts.push_back(fmt::format("fonts.{}.bold", fontSpec.type));
-			if (fontSpec.italic)
-				candidateFonts.push_back(fmt::format("fonts.{}.italic", fontSpec.type));
-			candidateFonts.push_back(fmt::format("fonts.{}.regular", fontSpec.type));
+			const std::string globalLocale{};
+			addCandidate(globalLocale);
 
 			for (const std::string& key : candidateFonts)
 			{
