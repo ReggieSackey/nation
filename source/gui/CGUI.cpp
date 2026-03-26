@@ -1333,6 +1333,12 @@ void CGUI::Xeromyces_ReadIcon(const XMBData& xmb, XMBElement element)
 	m_Icons.emplace(name, std::move(icon));
 }
 
+void CGUI::ReportMissingIcon(const CStr& name) const
+{
+	if (m_MissingIconsReported.insert(name).second)
+		LOGWARNING("Trying to use an icon, imgleft or imgright-tag with an undefined icon (\"%s\").", name);
+}
+
 void CGUI::Xeromyces_ReadTooltip(const XMBData& xmb, XMBElement element)
 {
 	std::unique_ptr<IGUIObject> object{std::make_unique<CTooltip>(*this)};

@@ -113,7 +113,7 @@ void CGUIString::GenerateTextCall(const CGUI& pGUI, SFeedback& Feedback, CStrInt
 			if (!pGUI.HasIcon(path))
 			{
 				if (pObject)
-					LOGERROR("Trying to use an icon, imgleft or imgright-tag with an undefined icon (\"%s\").", path.c_str());
+					pGUI.ReportMissingIcon(path);
 				continue;
 			}
 

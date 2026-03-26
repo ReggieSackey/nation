@@ -265,6 +265,15 @@ public:
 	const SGUIIcon& GetIcon(const CStr& name) const { return m_Icons.at(name); }
 
 	/**
+	 * Log a warning when text markup refers to an icon that doesn't exist.
+	 * Mods may reference icons dynamically (e.g. an icon name
+	 * built from a civ or resource identifier) that can be temporarily
+	 * missing while dependent mods are updated together; each distinct
+	 * missing icon name is only logged once per GUI page to avoid log spam.
+	 */
+	void ReportMissingIcon(const CStr& name) const;
+
+	/**
 	 * Check if a style exists
 	 */
 	bool HasStyle(const CStr& name) const { return (m_Styles.find(name) != m_Styles.end()); }
@@ -724,6 +733,10 @@ private:
 
 	// Icons
 	std::map<CStr, const SGUIIcon> m_Icons;
+
+	// Icons that have already been reported as missing, to avoid repeating
+	// the same warning every time referencing text is regenerated.
+	mutable std::unordered_set<CStr> m_MissingIconsReported;
 
 public:
 	struct ModuleArtifact
