@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Wildfire Games.
+/* Copyright (C) 2026 Wildfire Games.
  * This file is part of 0 A.D.
  *
  * 0 A.D. is free software: you can redistribute it and/or modify
@@ -294,7 +294,7 @@ namespace
 std::ofstream OpenLogFile(const wchar_t* filePrefix, const char* logName)
 {
 	OsPath path{psLogDir() / (filePrefix + g_UniqueLogPostfix + L".html")};
-	debug_printf("FILES| %s written to '%s'\n", logName, path.string8().c_str());
+	debug_printf("%s written to '%s'\n", logName, path.string8().c_str());
 	return std::ofstream{OsString(path), std::ofstream::trunc};
 }
 }

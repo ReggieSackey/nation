@@ -316,7 +316,7 @@ void WriteSystemInfo(Renderer::Backend::IDevice* device, const utsname& un)
 	fclose(f);
 	f = 0;
 
-	debug_printf("FILES| Hardware details written to '%s'\n", pathname.string8().c_str());
+	debug_printf("Hardware details written to '%s'\n", pathname.string8().c_str());
 }
 
 } // anonymous namespace

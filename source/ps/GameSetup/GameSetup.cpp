@@ -462,8 +462,6 @@ void EarlyInit()
 	Threading::SetMainThread();
 
 	debug_SetThreadName("main");
-	// add all debug_printf "tags" that we are interested in:
-	debug_filter_add("FILES");
 
 	timer_Init();
 

@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Wildfire Games.
+/* Copyright (C) 2026 Wildfire Games.
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -63,8 +63,8 @@ extern void debug_break();
 //-----------------------------------------------------------------------------
 
 /**
- * write a formatted string to the debug channel, subject to filtering
- * (see below). implemented via debug_puts - see performance note there.
+ * write a formatted string to the debug channel. implemented via debug_puts -
+ * see performance note there.
  *
  * @param fmt Format string and varargs; see printf.
  **/
@@ -193,61 +193,6 @@ ErrorReaction debug_DisplayError(const wchar_t* description, size_t flags, void*
 #define DEBUG_DISPLAY_ERROR(description) DEBUG_DISPLAY_ERROR_IMPL(description, 0)
 // disallow continue for the error.
 #define DEBUG_DISPLAY_FATAL_ERROR(description) DEBUG_DISPLAY_ERROR_IMPL(description, DE_NO_CONTINUE)
-
-
-//
-// filtering
-//
-
-/**
- * debug output is very useful, but "too much of a good thing can kill you".
- * we don't want to require different LOGn() macros that are enabled
- * depending on "debug level", because changing that entails lengthy
- * compiles and it's too coarse-grained. instead, we require all
- * strings to start with "tag_string|" (exact case and no quotes;
- * the alphanumeric-only \<tag_string\> identifies output type).
- * they are then subject to filtering: only if the tag has been
- * "added" via debug_filter_add is the appendant string displayed.
- *
- * this approach is easiest to implement and is fine because we control
- * all logging code. LIMODS falls from consideration since it's not
- * portable and too complex.
- *
- * notes:
- * - filter changes only affect subsequent debug_*printf calls;
- *   output that didn't pass the filter is permanently discarded.
- * - strings not starting with a tag are always displayed.
- * - debug_filter_* can be called at any time and from the debugger,
- *   but are not reentrant.
- *
- * in future, allow output with the given tag to proceed.
- * no effect if already added.
- **/
-void debug_filter_add(const char* tag);
-
-/**
- * in future, discard output with the given tag.
- * no effect if not currently added.
- **/
-void debug_filter_remove(const char* tag);
-
-/**
- * clear all filter state; equivalent to debug_filter_remove for
- * each tag that was debug_filter_add-ed.
- **/
-void debug_filter_clear();
-
-/**
- * indicate if the given text would be printed.
- * useful for a series of debug_printfs - avoids needing to add a tag to
- * each of their format strings.
- **/
-bool debug_filter_allows(const char* text);
-
-/**
- * call debug_puts if debug_filter_allows allows the string.
- **/
-void debug_puts_filtered(const char* text);
 
 /**
  * write an error description and all logs into crashlog.txt

@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Wildfire Games.
+/* Copyright (C) 2026 Wildfire Games.
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -800,7 +800,11 @@ static Status DetermineSymbolAddress(DWORD id, const SYMBOL_INFOW* sym, const Du
 
 	*pp = (const u8*)(uintptr_t)addr;
 
-	debug_printf("SYM| %s at %p  flags=%X dk=%d sym->addr=%I64X fp=%I64x\n", utf8_from_wstring(sym->Name).c_str(), *pp, sym->Flags, dataKind, sym->Address, state.stackFrame->AddrFrame.Offset);
+#if 0
+	debug_printf("Symbol: %s at %p  flags=%X dk=%d sym->addr=%I64X fp=%I64x\n",
+		utf8_from_wstring(sym->Name).c_str(), *pp, sym->Flags, dataKind, sym->Address,
+		state.stackFrame->AddrFrame.Offset);
+#endif
 	return INFO::OK;
 }
 

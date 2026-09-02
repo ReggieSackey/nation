@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Wildfire Games.
+/* Copyright (C) 2026 Wildfire Games.
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -67,88 +67,6 @@ static const StatusDefinition debugStatusDefinitions[] = {
 };
 STATUS_ADD_DEFINITIONS(debugStatusDefinitions);
 
-
-// need to shoehorn printf-style variable params into
-// the OutputDebugString call.
-// - don't want to split into multiple calls - would add newlines to output.
-// - fixing Win32 _vsnprintf to return # characters that would be written,
-//   as required by C99, looks difficult and unnecessary. if any other code
-//   needs that, implement GNU vasprintf.
-// - fixed size buffers aren't nice, but much simpler than vasprintf-style
-//   allocate+expand_until_it_fits. these calls are for quick debug output,
-//   not loads of data, anyway.
-
-// rationale: static data instead of std::set to allow setting at any time.
-// we store FNV hash of tag strings for fast comparison; collisions are
-// extremely unlikely and can only result in displaying more/less text.
-static const size_t MAX_TAGS = 20;
-static u32 tags[MAX_TAGS];
-static size_t num_tags;
-
-void debug_filter_add(const char* tag)
-{
-	const u32 hash = fnv_hash(tag, strlen(tag)*sizeof(tag[0]));
-
-	// make sure it isn't already in the list
-	for(size_t i = 0; i < MAX_TAGS; i++)
-		if(tags[i] == hash)
-			return;
-
-	// too many already?
-	if(num_tags == MAX_TAGS)
-	{
-		DEBUG_WARN_ERR(ERR::LOGIC);	// increase MAX_TAGS
-		return;
-	}
-
-	tags[num_tags++] = hash;
-}
-
-void debug_filter_remove(const char* tag)
-{
-	const u32 hash = fnv_hash(tag, strlen(tag)*sizeof(tag[0]));
-
-	for(size_t i = 0; i < MAX_TAGS; i++)
-	{
-		if(tags[i] == hash)	// found it
-		{
-			// replace with last element (avoid holes)
-			tags[i] = tags[MAX_TAGS-1];
-			num_tags--;
-
-			// can only happen once, so we're done.
-			return;
-		}
-	}
-}
-
-void debug_filter_clear()
-{
-	std::fill(tags, tags+MAX_TAGS, 0);
-}
-
-bool debug_filter_allows(const char* text)
-{
-	size_t i;
-	for(i = 0; ; i++)
-	{
-		// no | found => no tag => should always be displayed
-		if(text[i] == ' ' || text[i] == '\0')
-			return true;
-		if(text[i] == '|' && i != 0)
-			break;
-	}
-
-	const u32 hash = fnv_hash(text, i*sizeof(text[0]));
-
-	// check if entry allowing this tag is found
-	for(i = 0; i < MAX_TAGS; i++)
-		if(tags[i] == hash)
-			return true;
-
-	return false;
-}
-
 #undef debug_printf	// allowing #defining it out
 void debug_printf(const char* fmt, ...)
 {
@@ -161,15 +79,8 @@ void debug_printf(const char* fmt, ...)
 		debug_break();  // poor man's assert - avoid infinite loop because ENSURE also uses debug_printf
 	va_end(ap);
 
-	debug_puts_filtered(buf);
+	debug_puts(buf);
 }
-
-void debug_puts_filtered(const char* text)
-{
-	if(debug_filter_allows(text))
-		debug_puts(text);
-}
-
 
 //-----------------------------------------------------------------------------
 

@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Wildfire Games.
+/* Copyright (C) 2026 Wildfire Games.
  * This file is part of 0 A.D.
  *
  * 0 A.D. is free software: you can redistribute it and/or modify
@@ -31,6 +31,12 @@
 #include <optional>
 #include <string>
 #include <utility>
+
+#if 0
+#define LOADER_LOG(...) debug_printf(__VA_ARGS__)
+#else
+#define LOADER_LOG(...)
+#endif
 
 namespace PS::Loader
 {
@@ -221,7 +227,9 @@ ProgressiveLoadResult ProgressiveLoad(double time_budget)
 		// either finished entirely, or failed => remove from queue.
 		if(!timed_out)
 		{
-			debug_printf("LOADER| completed %s in %g ms; estimate was %g ms\n", utf8_from_wstring(lr.description).c_str(), task_elapsed_time*1e3, estimated_duration*1e3);
+			LOADER_LOG("Loader: completed %s in %g ms; estimate was %g ms\n",
+				utf8_from_wstring(lr.description).c_str(), task_elapsed_time*1e3,
+				estimated_duration*1e3);
 			task_elapsed_time = 0.0;
 			estimated_duration_tally += estimated_duration;
 			load_requests.pop_front();
@@ -284,7 +292,8 @@ done:
 	if(!load_requests.empty())
 		ret.nextDescription = load_requests.front().description;
 
-	debug_printf("LOADER| returning; desc=%s progress=%d\n", utf8_from_wstring(ret.nextDescription).c_str(), ret.progressPercent);
+	LOADER_LOG("Loader: returning; desc=%s progress=%d\n",
+		utf8_from_wstring(ret.nextDescription).c_str(), ret.progressPercent);
 
 	return ret;
 }
