@@ -41,6 +41,7 @@
 #include "renderer/TerrainOverlay.h"
 #include "renderer/backend/Sampler.h"
 #include "simulation2/MessageTypes.h"
+#include "simulation2/components/ICmpFootprint.h"
 #include "simulation2/components/ICmpObstructionManager.h"
 #include "simulation2/components/ICmpOwnership.h"
 #include "simulation2/components/ICmpPathfinder.h"
@@ -61,6 +62,7 @@
 #include <array>
 #include <cmath>
 #include <cstddef>
+#include <limits>
 #include <map>
 #include <numbers>
 #include <queue>
@@ -359,6 +361,20 @@ public:
 private:
 	bool m_Visible;
 	bool m_Enabled;
+
+	/**
+	* Mark the territory tiles covered by an entity's footprint with infinite weight.
+	* This ensures that buildings always own the territory directly beneath them.
+	* Tiles already claimed by another footprint are left untouched, so when called
+	* in ascending entity ID order, the oldest building keeps contested tiles.
+	*/
+	void MarkFootprintTiles(
+		entity_id_t ent,
+		player_id_t owner,
+		Grid<std::uint32_t>& bestWeightGrid,
+		const std::uint16_t tilesW,
+		const std::uint16_t tilesH,
+		std::vector<std::pair<std::uint16_t, std::uint16_t>>& tiles);
 };
 
 REGISTER_COMPONENT_TYPE(TerritoryManager)
@@ -473,6 +489,38 @@ void CCmpTerritoryManager::CalculateCostGrid()
 	}
 }
 
+void CCmpTerritoryManager::MarkFootprintTiles(
+	entity_id_t ent,
+	player_id_t owner,
+	Grid<std::uint32_t>& bestWeightGrid,
+	const std::uint16_t tilesW,
+	const std::uint16_t tilesH,
+	std::vector<std::pair<std::uint16_t, std::uint16_t>>& tiles)
+{
+	// Get the footprint component
+	CmpPtr<ICmpFootprint> cmpFootprint{GetSimContext(), ent};
+	if (!cmpFootprint)
+		return;
+
+	// Calculate tile size
+	const entity_pos_t tileSize{Pathfinding::NAVCELL_SIZE * NAVCELLS_PER_TERRITORY_TILE};
+
+	// Get the tiles covered by this footprint
+	cmpFootprint->GetGridTiles(tileSize, tilesW, tilesH, tiles);
+
+	const std::uint32_t infiniteWeight = std::numeric_limits<std::uint32_t>::max();
+
+	// Apply infinite weight to all footprint tiles not yet claimed by another footprint
+	for (const auto& tile : tiles)
+	{
+		if (bestWeightGrid.get(tile.first, tile.second) == infiniteWeight)
+			continue;
+
+		m_Territories->set(tile.first, tile.second, owner);
+		bestWeightGrid.set(tile.first, tile.second, infiniteWeight);
+	}
+}
+
 void CCmpTerritoryManager::CalculateTerritories()
 {
 	if (m_Territories)
@@ -498,10 +546,17 @@ void CCmpTerritoryManager::CalculateTerritories()
 	for (std::uint16_t& count : m_TerritoryCellCounts)
 		count = 0;
 
-	// Find all territory influence entities
+	// Find all territory influence entities (sorted by entity ID)
 	CComponentManager::InterfaceList influences = GetSimContext().GetComponentManager().GetEntitiesWithInterface(IID_TerritoryInfluence);
 
-	// Split influence entities into per-player lists, ignoring any with invalid properties
+	// Store the overall best weight for comparison
+	Grid<std::uint32_t> bestWeightGrid(tilesW, tilesH);
+
+	// Reusable buffer for footprint tiles - avoids per-entity allocations
+	std::vector<std::pair<std::uint16_t, std::uint16_t>> footprintTiles;
+
+	// Split influence entities into per-player lists, ignoring any with invalid properties,
+	// and mark their footprint tiles in entity ID order so the oldest building wins overlaps.
 	std::map<player_id_t, std::vector<entity_id_t> > influenceEntities;
 	for (const CComponentManager::InterfacePair& pair : influences)
 	{
@@ -516,11 +571,17 @@ void CCmpTerritoryManager::CalculateTerritories()
 		if (owner <= 0 || owner > TERRITORY_PLAYER_MASK)
 			continue;
 
+		// Ignore entities that project no territory, they shouldn't claim their footprint either
+		const ICmpTerritoryInfluence* const cmpTerritoryInfluence{static_cast<const ICmpTerritoryInfluence*>(pair.second)};
+		if (cmpTerritoryInfluence->GetWeight() == 0 || cmpTerritoryInfluence->GetRadius() == 0)
+			continue;
+
 		influenceEntities[owner].push_back(ent);
+
+		// Mark the entity's footprint tiles with infinite weight
+		MarkFootprintTiles(ent, owner, bestWeightGrid, tilesW, tilesH, footprintTiles);
 	}
 
-	// Store the overall best weight for comparison
-	Grid<std::uint32_t> bestWeightGrid(tilesW, tilesH);
 	// store the root influences to mark territory as connected
 	std::vector<entity_id_t> rootInfluenceEntities;
 
@@ -544,9 +605,8 @@ void CCmpTerritoryManager::CalculateTerritories()
 
 			CmpPtr<ICmpTerritoryInfluence> cmpTerritoryInfluence(GetSimContext(), ent);
 			const std::uint32_t originWeight = cmpTerritoryInfluence->GetWeight();
-			std::uint32_t radius = cmpTerritoryInfluence->GetRadius();
-			if (originWeight == 0 || radius == 0)
-				continue;
+			// Non-zero, entities with zero weight or radius were filtered out above
+			const std::uint32_t radius = cmpTerritoryInfluence->GetRadius();
 			const std::uint32_t relativeFalloff = originWeight *
 				(Pathfinding::NAVCELL_SIZE * NAVCELLS_PER_TERRITORY_TILE)
 				.ToInt_RoundToNegInfinity() / radius;

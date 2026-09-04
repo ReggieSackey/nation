@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Wildfire Games.
+/* Copyright (C) 2026 Wildfire Games.
  * This file is part of 0 A.D.
  *
  * 0 A.D. is free software: you can redistribute it and/or modify
@@ -73,6 +73,23 @@ public:
 	 * @return the X and Z coordinates of the spawn point, with Y = 0; or the special value (-1, -1, -1) if there's no space
 	 */
 	virtual CFixedVector3D PickSpawnPointBothPass(entity_id_t spawned) const = 0;
+
+	/**
+	 * Get the grid tiles covered by this footprint: every tile whose center lies inside
+	 * the footprint (boundary included), plus the tile containing the entity position,
+	 * which is always included.
+	 * @param tileSize The size of each tile in world units.
+	 * @param tilesW Width of the grid.
+	 * @param tilesH Height of the grid.
+	 * @param[out] tiles Vector to fill with (i, j) tile coordinates covered by the footprint.
+	 *                   The vector is cleared before being filled. Reusing a caller-provided
+	 *                   vector avoids per-entity allocations when processing many entities.
+	 */
+	virtual void GetGridTiles(
+		const entity_pos_t& tileSize,
+		const std::uint16_t tilesW,
+		const std::uint16_t tilesH,
+		std::vector<std::pair<std::uint16_t, std::uint16_t>>& tiles) const = 0;
 
 	DECLARE_INTERFACE_TYPE(Footprint)
 };

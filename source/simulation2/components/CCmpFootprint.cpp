@@ -417,6 +417,71 @@ public:
 
 		return error;
 	}
+
+	void GetGridTiles(
+		const entity_pos_t& tileSize,
+		const std::uint16_t tilesW,
+		const std::uint16_t tilesH,
+		std::vector<std::pair<std::uint16_t, std::uint16_t>>& tiles) const override
+	{
+		tiles.clear();
+
+		CmpPtr<ICmpPosition> cmpPosition(GetEntityHandle());
+		if (!cmpPosition || !cmpPosition->IsInWorld())
+			return;
+
+		const CFixedVector2D pos{cmpPosition->GetPosition2D()};
+
+		const int centerI{Clamp((pos.X / tileSize).ToInt_RoundToNegInfinity(), 0, tilesW - 1)};
+		const int centerJ{Clamp((pos.Y / tileSize).ToInt_RoundToNegInfinity(), 0, tilesH - 1)};
+
+		// The tile containing the entity position is always included.
+		tiles.emplace_back(static_cast<std::uint16_t>(centerI), static_cast<std::uint16_t>(centerJ));
+
+		// Include every tile within halfBound of pos whose center lies inside the footprint.
+		const auto addTilesWithCenterInside = [&](const CFixedVector2D& halfBound, const auto& containsPoint)
+		{
+			const int minI{std::max(0, ((pos.X - halfBound.X) / tileSize).ToInt_RoundToNegInfinity())};
+			const int maxI{std::min(tilesW - 1, ((pos.X + halfBound.X) / tileSize).ToInt_RoundToNegInfinity())};
+			const int minJ{std::max(0, ((pos.Y - halfBound.Y) / tileSize).ToInt_RoundToNegInfinity())};
+			const int maxJ{std::min(tilesH - 1, ((pos.Y + halfBound.Y) / tileSize).ToInt_RoundToNegInfinity())};
+
+			const entity_pos_t halfTile{tileSize / 2};
+
+			for (int i = minI; i <= maxI; ++i)
+				for (int j = minJ; j <= maxJ; ++j)
+				{
+					if (i == centerI && j == centerJ)
+						continue;
+
+					const CFixedVector2D tileCenter{
+						entity_pos_t::FromInt(i).Multiply(tileSize) + halfTile,
+						entity_pos_t::FromInt(j).Multiply(tileSize) + halfTile};
+
+					if (containsPoint(tileCenter - pos))
+						tiles.emplace_back(static_cast<std::uint16_t>(i), static_cast<std::uint16_t>(j));
+				}
+		};
+
+		if (m_Shape == CIRCLE)
+		{
+			const entity_pos_t radius{m_Size0};
+			addTilesWithCenterInside(CFixedVector2D{radius, radius}, [radius](const CFixedVector2D& point) {
+				return point.CompareLength(radius) <= 0;
+			});
+			return;
+		}
+
+		fixed sinAngle, cosAngle;
+		sincos_approx(cmpPosition->GetRotation().Y, sinAngle, cosAngle);
+		const CFixedVector2D u{cosAngle, -sinAngle};
+		const CFixedVector2D v{sinAngle, cosAngle};
+		const CFixedVector2D halfSize{m_Size0 / 2, m_Size1 / 2};
+
+		addTilesWithCenterInside(Geometry::GetHalfBoundingBox(u, v, halfSize), [&](const CFixedVector2D& point) {
+			return Geometry::PointIsInSquare(point, u, v, halfSize);
+		});
+	}
 };
 
 REGISTER_COMPONENT_TYPE(Footprint)
