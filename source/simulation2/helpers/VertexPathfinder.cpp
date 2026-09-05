@@ -837,6 +837,17 @@ WaypointPath VertexPathfinder::ComputeShortPath(const ShortPathRequest& request,
 					continue;
 			}
 
+			// Skip visibility checks for paths that cannot improve the known cost.
+			if (m_Vertexes[n].status == Vertex::OPEN)
+			{
+				if (m_Vertexes[curr.id].g >= m_Vertexes[n].g)
+					continue;
+
+				const fixed remaining{m_Vertexes[n].g - m_Vertexes[curr.id].g};
+				if ((m_Vertexes[curr.id].p - npos).CompareLength(remaining) >= 0)
+					continue;
+			}
+
 			bool visible =
 				CheckVisibilityLeft(m_Vertexes[curr.id].p, npos, m_EdgesLeft) &&
 				CheckVisibilityRight(m_Vertexes[curr.id].p, npos, m_EdgesRight) &&
@@ -873,14 +884,9 @@ WaypointPath VertexPathfinder::ComputeShortPath(const ShortPathRequest& request,
 						hBest = m_Vertexes[n].h;
 					}
 				}
-				else // must be OPEN
+				else // must be OPEN with a better g cost as we check that above
 				{
-					// If we've already seen this tile, and the new path to this tile does not have a
-					// better cost, then stop now
-					if (g >= m_Vertexes[n].g)
-						continue;
-
-					// Otherwise, we have a better path, so replace the old one with the new cost/parent
+					// We have a better path, so replace the old one with the new cost/parent
 					fixed gprev = m_Vertexes[n].g;
 					m_Vertexes[n].g = g;
 					m_Vertexes[n].pred = curr.id;
