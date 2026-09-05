@@ -218,8 +218,7 @@ void CComponentManager::Script_RegisterComponentType_Common(int iid, const std::
 		if (ctPrevious.type != CT_Script)
 		{
 			throw std::logic_error{fmt::format(
-				"Loading script component type with same name '%s' as native component",
-				cname.c_str())};
+				"Loading script component type with same name '{}' as native component", cname)};
 		}
 
 		// We don't support changing the IID of a component type (it would require fiddling
