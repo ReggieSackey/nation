@@ -381,7 +381,7 @@ void ActorViewer::SetActor(const CStrW& name, const CStr& animation, player_id_t
 		if (id.empty())
 			return;
 
-		m.Entity = m.Simulation2.AddEntity(L"preview|" + id);
+		m.Entity = m.Simulation2.AddEntity(L"actorviewer|" + id);
 		if (m.Entity == INVALID_ENTITY)
 			return;
 
