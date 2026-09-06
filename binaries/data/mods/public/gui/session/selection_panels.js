@@ -582,7 +582,7 @@ g_SelectionPanels.Queue = {
 		if (queuedItem.neededSlots)
 		{
 			tooltips.push(objectionFont(translate("Insufficient population capacity:")));
-			tooltips.push(sprintf(translate("%(population)s %(neededSlots)s"), {
+			tooltips.push(sprintf(translate("%(population)s\xa0%(neededSlots)s"), {
 				"population": resourceIcon("population"),
 				"neededSlots": queuedItem.neededSlots
 			}));

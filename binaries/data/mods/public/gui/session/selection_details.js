@@ -490,7 +490,7 @@ function displayMultiple(entStates)
 			"label": headerFont(translate("Carrying:")),
 			"details": bodyFont(Object.keys(totalCarrying).filter(
 				res => totalCarrying[res] != 0).map(
-				res => sprintf(translate("%(type)s %(amount)s"),
+				res => sprintf(translate("%(type)s\xa0%(amount)s"),
 					{ "type": resourceIcon(res), "amount": totalCarrying[res] })).join("  "))
 		});
 
@@ -499,7 +499,7 @@ function displayMultiple(entStates)
 			"label": headerFont(translate("Loot:")),
 			"details": bodyFont(Object.keys(totalLoot).filter(
 				res => totalLoot[res] != 0).map(
-				res => sprintf(translate("%(type)s %(amount)s"),
+				res => sprintf(translate("%(type)s\xa0%(amount)s"),
 					{ "type": resourceIcon(res), "amount": totalLoot[res] })).join("  "))
 		});
 

@@ -754,7 +754,7 @@ function getEntityCostComponentsTooltipString(template, entity, buildingsCountTo
 	const costs = [];
 	for (const type of getCostTypes())
 		if (totalCosts[type])
-			costs.push(sprintf(translate("%(component)s %(cost)s"), {
+			costs.push(sprintf(translate("%(component)s\xa0%(cost)s"), {
 				"component": resourceIcon(type),
 				"cost": totalCosts[type]
 			}));
@@ -790,7 +790,7 @@ function getGatherTooltip(template)
 		"label": headerFont(translate("Gather Rates:")),
 		"details":
 			Object.keys(rates).map(
-				type => sprintf(translate("%(resourceIcon)s %(rate)s"), {
+				type => sprintf(translate("%(resourceIcon)s\xa0%(rate)s"), {
 					"resourceIcon": resourceIcon(type),
 					"rate": rates[type].toFixed(2)
 				})
@@ -808,7 +808,7 @@ function getResourceSupplyTooltip(template)
 
 	const supply = template.supply;
 	// Translation: Label in tooltip showing the resource type and quantity of a given resource supply.
-	return sprintf(translate("%(label)s %(component)s %(amount)s"), {
+	return sprintf(translate("%(label)s %(component)s\xa0%(amount)s"), {
 		"label": headerFont(translate("Resource Supply:")),
 		"component": resourceIcon(supply.type[0]),
 		// Translation: Marks that a resource supply entity has an unending, infinite, supply of its resource.
@@ -841,7 +841,7 @@ function getTreasureTooltip(template)
 		"label": headerFont(translate("Reward:")),
 		"details":
 			resourceNames.map(
-				type => sprintf(translate("%(resourceIcon)s %(reward)s"), {
+				type => sprintf(translate("%(resourceIcon)s\xa0%(reward)s"), {
 					"resourceIcon": resourceIcon(type),
 					"reward": resources[type]
 				})
@@ -863,7 +863,7 @@ function getResourceTrickleTooltip(template)
 		"details": sprintf(translate("%(resources)s / %(time)s"), {
 			"resources":
 				resCodes.map(
-					res => sprintf(translate("%(resourceIcon)s %(rate)s"), {
+					res => sprintf(translate("%(resourceIcon)s\xa0%(rate)s"), {
 						"resourceIcon": resourceIcon(res),
 						"rate": template.resourceTrickle.rates[res]
 					})
@@ -887,7 +887,7 @@ function getUpkeepTooltip(template)
 		"details": sprintf(translate("%(resources)s / %(time)s"), {
 			"resources":
 				resCodes.map(
-					res => sprintf(translate("%(resourceIcon)s %(rate)s"), {
+					res => sprintf(translate("%(resourceIcon)s\xa0%(rate)s"), {
 						"resourceIcon": resourceIcon(res),
 						"rate": template.upkeep.rates[res]
 					})
@@ -936,7 +936,7 @@ function getWallPieceTooltip(wallTypes)
 		for (const resource in resourceCount)
 			// Translation: This string is part of the resources cost string on
 			// the tooltip for wall structures.
-			out.push(sprintf(translate("%(resourceIcon)s %(minimum)s to %(resourceIcon)s %(maximum)s"), {
+			out.push(sprintf(translate("%(resourceIcon)s\xa0%(minimum)s to %(resourceIcon)s\xa0%(maximum)s"), {
 				"resourceIcon": resourceIcon(resource),
 				"minimum": Math.min.apply(Math, resourceCount[resource]),
 				"maximum": Math.max.apply(Math, resourceCount[resource])
@@ -1027,7 +1027,7 @@ function getNeededResourcesTooltip(resources)
 
 	const formatted = [];
 	for (const resource in resources)
-		formatted.push(sprintf(translate("%(component)s %(cost)s"), {
+		formatted.push(sprintf(translate("%(component)s\xa0%(cost)s"), {
 			"component": '[font="sans-12"]' + resourceIcon(resource) + '[/font]',
 			"cost": Math.ceil(resources[resource])
 		}));
@@ -1214,7 +1214,7 @@ function getLootTooltip(template)
 			continue;
 
 		// Translation: %(component) will be the icon for the loot type and %(loot) will be the value.
-		lootLabels.push(sprintf(translate("%(component)s %(loot)s"), {
+		lootLabels.push(sprintf(translate("%(component)s\xa0%(loot)s"), {
 			"component": resourceIcon(type),
 			"loot": loot
 		}));
