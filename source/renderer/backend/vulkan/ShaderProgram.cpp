@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Wildfire Games.
+/* Copyright (C) 2026 Wildfire Games.
  * This file is part of 0 A.D.
  *
  * 0 A.D. is free software: you can redistribute it and/or modify
@@ -124,16 +124,16 @@ VfsPath FindProgramMatchingDefines(const VfsPath& xmlFilename, const CShaderDefi
 	const CStrIntern strUndefined("UNDEFINED");
 	VfsPath programFilename;
 	XMBElement root = xeroFile.GetRoot();
-	XERO_ITER_EL(root, rootChild)
+	for (XMBElement rootChild : root.GetChildNodes())
 	{
 		if (rootChild.GetNodeName() == el_program)
 		{
 			CShaderDefines programDefines;
-			XERO_ITER_EL(rootChild, programChild)
+			for (XMBElement programChild : rootChild.GetChildNodes())
 			{
 				if (programChild.GetNodeName() == el_defines)
 				{
-					XERO_ITER_EL(programChild, definesChild)
+					for (XMBElement definesChild : programChild.GetChildNodes())
 					{
 						XMBAttributeList attributes = definesChild.GetAttributes();
 						if (definesChild.GetNodeName() == el_define)
@@ -269,7 +269,7 @@ std::unique_ptr<CShaderProgram> CShaderProgram::Create(
 		const bool useDescriptorIndexing =
 			device->GetDescriptorManager().UseDescriptorIndexing();
 		// TODO: reduce the indentation.
-		XERO_ITER_EL(element, descriporSetsChild)
+		for (XMBElement descriporSetsChild : element.GetChildNodes())
 		{
 			if (descriporSetsChild.GetNodeName() == el_descriptor_set)
 			{
@@ -279,7 +279,7 @@ std::unique_ptr<CShaderProgram> CShaderProgram::Create(
 					LOGERROR("Descriptor set for descriptor indexing shouldn't contain bindings.");
 					return false;
 				}
-				XERO_ITER_EL(descriporSetsChild, descriporSetChild)
+				for (XMBElement descriporSetChild : descriporSetsChild.GetChildNodes())
 				{
 					if (descriporSetChild.GetNodeName() == el_binding)
 					{
@@ -297,7 +297,7 @@ std::unique_ptr<CShaderProgram> CShaderProgram::Create(
 								return false;
 							}
 							shaderProgram->m_MaterialConstantsDataSize = size;
-							XERO_ITER_EL(descriporSetChild, bindingChild)
+							for (XMBElement bindingChild : descriporSetChild.GetChildNodes())
 							{
 								if (bindingChild.GetNodeName() == el_member)
 								{
@@ -384,7 +384,7 @@ std::unique_ptr<CShaderProgram> CShaderProgram::Create(
 		return true;
 	};
 
-	XERO_ITER_EL(programRoot, programChild)
+	for (XMBElement programChild : programRoot.GetChildNodes())
 	{
 		if (programChild.GetNodeName() == el_vertex)
 		{
@@ -408,7 +408,7 @@ std::unique_ptr<CShaderProgram> CShaderProgram::Create(
 			vertexShaderStageInfo.module = shaderProgram->m_ShaderModules.back();
 			vertexShaderStageInfo.pName = "main";
 			shaderProgram->m_Stages.emplace_back(std::move(vertexShaderStageInfo));
-			XERO_ITER_EL(programChild, stageChild)
+			for (XMBElement stageChild : programChild.GetChildNodes())
 			{
 				if (stageChild.GetNodeName() == el_stream)
 				{
@@ -476,7 +476,7 @@ std::unique_ptr<CShaderProgram> CShaderProgram::Create(
 			fragmentShaderStageInfo.module = shaderProgram->m_ShaderModules.back();
 			fragmentShaderStageInfo.pName = "main";
 			shaderProgram->m_Stages.emplace_back(std::move(fragmentShaderStageInfo));
-			XERO_ITER_EL(programChild, stageChild)
+			for (XMBElement stageChild : programChild.GetChildNodes())
 			{
 				if (stageChild.GetNodeName() == el_push_constant)
 				{
@@ -512,7 +512,7 @@ std::unique_ptr<CShaderProgram> CShaderProgram::Create(
 			computeShaderStageInfo.module = shaderProgram->m_ShaderModules.back();
 			computeShaderStageInfo.pName = "main";
 			shaderProgram->m_Stages.emplace_back(std::move(computeShaderStageInfo));
-			XERO_ITER_EL(programChild, stageChild)
+			for (XMBElement stageChild : programChild.GetChildNodes())
 			{
 				if (stageChild.GetNodeName() == el_push_constant)
 				{

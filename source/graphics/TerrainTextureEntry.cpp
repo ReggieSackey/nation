@@ -83,13 +83,13 @@ CTerrainTextureEntry::CTerrainTextureEntry(CTerrainPropertiesPtr properties, con
 	VfsPath alphamap("standard");
 	m_Tag = utf8_from_wstring(path.Basename().string());
 
-	XERO_ITER_EL(root, child)
+	for (XMBElement child : root.GetChildNodes())
 	{
 		int child_name = child.GetNodeName();
 
 		if (child_name == el_textures)
 		{
-			XERO_ITER_EL(child, textures_element)
+			for (XMBElement textures_element : child.GetChildNodes())
 			{
 				ENSURE(textures_element.GetNodeName() == el_texture);
 

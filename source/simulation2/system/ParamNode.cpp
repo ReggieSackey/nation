@@ -229,7 +229,7 @@ void CParamNode::ApplyLayer(const XMBData& xmb, const XMBElement& element, const
 	ChildrenMap childs;
 
 	// Recurse through the element's children
-	XERO_ITER_EL(element, child)
+	for (XMBElement child : element.GetChildNodes())
 	{
 		node.ApplyLayer(xmb, child, sourceIdentifier);
 		if (filtering)

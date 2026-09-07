@@ -91,7 +91,4 @@ private:
 #define _XERO_CHILDREN _XERO_MAKE_UID1__(_children_, __LINE__)
 #define _XERO_I _XERO_MAKE_UID1__(_i_, __LINE__)
 
-#define XERO_ITER_EL(parent_element, child_element)					\
-	for (XMBElement child_element : parent_element.GetChildNodes())
-
 #endif // INCLUDED_XEROMYCES

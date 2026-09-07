@@ -979,7 +979,7 @@ void CGUI::Xeromyces_ReadRepeat(const XMBData& xmb, XMBElement element, IGUIObje
 	{
 		NameSubst.emplace_back(var, fmt::format("[{}]", n));
 
-		XERO_ITER_EL(element, child)
+		for (XMBElement child : element.GetChildNodes())
 		{
 			if (child.GetNodeName() == elmt_object)
 				Xeromyces_ReadObject(xmb, child, parent, NameSubst, Paths, nesting_depth);

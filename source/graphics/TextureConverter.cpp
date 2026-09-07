@@ -164,7 +164,7 @@ CTextureConverter::SettingsFile* CTextureConverter::LoadSettings(const VfsPath& 
 
 	std::unique_ptr<SettingsFile> settings = std::make_unique<SettingsFile>();
 
-	XERO_ITER_EL(root, child)
+	for (XMBElement child : root.GetChildNodes())
 	{
 		if (child.GetNodeName() == el_file)
 		{

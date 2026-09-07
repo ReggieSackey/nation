@@ -101,7 +101,7 @@ bool CObjectBase::Load(const CXeromyces& XeroFile, const XMBElement& root)
 	// Set up the group vector to avoid reallocation and copying later.
 	{
 		int groups = 0;
-		XERO_ITER_EL(root, child)
+		for (XMBElement child : root.GetChildNodes())
 		{
 			if (child.GetNodeName() == el_group)
 				++groups;
@@ -123,7 +123,7 @@ bool CObjectBase::Load(const CXeromyces& XeroFile, const XMBElement& root)
 		return false;
 	};
 
-	XERO_ITER_EL(root, child)
+	for (XMBElement child : root.GetChildNodes())
 	{
 		int child_name = child.GetNodeName();
 
@@ -134,7 +134,7 @@ bool CObjectBase::Load(const CXeromyces& XeroFile, const XMBElement& root)
 		{
 			std::vector<Variant>& currentGroup = m_VariantGroups.emplace_back();
 			currentGroup.reserve(child.GetChildNodes().size());
-			XERO_ITER_EL(child, variant)
+			for (XMBElement variant : child.GetChildNodes())
 			{
 				if (shouldSkip(variant))
 					continue;
@@ -239,7 +239,7 @@ bool CObjectBase::LoadVariant(const CXeromyces& XeroFile, const XMBElement& vari
 			currentVariant.m_Frequency = attr.Value.ToInt();
 	}
 
-	XERO_ITER_EL(variant, option)
+	for (XMBElement option : variant.GetChildNodes())
 	{
 		int option_name = option.GetNodeName();
 
@@ -249,7 +249,7 @@ bool CObjectBase::LoadVariant(const CXeromyces& XeroFile, const XMBElement& vari
 		}
 		else if (option_name == el_textures)
 		{
-			XERO_ITER_EL(option, textures_element)
+			for (XMBElement textures_element : option.GetChildNodes())
 			{
 				if (textures_element.GetNodeName() != el_texture)
 				{
@@ -295,7 +295,7 @@ bool CObjectBase::LoadVariant(const CXeromyces& XeroFile, const XMBElement& vari
 		}
 		else if (option_name == el_animations)
 		{
-			XERO_ITER_EL(option, anim_element)
+			for (XMBElement anim_element : option.GetChildNodes())
 			{
 				if (anim_element.GetNodeName() != el_animation)
 				{
@@ -328,7 +328,7 @@ bool CObjectBase::LoadVariant(const CXeromyces& XeroFile, const XMBElement& vari
 		}
 		else if (option_name == el_props)
 		{
-			XERO_ITER_EL(option, prop_element)
+			for (XMBElement prop_element : option.GetChildNodes())
 			{
 				ENSURE(prop_element.GetNodeName() == el_prop);
 
@@ -878,12 +878,12 @@ bool CActorDef::Load(const VfsPath& pathname)
 		}
 		u8 quality = 0;
 		XMBElement inlineActor;
-		XERO_ITER_EL(root, child)
+		for (XMBElement child : root.GetChildNodes())
 		{
 			if (child.GetNodeName() == el_inline)
 				inlineActor = child;
 		}
-		XERO_ITER_EL(root, actor)
+		for (XMBElement actor : root.GetChildNodes())
 		{
 			if (actor.GetNodeName() != el_actor)
 				continue;

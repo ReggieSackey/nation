@@ -211,7 +211,7 @@ void CGUIManager::SGUIPage::LoadPage(Script::Context& scriptContext)
 	}
 
 	VfsPath rootModule;
-	XERO_ITER_EL(root, node)
+	for (XMBElement node : root.GetChildNodes())
 	{
 		if (node.GetNodeName() != elmt_include)
 		{

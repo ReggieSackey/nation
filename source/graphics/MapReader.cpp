@@ -440,7 +440,7 @@ PSRETURN CMapSummaryReader::LoadMap(const VfsPath& pathname)
 	XMBElement root = xmb_file.GetRoot();
 	ENSURE(root.GetNodeName() == el_scenario);
 
-	XERO_ITER_EL(root, child)
+	for (XMBElement child : root.GetChildNodes())
 	{
 		int child_name = child.GetNodeName();
 		if (child_name == el_scriptsettings)
@@ -565,7 +565,7 @@ void CXMLReader::Init(const VfsPath& xml_filename)
 	max_uid = SYSTEM_ENTITY;
 
 	XMBElement ents = nodes.GetFirstNamedItem(xmb_file.GetElementID("Entities"));
-	XERO_ITER_EL(ents, ent)
+	for (XMBElement ent : ents.GetChildNodes())
 	{
 		CStr uid = ent.GetAttributes().GetNamedItem(at_uid);
 		max_uid = std::max(max_uid, (entity_id_t)uid.ToUInt());
@@ -677,7 +677,7 @@ void CXMLReader::ReadEnvironment(XMBElement parent)
 #undef AT
 #undef EL
 
-	XERO_ITER_EL(parent, element)
+	for (XMBElement element : parent.GetChildNodes())
 	{
 		int element_name = element.GetNodeName();
 
@@ -712,7 +712,7 @@ void CXMLReader::ReadEnvironment(XMBElement parent)
 		}
 		else if (element_name == el_fog)
 		{
-			XERO_ITER_EL(element, fog)
+			for (XMBElement fog : element.GetChildNodes())
 			{
 				int fog_element_name = fog.GetNodeName();
 				if (fog_element_name == el_fogcolor)
@@ -735,7 +735,7 @@ void CXMLReader::ReadEnvironment(XMBElement parent)
 		}
 		else if (element_name == el_postproc)
 		{
-			XERO_ITER_EL(element, postproc)
+			for (XMBElement postproc : element.GetChildNodes())
 			{
 				int post_element_name = postproc.GetNodeName();
 				if (post_element_name == el_brightness)
@@ -763,10 +763,10 @@ void CXMLReader::ReadEnvironment(XMBElement parent)
 		}
 		else if (element_name == el_water)
 		{
-			XERO_ITER_EL(element, waterbody)
+			for (XMBElement waterbody : element.GetChildNodes())
 			{
 				ENSURE(waterbody.GetNodeName() == el_waterbody);
-				XERO_ITER_EL(waterbody, waterelement)
+				for (XMBElement waterelement : waterbody.GetChildNodes())
 				{
 					int water_element_name = waterelement.GetNodeName();
 					if (water_element_name == el_height)
@@ -844,7 +844,7 @@ void CXMLReader::ReadCamera(XMBElement parent)
 	float declination = DEGTORAD(30.f), rotation = DEGTORAD(-45.f);
 	CVector3D translation = CVector3D(100, 150, -100);
 
-	XERO_ITER_EL(parent, element)
+	for (XMBElement element : parent.GetChildNodes())
 	{
 		int element_name = element.GetNodeName();
 
@@ -903,7 +903,7 @@ void CXMLReader::ReadPaths(XMBElement parent)
 #undef AT
 
 	CmpPtr<ICmpCinemaManager> cmpCinemaManager(*m_MapReader.pSimContext, SYSTEM_ENTITY);
-	XERO_ITER_EL(parent, element)
+	for (XMBElement element : parent.GetChildNodes())
 	{
 		int elementName = element.GetNodeName();
 
@@ -922,7 +922,7 @@ void CXMLReader::ReadPaths(XMBElement parent)
 			fixed lastPositionTime = fixed::Zero();
 			fixed lastTargetTime = fixed::Zero();
 
-			XERO_ITER_EL(element, pathChild)
+			for (XMBElement pathChild : element.GetChildNodes())
 			{
 				elementName = pathChild.GetNodeName();
 				attrs = pathChild.GetAttributes();
@@ -932,7 +932,7 @@ void CXMLReader::ReadPaths(XMBElement parent)
 				{
 					lastPositionTime += fixed::FromString(attrs.GetNamedItem(at_deltatime));
 					lastTargetTime += fixed::FromString(attrs.GetNamedItem(at_deltatime));
-					XERO_ITER_EL(pathChild, nodeChild)
+					for (XMBElement nodeChild : pathChild.GetChildNodes())
 					{
 						elementName = nodeChild.GetNodeName();
 						attrs = nodeChild.GetAttributes();
@@ -1012,7 +1012,7 @@ void CXMLReader::ReadEntities(XMBElement entity, CSimulation2& sim)
 	entity_id_t ControlGroup = INVALID_ENTITY;
 	entity_id_t ControlGroup2 = INVALID_ENTITY;
 
-	XERO_ITER_EL(entity, setting)
+	for (XMBElement setting : entity.GetChildNodes())
 	{
 		int element_name = setting.GetNodeName();
 

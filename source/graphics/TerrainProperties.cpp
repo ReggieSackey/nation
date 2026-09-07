@@ -76,7 +76,7 @@ CTerrainPropertiesPtr CTerrainProperties::FromXML(const CTerrainPropertiesPtr& p
 	// returning it.
 	// Really, we only expect there to be one child and it to be of the right
 	// type, though.
-	XERO_ITER_EL(root, child)
+	for (XMBElement child : root.GetChildNodes())
 	{
 		if (child.GetNodeName() == el_terrain)
 		{

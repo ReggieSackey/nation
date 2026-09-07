@@ -929,7 +929,7 @@ std::unique_ptr<CShaderProgram> CShaderProgram::Create(CDevice* device, const CS
 
 	VfsPath computeFile;
 
-	XERO_ITER_EL(root, child)
+	for (XMBElement child : root.GetChildNodes())
 	{
 		if (child.GetNodeName() == el_define)
 		{
@@ -939,7 +939,7 @@ std::unique_ptr<CShaderProgram> CShaderProgram::Create(CDevice* device, const CS
 		{
 			vertexFile = L"shaders/" + child.GetAttributes().GetNamedItem(at_file).FromUTF8();
 
-			XERO_ITER_EL(child, param)
+			for (XMBElement param : child.GetChildNodes())
 			{
 				XMBAttributeList attributes = param.GetAttributes();
 
@@ -996,7 +996,7 @@ std::unique_ptr<CShaderProgram> CShaderProgram::Create(CDevice* device, const CS
 		{
 			fragmentFile = L"shaders/" + child.GetAttributes().GetNamedItem(at_file).FromUTF8();
 
-			XERO_ITER_EL(child, param)
+			for (XMBElement param : child.GetChildNodes())
 			{
 				XMBAttributeList attributes = param.GetAttributes();
 

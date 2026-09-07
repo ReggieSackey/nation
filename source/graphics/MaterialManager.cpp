@@ -113,7 +113,7 @@ CMaterial CMaterialManager::LoadMaterial(const VfsPath& pathname)
 	material.AddStaticUniform("qualityLevel", CVector4D(qualityLevel, 0, 0, 0));
 
 	XMBElement root = xeroFile.GetRoot();
-	XERO_ITER_EL(root, node)
+	for (XMBElement node : root.GetChildNodes())
 	{
 		int token = node.GetNodeName();
 		XMBAttributeList attrs = node.GetAttributes();

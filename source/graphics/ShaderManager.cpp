@@ -223,11 +223,11 @@ bool CShaderManager::LoadTechnique(CShaderTechniquePtr& tech)
 	// Find a first suitable technique that we can use.
 	std::optional<XMBElement> usableTech;
 	std::optional<std::string_view> usableShader;
-	XERO_ITER_EL(root, technique)
+	for (XMBElement technique : root.GetChildNodes())
 	{
 		bool isUsable{true};
 		usableShader.reset();
-		XERO_ITER_EL(technique, child)
+		for (XMBElement child : technique.GetChildNodes())
 		{
 			XMBAttributeList attrs = child.GetAttributes();
 
@@ -276,7 +276,7 @@ bool CShaderManager::LoadTechnique(CShaderTechniquePtr& tech)
 	};
 
 	CShaderDefines techDefines = tech->GetShaderDefines();
-	XERO_ITER_EL((*usableTech), Child)
+	for (XMBElement Child : usableTech->GetChildNodes())
 	{
 		if (Child.GetNodeName() == el_define)
 		{
@@ -292,7 +292,7 @@ bool CShaderManager::LoadTechnique(CShaderTechniquePtr& tech)
 	// TODO: we might want to implement that in a proper way via splitting passes
 	// and tags in different groups in XML.
 	std::vector<CShaderPass> techPasses;
-	XERO_ITER_EL((*usableTech), Child)
+	for (XMBElement Child : usableTech->GetChildNodes())
 	{
 		if (Child.GetNodeName() == el_pass)
 		{
@@ -301,7 +301,7 @@ bool CShaderManager::LoadTechnique(CShaderTechniquePtr& tech)
 			Renderer::Backend::SGraphicsPipelineStateDesc passPipelineStateDesc =
 				Renderer::Backend::MakeDefaultGraphicsPipelineStateDesc();
 
-			XERO_ITER_EL(Child, Element)
+			for (XMBElement Element : Child.GetChildNodes())
 			{
 				if (Element.GetNodeName() == el_define)
 				{

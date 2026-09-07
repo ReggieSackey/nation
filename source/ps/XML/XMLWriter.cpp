@@ -135,7 +135,7 @@ void XMLWriter_File::ElementXMB(const XMBData& xmb, XMBElement el)
 	for (XMBAttribute attr : el.GetAttributes())
 		writer.Attribute(xmb.GetAttributeString(attr.Name), attr.Value);
 
-	XERO_ITER_EL(el, child)
+	for (XMBElement child : el.GetChildNodes())
 		ElementXMB(xmb, child);
 }
 

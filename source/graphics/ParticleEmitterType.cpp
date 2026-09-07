@@ -435,7 +435,7 @@ bool CParticleEmitterType::LoadXML(const VfsPath& path)
 
 	XMBElement Root = XeroFile.GetRoot();
 
-	XERO_ITER_EL(Root, Child)
+	for (XMBElement Child : Root.GetChildNodes())
 	{
 		if (Child.GetNodeName() == el_texture)
 		{
@@ -531,7 +531,7 @@ bool CParticleEmitterType::LoadXML(const VfsPath& path)
 		}
 		else if (Child.GetNodeName() == el_particle)
 		{
-			XERO_ITER_EL(Child, particleChild)
+			for (XMBElement particleChild : Child.GetChildNodes())
 			{
 				if (particleChild.GetNodeName() == el_fixed_orientation)
 				{

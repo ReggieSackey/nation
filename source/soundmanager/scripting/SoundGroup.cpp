@@ -350,7 +350,7 @@ bool CSoundGroup::LoadSoundGroup(const VfsPath& pathnameXML)
 		return false;
 	}
 
-	XERO_ITER_EL(root, child)
+	for (XMBElement child : root.GetChildNodes())
 	{
 		int child_name = child.GetNodeName();
 
