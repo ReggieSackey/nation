@@ -108,7 +108,7 @@ void CTerrainProperties::LoadXml(XMBElement node, CXeromyces *pFile, const VfsPa
 	#undef ELMT
 	#undef ATTR
 
-	XERO_ITER_ATTR(node, attr)
+	for (XMBAttribute attr : node.GetAttributes())
 	{
 		if (attr.Name == attr_groups)
 		{

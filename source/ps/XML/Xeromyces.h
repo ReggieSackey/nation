@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Wildfire Games.
+/* Copyright (C) 2026 Wildfire Games.
  * This file is part of 0 A.D.
  *
  * 0 A.D. is free software: you can redistribute it and/or modify
@@ -93,8 +93,5 @@ private:
 
 #define XERO_ITER_EL(parent_element, child_element)					\
 	for (XMBElement child_element : parent_element.GetChildNodes())
-
-#define XERO_ITER_ATTR(parent_element, attribute)						\
-	for (XMBAttribute attribute : parent_element.GetAttributes())
 
 #endif // INCLUDED_XEROMYCES

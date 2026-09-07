@@ -109,91 +109,87 @@ void CParamNode::ApplyLayer(const XMBData& xmb, const XMBElement& element, const
 	bool replacing = false;
 	bool filtering = false;
 	bool merging = false;
+	for (XMBAttribute attr : element.GetAttributes())
 	{
-		XERO_ITER_ATTR(element, attr)
+		if (attr.Name == at_disable)
 		{
-			if (attr.Name == at_disable)
-			{
-				m_Childs.erase(name);
+			m_Childs.erase(name);
+			return;
+		}
+		else if (attr.Name == at_replace)
+		{
+			m_Childs.erase(name);
+			replacing = true;
+		}
+		else if (attr.Name == at_filtered)
+		{
+			filtering = true;
+		}
+		else if (attr.Name == at_merge)
+		{
+			if (m_Childs.find(name) == m_Childs.end())
 				return;
-			}
-			else if (attr.Name == at_replace)
-			{
-				m_Childs.erase(name);
-				replacing = true;
-			}
-			else if (attr.Name == at_filtered)
-			{
-				filtering = true;
-			}
-			else if (attr.Name == at_merge)
-			{
-				if (m_Childs.find(name) == m_Childs.end())
-					return;
-				merging = true;
-			}
-			else if (attr.Name == at_op)
-			{
-				if (attr.Value == "add")
-					op = ADD;
-				else if (attr.Value == "mul")
-					op = MUL;
-				else if (attr.Value == "mul_round")
-					op = MUL_ROUND;
-				else
-					LOGWARNING("Invalid op '%ls'", attr.Value);
-			}
+			merging = true;
+		}
+		else if (attr.Name == at_op)
+		{
+			if (attr.Value == "add")
+				op = ADD;
+			else if (attr.Value == "mul")
+				op = MUL;
+			else if (attr.Value == "mul_round")
+				op = MUL_ROUND;
+			else
+				LOGWARNING("Invalid op '%ls'", attr.Value);
 		}
 	}
+	for (XMBAttribute attr : element.GetAttributes())
 	{
-		XERO_ITER_ATTR(element, attr)
+		if (attr.Name == at_datatype && attr.Value == "tokens")
 		{
-			if (attr.Name == at_datatype && attr.Value == "tokens")
+			CParamNode& node = m_Childs[name];
+
+			// Split into tokens
+			std::vector<std::string> oldTokens;
+			std::vector<std::string> newTokens;
+			if (!replacing && !node.m_Value.empty()) // ignore the old tokens if replace="" was given
+				boost::algorithm::split(oldTokens, node.m_Value, boost::algorithm::is_space(), boost::algorithm::token_compress_on);
+			if (!value.empty())
+				boost::algorithm::split(newTokens, value, boost::algorithm::is_space(), boost::algorithm::token_compress_on);
+
+			// Merge the two lists
+			std::vector<std::string> tokens = oldTokens;
+			for (const std::string& newToken : newTokens)
 			{
-				CParamNode& node = m_Childs[name];
-
-				// Split into tokens
-				std::vector<std::string> oldTokens;
-				std::vector<std::string> newTokens;
-				if (!replacing && !node.m_Value.empty()) // ignore the old tokens if replace="" was given
-					boost::algorithm::split(oldTokens, node.m_Value, boost::algorithm::is_space(), boost::algorithm::token_compress_on);
-				if (!value.empty())
-					boost::algorithm::split(newTokens, value, boost::algorithm::is_space(), boost::algorithm::token_compress_on);
-
-				// Merge the two lists
-				std::vector<std::string> tokens = oldTokens;
-				for (const std::string& newToken : newTokens)
+				if (newToken[0] == '-')
 				{
-					if (newToken[0] == '-')
-					{
-						std::vector<std::string>::iterator tokenIt =
-							std::find(tokens.begin(), tokens.end(),
-								std::string_view{newToken}.substr(1));
-						if (tokenIt != tokens.end())
-							tokens.erase(tokenIt);
-						else
-						{
-							const std::string identifier{
-								sourceIdentifier ? (" in '" +
-									utf8_from_wstring(sourceIdentifier) + "'") : ""};
-							LOGWARNING("[ParamNode] Could not remove token "
-								"'%s' from node '%s'%s; not present in "
-								"list nor inherited (possible typo?)",
-								std::string_view{newToken}.substr(1), name,
-								identifier);
-						}
-					}
+					std::vector<std::string>::iterator tokenIt =
+						std::find(tokens.begin(), tokens.end(),
+							std::string_view{newToken}.substr(1));
+					if (tokenIt != tokens.end())
+						tokens.erase(tokenIt);
 					else
 					{
-						if (std::find(oldTokens.begin(), oldTokens.end(), newToken) == oldTokens.end())
-							tokens.push_back(newToken);
+						const std::string identifier{
+							sourceIdentifier ? (" in '" +
+								utf8_from_wstring(sourceIdentifier) + "'") : ""};
+						LOGWARNING("[ParamNode] Could not remove token "
+							"'%s' from node '%s'%s; not present in "
+							"list nor inherited (possible typo?)",
+							std::string_view{newToken}.substr(1), name,
+							identifier);
 					}
 				}
-
-				node.m_Value = boost::algorithm::join(tokens, " ");
-				hasSetValue = true;
-				break;
+				else
+				{
+					if (std::find(oldTokens.begin(), oldTokens.end(), newToken) == oldTokens.end())
+						tokens.push_back(newToken);
+				}
 			}
+
+			node.m_Value = boost::algorithm::join(tokens, " ");
+			hasSetValue = true;
+			break;
 		}
 	}
 
@@ -248,7 +244,7 @@ void CParamNode::ApplyLayer(const XMBData& xmb, const XMBElement& element, const
 		node.m_Childs.swap(childs);
 
 	// Add the element's attributes, prefixing names with "@"
-	XERO_ITER_ATTR(element, attr)
+	for (XMBAttribute attr : element.GetAttributes())
 	{
 		// Skip special attributes
 		if (attr.Name == at_replace || attr.Name == at_op || attr.Name == at_merge || attr.Name == at_filtered)

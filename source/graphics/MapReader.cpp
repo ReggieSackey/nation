@@ -599,7 +599,7 @@ void CXMLReader::ReadTerrain(XMBElement parent)
 	int priority = 0;
 	u16 height = 16384;
 
-	XERO_ITER_ATTR(parent, attr)
+	for (XMBAttribute attr : parent.GetAttributes())
 	{
 		if (attr.Name == at_patches)
 			patches = attr.Value.ToInt();

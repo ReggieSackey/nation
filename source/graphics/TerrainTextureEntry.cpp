@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Wildfire Games.
+/* Copyright (C) 2026 Wildfire Games.
  * This file is part of 0 A.D.
  *
  * 0 A.D. is free software: you can redistribute it and/or modify
@@ -95,7 +95,7 @@ CTerrainTextureEntry::CTerrainTextureEntry(CTerrainPropertiesPtr properties, con
 
 				CStr name;
 				VfsPath terrainTexturePath;
-				XERO_ITER_ATTR(textures_element, relativePath)
+				for (XMBAttribute relativePath : textures_element.GetAttributes())
 				{
 					if (relativePath.Name == at_file)
 						terrainTexturePath = VfsPath("art/textures/terrain") / relativePath.Value.FromUTF8();

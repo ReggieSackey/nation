@@ -170,7 +170,7 @@ CTextureConverter::SettingsFile* CTextureConverter::LoadSettings(const VfsPath& 
 		{
 			Match p;
 
-			XERO_ITER_ATTR(child, attr)
+			for (XMBAttribute attr : child.GetAttributes())
 			{
 				if (attr.Name == at_pattern)
 				{

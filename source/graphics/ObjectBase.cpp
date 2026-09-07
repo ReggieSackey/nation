@@ -113,7 +113,7 @@ bool CObjectBase::Load(const CXeromyces& XeroFile, const XMBElement& root)
 	// (This XML-reading code is rather worryingly verbose...)
 
 	auto shouldSkip = [&](XMBElement& node) {
-		XERO_ITER_ATTR(node, attr)
+		for (XMBAttribute attr : node.GetAttributes())
 		{
 			if (attr.Name == at_minquality && GetQuality(attr.Value) > m_QualityLevel)
 				return true;
@@ -208,7 +208,7 @@ bool CObjectBase::LoadVariant(const CXeromyces& XeroFile, const XMBElement& vari
 	}
 
 	// Load variants first, so that they can be overriden if necessary.
-	XERO_ITER_ATTR(variant, attr)
+	for (XMBAttribute attr : variant.GetAttributes())
 	{
 		if (attr.Name == at_file)
 		{
@@ -231,7 +231,7 @@ bool CObjectBase::LoadVariant(const CXeromyces& XeroFile, const XMBElement& vari
 		}
 	}
 
-	XERO_ITER_ATTR(variant, attr)
+	for (XMBAttribute attr : variant.GetAttributes())
 	{
 		if (attr.Name == at_name)
 			currentVariant.m_VariantName = attr.Value.LowerCase();
@@ -258,7 +258,7 @@ bool CObjectBase::LoadVariant(const CXeromyces& XeroFile, const XMBElement& vari
 				}
 
 				Samp samp;
-				XERO_ITER_ATTR(textures_element, se)
+				for (XMBAttribute se : textures_element.GetAttributes())
 				{
 					if (se.Name == at_file)
 						samp.m_SamplerFile = VfsPath("art/textures/skins") / se.Value.FromUTF8();
@@ -304,7 +304,7 @@ bool CObjectBase::LoadVariant(const CXeromyces& XeroFile, const XMBElement& vari
 				}
 
 				Anim anim;
-				XERO_ITER_ATTR(anim_element, ae)
+				for (XMBAttribute ae : anim_element.GetAttributes())
 				{
 					if (ae.Name == at_name)
 						anim.m_AnimName = ae.Value;
@@ -333,7 +333,7 @@ bool CObjectBase::LoadVariant(const CXeromyces& XeroFile, const XMBElement& vari
 				ENSURE(prop_element.GetNodeName() == el_prop);
 
 				Prop prop;
-				XERO_ITER_ATTR(prop_element, pe)
+				for (XMBAttribute pe : prop_element.GetAttributes())
 				{
 					if (pe.Name == at_attachpoint)
 						prop.m_PropPointName = pe.Value;
@@ -867,7 +867,7 @@ bool CActorDef::Load(const VfsPath& pathname)
 	}
 	else
 	{
-		XERO_ITER_ATTR(root, attr)
+		for (XMBAttribute attr : root.GetAttributes())
 		{
 			if (attr.Name == at_version && attr.Value.ToInt() != 1)
 			{
@@ -890,7 +890,7 @@ bool CActorDef::Load(const VfsPath& pathname)
 			bool found_quality = false;
 			bool use_inline = false;
 			CStr file;
-			XERO_ITER_ATTR(actor, attr)
+			for (XMBAttribute attr : actor.GetAttributes())
 			{
 				if (attr.Name == at_quality)
 				{

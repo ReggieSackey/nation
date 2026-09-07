@@ -216,7 +216,7 @@ bool COList::HandleAdditionalChildren(const XMBData& xmb, const XMBElement& chil
 	else if (child.GetNodeName() == elmt_column)
 	{
 		CStr id;
-		XERO_ITER_ATTR(child, attr)
+		for (XMBAttribute attr : child.GetAttributes())
 		{
 			if (attr.Name == attr_id)
 				id = attr.Value;
