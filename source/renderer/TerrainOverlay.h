@@ -23,6 +23,7 @@
 #ifndef INCLUDED_TERRAINOVERLAY
 #define INCLUDED_TERRAINOVERLAY
 
+#include "graphics/SColor.h"
 #include "graphics/ShaderTechniquePtr.h"
 #include "lib/code_annotation.h"
 #include "lib/posix/posix_types.h"
@@ -211,6 +212,24 @@ public:
 	 * different integers visually.
 	 */
 	static SColor4ub GetColor(std::size_t idx, std::uint8_t alpha);
+
+	static void OverwriteEachTile(std::uint8_t* data, const std::size_t w, const std::size_t h,
+		const auto generate)
+	{
+		static_assert(std::is_invocable_r_v<SColor4ub, decltype(generate), int, int>);
+
+		for (int i{0}; i != static_cast<int>(h); ++i)
+		{
+			for (int j{0}; j != static_cast<int>(w); ++j)
+			{
+				SColor4ub color{generate(i, j)};
+				*data++ = color.R;
+				*data++ = color.G;
+				*data++ = color.B;
+				*data++ = color.A;
+			}
+		}
+	};
 
 private:
 	void RenderAfterWater(

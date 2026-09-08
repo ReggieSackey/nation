@@ -53,30 +53,18 @@ void BuildTextureRGBA(HierarchicalPathfinder& pathfinderHier, std::uint8_t* data
 	std::size_t h)
 {
 	ENSURE(h <= std::numeric_limits<u16>::max() && w <= std::numeric_limits<u16>::max());
-	u16 height = static_cast<u16>(h);
-	u16 width = static_cast<u16>(w);
 	pass_class_t passClass = pathfinderHier.GetPassabilityClass("default");
 
-	for (u16 j = 0; j < height; ++j)
+	TerrainTextureOverlay::OverwriteEachTile(data, w, h, [&](const int i, const int j)
 	{
-		for (u16 i = 0; i < width; ++i)
-		{
-			SColor4ub color;
-
-			HierarchicalPathfinder::RegionID rid = pathfinderHier.Get(i, j, passClass);
-			if (rid.r == 0)
-				color = SColor4ub(0, 0, 0, 0);
-			else if (rid.r == 0xFFFF)
-				color = SColor4ub(255, 0, 255, 255);
-			else
-				color = TerrainTextureOverlay::GetColor(rid.r + rid.ci*5 + rid.cj*7, 127);
-
-			*data++ = color.R;
-			*data++ = color.G;
-			*data++ = color.B;
-			*data++ = color.A;
-		}
-	}
+		HierarchicalPathfinder::RegionID rid = pathfinderHier.Get(static_cast<std::uint16_t>(j),
+			static_cast<std::uint16_t>(i), passClass);
+		if (rid.r == 0)
+			return SColor4ub{0, 0, 0, 0};
+		if (rid.r == 0xFFFF)
+			return SColor4ub{255, 0, 255, 255};
+		return TerrainTextureOverlay::GetColor(rid.r + rid.ci*5 + rid.cj*7, 127);
+	});
 }
 }
 

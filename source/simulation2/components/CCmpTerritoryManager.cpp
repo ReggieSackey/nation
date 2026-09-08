@@ -77,21 +77,14 @@ namespace
 {
 constexpr bool DISABLE_TERRITORY_OVERLAY{true};
 
-void BuildTextureRGBA(Grid<u8>*& territories, u8* data, size_t w, size_t h)
+void BuildTextureRGBA(Grid<u8>*& territories, std::uint8_t* data, const int w, const int h)
 {
-	for (size_t j = 0; j < h; ++j)
+	TerrainTextureOverlay::OverwriteEachTile(data, w, h, [&](const int i, const int j)
 	{
-		for (size_t i = 0; i < w; ++i)
-		{
-			SColor4ub color;
-			u8 id = (territories->get((int)i, (int)j) & ICmpTerritoryManager::TERRITORY_PLAYER_MASK);
-			color = TerrainTextureOverlay::GetColor(id, 64);
-			*data++ = color.R;
-			*data++ = color.G;
-			*data++ = color.B;
-			*data++ = color.A;
-		}
-	}
+		const u8 id{static_cast<std::uint8_t>(territories->get(j, i) &
+			ICmpTerritoryManager::TERRITORY_PLAYER_MASK)};
+		return TerrainTextureOverlay::GetColor(id, 64);
+	});
 }
 }
 
@@ -164,7 +157,7 @@ public:
 		m_DebugOverlay = DISABLE_TERRITORY_OVERLAY? nullptr :
 			new TerrainTextureOverlay{static_cast<float>(Pathfinding::NAVCELLS_PER_TERRAIN_TILE) /
 			ICmpTerritoryManager::NAVCELLS_PER_TERRITORY_TILE,
-			std::bind_front(BuildTextureRGBA, std::ref(this->m_Territories))};
+			std::bind_front(BuildTextureRGBA, std::ref(m_Territories))};
 		m_BoundaryLinesDirty = true;
 		m_TriggerEvent = true;
 		m_EnableLineDebugOverlays = false;

@@ -48,37 +48,23 @@ void BuildTextureRGBA(LongPathfinder& pathfinder, std::uint8_t* data, std::size_
 	pathfinder.GetDebugData(steps, time, debugGrid);
 
 	// Render navcell passability
-	u8* p = data;
-	for (size_t j = 0; j < h; ++j)
+	TerrainTextureOverlay::OverwriteEachTile(data, w, h, [&](const int i, const int j)
 	{
-		for (size_t i = 0; i < w; ++i)
+		if (debugGrid.m_W && debugGrid.m_H)
 		{
-			SColor4ub color(0, 0, 0, 0);
-			if (!IS_PASSABLE(pathfinder.m_Grid->get(static_cast<int>(i), static_cast<int>(j)),
-				pathfinder.m_Debug.PassClass))
-			{
-				color = SColor4ub(255, 0, 0, 127);
-			}
+			if (pathfinder.m_Debug.Goal.NavcellContainsGoal(i, j))
+				return SColor4ub(0, 0, 255, 127);
 
-			if (debugGrid.m_W && debugGrid.m_H)
-			{
-				u8 n = debugGrid.get((int)i, (int)j);
-
-				if (n == 1)
-					color = SColor4ub(255, 255, 0, 127);
-				else if (n == 2)
-					color = SColor4ub(0, 255, 0, 127);
-
-				if (pathfinder.m_Debug.Goal.NavcellContainsGoal(i, j))
-					color = SColor4ub(0, 0, 255, 127);
-			}
-
-			*p++ = color.R;
-			*p++ = color.G;
-			*p++ = color.B;
-			*p++ = color.A;
+			const u8 n{debugGrid.get(i, j)};
+			if (n == 1)
+				return SColor4ub(255, 255, 0, 127);
+			if (n == 2)
+				return SColor4ub(0, 255, 0, 127);
 		}
-	}
+		if (!IS_PASSABLE(pathfinder.m_Grid->get(j, i), pathfinder.m_Debug.PassClass))
+			return SColor4ub(255, 0, 0, 127);
+		return SColor4ub{0, 0, 0, 0};
+	});
 
 	// Render the most recently generated path
 	if (pathfinder.m_Debug.Path && !pathfinder.m_Debug.Path->m_Waypoints.empty())

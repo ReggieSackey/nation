@@ -78,28 +78,18 @@ REGISTER_COMPONENT_TYPE(Pathfinder)
 
 namespace
 {
-void BuildTextureRGBA(const CCmpPathfinder& pathfinder, std::uint8_t* data,
-	std::size_t w, std::size_t h)
+void BuildTextureRGBA(const CCmpPathfinder& pathfinder, std::uint8_t* data, std::size_t w, std::size_t h)
 {
 	// Render navcell passability, based on the terrain-only grid
-	u8* p = data;
-	for (size_t j = 0; j < h; ++j)
+	TerrainTextureOverlay::OverwriteEachTile(data, w, h, [&](const int i, const int j)
 	{
-		for (size_t i = 0; i < w; ++i)
+		if (!IS_PASSABLE(pathfinder.m_TerrainOnlyGrid->get(j, i),
+			pathfinder.m_OverlayPassClass))
 		{
-			SColor4ub color(0, 0, 0, 0);
-			if (!IS_PASSABLE(pathfinder.m_TerrainOnlyGrid->get(static_cast<int>(i),
-				static_cast<int>(j)), pathfinder.m_OverlayPassClass))
-			{
-				color = SColor4ub(255, 0, 0, 127);
-			}
-
-			*p++ = color.R;
-			*p++ = color.G;
-			*p++ = color.B;
-			*p++ = color.A;
+			return SColor4ub{255, 0, 0, 127};
 		}
-	}
+		return SColor4ub{0, 0, 0, 0};
+	});
 }
 }
 
@@ -1091,3 +1081,4 @@ ICmpObstruction::EFoundationCheck CCmpPathfinder::CheckBuildingPlacement(const I
 
 	return ICmpObstruction::FOUNDATION_CHECK_SUCCESS;
 }
+
