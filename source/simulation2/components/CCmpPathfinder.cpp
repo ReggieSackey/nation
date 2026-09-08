@@ -76,6 +76,33 @@ class SceneCollector;
 
 REGISTER_COMPONENT_TYPE(Pathfinder)
 
+namespace
+{
+void BuildTextureRGBA(const CCmpPathfinder& pathfinder, std::uint8_t* data,
+	std::size_t w, std::size_t h)
+{
+	// Render navcell passability, based on the terrain-only grid
+	u8* p = data;
+	for (size_t j = 0; j < h; ++j)
+	{
+		for (size_t i = 0; i < w; ++i)
+		{
+			SColor4ub color(0, 0, 0, 0);
+			if (!IS_PASSABLE(pathfinder.m_TerrainOnlyGrid->get(static_cast<int>(i),
+				static_cast<int>(j)), pathfinder.m_OverlayPassClass))
+			{
+				color = SColor4ub(255, 0, 0, 127);
+			}
+
+			*p++ = color.R;
+			*p++ = color.G;
+			*p++ = color.B;
+			*p++ = color.A;
+		}
+	}
+}
+}
+
 void CCmpPathfinder::Init(const CParamNode&)
 {
 	m_GridSize = 0;
@@ -262,9 +289,12 @@ void CCmpPathfinder::SetAtlasOverlay(bool enable, pass_class_t passClass)
 {
 	if (enable)
 	{
+		m_OverlayPassClass = passClass;
 		if (!m_AtlasOverlay)
-			m_AtlasOverlay = new AtlasOverlay(this, passClass);
-		m_AtlasOverlay->m_PassClass = passClass;
+		{
+			m_AtlasOverlay = new TerrainTextureOverlay{Pathfinding::NAVCELLS_PER_TERRAIN_TILE,
+				std::bind_front(BuildTextureRGBA, std::ref(*this))};
+		}
 	}
 	else
 		SAFE_DELETE(m_AtlasOverlay);

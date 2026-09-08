@@ -73,15 +73,27 @@
 class CCmpTerritoryManager;
 class CFrustum;
 
-class TerritoryOverlay final : public TerrainTextureOverlay
+namespace
 {
-	NONCOPYABLE(TerritoryOverlay);
-public:
-	CCmpTerritoryManager& m_TerritoryManager;
+constexpr bool DISABLE_TERRITORY_OVERLAY{true};
 
-	TerritoryOverlay(CCmpTerritoryManager& manager);
-	void BuildTextureRGBA(u8* data, size_t w, size_t h) override;
-};
+void BuildTextureRGBA(Grid<u8>*& territories, u8* data, size_t w, size_t h)
+{
+	for (size_t j = 0; j < h; ++j)
+	{
+		for (size_t i = 0; i < w; ++i)
+		{
+			SColor4ub color;
+			u8 id = (territories->get((int)i, (int)j) & ICmpTerritoryManager::TERRITORY_PLAYER_MASK);
+			color = TerrainTextureOverlay::GetColor(id, 64);
+			*data++ = color.R;
+			*data++ = color.G;
+			*data++ = color.B;
+			*data++ = color.A;
+		}
+	}
+}
+}
 
 class CCmpTerritoryManager : public ICmpTerritoryManager
 {
@@ -140,7 +152,7 @@ public:
 
 	double m_AnimTime; // time since start of rendering, in seconds
 
-	TerritoryOverlay* m_DebugOverlay;
+	TerrainTextureOverlay* m_DebugOverlay;
 
 	bool m_EnableLineDebugOverlays; ///< Enable node debugging overlays for boundary lines?
 	std::vector<SOverlayLine> m_DebugBoundaryLineNodes;
@@ -149,8 +161,10 @@ public:
 	{
 		m_Territories = NULL;
 		m_CostGrid = NULL;
-		m_DebugOverlay = NULL;
-//		m_DebugOverlay = new TerritoryOverlay(*this);
+		m_DebugOverlay = DISABLE_TERRITORY_OVERLAY? nullptr :
+			new TerrainTextureOverlay{static_cast<float>(Pathfinding::NAVCELLS_PER_TERRAIN_TILE) /
+			ICmpTerritoryManager::NAVCELLS_PER_TERRITORY_TILE,
+			std::bind_front(BuildTextureRGBA, std::ref(this->m_Territories))};
 		m_BoundaryLinesDirty = true;
 		m_TriggerEvent = true;
 		m_EnableLineDebugOverlays = false;
@@ -897,27 +911,5 @@ void CCmpTerritoryManager::UpdateColors()
 
 		boundaryLine.color = cmpPlayer->GetDisplayedColor();
 		boundaryLine.overlay.m_Color = boundaryLine.color;
-	}
-}
-
-TerritoryOverlay::TerritoryOverlay(CCmpTerritoryManager& manager) :
-	TerrainTextureOverlay((float)Pathfinding::NAVCELLS_PER_TERRAIN_TILE / ICmpTerritoryManager::NAVCELLS_PER_TERRITORY_TILE),
-	m_TerritoryManager(manager)
-{ }
-
-void TerritoryOverlay::BuildTextureRGBA(u8* data, size_t w, size_t h)
-{
-	for (size_t j = 0; j < h; ++j)
-	{
-		for (size_t i = 0; i < w; ++i)
-		{
-			SColor4ub color;
-			u8 id = (m_TerritoryManager.m_Territories->get((int)i, (int)j) & ICmpTerritoryManager::TERRITORY_PLAYER_MASK);
-			color = GetColor(id, 64);
-			*data++ = color.R;
-			*data++ = color.G;
-			*data++ = color.B;
-			*data++ = color.A;
-		}
 	}
 }

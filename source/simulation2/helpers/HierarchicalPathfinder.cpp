@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Wildfire Games.
+/* Copyright (C) 2026 Wildfire Games.
  * This file is part of 0 A.D.
  *
  * 0 A.D. is free software: you can redistribute it and/or modify
@@ -38,13 +38,46 @@
 
 class CSimContext;
 
+namespace
+{
 // Find the root ID of a region, used by InitRegions
-inline u16 RootID(u16 x, const std::vector<u16>& v)
+u16 RootID(u16 x, const std::vector<u16>& v)
 {
 	while (v[x] < x)
 		x = v[x];
 
 	return x;
+}
+
+void BuildTextureRGBA(HierarchicalPathfinder& pathfinderHier, std::uint8_t* data, std::size_t w,
+	std::size_t h)
+{
+	ENSURE(h <= std::numeric_limits<u16>::max() && w <= std::numeric_limits<u16>::max());
+	u16 height = static_cast<u16>(h);
+	u16 width = static_cast<u16>(w);
+	pass_class_t passClass = pathfinderHier.GetPassabilityClass("default");
+
+	for (u16 j = 0; j < height; ++j)
+	{
+		for (u16 i = 0; i < width; ++i)
+		{
+			SColor4ub color;
+
+			HierarchicalPathfinder::RegionID rid = pathfinderHier.Get(i, j, passClass);
+			if (rid.r == 0)
+				color = SColor4ub(0, 0, 0, 0);
+			else if (rid.r == 0xFFFF)
+				color = SColor4ub(255, 0, 255, 255);
+			else
+				color = TerrainTextureOverlay::GetColor(rid.r + rid.ci*5 + rid.cj*7, 127);
+
+			*data++ = color.R;
+			*data++ = color.G;
+			*data++ = color.B;
+			*data++ = color.A;
+		}
+	}
+}
 }
 
 void HierarchicalPathfinder::Chunk::InitRegions(int ci, int cj, Grid<NavcellData>* grid, pass_class_t passClass)
@@ -350,7 +383,8 @@ void HierarchicalPathfinder::SetDebugOverlay(bool enabled, const CSimContext* si
 {
 	if (enabled && !m_DebugOverlay)
 	{
-		m_DebugOverlay = new HierarchicalOverlay(*this);
+		m_DebugOverlay = new TerrainTextureOverlay{Pathfinding::NAVCELLS_PER_TERRAIN_TILE,
+			std::bind_front(BuildTextureRGBA, std::ref(*this))};
 		m_DebugOverlayLines.clear();
 		m_SimContext = simContext;
 		AddDebugEdges(GetPassabilityClass("default"));

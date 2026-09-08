@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Wildfire Games.
+/* Copyright (C) 2026 Wildfire Games.
  * This file is part of 0 A.D.
  *
  * 0 A.D. is free software: you can redistribute it and/or modify
@@ -51,7 +51,6 @@
 #include <string>
 #include <vector>
 
-class AtlasOverlay;
 class SceneCollector;
 
 #ifdef NDEBUG
@@ -147,7 +146,8 @@ public:
 
 	u32 m_NextAsyncTicket; // Unique IDs for asynchronous path requests.
 
-	AtlasOverlay* m_AtlasOverlay;
+	pass_class_t m_OverlayPassClass;
+	TerrainTextureOverlay* m_AtlasOverlay;
 
 	static std::string GetSchema()
 	{
@@ -268,38 +268,6 @@ public:
 	void TerrainUpdateHelper(bool expandPassability = true, int itile0 = -1, int jtile0 = -1, int itile1 = -1, int jtile1 = -1);
 
 	void RenderSubmit(SceneCollector& collector);
-};
-
-class AtlasOverlay : public TerrainTextureOverlay
-{
-public:
-	const CCmpPathfinder* m_Pathfinder;
-	pass_class_t m_PassClass;
-
-	AtlasOverlay(const CCmpPathfinder* pathfinder, pass_class_t passClass) :
-		TerrainTextureOverlay(Pathfinding::NAVCELLS_PER_TERRAIN_TILE), m_Pathfinder(pathfinder), m_PassClass(passClass)
-	{
-	}
-
-	void BuildTextureRGBA(u8* data, size_t w, size_t h) override
-	{
-		// Render navcell passability, based on the terrain-only grid
-		u8* p = data;
-		for (size_t j = 0; j < h; ++j)
-		{
-			for (size_t i = 0; i < w; ++i)
-			{
-				SColor4ub color(0, 0, 0, 0);
-				if (!IS_PASSABLE(m_Pathfinder->m_TerrainOnlyGrid->get((int)i, (int)j), m_PassClass))
-					color = SColor4ub(255, 0, 0, 127);
-
-				*p++ = color.R;
-				*p++ = color.G;
-				*p++ = color.B;
-				*p++ = color.A;
-			}
-		}
-	}
 };
 
 #endif // INCLUDED_CCMPPATHFINDER_COMMON

@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Wildfire Games.
+/* Copyright (C) 2026 Wildfire Games.
  * This file is part of 0 A.D.
  *
  * 0 A.D. is free software: you can redistribute it and/or modify
@@ -162,7 +162,7 @@ struct PathfinderState
 	const JumpPointCache* jpc;
 };
 
-class LongOverlay;
+class TerrainTextureOverlay;
 
 class HierarchicalPathfinder;
 
@@ -232,8 +232,13 @@ public:
 	// Debugging - output from last pathfind operation.
 	struct Debug
 	{
-		// Atomic - used to toggle debugging.
-		std::atomic<LongOverlay*> Overlay = nullptr;
+		/**
+		 *  Atomic - used to toggle debugging.
+		 *
+ 		 * Terrain overlay for pathfinder debugging.
+ 		 * Renders a representation of the most recent pathfinding operation.
+ 		 */
+		std::atomic<TerrainTextureOverlay*> Overlay = nullptr;
 		// Mutable - set by ComputeJPSPath (thus possibly from different threads).
 		// Synchronized via mutex if necessary.
 		mutable PathfindTileGrid* Grid = nullptr;

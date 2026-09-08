@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Wildfire Games.
+/* Copyright (C) 2026 Wildfire Games.
  * This file is part of 0 A.D.
  *
  * 0 A.D. is free software: you can redistribute it and/or modify
@@ -38,6 +38,84 @@
 namespace
 {
 static std::mutex g_DebugMutex;
+
+void BuildTextureRGBA(LongPathfinder& pathfinder, std::uint8_t* data, std::size_t w, std::size_t h)
+{
+	// Grab the debug data for the most recently generated path
+	u32 steps;
+	double time;
+	Grid<u8> debugGrid;
+	pathfinder.GetDebugData(steps, time, debugGrid);
+
+	// Render navcell passability
+	u8* p = data;
+	for (size_t j = 0; j < h; ++j)
+	{
+		for (size_t i = 0; i < w; ++i)
+		{
+			SColor4ub color(0, 0, 0, 0);
+			if (!IS_PASSABLE(pathfinder.m_Grid->get(static_cast<int>(i), static_cast<int>(j)),
+				pathfinder.m_Debug.PassClass))
+			{
+				color = SColor4ub(255, 0, 0, 127);
+			}
+
+			if (debugGrid.m_W && debugGrid.m_H)
+			{
+				u8 n = debugGrid.get((int)i, (int)j);
+
+				if (n == 1)
+					color = SColor4ub(255, 255, 0, 127);
+				else if (n == 2)
+					color = SColor4ub(0, 255, 0, 127);
+
+				if (pathfinder.m_Debug.Goal.NavcellContainsGoal(i, j))
+					color = SColor4ub(0, 0, 255, 127);
+			}
+
+			*p++ = color.R;
+			*p++ = color.G;
+			*p++ = color.B;
+			*p++ = color.A;
+		}
+	}
+
+	// Render the most recently generated path
+	if (pathfinder.m_Debug.Path && !pathfinder.m_Debug.Path->m_Waypoints.empty())
+	{
+		std::vector<Waypoint>& waypoints = pathfinder.m_Debug.Path->m_Waypoints;
+		u16 ip = 0, jp = 0;
+		for (size_t k = 0; k < waypoints.size(); ++k)
+		{
+			u16 i, j;
+			Pathfinding::NearestNavcell(waypoints[k].x, waypoints[k].z, i, j, pathfinder.m_GridSize,
+				pathfinder.m_GridSize);
+			if (k == 0)
+			{
+				ip = i;
+				jp = j;
+			}
+			else
+			{
+				bool firstCell = true;
+				do
+				{
+					if (data[(jp*w + ip)*4+3] == 0)
+					{
+						data[(jp*w + ip)*4+0] = 0xFF;
+						data[(jp*w + ip)*4+1] = 0xFF;
+						data[(jp*w + ip)*4+2] = 0xFF;
+						data[(jp*w + ip)*4+3] = firstCell ? 0xA0 : 0x60;
+					}
+					ip = ip < i ? ip+1 : ip > i ? ip-1 : ip;
+					jp = jp < j ? jp+1 : jp > j ? jp-1 : jp;
+					firstCell = false;
+				}
+				while (ip != i || jp != j);
+			}
+		}
+	}
+}
 }
 
 /**
@@ -389,6 +467,24 @@ LongPathfinder::LongPathfinder() :
 	m_UseJPSCache(false),
 	m_Grid(NULL), m_GridSize(0)
 {
+}
+
+LongPathfinder::~LongPathfinder()
+{
+	SAFE_DELETE(m_Debug.Overlay);
+	SAFE_DELETE(m_Debug.Grid);
+	SAFE_DELETE(m_Debug.Path);
+}
+
+void LongPathfinder::SetDebugOverlay(bool enabled)
+{
+	if (enabled && !m_Debug.Overlay)
+	{
+		m_Debug.Overlay = new TerrainTextureOverlay{Pathfinding::NAVCELLS_PER_TERRAIN_TILE,
+			std::bind_front(BuildTextureRGBA, std::ref(*this))};
+	}
+	else if (!enabled && m_Debug.Overlay)
+		SAFE_DELETE(m_Debug.Overlay);
 }
 
 #define PASSABLE(i, j) IS_PASSABLE(state.terrain->get(i, j), state.passClass)
@@ -1055,109 +1151,4 @@ void LongPathfinder::GenerateSpecialMap(pass_class_t passClass, std::vector<Circ
 			m_Grid->set(i, j, n);
 		}
 	}
-}
-
-/**
- * Terrain overlay for pathfinder debugging.
- * Renders a representation of the most recent pathfinding operation.
- */
-class LongOverlay : public TerrainTextureOverlay
-{
-public:
-	LongPathfinder& m_Pathfinder;
-
-	LongOverlay(LongPathfinder& pathfinder) :
-	TerrainTextureOverlay(Pathfinding::NAVCELLS_PER_TERRAIN_TILE), m_Pathfinder(pathfinder)
-	{
-	}
-
-	virtual void BuildTextureRGBA(u8* data, size_t w, size_t h)
-	{
-		// Grab the debug data for the most recently generated path
-		u32 steps;
-		double time;
-		Grid<u8> debugGrid;
-		m_Pathfinder.GetDebugData(steps, time, debugGrid);
-
-		// Render navcell passability
-		u8* p = data;
-		for (size_t j = 0; j < h; ++j)
-		{
-			for (size_t i = 0; i < w; ++i)
-			{
-				SColor4ub color(0, 0, 0, 0);
-				if (!IS_PASSABLE(m_Pathfinder.m_Grid->get((int)i, (int)j), m_Pathfinder.m_Debug.PassClass))
-					color = SColor4ub(255, 0, 0, 127);
-
-				if (debugGrid.m_W && debugGrid.m_H)
-				{
-					u8 n = debugGrid.get((int)i, (int)j);
-
-					if (n == 1)
-						color = SColor4ub(255, 255, 0, 127);
-					else if (n == 2)
-						color = SColor4ub(0, 255, 0, 127);
-
-					if (m_Pathfinder.m_Debug.Goal.NavcellContainsGoal(i, j))
-						color = SColor4ub(0, 0, 255, 127);
-				}
-
-				*p++ = color.R;
-				*p++ = color.G;
-				*p++ = color.B;
-				*p++ = color.A;
-			}
-		}
-
-		// Render the most recently generated path
-		if (m_Pathfinder.m_Debug.Path && !m_Pathfinder.m_Debug.Path->m_Waypoints.empty())
-		{
-			std::vector<Waypoint>& waypoints = m_Pathfinder.m_Debug.Path->m_Waypoints;
-			u16 ip = 0, jp = 0;
-			for (size_t k = 0; k < waypoints.size(); ++k)
-			{
-				u16 i, j;
-				Pathfinding::NearestNavcell(waypoints[k].x, waypoints[k].z, i, j, m_Pathfinder.m_GridSize, m_Pathfinder.m_GridSize);
-				if (k == 0)
-				{
-					ip = i;
-					jp = j;
-				}
-				else
-				{
-					bool firstCell = true;
-					do
-					{
-						if (data[(jp*w + ip)*4+3] == 0)
-						{
-							data[(jp*w + ip)*4+0] = 0xFF;
-							data[(jp*w + ip)*4+1] = 0xFF;
-							data[(jp*w + ip)*4+2] = 0xFF;
-							data[(jp*w + ip)*4+3] = firstCell ? 0xA0 : 0x60;
-						}
-						ip = ip < i ? ip+1 : ip > i ? ip-1 : ip;
-						jp = jp < j ? jp+1 : jp > j ? jp-1 : jp;
-						firstCell = false;
-					}
-					while (ip != i || jp != j);
-				}
-			}
-		}
-	}
-};
-
-// These two functions must come below LongOverlay's definition.
-void LongPathfinder::SetDebugOverlay(bool enabled)
-{
-	if (enabled && !m_Debug.Overlay)
-		m_Debug.Overlay = new LongOverlay(*this);
-	else if (!enabled && m_Debug.Overlay)
-		SAFE_DELETE(m_Debug.Overlay);
-}
-
-LongPathfinder::~LongPathfinder()
-{
-	SAFE_DELETE(m_Debug.Overlay);
-	SAFE_DELETE(m_Debug.Grid);
-	SAFE_DELETE(m_Debug.Path);
 }

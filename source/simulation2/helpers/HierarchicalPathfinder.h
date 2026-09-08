@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Wildfire Games.
+/* Copyright (C) 2026 Wildfire Games.
  * This file is part of 0 A.D.
  *
  * 0 A.D. is free software: you can redistribute it and/or modify
@@ -66,7 +66,6 @@ class TestCmpPathfinder;
 class TestHierarchicalPathfinder;
 #endif
 
-class HierarchicalOverlay;
 class SceneCollector;
 
 class HierarchicalPathfinder
@@ -302,52 +301,10 @@ private:
 	std::map<std::string, pass_class_t> m_PassClassMasks;
 
 	void AddDebugEdges(pass_class_t passClass);
-	HierarchicalOverlay* m_DebugOverlay;
+	TerrainTextureOverlay* m_DebugOverlay;
 	const CSimContext* m_SimContext; // Used for drawing the debug lines
 
 public:
 	std::vector<SOverlayLine> m_DebugOverlayLines;
 };
-
-class HierarchicalOverlay : public TerrainTextureOverlay
-{
-public:
-	HierarchicalPathfinder& m_PathfinderHier;
-
-	HierarchicalOverlay(HierarchicalPathfinder& pathfinderHier) :
-		TerrainTextureOverlay(Pathfinding::NAVCELLS_PER_TERRAIN_TILE), m_PathfinderHier(pathfinderHier)
-	{
-	}
-
-	virtual void BuildTextureRGBA(u8* data, size_t w, size_t h)
-	{
-		ENSURE(h <= std::numeric_limits<u16>::max() && w <= std::numeric_limits<u16>::max());
-		u16 height = static_cast<u16>(h);
-		u16 width = static_cast<u16>(w);
-		pass_class_t passClass = m_PathfinderHier.GetPassabilityClass("default");
-
-		for (u16 j = 0; j < height; ++j)
-		{
-			for (u16 i = 0; i < width; ++i)
-			{
-				SColor4ub color;
-
-				HierarchicalPathfinder::RegionID rid = m_PathfinderHier.Get(i, j, passClass);
-				if (rid.r == 0)
-					color = SColor4ub(0, 0, 0, 0);
-				else if (rid.r == 0xFFFF)
-					color = SColor4ub(255, 0, 255, 255);
-				else
-					color = GetColor(rid.r + rid.ci*5 + rid.cj*7, 127);
-
-				*data++ = color.R;
-				*data++ = color.G;
-				*data++ = color.B;
-				*data++ = color.A;
-			}
-		}
-	}
-};
-
-
 #endif // INCLUDED_HIERPATHFINDER

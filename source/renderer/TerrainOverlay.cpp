@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Wildfire Games.
+/* Copyright (C) 2026 Wildfire Games.
  * This file is part of 0 A.D.
  *
  * 0 A.D. is free software: you can redistribute it and/or modify
@@ -342,8 +342,11 @@ void TerrainOverlay::RenderTileOutline(
 
 //////////////////////////////////////////////////////////////////////////
 
-TerrainTextureOverlay::TerrainTextureOverlay(float texelsPerTile) :
-	ITerrainOverlay(100), m_TexelsPerTile(texelsPerTile)
+TerrainTextureOverlay::TerrainTextureOverlay(float texelsPerTile,
+	std::function<void(std::uint8_t*, std::size_t, std::size_t)> buildTextureRGBA) :
+	ITerrainOverlay{100},
+	m_BuildTextureRGBA{std::move(buildTextureRGBA)},
+	m_TexelsPerTile{texelsPerTile}
 {
 }
 
@@ -373,7 +376,7 @@ void TerrainTextureOverlay::RenderAfterWater(
 	}
 
 	u8* data = (u8*)calloc(w * h, 4);
-	BuildTextureRGBA(data, w, h);
+	m_BuildTextureRGBA(data, w, h);
 
 	deviceCommandContext->UploadTextureRegion(
 		m_Texture.get(), Renderer::Backend::Format::R8G8B8A8_UNORM, data, w * h * 4, 0, 0, w, h);
@@ -387,7 +390,7 @@ void TerrainTextureOverlay::RenderAfterWater(
 		deviceCommandContext, cullGroup, textureTransform, m_Texture.get());
 }
 
-SColor4ub TerrainTextureOverlay::GetColor(size_t idx, u8 alpha) const
+SColor4ub TerrainTextureOverlay::GetColor(std::size_t idx, std::uint8_t alpha)
 {
 	static u8 colors[][3] =
 	{

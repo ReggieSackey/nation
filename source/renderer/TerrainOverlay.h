@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Wildfire Games.
+/* Copyright (C) 2026 Wildfire Games.
  * This file is part of 0 A.D.
  *
  * 0 A.D. is free software: you can redistribute it and/or modify
@@ -29,6 +29,7 @@
 #include "lib/types.h"
 
 #include <cstddef>
+#include <functional>
 #include <memory>
 
 class CSimContext;
@@ -197,31 +198,25 @@ private:
  * texels per terrain tile, intended for debugging purposes.
  * Subclasses must implement BuildTextureRGBA which will be called each frame.
  */
-class TerrainTextureOverlay : public ITerrainOverlay
+class TerrainTextureOverlay final : public ITerrainOverlay
 {
 public:
-	TerrainTextureOverlay(float texelsPerTile);
+	TerrainTextureOverlay(float texelsPerTile,
+		std::function<void(std::uint8_t*, std::size_t, std::size_t)> buildTextureRGBA);
 
-	~TerrainTextureOverlay() override;
-
-protected:
-	/**
-	 * Called each frame to generate the texture to render on the terrain.
-	 * @p data is w*h*4 bytes, where w and h are the terrain size multiplied
-	 * by texelsPerTile. @p data defaults to fully transparent, and should
-	 * be filled with data in RGBA order.
-	 */
-	virtual void BuildTextureRGBA(u8* data, size_t w, size_t h) = 0;
+	~TerrainTextureOverlay() final;
 
 	/**
 	 * Returns an arbitrary color, for subclasses that want to distinguish
 	 * different integers visually.
 	 */
-	SColor4ub GetColor(size_t idx, u8 alpha) const;
+	static SColor4ub GetColor(std::size_t idx, std::uint8_t alpha);
 
 private:
 	void RenderAfterWater(
-		Renderer::Backend::IDeviceCommandContext* deviceCommandContext, int cullGroup) override;
+		Renderer::Backend::IDeviceCommandContext* deviceCommandContext, int cullGroup) final;
+
+	std::function<void(std::uint8_t*, std::size_t, std::size_t)> m_BuildTextureRGBA;
 
 	float m_TexelsPerTile;
 	std::unique_ptr<Renderer::Backend::ITexture> m_Texture;
