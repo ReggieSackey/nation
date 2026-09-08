@@ -1,4 +1,4 @@
-/* Copyright (c) 2025 Wildfire Games.
+/* Copyright (c) 2026 Wildfire Games.
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -222,19 +222,6 @@ switch(x % 2)
 # define SENTINEL_ARG __attribute__ ((sentinel))
 #else
 # define SENTINEL_ARG
-#endif
-
-/**
- * prevent the compiler from reordering loads or stores across this point.
- **/
-#if MSC_VERSION
-# include <intrin.h>
-# pragma intrinsic(_ReadWriteBarrier)
-# define COMPILER_FENCE _ReadWriteBarrier()
-#elif GCC_VERSION
-# define COMPILER_FENCE asm volatile("" : : : "memory")
-#else
-# define COMPILER_FENCE
 #endif
 
 

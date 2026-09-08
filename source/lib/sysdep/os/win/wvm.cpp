@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Wildfire Games.
+/* Copyright (C) 2026 Wildfire Games.
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -153,9 +153,11 @@ static void* AllocateLargeOrSmallPages(uintptr_t address, size_t size, DWORD all
 		// note: this call can take SECONDS, which is why several checks are
 		// undertaken before we even try. these aren't authoritative, so we
 		// at least prevent future attempts if it takes too long.
-		const double startTime = timer_Time(); COMPILER_FENCE;
+		const double startTime = timer_Time();
+		std::atomic_signal_fence(std::memory_order::seq_cst);
 		void* largePages = VirtualAllocExNuma(hProcess, LPVOID(alignedAddress), alignedSize, allocationType|MEM_LARGE_PAGES, protect, node);
-		const double elapsedTime = timer_Time() - startTime; COMPILER_FENCE;
+		const double elapsedTime = timer_Time() - startTime;
+		std::atomic_signal_fence(std::memory_order::seq_cst);
 		if(elapsedTime > 0.5)
 			largePageAllocationTookTooLong = true;	// avoid large pages next time
 		if(largePages)

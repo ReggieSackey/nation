@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Wildfire Games.
+/* Copyright (C) 2026 Wildfire Games.
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -657,7 +657,7 @@ ssize_t aio_return(struct aiocb* cb)
 	const ULONG_PTR bytesTransferred = ovl->InternalHigh;
 
 	cb->ovl = 0;	// prevent further calls to aio_error/aio_return
-	COMPILER_FENCE;
+	std::atomic_signal_fence(std::memory_order::seq_cst);
 	fcb->ovl.Deallocate(ovl);
 
 	return (status == ERROR_SUCCESS)? bytesTransferred : -1;

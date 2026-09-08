@@ -263,7 +263,7 @@ static inline Status Run(const Operation& op, const Parameters& p = Parameters()
 
 #if ENABLE_IO_STATS
 	const double t0 = timer_Time();
-	COMPILER_FENCE;
+	std::atomic_signal_fence(std::memory_order::seq_cst);
 #endif
 
 	size_t numBlocks = p.blockSize? DivideRoundUp(static_cast<size_t>(op.m_Size), p.blockSize) : 1;
@@ -290,7 +290,7 @@ static inline Status Run(const Operation& op, const Parameters& p = Parameters()
 	}
 
 #if ENABLE_IO_STATS
-	COMPILER_FENCE;
+	std::atomic_signal_fence(std::memory_order::seq_cst);
 	const double t1 = timer_Time();
 	const off_t totalSize = p.blockSize? numBlocks*p.blockSize : op.m_Size;
 	debug_printf("IO: %.2f MB/s (%.2f)\n", totalSize/(t1-t0)/1e6, (t1-t0)*1e3);
