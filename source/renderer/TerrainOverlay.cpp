@@ -342,8 +342,8 @@ void TerrainOverlay::RenderTileOutline(
 
 //////////////////////////////////////////////////////////////////////////
 
-TerrainTextureOverlay::TerrainTextureOverlay(float texelsPerTile, int priority) :
-	ITerrainOverlay(priority), m_TexelsPerTile(texelsPerTile)
+TerrainTextureOverlay::TerrainTextureOverlay(float texelsPerTile) :
+	ITerrainOverlay(100), m_TexelsPerTile(texelsPerTile)
 {
 }
 

@@ -200,7 +200,7 @@ private:
 class TerrainTextureOverlay : public ITerrainOverlay
 {
 public:
-	TerrainTextureOverlay(float texelsPerTile, int priority = 100);
+	TerrainTextureOverlay(float texelsPerTile);
 
 	~TerrainTextureOverlay() override;
 
