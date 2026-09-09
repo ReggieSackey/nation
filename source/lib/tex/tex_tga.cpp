@@ -34,7 +34,6 @@
 #include "lib/os_path.h"
 #include "lib/status.h"
 #include "lib/tex/tex.h"
-#include "lib/types.h"
 
 #include <cstddef>
 
@@ -59,11 +58,11 @@ typedef struct
 	std::uint8_t img_type;			// see TgaImgType
 	std::uint8_t color_map[5];		// unused
 
-	u16 x_origin;			// unused
-	u16 y_origin;			// unused
+	std::uint16_t x_origin;			// unused
+	std::uint16_t y_origin;			// unused
 
-	u16 w;
-	u16 h;
+	std::uint16_t w;
+	std::uint16_t h;
 	std::uint8_t bpp;					// bits per pixel
 
 	std::uint8_t img_desc;
@@ -172,8 +171,8 @@ Status TexCodecTga::encode(Tex* RESTRICT t, DynArray* RESTRICT da) const
 		static_cast<std::uint8_t>(img_type),
 		{0,0,0,0,0},	// unused (color map)
 		0, 0,			// unused (origin)
-		(u16)t->m_Width,
-		(u16)t->m_Height,
+		static_cast<std::uint16_t>(t->m_Width),
+		static_cast<std::uint16_t>(t->m_Height),
 		static_cast<std::uint8_t>(t->m_Bpp),
 		img_desc
 	};

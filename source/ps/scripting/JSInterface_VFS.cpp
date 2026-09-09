@@ -302,7 +302,7 @@ bool DeleteCampaignSave(const CStrW& filePath)
 }
 
 void RegisterScriptFunctions_ReadWriteAnywhere(const Script::Request& rq,
-	const u16 flags /*= JSPROP_ENUMERATE | JSPROP_READONLY | JSPROP_PERMANENT */)
+	const std::uint16_t flags /*= JSPROP_ENUMERATE | JSPROP_READONLY | JSPROP_PERMANENT */)
 {
 	Script::Function::Register<&BuildDirEntList<PathRestriction::GUI>>(rq, "ListDirectoryFiles", flags);
 	Script::Function::Register<&FileExists<PathRestriction::GUI>>(rq, "FileExists", flags);
@@ -315,7 +315,7 @@ void RegisterScriptFunctions_ReadWriteAnywhere(const Script::Request& rq,
 }
 
 void RegisterScriptFunctions_ReadOnlySimulation(const Script::Request& rq,
-	const u16 flags /*= JSPROP_ENUMERATE | JSPROP_READONLY | JSPROP_PERMANENT */)
+	const std::uint16_t flags /*= JSPROP_ENUMERATE | JSPROP_READONLY | JSPROP_PERMANENT */)
 {
 	Script::Function::Register<&BuildDirEntList<PathRestriction::SIMULATION>>(rq, "ListDirectoryFiles", flags);
 	Script::Function::Register<&FileExists<PathRestriction::SIMULATION>>(rq, "FileExists", flags);
@@ -323,7 +323,7 @@ void RegisterScriptFunctions_ReadOnlySimulation(const Script::Request& rq,
 }
 
 void RegisterScriptFunctions_ReadOnlySimulationMaps(const Script::Request& rq,
-	const u16 flags /*= JSPROP_ENUMERATE | JSPROP_READONLY | JSPROP_PERMANENT */)
+	const std::uint16_t flags /*= JSPROP_ENUMERATE | JSPROP_READONLY | JSPROP_PERMANENT */)
 {
 	Script::Function::Register<&BuildDirEntList<PathRestriction::MAPS>>(rq, "ListDirectoryFiles", flags);
 	Script::Function::Register<&FileExists<PathRestriction::MAPS>>(rq, "FileExists", flags);

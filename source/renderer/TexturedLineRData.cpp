@@ -117,7 +117,7 @@ void CTexturedLineRData::Update(const SOverlayTexturedLine& line)
 
 	float v = 0.f;
 	std::vector<SVertex> vertices;
-	std::vector<u16> indices;
+	std::vector<std::uint16_t> indices;
 
 	const size_t n = line.m_Coords.size(); // number of line points
 	bool closed = line.m_Closed;
@@ -196,9 +196,9 @@ void CTexturedLineRData::Update(const SOverlayTexturedLine& line)
 		vertices.push_back(vertex1);
 		vertices.push_back(vertex2);
 
-		u16 vertexCount = static_cast<u16>(vertices.size());
-		u16 index1 = vertexCount - 2; // index of vertex1 in this iteration (TR of this quad)
-		u16 index2 = vertexCount - 1; // index of the vertex2 in this iteration (TL of this quad)
+		std::uint16_t vertexCount = static_cast<std::uint16_t>(vertices.size());
+		std::uint16_t index1 = vertexCount - 2; // index of vertex1 in this iteration (TR of this quad)
+		std::uint16_t index2 = vertexCount - 1; // index of the vertex2 in this iteration (TL of this quad)
 
 		if (i == 0)
 		{
@@ -208,8 +208,8 @@ void CTexturedLineRData::Update(const SOverlayTexturedLine& line)
 		}
 		else
 		{
-			u16 index1Prev = vertexCount - 4; // index of the vertex1 in the previous iteration (BR of this quad)
-			u16 index2Prev = vertexCount - 3; // index of the vertex2 in the previous iteration (BL of this quad)
+			std::uint16_t index1Prev = vertexCount - 4; // index of the vertex1 in the previous iteration (BR of this quad)
+			std::uint16_t index2Prev = vertexCount - 3; // index of the vertex2 in the previous iteration (BL of this quad)
 			ENSURE(index1Prev < vertexCount);
 			ENSURE(index2Prev < vertexCount);
 			// Add two corner points from last iteration and join with one of our own corners to create triangle 1
@@ -257,7 +257,7 @@ void CTexturedLineRData::Update(const SOverlayTexturedLine& line)
 		// close the path
 		if (n % 2 == 0)
 		{
-			u16 vertexCount = static_cast<u16>(vertices.size());
+			std::uint16_t vertexCount = static_cast<std::uint16_t>(vertices.size());
 			indices.push_back(vertexCount - 2);
 			indices.push_back(vertexCount - 1);
 			indices.push_back(0);
@@ -274,7 +274,7 @@ void CTexturedLineRData::Update(const SOverlayTexturedLine& line)
 			vertices.push_back(vertex1);
 			vertices.push_back(vertex2);
 
-			u16 vertexCount = static_cast<u16>(vertices.size());
+			std::uint16_t vertexCount = static_cast<std::uint16_t>(vertices.size());
 			indices.push_back(vertexCount - 4);
 			indices.push_back(vertexCount - 3);
 			indices.push_back(vertexCount - 2);
@@ -289,7 +289,7 @@ void CTexturedLineRData::Update(const SOverlayTexturedLine& line)
 		// Create start and end caps. On either end, this is done by taking the centroid between the last and second-to-last pair of
 		// vertices that was generated along the path (i.e. the vertex1's and vertex2's from above), taking a directional vector
 		// between them, and drawing the line cap in the plane given by the two butt-end corner points plus said vector.
-		std::vector<u16> capIndices;
+		std::vector<std::uint16_t> capIndices;
 		std::vector<SVertex> capVertices;
 
 		// create end cap
@@ -306,7 +306,7 @@ void CTexturedLineRData::Update(const SOverlayTexturedLine& line)
 		);
 
 		for (unsigned i = 0; i < capIndices.size(); i++)
-			capIndices[i] += static_cast<u16>(vertices.size());
+			capIndices[i] += static_cast<std::uint16_t>(vertices.size());
 
 		vertices.insert(vertices.end(), capVertices.begin(), capVertices.end());
 		indices.insert(indices.end(), capIndices.begin(), capIndices.end());
@@ -328,7 +328,7 @@ void CTexturedLineRData::Update(const SOverlayTexturedLine& line)
 		);
 
 		for (unsigned i = 0; i < capIndices.size(); i++)
-			capIndices[i] += static_cast<u16>(vertices.size());
+			capIndices[i] += static_cast<std::uint16_t>(vertices.size());
 
 		vertices.insert(vertices.end(), capVertices.begin(), capVertices.end());
 		indices.insert(indices.end(), capIndices.begin(), capIndices.end());
@@ -354,10 +354,10 @@ void CTexturedLineRData::Update(const SOverlayTexturedLine& line)
 		m_VB->m_Owner->UpdateChunkVertices(m_VB.Get(), &vertices[0]);
 
 		for (size_t k = 0; k < indices.size(); ++k)
-			indices[k] += static_cast<u16>(m_VB->m_Index);
+			indices[k] += static_cast<std::uint16_t>(m_VB->m_Index);
 
 		m_VBIndices = g_Renderer.GetVertexBufferManager().AllocateChunk(
-			sizeof(u16), indices.size(), Renderer::Backend::IBuffer::Type::INDEX,
+			sizeof(std::uint16_t), indices.size(), Renderer::Backend::IBuffer::Type::INDEX,
 			Renderer::Backend::IBuffer::Usage::TRANSFER_DST);
 		if (m_VBIndices)
 			m_VBIndices->m_Owner->UpdateChunkVertices(m_VBIndices.Get(), &indices[0]);
@@ -367,7 +367,7 @@ void CTexturedLineRData::Update(const SOverlayTexturedLine& line)
 
 void CTexturedLineRData::CreateLineCap(const SOverlayTexturedLine& line, const CVector3D& corner1, const CVector3D& corner2,
 	const CVector3D& lineDirectionNormal, SOverlayTexturedLine::LineCapType endCapType, std::vector<SVertex>& verticesOut,
-	std::vector<u16>& indicesOut)
+	std::vector<std::uint16_t>& indicesOut)
 {
 	if (endCapType == SOverlayTexturedLine::LINECAP_FLAT)
 		return; // no action needed, this is the default
@@ -389,7 +389,7 @@ void CTexturedLineRData::CreateLineCap(const SOverlayTexturedLine& line, const C
 
 	CVector3D centerPoint = (corner1 + corner2) * 0.5f;
 	SVertex centerVertex(centerPoint, CVector2D(0.5f, 0.5f));
-	u16 indexOffset = static_cast<u16>(verticesOut.size()); // index offset in verticesOut from where we start adding our vertices
+	std::uint16_t indexOffset = static_cast<std::uint16_t>(verticesOut.size()); // index offset in verticesOut from where we start adding our vertices
 
 	switch (endCapType)
 	{

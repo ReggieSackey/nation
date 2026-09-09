@@ -46,14 +46,14 @@ u32 u64_lo(u64 x)
 	return (u32)(x & 0xFFFFFFFF);
 }
 
-u16 u32_hi(u32 x)
+std::uint16_t u32_hi(u32 x)
 {
-	return (u16)(x >> 16);
+	return static_cast<std::uint16_t>(x >> 16);
 }
 
-u16 u32_lo(u32 x)
+std::uint16_t u32_lo(u32 x)
 {
-	return (u16)(x & 0xFFFF);
+	return static_cast<std::uint16_t>(x & 0xFFFF);
 }
 
 
@@ -65,7 +65,7 @@ u64 u64_from_u32(u32 hi, u32 lo)
 	return x;
 }
 
-u32 u32_from_u16(u16 hi, u16 lo)
+u32 u32_from_u16(std::uint16_t hi, std::uint16_t lo)
 {
 	u32 x = (u32)hi;
 	x <<= 16;
@@ -88,8 +88,8 @@ std::uint8_t u8_from_double(double in)
 	return static_cast<std::uint8_t>(l);
 }
 
-// input in [0, 1); convert to u16 range
-u16 u16_from_double(double in)
+// input in [0, 1); convert to std::uint16_t range
+std::uint16_t u16_from_double(double in)
 {
 	if(!(0.0 <= in && in < 1.0))
 	{
@@ -99,5 +99,5 @@ u16 u16_from_double(double in)
 
 	long l = (long)(in * 65535.0);
 	ENSURE((unsigned long)l <= 65535u);
-	return (u16)l;
+	return static_cast<std::uint16_t>(l);
 }

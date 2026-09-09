@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Wildfire Games.
+/* Copyright (C) 2026 Wildfire Games.
  * This file is part of 0 A.D.
  *
  * 0 A.D. is free software: you can redistribute it and/or modify
@@ -35,7 +35,7 @@ public:
 	DEFAULT_COMPONENT_ALLOCATOR(TerritoryInfluence)
 
 	bool m_Root;
-	u16 m_Weight;
+	std::uint16_t m_Weight;
 	u32 m_Radius;
 
 	static std::string GetSchema()
@@ -46,7 +46,7 @@ public:
 			"</element>"
 			"<element name='Weight'>"
 				"<data type='nonNegativeInteger'>"
-					"<param name='maxInclusive'>65535</param>" // Max u16 value
+					"<param name='maxInclusive'>65535</param>" // Max std::uint16_t value
 				"</data>"
 			"</element>"
 			"<element name='Radius'>"
@@ -57,7 +57,7 @@ public:
 	void Init(const CParamNode& paramNode) override
 	{
 		m_Root = paramNode.GetChild("Root").ToBool();
-		m_Weight = (u16)paramNode.GetChild("Weight").ToInt();
+		m_Weight = static_cast<std::uint16_t>(paramNode.GetChild("Weight").ToInt());
 		m_Radius = paramNode.GetChild("Radius").ToInt();
 	}
 
@@ -83,7 +83,7 @@ public:
 		return cmpValueModificationManager->ApplyModifications(L"TerritoryInfluence/Root", m_Root, GetEntityId());
 	}
 
-	u16 GetWeight() const override
+	std::uint16_t GetWeight() const override
 	{
 		CmpPtr<ICmpValueModificationManager> cmpValueModificationManager(GetSystemEntity());
 		if (!cmpValueModificationManager)

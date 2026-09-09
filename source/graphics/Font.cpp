@@ -72,7 +72,7 @@ using UniqueFTGlyph = std::unique_ptr<std::remove_pointer_t<FT_Glyph>, FTGlyphDe
 
 } // end namespace
 
-const CFont::GlyphData* CFont::GlyphMap::get(u16 codepoint) const
+const CFont::GlyphData* CFont::GlyphMap::get(std::uint16_t codepoint) const
 {
 	if (!m_Data[codepoint >> 8])
 		return nullptr;
@@ -81,7 +81,7 @@ const CFont::GlyphData* CFont::GlyphMap::get(u16 codepoint) const
 	return &(*m_Data[codepoint >> 8])[codepoint & 0xff];
 }
 
-void CFont::GlyphMap::set(u16 codepoint, const GlyphData& glyph)
+void CFont::GlyphMap::set(std::uint16_t codepoint, const GlyphData& glyph)
 {
 	if (!m_Data[codepoint >> 8])
 		m_Data[codepoint >> 8] = std::make_unique<std::array<GlyphData, 256>>();
@@ -326,13 +326,13 @@ void CFont::InitalizeAtlasTextureIfNeeded(
 	m_IsTextureInitialized = true;
 }
 
-const CFont::GlyphData* CFont::GetGlyph(u16 codepoint)
+const CFont::GlyphData* CFont::GetGlyph(std::uint16_t codepoint)
 {
 	const CFont::GlyphData* g{m_Glyphs.get(codepoint)};
 	return (g && g->defined) ? g : ExtractAndGenerateGlyph(codepoint);
 }
 
-const CFont::GlyphData* CFont::ExtractAndGenerateGlyph(u16 codepoint)
+const CFont::GlyphData* CFont::ExtractAndGenerateGlyph(std::uint16_t codepoint)
 {
 	ENSURE(!m_Faces.empty());
 	PROFILE2("Glyph font texture generate");
@@ -431,7 +431,8 @@ const CFont::GlyphData* CFont::ExtractAndGenerateGlyph(u16 codepoint)
 	return m_Glyphs.get(codepoint);
 }
 
-std::optional<CVector2D> CFont::GenerateStrokeGlyphBitmap(const FT_Glyph& glyph, u16 codepoint, FT_Render_Mode renderMode, const float baselineInAtlas)
+std::optional<CVector2D> CFont::GenerateStrokeGlyphBitmap(const FT_Glyph& glyph, std::uint16_t codepoint,
+	FT_Render_Mode renderMode, const float baselineInAtlas)
 {
 	FT_Glyph strokedGlyph;
 	if (FT_Error error{FT_Glyph_Copy(glyph, &strokedGlyph)})
@@ -476,7 +477,8 @@ std::optional<CVector2D> CFont::GenerateStrokeGlyphBitmap(const FT_Glyph& glyph,
 	return offset;
 }
 
-std::optional<CVector2D> CFont::GenerateGlyphBitmap(FT_Glyph& glyph, u16 codepoint, FT_Render_Mode renderMode, CVector2D offset, const float baselineInAtlas)
+std::optional<CVector2D> CFont::GenerateGlyphBitmap(FT_Glyph& glyph, std::uint16_t codepoint,
+	FT_Render_Mode renderMode, CVector2D offset, const float baselineInAtlas)
 {
 	if (FT_Error error{FT_Glyph_To_Bitmap(&glyph, renderMode, nullptr, 0)})
 	{

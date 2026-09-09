@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Wildfire Games.
+/* Copyright (C) 2026 Wildfire Games.
  * This file is part of 0 A.D.
  *
  * 0 A.D. is free software: you can redistribute it and/or modify
@@ -24,7 +24,6 @@
 #include "graphics/TextureManager.h"
 #include "lib/code_annotation.h"
 #include "lib/debug.h"
-#include "lib/types.h"
 #include "lib/utf8.h"
 #include "ps/CStr.h"
 #include "ps/CStrIntern.h"
@@ -211,7 +210,7 @@ void CTextRenderer::Render(
 	const CVector2D& transformScale, const CVector2D& translation,
 	const bool debugFontBox, const CColor& debugBoxColor)
 {
-	std::vector<u16, ProxyAllocator<u16, PS::Memory::ScopedLinearAllocator>> indices{m_ScopedLinearAllocator};
+	std::vector<std::uint16_t, ProxyAllocator<std::uint16_t, PS::Memory::ScopedLinearAllocator>> indices{m_ScopedLinearAllocator};
 	std::vector<CVector2D, ProxyAllocator<CVector2D, PS::Memory::ScopedLinearAllocator>> positions{m_ScopedLinearAllocator};
 	std::vector<CVector2D, ProxyAllocator<CVector2D, PS::Memory::ScopedLinearAllocator>> uvs{m_ScopedLinearAllocator};
 
@@ -329,12 +328,12 @@ void CTextRenderer::Render(
 				positions[idx*4+3].X = g->x1 + x;
 				positions[idx*4+3].Y = g->y1 + y;
 
-				indices[idx*6+0] = static_cast<u16>(idx*4+0);
-				indices[idx*6+1] = static_cast<u16>(idx*4+1);
-				indices[idx*6+2] = static_cast<u16>(idx*4+2);
-				indices[idx*6+3] = static_cast<u16>(idx*4+2);
-				indices[idx*6+4] = static_cast<u16>(idx*4+3);
-				indices[idx*6+5] = static_cast<u16>(idx*4+0);
+				indices[idx*6+0] = static_cast<std::uint16_t>(idx * 4 + 0);
+				indices[idx*6+1] = static_cast<std::uint16_t>(idx * 4 + 1);
+				indices[idx*6+2] = static_cast<std::uint16_t>(idx * 4 + 2);
+				indices[idx*6+3] = static_cast<std::uint16_t>(idx * 4 + 2);
+				indices[idx*6+4] = static_cast<std::uint16_t>(idx * 4 + 3);
+				indices[idx*6+5] = static_cast<std::uint16_t>(idx * 4 + 0);
 
 				x += g->xadvance;
 

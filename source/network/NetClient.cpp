@@ -225,7 +225,7 @@ bool CNetClient::TryToConnectWithSTUN(std::string serverAddressOrHostname, std::
 	}
 
 	CStr ip;
-	u16 port = 0;
+	std::uint16_t port = 0;
 	if (!localNetwork)
 	{
 		if (!StunClient::FindPublicIP(*enetClient, ip, port))

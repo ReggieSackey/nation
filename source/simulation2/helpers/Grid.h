@@ -51,7 +51,7 @@ public:
 	{
 	}
 
-	Grid(u16 w, u16 h) : m_W(w), m_H(h), m_Data(NULL)
+	Grid(std::uint16_t w, std::uint16_t h) : m_W(w), m_H(h), m_Data(NULL)
 	{
 		resize(w, h);
 	}
@@ -124,8 +124,8 @@ public:
 		return m_W == 0 && m_H == 0;
 	}
 
-	u16 width() const { return m_W; };
-	u16 height() const { return m_H; };
+	std::uint16_t width() const { return m_W; };
+	std::uint16_t height() const { return m_H; };
 
 	bool any_set_in_square(int i0, int j0, int i1, int j1) const
 	{
@@ -168,7 +168,7 @@ public:
 		resize(0, 0);
 	}
 
-	void resize(u16 w, u16 h)
+	void resize(std::uint16_t w, std::uint16_t h)
 	{
 		SAFE_ARRAY_DELETE(m_Data);
 		m_W = w;
@@ -212,11 +212,11 @@ public:
 		m_Data[j*m_W + i] = value;
 	}
 
-	T& operator[](std::pair<u16, u16> coords) { return get(coords.first, coords.second); }
-	T& get(std::pair<u16, u16> coords) { return get(coords.first, coords.second); }
+	T& operator[](std::pair<std::uint16_t, std::uint16_t> coords) { return get(coords.first, coords.second); }
+	T& get(std::pair<std::uint16_t, std::uint16_t> coords) { return get(coords.first, coords.second); }
 
-	T& operator[](std::pair<u16, u16> coords) const { return get(coords.first, coords.second); }
-	T& get(std::pair<u16, u16> coords) const { return get(coords.first, coords.second); }
+	T& operator[](std::pair<std::uint16_t, std::uint16_t> coords) const { return get(coords.first, coords.second); }
+	T& get(std::pair<std::uint16_t, std::uint16_t> coords) const { return get(coords.first, coords.second); }
 
 	T& get(int i, int j)
 	{
@@ -240,7 +240,7 @@ public:
 		return g && m_W == g->m_W && m_H == g->m_H;
 	}
 
-	u16 m_W, m_H;
+	std::uint16_t m_W, m_H;
 	T* m_Data;
 };
 
@@ -278,7 +278,7 @@ struct SerializeHelper<Grid<T>>
 
 	void operator()(IDeserializer& deserialize, const char* name, Grid<T>& value)
 	{
-		u16 w, h;
+		std::uint16_t w, h;
 		deserialize.NumberU16_Unbounded("width", w);
 		deserialize.NumberU16_Unbounded("height", h);
 		u32 len = h * w;
@@ -318,12 +318,12 @@ class SparseGrid
 	}
 
 public:
-	SparseGrid(u16 w, u16 h) : m_W(w), m_H(h), m_DirtyID(0)
+	SparseGrid(std::uint16_t w, std::uint16_t h) : m_W(w), m_H(h), m_DirtyID(0)
 	{
 		ENSURE(m_W && m_H);
 
-		m_BW = (u16)((m_W + BucketSize-1) >> BucketBits);
-		m_BH = (u16)((m_H + BucketSize-1) >> BucketBits);
+		m_BW = static_cast<std::uint16_t>((m_W + BucketSize-1) >> BucketBits);
+		m_BH = static_cast<std::uint16_t>((m_H + BucketSize-1) >> BucketBits);
 
 		m_Data = new T*[m_BW*m_BH]();
 	}
@@ -359,8 +359,8 @@ public:
 		return GetBucket(i, j)[(j % BucketSize)*BucketSize + (i % BucketSize)];
 	}
 
-	u16 m_W, m_H;
-	u16 m_BW, m_BH;
+	std::uint16_t m_W, m_H;
+	std::uint16_t m_BW, m_BH;
 	T** m_Data;
 
 	size_t m_DirtyID; // if this is < the id maintained by ICmpObstructionManager then it needs to be updated

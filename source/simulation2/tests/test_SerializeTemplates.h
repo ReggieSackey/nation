@@ -79,7 +79,7 @@ public:
 		std::stringstream stream;
 
 		CDebugSerializer serialize(script, stream);
-		Grid<u16> value;
+		Grid<std::uint16_t> value;
 		value.resize(3,2);
 		// Checkerboard pattern.
 		for (std::uint8_t j = 0; j < value.height(); ++j)

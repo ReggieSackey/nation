@@ -18,7 +18,6 @@
 #ifndef INCLUDED_FUNCTIONWRAPPER
 #define INCLUDED_FUNCTIONWRAPPER
 
-#include "lib/types.h"
 #include "scriptinterface/Conversions.h"
 #include "scriptinterface/Exceptions.h"
 #include "scriptinterface/Request.h"
@@ -445,7 +444,7 @@ public:
 	 */
 	template <auto callable, GetterFor<callable> thisGetter = nullptr>
 	static JSFunctionSpec Wrap(const char* name,
-		const u16 flags = JSPROP_ENUMERATE | JSPROP_READONLY | JSPROP_PERMANENT)
+		const std::uint16_t flags = JSPROP_ENUMERATE | JSPROP_READONLY | JSPROP_PERMANENT)
 	{
 		return JS_FN(name, (&ToJSNative<callable, thisGetter>), args_info<callable>::nb_args, flags);
 	}
@@ -455,7 +454,7 @@ public:
 	 */
 	template <auto callable, GetterFor<callable> thisGetter = nullptr>
 	static JSFunction* Create(const Request& rq, const char* name,
-		const u16 flags = JSPROP_ENUMERATE | JSPROP_READONLY | JSPROP_PERMANENT)
+		const std::uint16_t flags = JSPROP_ENUMERATE | JSPROP_READONLY | JSPROP_PERMANENT)
 	{
 		return JS_NewFunction(rq.cx, &ToJSNative<callable, thisGetter>, args_info<callable>::nb_args, flags, name);
 	}
@@ -465,7 +464,7 @@ public:
 	 */
 	template <auto callable, GetterFor<callable> thisGetter = nullptr>
 	static void Register(const Request& rq, const char* name,
-		const u16 flags = JSPROP_ENUMERATE | JSPROP_READONLY | JSPROP_PERMANENT)
+		const std::uint16_t flags = JSPROP_ENUMERATE | JSPROP_READONLY | JSPROP_PERMANENT)
 	{
 		JS_DefineFunction(rq.cx, rq.nativeScope, name, &ToJSNative<callable, thisGetter>, args_info<callable>::nb_args, flags);
 	}
@@ -477,7 +476,7 @@ public:
 	 */
 	template <auto callable, GetterFor<callable> thisGetter = nullptr>
 	static void Register(JSContext* cx, JS::HandleObject scope, const char* name,
-		const u16 flags = JSPROP_ENUMERATE | JSPROP_READONLY | JSPROP_PERMANENT)
+		const std::uint16_t flags = JSPROP_ENUMERATE | JSPROP_READONLY | JSPROP_PERMANENT)
 	{
 		JS_DefineFunction(cx, scope, name, &ToJSNative<callable, thisGetter>, args_info<callable>::nb_args, flags);
 	}

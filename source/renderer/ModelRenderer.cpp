@@ -180,7 +180,7 @@ void ModelRenderer::BuildUV(
 
 // static
 void ModelRenderer::BuildIndices(
-	const CModelDefPtr& mdef, const VertexArrayIterator<u16>& Indices)
+	const CModelDefPtr& mdef, const VertexArrayIterator<std::uint16_t>& Indices)
 {
 	size_t idxidx = 0;
 	SModelFace* faces = mdef->GetFaces();

@@ -35,7 +35,7 @@ class PathfinderPassability;
 struct GridUpdateInformation;
 template<typename T> class Grid;
 
-using NavcellData = u16;
+using NavcellData = std::uint16_t;
 
 /**
  * Obstruction manager: provides efficient spatial queries over objects in the world.

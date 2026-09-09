@@ -304,7 +304,7 @@ PS::Loader::Task CMapReader::UnpackTerrain()
 		// unpack heightmap [600us]
 		size_t verticesPerSide = m_PatchesPerSide*PATCH_SIZE+1;
 		m_Heightmap.resize(SQR(verticesPerSide));
-		unpacker.UnpackRaw(&m_Heightmap[0], SQR(verticesPerSide)*sizeof(u16));
+		unpacker.UnpackRaw(&m_Heightmap[0], SQR(verticesPerSide) * sizeof(std::uint16_t));
 	}
 
 	// unpack # textures
@@ -597,7 +597,7 @@ void CXMLReader::ReadTerrain(XMBElement parent)
 	ssize_t patches = 9;
 	CStr texture = "grass1_spring";
 	int priority = 0;
-	u16 height = 16384;
+	std::uint16_t height = 16384;
 
 	for (XMBAttribute attr : parent.GetAttributes())
 	{
@@ -608,7 +608,7 @@ void CXMLReader::ReadTerrain(XMBElement parent)
 		else if (attr.Name == at_priority)
 			priority = attr.Value.ToInt();
 		else if (attr.Name == at_height)
-			height = (u16)attr.Value.ToInt();
+			height = static_cast<std::uint16_t>(attr.Value.ToInt());
 	}
 
 	m_MapReader.m_PatchesPerSide = patches;
@@ -621,7 +621,7 @@ void CXMLReader::ReadTerrain(XMBElement parent)
 	m_MapReader.pTerrain->Initialize(patches, NULL);
 
 	// Fill the heightmap
-	u16* heightmap = m_MapReader.pTerrain->GetHeightMap();
+	std::uint16_t* heightmap = m_MapReader.pTerrain->GetHeightMap();
 	ssize_t verticesPerSide = m_MapReader.pTerrain->GetVerticesPerSide();
 	for (ssize_t i = 0; i < SQR(verticesPerSide); ++i)
 		heightmap[i] = height;
@@ -1387,7 +1387,7 @@ int CMapReader::ParseTerrain()
 
 	m_PatchesPerSide = size / PATCH_SIZE;
 
-	// flat heightmap of u16 data
+	// flat heightmap of std::uint16_t data
 	getTerrainProperty(m_MapData, "height", m_Heightmap);
 
 	// load textures
@@ -1410,8 +1410,8 @@ int CMapReader::ParseTerrain()
 	getTerrainProperty(m_MapData, "tileData", &tileData);
 
 	// parse tile data object into flat arrays
-	std::vector<u16> tileIndex;
-	std::vector<u16> tilePriority;
+	std::vector<std::uint16_t> tileIndex;
+	std::vector<std::uint16_t> tilePriority;
 	getTerrainProperty(tileData, "index", tileIndex);
 	getTerrainProperty(tileData, "priority", tilePriority);
 

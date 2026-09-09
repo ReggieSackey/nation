@@ -128,12 +128,12 @@ u32 CalcSharedLosMask(std::vector<player_id_t> players)
  * Add/remove a player to/from mask, which is a 1-bit mask representing a list of players.
  * Returns true if the mask is modified.
  */
-bool SetPlayerSharedDirtyVisibilityBit(u16& mask, player_id_t player, bool enable)
+bool SetPlayerSharedDirtyVisibilityBit(std::uint16_t& mask, player_id_t player, bool enable)
 {
 	if (player <= 0 || player > 16)
 		return false;
 
-	u16 oldMask = mask;
+	std::uint16_t oldMask = mask;
 
 	if (enable)
 		mask |= (0x1 << (player - 1));
@@ -156,7 +156,7 @@ LosVisibility GetPlayerVisibility(u32 visibilities, player_id_t player)
 /**
  * Test whether the visibility is dirty for a given LoS region and a given player
  */
-bool IsVisibilityDirty(u16 dirty, player_id_t player)
+bool IsVisibilityDirty(std::uint16_t dirty, player_id_t player)
 {
 	if (player > 0 && player <= 16)
 		return (dirty >> (player - 1)) & 0x1;
@@ -166,7 +166,7 @@ bool IsVisibilityDirty(u16 dirty, player_id_t player)
 /**
  * Test whether a player share this vision
  */
-bool HasVisionSharing(u16 visionSharing, player_id_t player)
+bool HasVisionSharing(std::uint16_t visionSharing, player_id_t player)
 {
 	return (visionSharing & (1 << (player - 1))) != 0;
 }
@@ -174,7 +174,7 @@ bool HasVisionSharing(u16 visionSharing, player_id_t player)
 /**
  * Computes the shared vision mask for the player
  */
-u16 CalcVisionSharingMask(player_id_t player)
+std::uint16_t CalcVisionSharingMask(player_id_t player)
 {
 	return 1 << (player-1);
 }
@@ -264,7 +264,7 @@ struct EntityData
 	entity_pos_t visionRange;
 	u32 visibilities; // 2-bit visibility, per player
 	u32 size;
-	u16 visionSharing; // 1-bit per player
+	std::uint16_t visionSharing; // 1-bit per player
 	std::int8_t owner;
 	std::uint8_t flags; // See the FlagMasks enum
 
@@ -462,7 +462,7 @@ public:
 	// LOS state:
 	static const player_id_t MAX_LOS_PLAYER_ID = 16;
 
-	using LosRegion = std::pair<u16, u16>;
+	using LosRegion = std::pair<std::uint16_t, std::uint16_t>;
 
 	std::array<bool, MAX_LOS_PLAYER_ID+1> m_LosRevealWholeMap;
 	bool m_LosRevealWholeMapForAll;
@@ -473,17 +473,17 @@ public:
 	std::int32_t m_LosRegionsPerSide;
 	bool m_GlobalVisibilityUpdate;
 	std::array<bool, MAX_LOS_PLAYER_ID> m_GlobalPlayerVisibilityUpdate;
-	Grid<u16> m_DirtyVisibility;
+	Grid<std::uint16_t> m_DirtyVisibility;
 	Grid<std::set<entity_id_t>> m_LosRegions;
 	// List of entities that must be updated, regardless of the status of their tile
 	std::vector<entity_id_t> m_ModifiedEntities;
 
 	// Counts of units seeing vertex, per vertex, per player (starting with player 0).
-	// Use u16 to avoid overflows when we have very large (but not infeasibly large) numbers
+	// Use std::uint16_t to avoid overflows when we have very large (but not infeasibly large) numbers
 	// of units in a very small area.
 	// (Note we use vertexes, not tiles, to better match the renderer.)
 	// Lazily constructed when it's needed, to save memory in smaller games.
-	std::array<Grid<u16>, MAX_LOS_PLAYER_ID> m_LosPlayerCounts;
+	std::array<Grid<std::uint16_t>, MAX_LOS_PLAYER_ID> m_LosPlayerCounts;
 
 	// 2-bit LosState per player, starting with player 1 (not 0!) up to player MAX_LOS_PLAYER_ID (inclusive)
 	Grid<u32> m_LosState;
@@ -495,7 +495,7 @@ public:
 	// Shared LOS masks, one per player.
 	std::array<u32, MAX_LOS_PLAYER_ID+2> m_SharedLosMasks;
 	// Shared dirty visibility masks, one per player.
-	std::array<u16, MAX_LOS_PLAYER_ID+2> m_SharedDirtyVisibilityMasks;
+	std::array<std::uint16_t, MAX_LOS_PLAYER_ID+2> m_SharedDirtyVisibilityMasks;
 
 	// Cache explored vertices per player (not serialized)
 	u32 m_TotalInworldVertices;
@@ -811,7 +811,7 @@ public:
 				break;
 
 			ENSURE(msgData.player > 0 && msgData.player < MAX_LOS_PLAYER_ID+1);
-			u16 visionChanged = CalcVisionSharingMask(msgData.player);
+			std::uint16_t visionChanged = CalcVisionSharingMask(msgData.player);
 
 			if (!it->second.HasFlag<FlagMasks::SharedVision>())
 			{
@@ -876,7 +876,7 @@ public:
 		// Check that calling ResetDerivedData (i.e. recomputing all the state from scratch)
 		// does not affect the incrementally-computed state
 
-		std::array<Grid<u16>, MAX_LOS_PLAYER_ID> oldPlayerCounts = m_LosPlayerCounts;
+		std::array<Grid<std::uint16_t>, MAX_LOS_PLAYER_ID> oldPlayerCounts = m_LosPlayerCounts;
 		Grid<u32> oldStateRevealed = m_LosStateRevealed;
 		FastSpatialSubdivision oldSubdivision = m_Subdivision;
 		Grid<std::set<entity_id_t> > oldLosRegions = m_LosRegions;
@@ -2030,7 +2030,7 @@ public:
 		return m_LosVerticesPerSide;
 	}
 
-	LosRegion LosVertexToLosRegionsHelper(u16 x, u16 z) const
+	LosRegion LosVertexToLosRegionsHelper(std::uint16_t x, std::uint16_t z) const
 	{
 		return LosRegion {
 			Clamp(x/LOS_REGION_RATIO, 0, m_LosRegionsPerSide - 1),
@@ -2040,11 +2040,11 @@ public:
 
 	LosRegion PosToLosRegionsHelper(entity_pos_t x, entity_pos_t z) const
 	{
-		u16 i = Clamp(
+		std::uint16_t i = Clamp(
 			(x/(LOS_TILE_SIZE*LOS_REGION_RATIO)).ToInt_RoundToZero(),
 			0,
 			m_LosRegionsPerSide - 1);
-		u16 j = Clamp(
+		std::uint16_t j = Clamp(
 			(z/(LOS_TILE_SIZE*LOS_REGION_RATIO)).ToInt_RoundToZero(),
 			0,
 			m_LosRegionsPerSide - 1);
@@ -2067,8 +2067,8 @@ public:
 	{
 		PROFILE("UpdateVisibilityData");
 
-		for (u16 i = 0; i < m_LosRegionsPerSide; ++i)
-			for (u16 j = 0; j < m_LosRegionsPerSide; ++j)
+		for (std::uint16_t i = 0; i < m_LosRegionsPerSide; ++i)
+			for (std::uint16_t j = 0; j < m_LosRegionsPerSide; ++j)
 			{
 				LosRegion pos{i, j};
 				for (player_id_t player = 1; player < MAX_LOS_PLAYER_ID + 1; ++player)
@@ -2347,19 +2347,19 @@ public:
 			return;
 
 		// Maximum distance to the shore
-		const u16 maxdist = 10;
+		const std::uint16_t maxdist = 10;
 
 		CmpPtr<ICmpPathfinder> cmpPathfinder(GetSystemEntity());
-		const Grid<u16>& shoreGrid = cmpPathfinder->ComputeShoreGrid(true);
+		const Grid<std::uint16_t>& shoreGrid = cmpPathfinder->ComputeShoreGrid(true);
 		ENSURE(shoreGrid.m_W == m_LosVerticesPerSide-1 && shoreGrid.m_H == m_LosVerticesPerSide-1);
 
-		Grid<u16>& counts = m_LosPlayerCounts.at(p);
+		Grid<std::uint16_t>& counts = m_LosPlayerCounts.at(p);
 		ENSURE(!counts.blank());
 
-		for (u16 j = 0; j < shoreGrid.m_H; ++j)
-			for (u16 i = 0; i < shoreGrid.m_W; ++i)
+		for (std::uint16_t j = 0; j < shoreGrid.m_H; ++j)
+			for (std::uint16_t i = 0; i < shoreGrid.m_W; ++i)
 			{
-				u16 shoredist = shoreGrid.get(i, j);
+				std::uint16_t shoredist = shoreGrid.get(i, j);
 				if (shoredist > maxdist)
 					continue;
 
@@ -2403,7 +2403,8 @@ public:
 	/**
 	 * Update the LOS state of tiles within a given horizontal strip (i0,j) to (i1,j) (inclusive).
 	 */
-	inline void LosAddStripHelper(std::uint8_t owner, std::int32_t i0, std::int32_t i1, std::int32_t j, Grid<u16>& counts)
+	inline void LosAddStripHelper(std::uint8_t owner, std::int32_t i0, std::int32_t i1, std::int32_t j,
+		Grid<std::uint16_t>& counts)
 	{
 		if (i1 < i0)
 			return;
@@ -2423,8 +2424,8 @@ public:
 				MarkVisibilityDirtyAroundTile(owner, i, j);
 			}
 
-			ENSURE(counts.get(i, j) < std::numeric_limits<u16>::max());
-			counts.get(i, j) = (u16)(counts.get(i, j) + 1); // ignore overflow; the player should never have 64K units
+			ENSURE(counts.get(i, j) < std::numeric_limits<std::uint16_t>::max());
+			counts.get(i, j) = static_cast<std::uint16_t>(counts.get(i, j) + 1); // ignore overflow; the player should never have 64K units
 		}
 	}
 
@@ -2432,7 +2433,7 @@ public:
 	 * Update the LOS state of tiles within a given horizontal strip (i0,j) to (i1,j) (inclusive).
 	 */
 	inline void LosRemoveStripHelper(std::uint8_t owner, std::int32_t i0, std::int32_t i1, std::int32_t j,
-		Grid<u16>& counts)
+		Grid<std::uint16_t>& counts)
 	{
 		if (i1 < i0)
 			return;
@@ -2440,7 +2441,7 @@ public:
 		for (std::int32_t i = i0; i <= i1; ++i)
 		{
 			ASSERT(counts.get(i, j) > 0);
-			counts.get(i, j) = (u16)(counts.get(i, j) - 1);
+			counts.get(i, j) = static_cast<std::uint16_t>(counts.get(i, j) - 1);
 
 			// Decreasing from non-zero to zero - move from visible+explored to explored
 			if (counts.get(i, j) == 0)
@@ -2466,7 +2467,7 @@ public:
 		LosRegion n3 = LosVertexToLosRegionsHelper(i, j-1);
 		LosRegion n4 = LosVertexToLosRegionsHelper(i, j);
 
-		u16 sharedDirtyVisibilityMask = m_SharedDirtyVisibilityMasks[owner];
+		std::uint16_t sharedDirtyVisibilityMask = m_SharedDirtyVisibilityMasks[owner];
 
 		if (j > 0 && i > 0)
 			m_DirtyVisibility[n1] |= sharedDirtyVisibilityMask;
@@ -2491,7 +2492,7 @@ public:
 
 		PROFILE("LosUpdateHelper");
 
-		Grid<u16>& counts = m_LosPlayerCounts.at(owner);
+		Grid<std::uint16_t>& counts = m_LosPlayerCounts.at(owner);
 
 		// Lazy initialisation of counts:
 		if (counts.blank())
@@ -2578,7 +2579,7 @@ public:
 
 		PROFILE("LosUpdateHelperIncremental");
 
-		Grid<u16>& counts = m_LosPlayerCounts.at(owner);
+		Grid<std::uint16_t>& counts = m_LosPlayerCounts.at(owner);
 
 		// Lazy initialisation of counts:
 		if (counts.blank())
@@ -2702,7 +2703,7 @@ public:
 		LosUpdateHelper<true>(static_cast<std::uint8_t>(owner), visionRange, pos);
 	}
 
-	void SharingLosAdd(u16 visionSharing, entity_pos_t visionRange, CFixedVector2D pos)
+	void SharingLosAdd(std::uint16_t visionSharing, entity_pos_t visionRange, CFixedVector2D pos)
 	{
 		if (visionRange.IsZero())
 			return;
@@ -2720,7 +2721,7 @@ public:
 		LosUpdateHelper<false>(static_cast<std::uint8_t>(owner), visionRange, pos);
 	}
 
-	void SharingLosRemove(u16 visionSharing, entity_pos_t visionRange, CFixedVector2D pos)
+	void SharingLosRemove(std::uint16_t visionSharing, entity_pos_t visionRange, CFixedVector2D pos)
 	{
 		if (visionRange.IsZero())
 			return;
@@ -2746,7 +2747,7 @@ public:
 			LosUpdateHelperIncremental(static_cast<std::uint8_t>(owner), visionRange, from, to);
 	}
 
-	void SharingLosMove(u16 visionSharing, entity_pos_t visionRange, CFixedVector2D from, CFixedVector2D to)
+	void SharingLosMove(std::uint16_t visionSharing, entity_pos_t visionRange, CFixedVector2D from, CFixedVector2D to)
 	{
 		if (visionRange.IsZero())
 			return;

@@ -61,7 +61,7 @@ void CTerrain::ReleaseData()
 ///////////////////////////////////////////////////////////////////////////////
 // Initialise: initialise this terrain to the given size
 // using given heightmap to setup elevation data
-bool CTerrain::Initialize(ssize_t patchesPerSide, const u16* data)
+bool CTerrain::Initialize(ssize_t patchesPerSide, const std::uint16_t* data)
 {
 	// clean up any previous terrain
 	ReleaseData();
@@ -70,19 +70,19 @@ bool CTerrain::Initialize(ssize_t patchesPerSide, const u16* data)
 	m_MapSize = patchesPerSide * PATCH_SIZE + 1;
 	m_MapSizePatches = patchesPerSide;
 	// allocate data for new terrain
-	m_Heightmap = new u16[m_MapSize * m_MapSize];
+	m_Heightmap = new std::uint16_t[m_MapSize * m_MapSize];
 	m_Patches = new CPatch[m_MapSizePatches * m_MapSizePatches];
 
 	// given a heightmap?
 	if (data)
 	{
 		// yes; keep a copy of it
-		memcpy(m_Heightmap, data, m_MapSize*m_MapSize*sizeof(u16));
+		memcpy(m_Heightmap, data, m_MapSize * m_MapSize * sizeof(std::uint16_t));
 	}
 	else
 	{
 		// build a flat terrain
-		memset(m_Heightmap, 0, m_MapSize*m_MapSize*sizeof(u16));
+		memset(m_Heightmap, 0, m_MapSize * m_MapSize * sizeof(std::uint16_t));
 	}
 
 	// setup patch parents, indices etc
@@ -102,7 +102,7 @@ void CTerrain::CalcPosition(ssize_t i, ssize_t j, CVector3D& pos) const
 {
 	ssize_t hi = Clamp<ssize_t>(i, 0, m_MapSize - 1);
 	ssize_t hj = Clamp<ssize_t>(j, 0, m_MapSize - 1);
-	u16 height = m_Heightmap[hj*m_MapSize + hi];
+	std::uint16_t height = m_Heightmap[hj*m_MapSize + hi];
 	pos.X = float(i*TERRAIN_TILE_SIZE);
 	pos.Y = float(height*HEIGHT_SCALE);
 	pos.Z = float(j*TERRAIN_TILE_SIZE);
@@ -114,9 +114,9 @@ void CTerrain::CalcPositionFixed(ssize_t i, ssize_t j, CFixedVector3D& pos) cons
 {
 	ssize_t hi = Clamp<ssize_t>(i, 0, m_MapSize - 1);
 	ssize_t hj = Clamp<ssize_t>(j, 0, m_MapSize - 1);
-	u16 height = m_Heightmap[hj*m_MapSize + hi];
+	std::uint16_t height = m_Heightmap[hj*m_MapSize + hi];
 	pos.X = fixed::FromInt(i) * (int)TERRAIN_TILE_SIZE;
-	// fixed max value is 32767, but height is a u16, so divide by two to avoid overflow
+	// fixed max value is 32767, but height is a std::uint16_t, so divide by two to avoid overflow
 	pos.Y = fixed::FromInt(height/ 2 ) / ((int)HEIGHT_UNITS_PER_METRE / 2);
 	pos.Z = fixed::FromInt(j) * (int)TERRAIN_TILE_SIZE;
 }
@@ -309,14 +309,14 @@ fixed CTerrain::GetSlopeFixed(ssize_t i, ssize_t j) const
 	i = Clamp<ssize_t>(i, 0, m_MapSize - 2);
 	j = Clamp<ssize_t>(j, 0, m_MapSize - 2);
 
-	u16 h00 = m_Heightmap[j*m_MapSize + i];
-	u16 h01 = m_Heightmap[(j+1)*m_MapSize + i];
-	u16 h10 = m_Heightmap[j*m_MapSize + (i+1)];
-	u16 h11 = m_Heightmap[(j+1)*m_MapSize + (i+1)];
+	std::uint16_t h00 = m_Heightmap[j*m_MapSize + i];
+	std::uint16_t h01 = m_Heightmap[(j+1)*m_MapSize + i];
+	std::uint16_t h10 = m_Heightmap[j*m_MapSize + (i+1)];
+	std::uint16_t h11 = m_Heightmap[(j+1)*m_MapSize + (i+1)];
 
 	// Difference of highest point from lowest point
-	u16 delta = std::max(std::max(h00, h01), std::max(h10, h11)) -
-	            std::min(std::min(h00, h01), std::min(h10, h11));
+	std::uint16_t delta = std::max(std::max(h00, h01), std::max(h10, h11)) -
+		std::min(std::min(h00, h01), std::min(h10, h11));
 
 	// Compute fractional slope (being careful to avoid intermediate overflows)
 	return fixed::FromInt(delta / TERRAIN_TILE_SIZE) / (int)HEIGHT_UNITS_PER_METRE;
@@ -333,12 +333,12 @@ fixed CTerrain::GetExactSlopeFixed(fixed x, fixed z) const
 	const fixed xf = Clamp((x / static_cast<int>(TERRAIN_TILE_SIZE)) - fixed::FromInt(xi), fixed::Zero(), one);
 	const fixed zf = Clamp((z / static_cast<int>(TERRAIN_TILE_SIZE)) - fixed::FromInt(zi), fixed::Zero(), one);
 
-	u16 h00 = m_Heightmap[zi*m_MapSize + xi];
-	u16 h01 = m_Heightmap[(zi+1)*m_MapSize + xi];
-	u16 h10 = m_Heightmap[zi*m_MapSize + (xi+1)];
-	u16 h11 = m_Heightmap[(zi+1)*m_MapSize + (xi+1)];
+	std::uint16_t h00 = m_Heightmap[zi*m_MapSize + xi];
+	std::uint16_t h01 = m_Heightmap[(zi+1)*m_MapSize + xi];
+	std::uint16_t h10 = m_Heightmap[zi*m_MapSize + (xi+1)];
+	std::uint16_t h11 = m_Heightmap[(zi+1)*m_MapSize + (xi+1)];
 
-	u16 delta;
+	std::uint16_t delta;
 	if (GetTriangulationDir(xi, zi))
 	{
 		if (xf + zf <= one)
@@ -441,10 +441,10 @@ fixed CTerrain::GetExactGroundLevelFixed(fixed x, fixed z) const
 	const fixed xf = Clamp((x / static_cast<int>(TERRAIN_TILE_SIZE)) - fixed::FromInt(xi), fixed::Zero(), one);
 	const fixed zf = Clamp((z / static_cast<int>(TERRAIN_TILE_SIZE)) - fixed::FromInt(zi), fixed::Zero(), one);
 
-	u16 h00 = m_Heightmap[zi*m_MapSize + xi];
-	u16 h01 = m_Heightmap[(zi+1)*m_MapSize + xi];
-	u16 h10 = m_Heightmap[zi*m_MapSize + (xi+1)];
-	u16 h11 = m_Heightmap[(zi+1)*m_MapSize + (xi+1)];
+	std::uint16_t h00 = m_Heightmap[zi*m_MapSize + xi];
+	std::uint16_t h01 = m_Heightmap[(zi+1)*m_MapSize + xi];
+	std::uint16_t h10 = m_Heightmap[zi*m_MapSize + (xi+1)];
+	std::uint16_t h11 = m_Heightmap[(zi+1)*m_MapSize + (xi+1)];
 
 	// Intermediate scaling of xf, so we don't overflow in the multiplications below
 	// (h00 <= 65535, xf <= 1, max fixed is < 32768; divide by 2 here so xf1*h00 <= 32767.5)
@@ -498,8 +498,8 @@ void CTerrain::ResizeAndOffset(ssize_t size, ssize_t horizontalOffset, ssize_t v
 
 	// Allocate data for new terrain.
 	const ssize_t newMapSize = size * PATCH_SIZE + 1;
-	u16* newHeightmap = new u16[newMapSize * newMapSize];
-	memset(newHeightmap, 0, newMapSize * newMapSize * sizeof(u16));
+	std::uint16_t* newHeightmap = new std::uint16_t[newMapSize * newMapSize];
+	memset(newHeightmap, 0, newMapSize * newMapSize * sizeof(std::uint16_t));
 	CPatch* newPatches = new CPatch[size * size];
 
 	// O--------------------+
@@ -567,8 +567,8 @@ void CTerrain::ResizeAndOffset(ssize_t size, ssize_t horizontalOffset, ssize_t v
 		// |   5678   |
 		// |          |
 		// +----------+
-		u16* dst = newHeightmap + (j + destUpperLeftZ * PATCH_SIZE) * newMapSize + destUpperLeftX * PATCH_SIZE;
-		u16* src = m_Heightmap + (j + sourceUpperLeftZ * PATCH_SIZE) * m_MapSize + sourceUpperLeftX * PATCH_SIZE;
+		std::uint16_t* dst = newHeightmap + (j + destUpperLeftZ * PATCH_SIZE) * newMapSize + destUpperLeftX * PATCH_SIZE;
+		std::uint16_t* src = m_Heightmap + (j + sourceUpperLeftZ * PATCH_SIZE) * m_MapSize + sourceUpperLeftX * PATCH_SIZE;
 		std::copy_n(src, width * PATCH_SIZE, dst);
 		if (destUpperLeftX > 0)
 		{
@@ -580,7 +580,7 @@ void CTerrain::ResizeAndOffset(ssize_t size, ssize_t horizontalOffset, ssize_t v
 			// |   5678   |
 			// |          |
 			// +----------+
-			u16* dst_prefix = newHeightmap + (j + destUpperLeftZ * PATCH_SIZE) * newMapSize;
+			std::uint16_t* dst_prefix = newHeightmap + (j + destUpperLeftZ * PATCH_SIZE) * newMapSize;
 			std::fill_n(dst_prefix, destUpperLeftX * PATCH_SIZE, dst[0]);
 		}
 		if ((destUpperLeftX + width) * PATCH_SIZE < newMapSize)
@@ -593,7 +593,7 @@ void CTerrain::ResizeAndOffset(ssize_t size, ssize_t horizontalOffset, ssize_t v
 			// |   5678   |
 			// |          |
 			// +----------+
-			u16* dst_suffix = dst + width * PATCH_SIZE;
+			std::uint16_t* dst_suffix = dst + width * PATCH_SIZE;
 			std::fill_n(
 				dst_suffix,
 				newMapSize - (width + destUpperLeftX) * PATCH_SIZE,
@@ -610,8 +610,8 @@ void CTerrain::ResizeAndOffset(ssize_t size, ssize_t horizontalOffset, ssize_t v
 	for (ssize_t j = 0; j < destUpperLeftZ * PATCH_SIZE; ++j)
 	{
 
-		u16* dst = newHeightmap + j * newMapSize;
-		u16* src = newHeightmap + destUpperLeftZ * PATCH_SIZE * newMapSize;
+		std::uint16_t* dst = newHeightmap + j * newMapSize;
+		std::uint16_t* src = newHeightmap + destUpperLeftZ * PATCH_SIZE * newMapSize;
 		std::copy_n(src, newMapSize, dst);
 	}
 	// Copy over heights from the succeeding row. Destination heightmap:
@@ -623,8 +623,8 @@ void CTerrain::ResizeAndOffset(ssize_t size, ssize_t horizontalOffset, ssize_t v
 	// +----------+
 	for (ssize_t j = (destUpperLeftZ + depth) * PATCH_SIZE; j < newMapSize; ++j)
 	{
-		u16* dst = newHeightmap + j * newMapSize;
-		u16* src = newHeightmap + ((destUpperLeftZ + depth) * PATCH_SIZE - 1) * newMapSize;
+		std::uint16_t* dst = newHeightmap + j * newMapSize;
+		std::uint16_t* src = newHeightmap + ((destUpperLeftZ + depth) * PATCH_SIZE - 1) * newMapSize;
 		std::copy_n(src, newMapSize, dst);
 	}
 
@@ -730,10 +730,10 @@ void CTerrain::InitialisePatches()
 ///////////////////////////////////////////////////////////////////////////////
 // SetHeightMap: set up a new heightmap from 16-bit source data;
 // assumes heightmap matches current terrain size
-void CTerrain::SetHeightMap(u16* heightmap)
+void CTerrain::SetHeightMap(std::uint16_t* heightmap)
 {
 	// keep a copy of the given heightmap
-	memcpy(m_Heightmap, heightmap, m_MapSize*m_MapSize*sizeof(u16));
+	memcpy(m_Heightmap, heightmap, m_MapSize * m_MapSize * sizeof(std::uint16_t));
 
 	// recalculate patch bounds, invalidate vertices
 	for (ssize_t j = 0; j < m_MapSizePatches; j++)
@@ -807,8 +807,8 @@ CBoundingBoxAligned CTerrain::GetVertexesBound(ssize_t i0, ssize_t j0, ssize_t i
 	i1 = Clamp<ssize_t>(i1, 0, m_MapSize - 1);
 	j1 = Clamp<ssize_t>(j1, 0, m_MapSize - 1);
 
-	u16 minH = 65535;
-	u16 maxH = 0;
+	std::uint16_t minH = 65535;
+	std::uint16_t maxH = 0;
 
 	for (ssize_t j = j0; j <= j1; ++j)
 	{

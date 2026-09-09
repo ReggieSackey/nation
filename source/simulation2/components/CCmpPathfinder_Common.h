@@ -82,13 +82,13 @@ public:
 
 	std::map<std::string, pass_class_t> m_PassClassMasks;
 	std::vector<PathfinderPassability> m_PassClasses;
-	u16 m_MaxSameTurnMoves; // Compute only this many paths when useMax is true in StartProcessingMoves.
+	std::uint16_t m_MaxSameTurnMoves; // Compute only this many paths when useMax is true in StartProcessingMoves.
 
 	// Dynamic state:
 
 	// Lazily-constructed dynamic state (not serialized):
 
-	u16 m_GridSize; // Navcells per side of the map.
+	std::uint16_t m_GridSize; // Navcells per side of the map.
 	Grid<NavcellData>* m_Grid; // terrain/passability information
 	Grid<NavcellData>* m_TerrainOnlyGrid; // same as m_Grid, but only with terrain, to avoid some recomputations
 
@@ -128,7 +128,7 @@ public:
 		/**
 		 * @param max - if non-zero, how many paths to process.
 		 */
-		void PrepareForComputation(u16 max)
+		void PrepareForComputation(std::uint16_t max)
 		{
 			size_t n = m_Requests.size();
 			if (max && n > max)
@@ -208,7 +208,7 @@ public:
 		m_AIPathfinderDirtinessInformation.Clean();
 	}
 
-	Grid<u16> ComputeShoreGrid(bool expandOnWater = false) override;
+	Grid<std::uint16_t> ComputeShoreGrid(bool expandOnWater = false) override;
 
 	void ComputePathImmediate(entity_pos_t x0, entity_pos_t z0, const PathGoal& goal, pass_class_t passClass, WaypointPath& ret) const override;
 

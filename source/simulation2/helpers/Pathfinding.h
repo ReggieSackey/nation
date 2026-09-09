@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Wildfire Games.
+/* Copyright (C) 2026 Wildfire Games.
  * This file is part of 0 A.D.
  *
  * 0 A.D. is free software: you can redistribute it and/or modify
@@ -31,7 +31,7 @@
 class CParamNode;
 template<typename T> class Grid;
 
-typedef u16 pass_class_t;
+typedef std::uint16_t pass_class_t;
 
 struct LongPathRequest
 {
@@ -81,19 +81,19 @@ struct PathCost
 	PathCost() : data(0) { }
 
 	/// Construct from a number of horizontal/vertical and diagonal steps
-	PathCost(u16 hv, u16 d)
+	PathCost(std::uint16_t hv, std::uint16_t d)
 		: data(hv * 65536 + d * 92682) // 2^16 * sqrt(2) == 92681.9
 	{
 	}
 
 	/// Construct for horizontal/vertical movement of given number of steps
-	static PathCost horizvert(u16 n)
+	static PathCost horizvert(std::uint16_t n)
 	{
 		return PathCost(n, 0);
 	}
 
 	/// Construct for diagonal movement of given number of steps
-	static PathCost diag(u16 n)
+	static PathCost diag(std::uint16_t n)
 	{
 		return PathCost(0, n);
 	}
@@ -126,7 +126,7 @@ private:
 };
 
 inline constexpr int PASS_CLASS_BITS = 16;
-typedef u16 NavcellData; // 1 bit per passability class (up to PASS_CLASS_BITS)
+typedef std::uint16_t NavcellData; // 1 bit per passability class (up to PASS_CLASS_BITS)
 #define IS_PASSABLE(item, classmask) (((item) & (classmask)) == 0)
 #define PASS_CLASS_MASK_FROM_INDEX(id) ((pass_class_t)(1u << id))
 #define SPECIAL_PASS_CLASS PASS_CLASS_MASK_FROM_INDEX((PASS_CLASS_BITS-1)) // 16th bit, used for special in-place computations
@@ -163,24 +163,27 @@ namespace Pathfinding
 	 * Compute the navcell indexes on the grid nearest to a given point
 	 * w, h are the grid dimensions, i.e. the number of navcells per side
 	 */
-	inline void NearestNavcell(entity_pos_t x, entity_pos_t z, u16& i, u16& j, u16 w, u16 h)
+	inline void NearestNavcell(entity_pos_t x, entity_pos_t z, std::uint16_t& i, std::uint16_t& j,
+		std::uint16_t w, std::uint16_t h)
 	{
 		// Use NAVCELL_SIZE_INT to save the cost of dividing by a fixed
-		i = static_cast<u16>(Clamp((x / NAVCELL_SIZE_INT).ToInt_RoundToNegInfinity(), 0, w - 1));
-		j = static_cast<u16>(Clamp((z / NAVCELL_SIZE_INT).ToInt_RoundToNegInfinity(), 0, h - 1));
+		i = static_cast<std::uint16_t>(Clamp((x / NAVCELL_SIZE_INT).ToInt_RoundToNegInfinity(), 0,
+			w - 1));
+		j = static_cast<std::uint16_t>(Clamp((z / NAVCELL_SIZE_INT).ToInt_RoundToNegInfinity(), 0,
+			h - 1));
 	}
 
 	/**
 	 * Returns the position of the center of the given terrain tile
 	 */
-	inline void TerrainTileCenter(u16 i, u16 j, entity_pos_t& x, entity_pos_t& z)
+	inline void TerrainTileCenter(std::uint16_t i, std::uint16_t j, entity_pos_t& x, entity_pos_t& z)
 	{
 		static_assert(TERRAIN_TILE_SIZE % 2 == 0);
 		x = entity_pos_t::FromInt(i*(int)TERRAIN_TILE_SIZE + (int)TERRAIN_TILE_SIZE / 2);
 		z = entity_pos_t::FromInt(j*(int)TERRAIN_TILE_SIZE + (int)TERRAIN_TILE_SIZE / 2);
 	}
 
-	inline void NavcellCenter(u16 i, u16 j, entity_pos_t& x, entity_pos_t& z)
+	inline void NavcellCenter(std::uint16_t i, std::uint16_t j, entity_pos_t& x, entity_pos_t& z)
 	{
 		x = entity_pos_t::FromInt(i * 2 + 1).Multiply(NAVCELL_SIZE / 2);
 		z = entity_pos_t::FromInt(j * 2 + 1).Multiply(NAVCELL_SIZE / 2);

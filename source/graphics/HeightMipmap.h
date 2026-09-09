@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Wildfire Games.
+/* Copyright (C) 2026 Wildfire Games.
  * This file is part of 0 A.D.
  *
  * 0 A.D. is free software: you can redistribute it and/or modify
@@ -25,7 +25,6 @@
 #define INCLUDED_HEIGHTMIPMAP
 
 #include "lib/code_annotation.h"
-#include "lib/types.h"
 
 #include <cstddef>
 #include <vector>
@@ -36,10 +35,10 @@ using VfsPath = Path;
 struct SMipmap
 {
 	SMipmap() : m_MapSize(0), m_Heightmap(0) { }
-	SMipmap(size_t MapSize, u16* Heightmap) : m_MapSize(MapSize), m_Heightmap(Heightmap) { }
+	SMipmap(size_t MapSize, std::uint16_t* Heightmap) : m_MapSize(MapSize), m_Heightmap(Heightmap) { }
 
 	size_t m_MapSize;
-	u16* m_Heightmap;
+	std::uint16_t* m_Heightmap;
 };
 
 class CHeightMipmap
@@ -50,16 +49,16 @@ public:
 	CHeightMipmap();
 	~CHeightMipmap();
 
-	void Initialize(size_t mapSize, const u16* ptr);
+	void Initialize(size_t mapSize, const std::uint16_t* ptr);
 	void ReleaseData();
 
 	// update the heightmap mipmaps
-	void Update(const u16* ptr);
+	void Update(const std::uint16_t* ptr);
 
 	// update a section of the heightmap mipmaps
 	// (coordinates are heightmap cells, inclusive of lower bounds,
 	// exclusive of upper bounds)
-	void Update(const u16* ptr, size_t left, size_t bottom, size_t right, size_t top);
+	void Update(const std::uint16_t* ptr, size_t left, size_t bottom, size_t right, size_t top);
 
 	float GetTrilinearGroundLevel(float x, float z, float radius) const;
 
@@ -71,10 +70,10 @@ private:
 	float BilinearFilter(const SMipmap &mipmap, float x, float z) const;
 
 	// update rectangle of the output mipmap by bilinear interpolating an input mipmap of exactly twice its size
-	void HalfResizeUpdate(SMipmap &out_mipmap, size_t mapSize, const u16* ptr, size_t left, size_t bottom, size_t right, size_t top);
+	void HalfResizeUpdate(SMipmap &out_mipmap, size_t mapSize, const std::uint16_t* ptr, size_t left, size_t bottom, size_t right, size_t top);
 
 	// update rectangle of the output mipmap by bilinear interpolating the input mipmap
-	void BilinearUpdate(SMipmap &out_mipmap, size_t mapSize, const u16* ptr, size_t left, size_t bottom, size_t right, size_t top);
+	void BilinearUpdate(SMipmap &out_mipmap, size_t mapSize, const std::uint16_t* ptr, size_t left, size_t bottom, size_t right, size_t top);
 
 	// size of this map in each direction
 	size_t m_MapSize;

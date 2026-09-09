@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Wildfire Games.
+/* Copyright (C) 2026 Wildfire Games.
  * This file is part of 0 A.D.
  *
  * 0 A.D. is free software: you can redistribute it and/or modify
@@ -21,8 +21,6 @@
 
 #ifndef INCLUDED_HFTRACER
 #define INCLUDED_HFTRACER
-
-#include "lib/types.h"
 
 #include <cstddef>
 
@@ -66,7 +64,7 @@ private:
 	// The terrain we're operating on
 	CTerrain& m_Terrain;
 	// the heightfield were tracing
-	const u16* m_Heightfield;
+	const std::uint16_t* m_Heightfield;
 	// size of the heightfield
 	size_t m_MapSize;
 	// cell size - size of each cell in x and z

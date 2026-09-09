@@ -175,7 +175,7 @@ protected:
 
 	virtual void PutNumber(const char* name, int16_t value)
 	{
-		int16_t v = static_cast<std::int16_t>(to_le16((u16)value));
+		int16_t v = static_cast<std::int16_t>(to_le16(static_cast<std::uint16_t>(value)));
 		m_Impl.Put(name, reinterpret_cast<const std::uint8_t*>(&v), sizeof(int16_t));
 	}
 

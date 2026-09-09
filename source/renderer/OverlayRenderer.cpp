@@ -33,7 +33,6 @@
 #include "graphics/TextureManager.h"
 #include "lib/debug.h"
 #include "lib/hash.h"
-#include "lib/types.h"
 #include "maths/Matrix3D.h"
 #include "maths/Vector2D.h"
 #include "maths/Vector3D.h"
@@ -220,7 +219,7 @@ struct OverlayRendererInternals
 
 	// Geometry for a unit sphere
 	std::vector<float> sphereVertexes;
-	std::vector<u16> sphereIndexes;
+	std::vector<std::uint16_t> sphereIndexes;
 	void GenerateSphere();
 
 	// Performs one-time setup. Called from CRenderer::Open, after graphics capabilities have
@@ -270,8 +269,8 @@ void OverlayRendererInternals::Initialize()
 	// Since the quads in the vertex array are independent and always consist of exactly 4 vertices per quad, the
 	// indices are always the same; we can therefore fill in all the indices once and pretty much forget about
 	// them. We then also no longer need its backing store, since we never change any indices afterwards.
-	VertexArrayIterator<u16> index = quadIndices.GetIterator();
-	for (u16 i = 0; i < static_cast<u16>(MAX_QUAD_OVERLAYS); ++i)
+	VertexArrayIterator<std::uint16_t> index = quadIndices.GetIterator();
+	for (std::uint16_t i = 0; i < static_cast<std::uint16_t>(MAX_QUAD_OVERLAYS); ++i)
 	{
 		*index++ = i * 4 + 0;
 		*index++ = i * 4 + 1;
@@ -747,10 +746,9 @@ void OverlayRenderer::RenderForegroundOverlays(
 	deviceCommandContext->EndPass();
 }
 
-static void TessellateSphereFace(const CVector3D& a, u16 ai,
-								 const CVector3D& b, u16 bi,
-								 const CVector3D& c, u16 ci,
-								 std::vector<float>& vertexes, std::vector<u16>& indexes, int level)
+static void TessellateSphereFace(const CVector3D& a, std::uint16_t ai, const CVector3D& b,
+	std::uint16_t bi, const CVector3D& c, std::uint16_t ci, std::vector<float>& vertexes,
+	std::vector<std::uint16_t>& indexes, int level)
 {
 	if (level == 0)
 	{
@@ -773,7 +771,7 @@ static void TessellateSphereFace(const CVector3D& a, u16 ai,
 	}
 }
 
-static void TessellateSphere(std::vector<float>& vertexes, std::vector<u16>& indexes, int level)
+static void TessellateSphere(std::vector<float>& vertexes, std::vector<std::uint16_t>& indexes, int level)
 {
 	/* Start with a tetrahedron, then tessellate */
 	float s = sqrtf(0.5f);

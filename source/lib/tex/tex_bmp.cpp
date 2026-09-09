@@ -43,18 +43,18 @@
 struct BmpHeader
 {
 	// BITMAPFILEHEADER
-	u16 bfType;			// "BM"
+	std::uint16_t bfType;			// "BM"
 	u32 bfSize;			// of file
-	u16 bfReserved1;
-	u16 bfReserved2;
+	std::uint16_t bfReserved1;
+	std::uint16_t bfReserved2;
 	u32 bfOffBits;		// offset to image data
 
 	// BITMAPINFOHEADER
 	u32 biSize;
 	std::int32_t biWidth;
 	std::int32_t biHeight;
-	u16 biPlanes;
-	u16 biBitCount;
+	std::uint16_t biPlanes;
+	std::uint16_t biBitCount;
 	u32 biCompression;
 	u32 biSizeImage;
 	// the following are unused and zeroed when writing:
@@ -109,7 +109,7 @@ Status TexCodecBmp::decode(std::uint8_t* RESTRICT data, size_t /*size*/, Tex* RE
 	const BmpHeader* hdr = (const BmpHeader*)data;
 	const long w       = (long)read_le32(&hdr->biWidth);
 	const long h_      = (long)read_le32(&hdr->biHeight);
-	const u16 bpp      = read_le16(&hdr->biBitCount);
+	const std::uint16_t bpp = read_le16(&hdr->biBitCount);
 	const u32 compress = read_le32(&hdr->biCompression);
 
 	const long h = std::labs(h_);
@@ -158,7 +158,7 @@ Status TexCodecBmp::encode(Tex* RESTRICT t, DynArray* RESTRICT da) const
 		static_cast<std::int32_t>(t->m_Width),
 		h,
 		1,					// biPlanes
-		(u16)t->m_Bpp,
+		static_cast<std::uint16_t>(t->m_Bpp),
 		BI_RGB,				// biCompression
 		(u32)img_size,		// biSizeImage
 		0, 0, 0, 0			// unused (bi?PelsPerMeter, biClr*)

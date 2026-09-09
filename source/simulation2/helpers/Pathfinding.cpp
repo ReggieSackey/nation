@@ -47,7 +47,7 @@ namespace Pathfinding
 		// we allow them to move from an impassable to a passable cell (but not
 		// vice versa).
 
-		u16 i0, j0, i1, j1;
+		std::uint16_t i0, j0, i1, j1;
 		NearestNavcell(x0, z0, i0, j0, grid.m_W, grid.m_H);
 		NearestNavcell(x1, z1, i1, j1, grid.m_W, grid.m_H);
 
@@ -55,8 +55,8 @@ namespace Pathfinding
 		int di = (i0 < i1 ? +1 : i1 < i0 ? -1 : 0);
 		int dj = (j0 < j1 ? +1 : j1 < j0 ? -1 : 0);
 
-		u16 i = i0;
-		u16 j = j0;
+		std::uint16_t i = i0;
+		std::uint16_t j = j0;
 
 		bool currentlyOnImpassable = !IS_PASSABLE(grid.get(i0, j0), passClass);
 

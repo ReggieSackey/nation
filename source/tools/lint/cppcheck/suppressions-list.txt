@@ -63,6 +63,7 @@ unknownMacro:source/lib/sysdep/os/win/wdbg_sym.cpp
 unknownMacro:source/lib/sysdep/os/win/wfirmware.cpp
 unknownMacro:source/lib/sysdep/os/win/wposix/wutsname.cpp
 unknownMacro:source/ps/CStr.cpp
+unknownMacro:source/simulation2/components/tests/test_HierPathfinder.h
 
 uninitvar:source/ps/Game.cpp
 uninitvar:source/ps/scripting/JSInterface_SavedGame.cpp

@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Wildfire Games.
+/* Copyright (C) 2026 Wildfire Games.
  * This file is part of 0 A.D.
  *
  * 0 A.D. is free software: you can redistribute it and/or modify
@@ -25,9 +25,9 @@
 
 #include <vector>
 
-// Opens the given texture file and stores it in a one-dimensional u16 vector.
-Status LoadHeightmapImageVfs(const VfsPath& filepath, std::vector<u16>& heightmap);
-Status LoadHeightmapImageOs(const OsPath& filepath, std::vector<u16>& heightmap);
+// Opens the given texture file and stores it in a one-dimensional std::uint16_t vector.
+Status LoadHeightmapImageVfs(const VfsPath& filepath, std::vector<std::uint16_t>& heightmap);
+Status LoadHeightmapImageOs(const OsPath& filepath, std::vector<std::uint16_t>& heightmap);
 
 class CMapIO
 {
@@ -42,9 +42,9 @@ public:
 	struct STileDesc
 	{
 		// Index into the texture array of first texture on tile.
-		u16 m_Tex1Index;
+		std::uint16_t m_Tex1Index;
 		// Index into the texture array of second texture; (0xFFFF) if none.
-		u16 m_Tex2Index;
+		std::uint16_t m_Tex2Index;
 		u32 m_Priority;
 	};
 #pragma pack(pop)

@@ -135,7 +135,7 @@ private:
 	// MS bits - see http://www.mindcontrol.org/~hplus/graphics/expand-bits.html ;
 	// this is also the algorithm used by graphics cards when decompressing S3TC).
 	// used to convert 565 to 32bpp RGB.
-	static inline size_t unpack_to_8(u16 c, size_t bits_below, size_t num_bits)
+	static inline size_t unpack_to_8(std::uint16_t c, size_t bits_below, size_t num_bits)
 	{
 		const size_t num_filler_bits = 8-num_bits;
 		const size_t field = (size_t)bits(c, bits_below, bits_below+num_bits-1);
@@ -187,7 +187,7 @@ private:
 		// read block contents
 		// .. S3TC reference colors (565 format). the color table is generated
 		//    from some combination of these, depending on their ordering.
-		u16 rc[2];
+		std::uint16_t rc[2];
 		for(int i = 0; i < 2; i++)
 			rc[i] = read_le16(c_block + 2*i);
 		// .. table of 2-bit color selectors

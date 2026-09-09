@@ -243,7 +243,7 @@ struct STileBlend
 {
 	CTerrainTextureEntry* m_Texture;
 	int m_Priority;
-	u16 m_TileMask; // bit n set if this blend contains neighbour tile BlendOffsets[n]
+	std::uint16_t m_TileMask; // bit n set if this blend contains neighbour tile BlendOffsets[n]
 
 	struct DecreasingPriority
 	{
@@ -299,7 +299,7 @@ void CPatchRData::BuildBlends()
 	m_BlendSplats.clear();
 
 	std::vector<SBlendVertex> blendVertices;
-	std::vector<u16> blendIndices;
+	std::vector<std::uint16_t> blendIndices;
 
 	CTerrain* terrain = m_Patch->m_Parent;
 
@@ -454,10 +454,10 @@ void CPatchRData::BuildBlends()
 
 		// Update the indices to include the base offset of the vertex data
 		for (size_t k = 0; k < blendIndices.size(); ++k)
-			blendIndices[k] += static_cast<u16>(m_VBBlends->m_Index);
+			blendIndices[k] += static_cast<std::uint16_t>(m_VBBlends->m_Index);
 
 		m_VBBlendIndices = g_Renderer.GetVertexBufferManager().AllocateChunk(
-			sizeof(u16), blendIndices.size(),
+			sizeof(std::uint16_t), blendIndices.size(),
 			Renderer::Backend::IBuffer::Type::INDEX,
 			Renderer::Backend::IBuffer::Usage::TRANSFER_DST,
 			nullptr, CVertexBufferManager::Group::TERRAIN);
@@ -465,8 +465,9 @@ void CPatchRData::BuildBlends()
 	}
 }
 
-void CPatchRData::AddBlend(std::vector<SBlendVertex>& blendVertices, std::vector<u16>& blendIndices,
-			   u16 i, u16 j, std::uint8_t shape, CTerrainTextureEntry* texture)
+void CPatchRData::AddBlend(std::vector<SBlendVertex>& blendVertices,
+	std::vector<std::uint16_t>& blendIndices, std::uint16_t i, std::uint16_t j, std::uint8_t shape,
+	CTerrainTextureEntry* texture)
 {
 	CTerrain* terrain = m_Patch->m_Parent;
 
@@ -519,7 +520,7 @@ void CPatchRData::AddBlend(std::vector<SBlendVertex>& blendVertices, std::vector
 
 	CVector3D normal;
 
-	u16 index = static_cast<u16>(blendVertices.size());
+	std::uint16_t index = static_cast<std::uint16_t>(blendVertices.size());
 
 	terrain->CalcPosition(gx, gz, dst.m_Position);
 	terrain->CalcNormal(gx, gz, normal);
@@ -587,7 +588,8 @@ void CPatchRData::BuildIndices()
 	// number of vertices in each direction in each patch
 	ssize_t vsize=PATCH_SIZE+1;
 
-	// PATCH_SIZE must be 2^8-2 or less to not overflow u16 indices buffer. Thankfully this is always true.
+	// PATCH_SIZE must be 2^8-2 or less to not overflow std::uint16_t indices buffer. Thankfully this is
+	// always true.
 	ENSURE(vsize*vsize < 65536);
 
 	std::vector<unsigned short> indices;
@@ -631,23 +633,23 @@ void CPatchRData::BuildIndices()
 					bool dir = terrain->GetTriangulationDir(px+i, pz+j);
 					if (dir)
 					{
-						indices.push_back(u16(((j+0)*vsize+(i+0))+base));
-						indices.push_back(u16(((j+0)*vsize+(i+1))+base));
-						indices.push_back(u16(((j+1)*vsize+(i+0))+base));
+						indices.push_back(static_cast<std::uint16_t>(((j+0)*vsize+(i+0))+base));
+						indices.push_back(static_cast<std::uint16_t>(((j+0)*vsize+(i+1))+base));
+						indices.push_back(static_cast<std::uint16_t>(((j+1)*vsize+(i+0))+base));
 
-						indices.push_back(u16(((j+0)*vsize+(i+1))+base));
-						indices.push_back(u16(((j+1)*vsize+(i+1))+base));
-						indices.push_back(u16(((j+1)*vsize+(i+0))+base));
+						indices.push_back(static_cast<std::uint16_t>(((j+0)*vsize+(i+1))+base));
+						indices.push_back(static_cast<std::uint16_t>(((j+1)*vsize+(i+1))+base));
+						indices.push_back(static_cast<std::uint16_t>(((j+1)*vsize+(i+0))+base));
 					}
 					else
 					{
-						indices.push_back(u16(((j+0)*vsize+(i+0))+base));
-						indices.push_back(u16(((j+0)*vsize+(i+1))+base));
-						indices.push_back(u16(((j+1)*vsize+(i+1))+base));
+						indices.push_back(static_cast<std::uint16_t>(((j+0)*vsize+(i+0))+base));
+						indices.push_back(static_cast<std::uint16_t>(((j+0)*vsize+(i+1))+base));
+						indices.push_back(static_cast<std::uint16_t>(((j+1)*vsize+(i+1))+base));
 
-						indices.push_back(u16(((j+1)*vsize+(i+1))+base));
-						indices.push_back(u16(((j+1)*vsize+(i+0))+base));
-						indices.push_back(u16(((j+0)*vsize+(i+0))+base));
+						indices.push_back(static_cast<std::uint16_t>(((j+1)*vsize+(i+1))+base));
+						indices.push_back(static_cast<std::uint16_t>(((j+1)*vsize+(i+0))+base));
+						indices.push_back(static_cast<std::uint16_t>(((j+0)*vsize+(i+0))+base));
 					}
 				}
 			}
@@ -662,7 +664,7 @@ void CPatchRData::BuildIndices()
 
 	// Construct vertex buffer
 	m_VBBaseIndices = g_Renderer.GetVertexBufferManager().AllocateChunk(
-		sizeof(u16), indices.size(),
+		sizeof(std::uint16_t), indices.size(),
 		Renderer::Backend::IBuffer::Type::INDEX,
 		Renderer::Backend::IBuffer::Usage::TRANSFER_DST, nullptr, CVertexBufferManager::Group::TERRAIN);
 	m_VBBaseIndices->m_Owner->UpdateChunkVertices(m_VBBaseIndices.Get(), &indices[0]);
@@ -1432,14 +1434,14 @@ void CPatchRData::BuildWater()
 
 	// Build data for water
 	std::vector<SWaterVertex> water_vertex_data;
-	std::vector<u16> water_indices;
-	u16 water_index_map[PATCH_SIZE+1][PATCH_SIZE+1];
+	std::vector<std::uint16_t> water_indices;
+	std::uint16_t water_index_map[PATCH_SIZE+1][PATCH_SIZE+1];
 	memset(water_index_map, 0xFF, sizeof(water_index_map));
 
 	// Build data for shore
 	std::vector<SWaterVertex> water_vertex_data_shore;
-	std::vector<u16> water_indices_shore;
-	u16 water_shore_index_map[PATCH_SIZE+1][PATCH_SIZE+1];
+	std::vector<std::uint16_t> water_indices_shore;
+	std::uint16_t water_shore_index_map[PATCH_SIZE+1][PATCH_SIZE+1];
 	memset(water_shore_index_map, 0xFF, sizeof(water_shore_index_map));
 
 	const WaterManager& waterManager = g_Renderer.GetSceneRenderer().GetWaterManager();
@@ -1515,7 +1517,7 @@ void CPatchRData::BuildWater()
 
 				vertex.m_WaterData = CVector2D(waterManager.m_WindStrength[xx + zz*mapSize], depth);
 
-				water_index_map[z+moves[i][1]][x+moves[i][0]] = static_cast<u16>(water_vertex_data.size());
+				water_index_map[z+moves[i][1]][x+moves[i][0]] = static_cast<std::uint16_t>(water_vertex_data.size());
 				water_vertex_data.push_back(vertex);
 			}
 			water_indices.push_back(water_index_map[z + moves[2][1]][x + moves[2][0]]);
@@ -1548,7 +1550,7 @@ void CPatchRData::BuildWater()
 
 				vertex.m_WaterData = CVector2D(0.0f, -5.0f);
 
-				water_shore_index_map[z+moves[i][1]][x+moves[i][0]] = static_cast<u16>(water_vertex_data_shore.size());
+				water_shore_index_map[z+moves[i][1]][x+moves[i][0]] = static_cast<std::uint16_t>(water_vertex_data_shore.size());
 				water_vertex_data_shore.push_back(vertex);
 			}
 			if (terrain->GetTriangulationDir(x + px, z + pz))
@@ -1583,7 +1585,7 @@ void CPatchRData::BuildWater()
 		m_VBWater->m_Owner->UpdateChunkVertices(m_VBWater.Get(), &water_vertex_data[0]);
 
 		m_VBWaterIndices = g_Renderer.GetVertexBufferManager().AllocateChunk(
-			sizeof(u16), water_indices.size(),
+			sizeof(std::uint16_t), water_indices.size(),
 			Renderer::Backend::IBuffer::Type::INDEX,
 			Renderer::Backend::IBuffer::Usage::TRANSFER_DST,
 			nullptr, CVertexBufferManager::Group::WATER);
@@ -1601,7 +1603,7 @@ void CPatchRData::BuildWater()
 
 		// Construct indices buffer
 		m_VBWaterIndicesShore = g_Renderer.GetVertexBufferManager().AllocateChunk(
-			sizeof(u16), water_indices_shore.size(),
+			sizeof(std::uint16_t), water_indices_shore.size(),
 			Renderer::Backend::IBuffer::Type::INDEX,
 			Renderer::Backend::IBuffer::Usage::TRANSFER_DST,
 			nullptr, CVertexBufferManager::Group::WATER);

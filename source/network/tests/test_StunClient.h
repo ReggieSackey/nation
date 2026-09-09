@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Wildfire Games.
+/* Copyright (C) 2026 Wildfire Games.
  * This file is part of 0 A.D.
  *
  * 0 A.D. is free software: you can redistribute it and/or modify
@@ -18,7 +18,6 @@
 #include "lib/self_test.h"
 
 #include "lib/external_libraries/enet.h"
-#include "lib/types.h"
 #include "network/StunClient.h"
 #include "ps/CLogger.h"
 #include "ps/CStr.h"
@@ -70,7 +69,7 @@ public:
 		// Disabled test -> should return your external IP by connecting to our STUN server.
 		CConfigDB::Initialise();
 		CStr ip;
-		u16 port;
+		std::uint16_t port;
 		g_ConfigDB.SetValueString(CFG_COMMAND, "lobby.stun.server", "lobby.wildfiregames.com");
 		g_ConfigDB.SetValueString(CFG_COMMAND, "lobby.stun.port", "3478");
 		ENetAddress addr { ENET_HOST_ANY, ENET_PORT_ANY };

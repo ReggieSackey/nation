@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Wildfire Games.
+/* Copyright (C) 2026 Wildfire Games.
  * This file is part of 0 A.D.
  *
  * 0 A.D. is free software: you can redistribute it and/or modify
@@ -384,7 +384,7 @@ void CCmpUnitMotionManager::ResetSubdivisions()
 		return;
 
 	size_t size = cmpTerrain->GetMapSize();
-	u16 gridSquareSize = static_cast<u16>(size / PUSHING_GRID_SIZE + 1);
+	std::uint16_t gridSquareSize = static_cast<std::uint16_t>(size / PUSHING_GRID_SIZE + 1);
 	m_MovingUnits.resize(gridSquareSize, gridSquareSize);
 }
 

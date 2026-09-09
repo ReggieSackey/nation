@@ -234,7 +234,7 @@ private:
 	 */
 	void CheckClientConnections();
 
-	void SendHolePunchingMessage(const CStr& ip, u16 port);
+	void SendHolePunchingMessage(const CStr& ip, std::uint16_t port);
 
 	/**
 	 * Internal script context for (de)serializing script messages,
@@ -326,7 +326,7 @@ private:
 	/**
 	 * Try to find a UPnP root on the network and setup port forwarding.
 	 */
-	static void SetupUPnP(const u16 port);
+	static void SetupUPnP(const std::uint16_t port);
 	std::thread m_UPnPThread;
 #endif
 
@@ -375,7 +375,7 @@ public:
 
 	void OnLobbyAuth(const CStr& name, const CStr& token);
 
-	void SendHolePunchingMessage(const CStr& ip, u16 port);
+	void SendHolePunchingMessage(const CStr& ip, std::uint16_t port);
 
 	/**
 	 * Return the externally accessible IP.
@@ -385,12 +385,12 @@ public:
 	/**
 	 * Return the externally accessible port.
 	 */
-	u16 GetPublicPort() const;
+	std::uint16_t GetPublicPort() const;
 
 	/**
 	 * Return the serving port on the local machine.
 	 */
-	u16 GetLocalPort() const;
+	std::uint16_t GetLocalPort() const;
 
 	/**
 	 * Check if password is valid. If is not, increase number of failed attempts of the lobby user.
@@ -410,7 +410,7 @@ public:
 private:
 	CNetServerWorker m_Worker;
 	const bool m_LobbyAuth;
-	u16 m_PublicPort{20595};
+	std::uint16_t m_PublicPort{20595};
 	CStr m_PublicIp;
 	CStr m_Password;
 	std::unordered_map<std::string, int> m_FailedAttempts;

@@ -126,8 +126,8 @@ public:
 		}
 
 		auto mask = std::make_unique<CGUIMouseEventMaskTexture>();
-		mask->m_Width = static_cast<u16>(tex.m_Width);
-		mask->m_Height = static_cast<u16>(tex.m_Height);
+		mask->m_Width = static_cast<std::uint16_t>(tex.m_Width);
+		mask->m_Height = static_cast<std::uint16_t>(tex.m_Height);
 		mask->m_Data.reserve(mask->m_Width * mask->m_Height);
 		for (std::uint8_t* ptr = tex.get_data(); ptr < tex.get_data() + tex.m_DataSize;
 			ptr += tex.m_Bpp/8)
@@ -158,8 +158,8 @@ public:
 private:
 	// This uses the bool specialization on purpose for the 'compression' effect.
 	std::vector<bool> m_Data;
-	u16 m_Width;
-	u16 m_Height;
+	std::uint16_t m_Width;
+	std::uint16_t m_Height;
 };
 
 bool CGUIMouseEventMask::DoFromString(const CStrW& Value)

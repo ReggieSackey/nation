@@ -70,10 +70,10 @@ void BuildTextureRGBA(LongPathfinder& pathfinder, std::uint8_t* data, std::size_
 	if (pathfinder.m_Debug.Path && !pathfinder.m_Debug.Path->m_Waypoints.empty())
 	{
 		std::vector<Waypoint>& waypoints = pathfinder.m_Debug.Path->m_Waypoints;
-		u16 ip = 0, jp = 0;
+		std::uint16_t ip = 0, jp = 0;
 		for (size_t k = 0; k < waypoints.size(); ++k)
 		{
-			u16 i, j;
+			std::uint16_t i, j;
 			Pathfinding::NearestNavcell(waypoints[k].x, waypoints[k].z, i, j, pathfinder.m_GridSize,
 				pathfinder.m_GridSize);
 			if (k == 0)
@@ -140,11 +140,11 @@ class JumpPointCache
 	 */
 	struct RowRaw
 	{
-		std::vector<u16> data;
+		std::vector<std::uint16_t> data;
 
 		size_t GetMemoryUsage() const
 		{
-			return data.capacity() * sizeof(u16);
+			return data.capacity() * sizeof(std::uint16_t);
 		}
 
 		RowRaw(int length)
@@ -825,7 +825,7 @@ void LongPathfinder::ComputeJPSPath(const HierarchicalPathfinder& hierPath, enti
 	}
 
 	// Convert the start coordinates to tile indexes
-	u16 i0, j0;
+	std::uint16_t i0, j0;
 	Pathfinding::NearestNavcell(x0, z0, i0, j0, m_GridSize, m_GridSize);
 
 	if (!IS_PASSABLE(m_Grid->get(i0, j0), passClass))
@@ -883,8 +883,8 @@ void LongPathfinder::ComputeJPSPath(const HierarchicalPathfinder& hierPath, enti
 
 		// Move best tile from open to closed
 		PriorityQueue::Item curr = state.open.pop();
-		u16 i = curr.id.i();
-		u16 j = curr.id.j();
+		std::uint16_t i = curr.id.i();
+		std::uint16_t j = curr.id.j();
 		state.tiles->get(i, j).SetStatusClosed();
 
 		// If we've reached the destination, stop
@@ -974,7 +974,7 @@ void LongPathfinder::ComputeJPSPath(const HierarchicalPathfinder& hierPath, enti
 	}
 
 	// Reconstruct the path (in reverse)
-	u16 ip = state.iBest, jp = state.jBest;
+	std::uint16_t ip = state.iBest, jp = state.jBest;
 	while (ip != i0 || jp != j0)
 	{
 		PathfindTile& n = state.tiles->get(ip, jp);
@@ -1070,13 +1070,13 @@ void LongPathfinder::GetDebugDataJPS(u32& steps, double& time, Grid<std::uint8_t
 
 	std::lock_guard<std::mutex> lock(g_DebugMutex);
 
-	u16 iGoal, jGoal;
+	std::uint16_t iGoal, jGoal;
 	Pathfinding::NearestNavcell(m_Debug.Goal.x, m_Debug.Goal.z, iGoal, jGoal, m_GridSize, m_GridSize);
 
 	grid = Grid<std::uint8_t>(m_Debug.Grid->m_W, m_Debug.Grid->m_H);
-	for (u16 j = 0; j < grid.m_H; ++j)
+	for (std::uint16_t j = 0; j < grid.m_H; ++j)
 	{
-		for (u16 i = 0; i < grid.m_W; ++i)
+		for (std::uint16_t i = 0; i < grid.m_W; ++i)
 		{
 			if (i == iGoal && j == jGoal)
 				continue;
@@ -1104,7 +1104,7 @@ void LongPathfinder::ComputePath(const HierarchicalPathfinder& hierPath, entity_
 	ComputeJPSPath(hierPath, x0, z0, origGoal, SPECIAL_PASS_CLASS, path);
 }
 
-inline bool InRegion(u16 i, u16 j, CircularRegion region)
+inline bool InRegion(std::uint16_t i, std::uint16_t j, CircularRegion region)
 {
 	fixed cellX = Pathfinding::NAVCELL_SIZE * i;
 	fixed cellZ = Pathfinding::NAVCELL_SIZE * j;
@@ -1114,9 +1114,9 @@ inline bool InRegion(u16 i, u16 j, CircularRegion region)
 
 void LongPathfinder::GenerateSpecialMap(pass_class_t passClass, std::vector<CircularRegion> excludedRegions)
 {
-	for (u16 j = 0; j < m_Grid->m_H; ++j)
+	for (std::uint16_t j = 0; j < m_Grid->m_H; ++j)
 	{
-		for (u16 i = 0; i < m_Grid->m_W; ++i)
+		for (std::uint16_t i = 0; i < m_Grid->m_W; ++i)
 		{
 			NavcellData n = m_Grid->get(i, j);
 			if (!IS_PASSABLE(n, passClass))

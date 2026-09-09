@@ -74,7 +74,7 @@ public:
 	entity_pos_t GetMaximumClearance() const override { return entity_pos_t::FromInt(1); }
 	const GridUpdateInformation& GetAIPathfinderDirtinessInformation() const override { static GridUpdateInformation gridInfo; return gridInfo; }
 	void FlushAIPathfinderDirtinessInformation() override {}
-	Grid<u16> ComputeShoreGrid(bool = false) override { return Grid<u16> {}; }
+	Grid<std::uint16_t> ComputeShoreGrid(bool = false) override { return Grid<std::uint16_t> {}; }
 	u32 ComputePathAsync(entity_pos_t, entity_pos_t, const PathGoal&, pass_class_t, entity_id_t) override { return 1; }
 	void ComputePathImmediate(entity_pos_t, entity_pos_t, const PathGoal&, pass_class_t, WaypointPath&) const override {}
 	u32 ComputeShortPathAsync(entity_pos_t, entity_pos_t, entity_pos_t, entity_pos_t, const PathGoal&, pass_class_t, bool, entity_id_t, entity_id_t) override { return 1; }
@@ -110,7 +110,7 @@ public:
 	DEFAULT_MOCK_COMPONENT()
 
 	bool IsRoot() const override { return true; };
-	u16 GetWeight() const override { return 10; };
+	std::uint16_t GetWeight() const override { return 10; };
 	u32 GetRadius() const override { return m_Radius; };
 
 	u32 m_Radius = 0;
@@ -445,14 +445,14 @@ private:
 	/// Parses a string representation of a grid into an actual Grid structure, such that the (i,j) axes are located in the bottom
 	/// left hand side of the map. Note: leaves all custom bits in the grid values at zero (anything outside
 	/// ICmpTerritoryManager::TERRITORY_PLAYER_MASK).
-	Grid<std::uint8_t> GetGrid(const std::string& def, u16 w, u16 h)
+	Grid<std::uint8_t> GetGrid(const std::string& def, std::uint16_t w, std::uint16_t h)
 	{
 		Grid<std::uint8_t> grid(w, h);
 		const char* chars = def.c_str();
 
-		for (u16 y=0; y<h; y++)
+		for (std::uint16_t y=0; y<h; y++)
 		{
-			for (u16 x=0; x<w; x++)
+			for (std::uint16_t x=0; x<w; x++)
 			{
 				char gridDefChar = chars[x+y*w];
 				if (gridDefChar == '-')

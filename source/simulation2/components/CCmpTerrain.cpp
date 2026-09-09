@@ -100,14 +100,14 @@ public:
 		return m_Terrain->GetExactGroundLevel(x, z);
 	}
 
-	u16 GetTilesPerSide() const override
+	std::uint16_t GetTilesPerSide() const override
 	{
 		ssize_t tiles = m_Terrain->GetTilesPerSide();
 
 		if (tiles == -1)
 			return 0;
 		ENSURE(1 <= tiles && tiles <= 65535);
-		return (u16)tiles;
+		return static_cast<std::uint16_t>(tiles);
 	}
 
 	u32 GetMapSize() const override
@@ -115,11 +115,11 @@ public:
 		return GetTilesPerSide() * TERRAIN_TILE_SIZE;
 	}
 
-	u16 GetVerticesPerSide() const override
+	std::uint16_t GetVerticesPerSide() const override
 	{
 		ssize_t vertices = m_Terrain->GetVerticesPerSide();
 		ENSURE(1 <= vertices && vertices <= 65535);
-		return (u16)vertices;
+		return static_cast<std::uint16_t>(vertices);
 	}
 
 	CTerrain* GetCTerrain() override
@@ -131,8 +131,8 @@ public:
 	{
 		// TODO: should refactor this code to be nicer
 
-		u16 tiles = GetTilesPerSide();
-		u16 vertices = GetVerticesPerSide();
+		std::uint16_t tiles = GetTilesPerSide();
+		std::uint16_t vertices = GetVerticesPerSide();
 
 		CmpPtr<ICmpObstructionManager> cmpObstructionManager(GetSystemEntity());
 		if (cmpObstructionManager)

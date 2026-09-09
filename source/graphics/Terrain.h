@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Wildfire Games.
+/* Copyright (C) 2026 Wildfire Games.
  * This file is part of 0 A.D.
  *
  * 0 A.D. is free software: you can redistribute it and/or modify
@@ -25,7 +25,6 @@
 #include "graphics/HeightMipmap.h"
 #include "graphics/SColor.h"
 #include "lib/posix/posix_types.h"
-#include "lib/types.h"
 #include "maths/Fixed.h"
 #include "maths/Vector3D.h"
 
@@ -40,10 +39,10 @@ class CPatch;
 /// metres [world space units] per tile in x and z
 const ssize_t TERRAIN_TILE_SIZE = 4;
 
-/// number of u16 height units per metre
+/// number of std::uint16_t height units per metre
 const ssize_t HEIGHT_UNITS_PER_METRE = 92;
 
-/// metres per u16 height unit
+/// metres per std::uint16_t height unit
 const float HEIGHT_SCALE = 1.f / HEIGHT_UNITS_PER_METRE;
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -60,7 +59,7 @@ public:
 	// more efficiently be converted to/from floating point. use ssize_t
 	// instead of int/long because these are sizes.
 
-	bool Initialize(ssize_t patchesPerSide, const u16* ptr);
+	bool Initialize(ssize_t patchesPerSide, const std::uint16_t* ptr);
 
 	// return number of vertices along edge of the terrain
 	ssize_t GetVerticesPerSide() const { return m_MapSize; }
@@ -102,9 +101,9 @@ public:
 	void ResizeAndOffset(ssize_t size, ssize_t horizontalOffset = 0, ssize_t verticalOffset = 0);
 
 	// set up a new heightmap from 16 bit data; assumes heightmap matches current terrain size
-	void SetHeightMap(u16* heightmap);
+	void SetHeightMap(std::uint16_t* heightmap);
 	// return a pointer to the heightmap
-	u16* GetHeightMap() const { return m_Heightmap; }
+	std::uint16_t* GetHeightMap() const { return m_Heightmap; }
 
 	// get patch at given coordinates, expressed in patch-space; return 0 if
 	// coordinates represent patch off the edge of the map
@@ -172,7 +171,7 @@ private:
 	// the patches comprising this terrain
 	CPatch*	m_Patches;
 	// 16-bit heightmap data
-	u16* m_Heightmap;
+	std::uint16_t* m_Heightmap;
 	// base color (usually white)
 	SColor4ub m_BaseColor;
 	// heightmap mipmap

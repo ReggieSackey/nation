@@ -230,7 +230,7 @@ public:
 		return 50.f;
 	}
 
-	u16 GetTilesPerSide() const override
+	std::uint16_t GetTilesPerSide() const override
 	{
 		return 16;
 	}
@@ -240,7 +240,7 @@ public:
 		return GetTilesPerSide() * TERRAIN_TILE_SIZE;
 	}
 
-	u16 GetVerticesPerSide() const override
+	std::uint16_t GetVerticesPerSide() const override
 	{
 		return 17;
 	}

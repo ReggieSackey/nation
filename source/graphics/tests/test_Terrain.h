@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Wildfire Games.
+/* Copyright (C) 2026 Wildfire Games.
  * This file is part of 0 A.D.
  *
  * 0 A.D. is free software: you can redistribute it and/or modify
@@ -22,7 +22,6 @@
 #include "graphics/Patch.h"
 #include "graphics/RenderableObject.h"
 #include "lib/posix/posix_types.h"
-#include "lib/types.h"
 #include "maths/Fixed.h"
 #include "maths/FixedVector3D.h"
 #include "maths/Vector3D.h"
@@ -35,13 +34,13 @@
 
 class TestTerrain : public CxxTest::TestSuite
 {
-	void SetVertex(CTerrain& terrain, ssize_t i, ssize_t j, u16 height)
+	void SetVertex(CTerrain& terrain, ssize_t i, ssize_t j, std::uint16_t height)
 	{
 		terrain.GetHeightMap()[j*terrain.GetVerticesPerSide() + i] = height;
 		terrain.MakeDirty(RENDERDATA_UPDATE_VERTICES);
 	}
 
-	u16 GetVertex(CTerrain& terrain, ssize_t i, ssize_t j)
+	std::uint16_t GetVertex(CTerrain& terrain, ssize_t i, ssize_t j)
 	{
 		return terrain.GetHeightMap()[j*terrain.GetVerticesPerSide() + i];
 	}
@@ -210,8 +209,8 @@ public:
 		struct ResizeTestCase
 		{
 			ssize_t horizontalOffset, verticalOffset;
-			std::vector<std::vector<u16>> sourcePatches;
-			std::vector<std::vector<u16>> expectedPatches;
+			std::vector<std::vector<std::uint16_t>> sourcePatches;
+			std::vector<std::vector<std::uint16_t>> expectedPatches;
 		};
 		const ResizeTestCase testCases[] = {
 			// Without offset.
@@ -388,7 +387,7 @@ public:
 
 			CTerrain terrain;
 			{
-				std::vector<u16> heightmap(sourceMapSize * sourceMapSize);
+				std::vector<std::uint16_t> heightmap(sourceMapSize * sourceMapSize);
 				for (ssize_t jTile = 0; jTile < sourceSize; ++jTile)
 				{
 					TS_ASSERT_EQUALS(sourceSize, testCase.sourcePatches[jTile].size());

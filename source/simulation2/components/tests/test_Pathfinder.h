@@ -250,9 +250,9 @@ public:
 	template<typename T>
 	void DumpGrid(std::ostream& stream, const Grid<T>& grid, int mask)
 	{
-		for (u16 j = 0; j < grid.m_H; ++j)
+		for (std::uint16_t j = 0; j < grid.m_H; ++j)
 		{
-			for (u16 i = 0; i < grid.m_W; )
+			for (std::uint16_t i = 0; i < grid.m_W; )
 			{
 				if (!(grid.get(i, j) & mask))
 				{
@@ -260,7 +260,7 @@ public:
 					continue;
 				}
 
-				u16 i0 = i;
+				std::uint16_t i0 = i;
 				for (i = i0+1; ; ++i)
 				{
 					if (i >= grid.m_W || !(grid.get(i, j) & mask))

@@ -46,13 +46,13 @@ public:
 	 * Returns number of tiles per side on the terrain.
 	 * Return value is always non-zero.
 	 */
-	virtual u16 GetTilesPerSide() const = 0;
+	virtual std::uint16_t GetTilesPerSide() const = 0;
 
 	/**
 	 * Returns number of vertices per side on the terrain.
 	 * Return value is always non-zero.
 	 */
-	virtual u16 GetVerticesPerSide() const = 0;
+	virtual std::uint16_t GetVerticesPerSide() const = 0;
 
 	/**
 	 * Returns the map size in metres (world space units).

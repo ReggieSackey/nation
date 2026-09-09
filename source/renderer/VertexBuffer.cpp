@@ -20,7 +20,6 @@
 #include "VertexBuffer.h"
 
 #include "lib/debug.h"
-#include "lib/types.h"
 #include "renderer/Renderer.h"
 #include "renderer/backend/IDevice.h"
 #include "renderer/backend/IDeviceCommandContext.h"
@@ -59,7 +58,7 @@ CVertexBuffer::CVertexBuffer(
 	}
 	else if (type == Renderer::Backend::IBuffer::Type::INDEX)
 	{
-		ENSURE(vertexSize == sizeof(u16));
+		ENSURE(vertexSize == sizeof(std::uint16_t));
 	}
 
 	// store max/free vertex counts

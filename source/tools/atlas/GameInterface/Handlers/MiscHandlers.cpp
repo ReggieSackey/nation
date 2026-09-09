@@ -22,7 +22,6 @@
 #include "gui/GUIManager.h"
 #include "lib/external_libraries/libsdl.h"
 #include "lib/path.h"
-#include "lib/types.h"
 #include "maths/MathUtil.h"
 #include "ps/Game.h"
 #include "ps/GameSetup/Config.h"
@@ -128,8 +127,8 @@ MESSAGEHANDLER(GuiMouseButtonEvent)
 	ev.button.clicks = msg->clicks;
 	float x, y;
 	msg->pos->GetScreenSpace(x, y);
-	ev.button.x = static_cast<u16>(Clamp<int>(x, 0, g_VideoMode.GetWindowWidth()));
-	ev.button.y = static_cast<u16>(Clamp<int>(y, 0, g_VideoMode.GetWindowHeight()));
+	ev.button.x = static_cast<std::uint16_t>(Clamp<int>(x, 0, g_VideoMode.GetWindowWidth()));
+	ev.button.y = static_cast<std::uint16_t>(Clamp<int>(y, 0, g_VideoMode.GetWindowHeight()));
 	g_VideoMode.m_InputManager.DispatchEvent(ev);
 }
 
@@ -142,8 +141,8 @@ MESSAGEHANDLER(GuiMouseMotionEvent)
 	ev.type = SDL_MOUSEMOTION;
 	float x, y;
 	msg->pos->GetScreenSpace(x, y);
-	ev.motion.x = static_cast<u16>(Clamp<int>(x, 0, g_VideoMode.GetWindowWidth()));
-	ev.motion.y = static_cast<u16>(Clamp<int>(y, 0, g_VideoMode.GetWindowHeight()));
+	ev.motion.x = static_cast<std::uint16_t>(Clamp<int>(x, 0, g_VideoMode.GetWindowWidth()));
+	ev.motion.y = static_cast<std::uint16_t>(Clamp<int>(y, 0, g_VideoMode.GetWindowHeight()));
 	g_VideoMode.m_InputManager.DispatchEvent(ev);
 }
 

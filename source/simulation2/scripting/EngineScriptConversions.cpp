@@ -257,10 +257,11 @@ template<> void Script::ToJSVal<Grid<std::uint8_t>>(const Script::Request& rq, J
 		"data", data);
 }
 
-template<> void Script::ToJSVal<Grid<u16> >(const Script::Request& rq,  JS::MutableHandleValue ret, const Grid<u16>& val)
+template<> void Script::ToJSVal<Grid<std::uint16_t>>(const Script::Request& rq, JS::MutableHandleValue ret,
+	const Grid<std::uint16_t>& val)
  {
 	u32 length = (u32)(val.m_W * val.m_H);
-	u32 nbytes = (u32)(length * sizeof(u16));
+	u32 nbytes = (u32)(length * sizeof(std::uint16_t));
 	JS::RootedObject objArr(rq.cx, JS_NewUint16Array(rq.cx, length));
 	// Copy the array data and then remove the no-GC check to allow further changes to the JS data
 	{

@@ -18,8 +18,6 @@
 #ifndef INCLUDED_JSI_VFS
 #define INCLUDED_JSI_VFS
 
-#include "lib/types.h"
-
 #include <js/PropertyDescriptor.h>
 
 namespace Script { class Request; }
@@ -27,11 +25,11 @@ namespace Script { class Request; }
 namespace JSI_VFS
 {
 	void RegisterScriptFunctions_ReadWriteAnywhere(const Script::Request& rq,
-		const u16 flags = JSPROP_ENUMERATE | JSPROP_READONLY | JSPROP_PERMANENT);
+		const std::uint16_t flags = JSPROP_ENUMERATE | JSPROP_READONLY | JSPROP_PERMANENT);
 	void RegisterScriptFunctions_ReadOnlySimulation(const Script::Request& rq,
-		const u16 flags = JSPROP_ENUMERATE | JSPROP_READONLY | JSPROP_PERMANENT);
+		const std::uint16_t flags = JSPROP_ENUMERATE | JSPROP_READONLY | JSPROP_PERMANENT);
 	void RegisterScriptFunctions_ReadOnlySimulationMaps(const Script::Request& rq,
-		const u16 flags = JSPROP_ENUMERATE | JSPROP_READONLY | JSPROP_PERMANENT);
+		const std::uint16_t flags = JSPROP_ENUMERATE | JSPROP_READONLY | JSPROP_PERMANENT);
 }
 
 #endif // INCLUDED_JSI_VFS

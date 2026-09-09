@@ -18,8 +18,6 @@
 #ifndef XMPPCLIENT_H
 #define XMPPCLIENT_H
 
-#include "lib/types.h"
-
 #include <js/Value.h>
 #include <memory>
 
@@ -69,7 +67,7 @@ public:
 	bool GuiPollHasPlayerListUpdate();
 
 	void SendMUCMessage(const std::string& message);
-	void SendStunEndpointToHost(const std::string& ip, u16 port, const std::string& hostJID);
+	void SendStunEndpointToHost(const std::string& ip, std::uint16_t port, const std::string& hostJID);
 
 private:
 	class Impl;

@@ -119,7 +119,7 @@ private:
 	// size of map
 	ssize_t m_PatchesPerSide{0};
 	// heightmap for map
-	std::vector<u16> m_Heightmap;
+	std::vector<std::uint16_t> m_Heightmap;
 	// list of terrain textures used by map
 	std::vector<CTerrainTextureEntry*> m_TerrainTextures;
 	// tile descriptions for each tile

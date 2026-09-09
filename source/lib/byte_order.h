@@ -98,22 +98,22 @@
 #endif
 
 /// read a little-endian number from memory into native byte order.
-u16 read_le16(const void* p);
+std::uint16_t read_le16(const void* p);
 u32 read_le32(const void* p);	/// see read_le16
 u64 read_le64(const void* p);	/// see read_le16
 
 /// read a big-endian number from memory into native byte order.
-u16 read_be16(const void* p);
+std::uint16_t read_be16(const void* p);
 u32 read_be32(const void* p);	/// see read_be16
 u64 read_be64(const void* p);	/// see read_be16
 
 /// write a little-endian number to memory in native byte order.
-void write_le16(void* p, u16 x);
+void write_le16(void* p, std::uint16_t x);
 void write_le32(void* p, u32 x);	/// see write_le16
 void write_le64(void* p, u64 x);	/// see write_le16
 
 /// write a big-endian number to memory in native byte order.
-void write_be16(void* p, u16 x);
+void write_be16(void* p, std::uint16_t x);
 void write_be32(void* p, u32 x);	/// see write_be16
 void write_be64(void* p, u64 x);	/// see write_be16
 
@@ -156,7 +156,7 @@ extern unsigned __int64 _byteswap_uint64(unsigned __int64);
 #endif
 
 #ifndef swap16
-u16 swap16(const u16 x);
+std::uint16_t swap16(const std::uint16_t x);
 #endif
 #ifndef swap32
 u32 swap32(const u32 x);

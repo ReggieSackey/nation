@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Wildfire Games.
+/* Copyright (C) 2026 Wildfire Games.
  * Copyright (C) 2013-2016 SuperTuxKart-Team.
  * This file is part of 0 A.D.
  *
@@ -20,7 +20,6 @@
 #define STUNCLIENT_H
 
 #include "lib/external_libraries/enet.h"
-#include "lib/types.h"
 
 #include <string>
 
@@ -35,7 +34,7 @@ namespace StunClient
  * This is done by contacting STUN server.
  * The return IP & port should only be considered valid for the give host/socket.
  */
-bool FindPublicIP(ENetHost& enetClient, CStr8& ip, u16& port);
+bool FindPublicIP(ENetHost& enetClient, CStr8& ip, std::uint16_t& port);
 
 /**
  * Send a message to the target server with the given ENet host/socket.
@@ -44,7 +43,7 @@ bool FindPublicIP(ENetHost& enetClient, CStr8& ip, u16& port);
  * NB: this assumes consistent NAT, i.e. the outgoing port is always the same for the given client,
  * thus allowing the IP discovered via STUN to be sent to the target server.
  */
-void SendHolePunchingMessages(ENetHost& enetClient, const std::string& serverAddress, u16 serverPort);
+void SendHolePunchingMessages(ENetHost& enetClient, const std::string& serverAddress, std::uint16_t serverPort);
 
 /**
  * Return the local IP.

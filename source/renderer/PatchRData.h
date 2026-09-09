@@ -23,7 +23,6 @@
 #include "graphics/RenderableObject.h"
 #include "lib/code_annotation.h"
 #include "lib/posix/posix_types.h"
-#include "lib/types.h"
 #include "maths/BoundingBoxAligned.h"
 #include "maths/Vector2D.h"
 #include "maths/Vector3D.h"
@@ -153,8 +152,8 @@ private:
 	// build this renderdata object
 	void Build();
 
-	void AddBlend(std::vector<SBlendVertex>& blendVertices, std::vector<u16>& blendIndices,
-		u16 i, u16 j, std::uint8_t shape, CTerrainTextureEntry* texture);
+	void AddBlend(std::vector<SBlendVertex>& blendVertices, std::vector<std::uint16_t>& blendIndices,
+		std::uint16_t i, std::uint16_t j, std::uint8_t shape, CTerrainTextureEntry* texture);
 
 	void BuildBlends();
 	void BuildIndices();

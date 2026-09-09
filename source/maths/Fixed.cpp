@@ -105,7 +105,7 @@ CStr8 CFixed_15_16::ToString() const
 
 	builder.Append(posvalue >> fract_bits);
 
-	u16 fraction = posvalue & ((1 << fract_bits) - 1);
+	std::uint16_t fraction = posvalue & ((1 << fract_bits) - 1);
 	if (fraction)
 	{
 		builder.Append('.');

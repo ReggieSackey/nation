@@ -182,14 +182,14 @@ struct SerializeHelper<Enum, std::enable_if_t<std::is_enum_v<Enum>>>
 
 
 template<>
-struct SerializeHelper<u16>
+struct SerializeHelper<std::uint16_t>
 {
-	void operator()(ISerializer& serialize, const char* name, u16 value)
+	void operator()(ISerializer& serialize, const char* name, std::uint16_t value)
 	{
 		serialize.NumberU16_Unbounded(name, value);
 	}
 
-	void operator()(IDeserializer& deserialize, const char* name, u16& value)
+	void operator()(IDeserializer& deserialize, const char* name, std::uint16_t& value)
 	{
 		deserialize.NumberU16_Unbounded(name, value);
 	}

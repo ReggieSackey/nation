@@ -23,7 +23,6 @@
 #include "i18n/L10n.h"
 #include "lib/code_annotation.h"
 #include "lib/external_libraries/gloox.h"
-#include "lib/types.h"
 #include "lib/utf8.h"
 #include "lobby/GlooxConversion.h"
 #include "network/NetClient.h"
@@ -1440,7 +1439,8 @@ std::wstring XmppClient::GetRating(const std::string& nick)
  * Utilities                                         *
  *****************************************************/
 
-void XmppClient::SendStunEndpointToHost(const std::string& ip, u16 port, const std::string& hostJIDStr)
+void XmppClient::SendStunEndpointToHost(const std::string& ip, std::uint16_t port,
+	const std::string& hostJIDStr)
 {
 	DbgXMPP("SendStunEndpointToHost " << hostJIDStr);
 

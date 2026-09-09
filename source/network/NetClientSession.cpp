@@ -44,7 +44,7 @@ CNetClientSession::~CNetClientSession()
 	ENSURE(!m_LoopRunning);
 }
 
-bool CNetClientSession::Connect(const CStr& server, const u16 port, ENetHost* enetClient)
+bool CNetClientSession::Connect(const CStr& server, const std::uint16_t port, ENetHost* enetClient)
 {
 	ENSURE(!m_LoopRunning);
 	ENSURE(!m_Host);

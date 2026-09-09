@@ -21,7 +21,6 @@
 
 #include "lib/code_generation.h"
 #include "lib/debug.h"
-#include "lib/types.h"
 #include "lib/utf8.h"
 #include "lobby/XmppClient.h"
 #include "network/NetClient.h"
@@ -55,7 +54,7 @@ namespace Script { class Interface; }
 
 namespace JSI_Network
 {
-u16 GetDefaultPort()
+std::uint16_t GetDefaultPort()
 {
 	return PS_DEFAULT_PORT;
 }
@@ -75,7 +74,7 @@ bool HasNetClient()
 	return !!g_NetClient;
 }
 
-void StartNetworkHost(const CStrW& playerName, const u16 serverPort, const CStr& password,
+void StartNetworkHost(const CStrW& playerName, const std::uint16_t serverPort, const CStr& password,
 	const bool continueSavedGame, bool storeReplay)
 {
 	ENSURE(!g_NetClient);
@@ -115,7 +114,8 @@ void StartNetworkHost(const CStrW& playerName, const u16 serverPort, const CStr&
 		secret);
 }
 
-void StartNetworkJoin(const CStrW& playerName, const CStr& serverAddress, u16 serverPort, bool storeReplay)
+void StartNetworkJoin(const CStrW& playerName, const CStr& serverAddress, std::uint16_t serverPort,
+	bool storeReplay)
 {
 	ENSURE(!g_NetClient);
 	ENSURE(!g_NetServer);

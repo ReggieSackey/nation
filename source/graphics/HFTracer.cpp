@@ -235,12 +235,12 @@ bool CHFTracer::RayIntersect(const CVector3D& origin, const CVector3D& dir, int&
 	return false;
 }
 
-static bool TestTile(u16* heightmap, int stride, int i, int j, const CVector3D& pos, const CVector3D& dir, CVector3D& isct)
+static bool TestTile(std::uint16_t* heightmap, int stride, int i, int j, const CVector3D& pos, const CVector3D& dir, CVector3D& isct)
 {
-	u16 y00 = heightmap[i + j*stride];
-	u16 y10 = heightmap[i+1 + j*stride];
-	u16 y01 = heightmap[i + (j+1)*stride];
-	u16 y11 = heightmap[i+1 + (j+1)*stride];
+	std::uint16_t y00 = heightmap[i + j*stride];
+	std::uint16_t y10 = heightmap[i+1 + j*stride];
+	std::uint16_t y01 = heightmap[i + (j+1)*stride];
+	std::uint16_t y11 = heightmap[i+1 + (j+1)*stride];
 
 	CVector3D p00(    i * TERRAIN_TILE_SIZE, y00 * HEIGHT_SCALE,     j * TERRAIN_TILE_SIZE);
 	CVector3D p10((i+1) * TERRAIN_TILE_SIZE, y10 * HEIGHT_SCALE,     j * TERRAIN_TILE_SIZE);
@@ -298,7 +298,7 @@ bool CHFTracer::PatchRayIntersect(CPatch* patch, const CVector3D& origin, const 
 	int heightmapStride = patch->m_Parent->GetVerticesPerSide();
 
 	// Get heightmap, offset to start at this patch
-	u16* heightmap = patch->m_Parent->GetHeightMap() +
+	std::uint16_t* heightmap = patch->m_Parent->GetHeightMap() +
 			patch->m_X * PATCH_SIZE +
 			patch->m_Z * PATCH_SIZE * heightmapStride;
 

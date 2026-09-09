@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Wildfire Games.
+/* Copyright (C) 2026 Wildfire Games.
  * This file is part of 0 A.D.
  *
  * 0 A.D. is free software: you can redistribute it and/or modify
@@ -21,7 +21,6 @@
 #include "graphics/Terrain.h"
 #include "graphics/UnitManager.h"
 #include "lib/posix/posix_types.h"
-#include "lib/types.h"
 #include "maths/MathUtil.h"
 #include "maths/Vector3D.h"
 #include "ps/Game.h"
@@ -44,7 +43,7 @@
 
 namespace AtlasMessage {
 
-class TerrainArray : public DeltaArray2D<u16>
+class TerrainArray : public DeltaArray2D<std::uint16_t>
 {
 public:
 	void Init()
@@ -59,7 +58,7 @@ public:
 		if (size_t(x) >= size_t(m_VertsPerSide) || size_t(y) >= size_t(m_VertsPerSide))
 			return;
 
-		set(x, y, static_cast<u16>(Clamp(get(x,y) + amount, 0, 65535)));
+		set(x, y, static_cast<std::uint16_t>(Clamp(get(x,y) + amount, 0, 65535)));
 	}
 
 	void MoveVertexTowards(ssize_t x, ssize_t y, int target, int amount)
@@ -75,10 +74,10 @@ public:
 		else
 			return;
 
-		set(x, y, static_cast<u16>(Clamp(h, 0, 65535)));
+		set(x, y, static_cast<std::uint16_t>(Clamp(h, 0, 65535)));
 	}
 
-	void SetVertex(ssize_t x, ssize_t y, u16 value)
+	void SetVertex(ssize_t x, ssize_t y, std::uint16_t value)
 	{
 		if (size_t(x) >= size_t(m_VertsPerSide) || size_t(y) >= size_t(m_VertsPerSide))
 			return;
@@ -86,22 +85,22 @@ public:
 		set(x,y, value);
 	}
 
-	u16 GetVertex(ssize_t x, ssize_t y)
+	std::uint16_t GetVertex(ssize_t x, ssize_t y)
 	{
 		return get(Clamp<ssize_t>(x, 0, m_VertsPerSide - 1), Clamp<ssize_t>(y, 0, m_VertsPerSide - 1));
 	}
 
 protected:
-	u16 getOld(ssize_t x, ssize_t y)
+	std::uint16_t getOld(ssize_t x, ssize_t y)
 	{
 		return m_Heightmap[y*m_VertsPerSide + x];
 	}
-	void setNew(ssize_t x, ssize_t y, const u16& val)
+	void setNew(ssize_t x, ssize_t y, const std::uint16_t& val)
 	{
 		m_Heightmap[y*m_VertsPerSide + x] = val;
 	}
 
-	u16* m_Heightmap;
+	std::uint16_t* m_Heightmap;
 	ssize_t m_VertsPerSide;
 };
 
@@ -332,7 +331,7 @@ BEGIN_COMMAND(FlattenElevation)
 
 		ssize_t xc, yc;
 		g_CurrentBrush.GetCentre(xc, yc);
-		u16 height = m_TerrainDelta.GetVertex(xc, yc);
+		std::uint16_t height = m_TerrainDelta.GetVertex(xc, yc);
 
 		ssize_t x0, y0;
 		g_CurrentBrush.GetBottomLeft(x0, y0);

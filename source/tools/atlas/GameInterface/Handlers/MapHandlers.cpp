@@ -219,7 +219,7 @@ MESSAGEHANDLER(LoadMap)
 
 MESSAGEHANDLER(ImportHeightmap)
 {
-	std::vector<u16> heightmap_source;
+	std::vector<std::uint16_t> heightmap_source;
 	if (LoadHeightmapImageOs(*msg->filename, heightmap_source) != INFO::OK)
 	{
 		LOGERROR("Failed to decode heightmap.");
@@ -235,7 +235,7 @@ MESSAGEHANDLER(ImportHeightmap)
 	terrain.ResizeAndOffset(newSize, offset, offset);
 
 	// copy heightmap data into map
-	u16* const heightmap = g_Game->GetWorld()->GetTerrain().GetHeightMap();
+	std::uint16_t* const heightmap = g_Game->GetWorld()->GetTerrain().GetHeightMap();
 	ENSURE(heightmap_source.size() == (std::size_t) SQR(g_Game->GetWorld()->GetTerrain().GetVerticesPerSide()));
 	std::copy(heightmap_source.begin(), heightmap_source.end(), heightmap);
 
@@ -455,7 +455,7 @@ BEGIN_COMMAND(ResizeMap)
 	ssize_t m_OldPatches, m_NewPatches;
 	int m_OffsetX, m_OffsetY;
 
-	u16* m_Heightmap;
+	std::uint16_t* m_Heightmap;
 	CPatch*	m_Patches;
 
 	std::vector<DeletedObject> m_DeletedObjects;
@@ -562,7 +562,7 @@ BEGIN_COMMAND(ResizeMap)
 			m_OffsetY = -(msg->offsetY / PATCH_SIZE);
 
 			CTerrain* terrain = cmpTerrain->GetCTerrain();
-			m_Heightmap = new u16[(m_OldPatches * PATCH_SIZE + 1) * (m_OldPatches * PATCH_SIZE + 1)];
+			m_Heightmap = new std::uint16_t[(m_OldPatches * PATCH_SIZE + 1) * (m_OldPatches * PATCH_SIZE + 1)];
 			std::copy_n(terrain->GetHeightMap(), (m_OldPatches * PATCH_SIZE + 1) * (m_OldPatches * PATCH_SIZE + 1), m_Heightmap);
 			m_Patches = new CPatch[m_OldPatches * m_OldPatches];
 			for (ssize_t j = 0; j < m_OldPatches; ++j)

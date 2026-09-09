@@ -23,7 +23,6 @@
 #include "graphics/Model.h"
 #include "graphics/ModelDef.h"
 #include "lib/debug.h"
-#include "lib/types.h"
 #include "maths/Vector3D.h"
 #include "maths/Vector4D.h"
 #include "ps/containers/StaticVector.h"
@@ -147,7 +146,7 @@ IModelDef::IModelDef(const CModelDefPtr& mdef)
 	m_IndexArray.SetNumberOfVertices(mdef->GetNumFaces() * 3);
 	m_IndexArray.Layout();
 
-	VertexArrayIterator<u16> Indices = m_IndexArray.GetIterator();
+	VertexArrayIterator<std::uint16_t> Indices = m_IndexArray.GetIterator();
 
 	size_t idxidx = 0;
 

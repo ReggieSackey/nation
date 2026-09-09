@@ -41,9 +41,9 @@
 #include <vector>
 
 Status ParseHeightmapImage(const std::shared_ptr<std::uint8_t>& fileData, size_t fileSize,
-	std::vector<u16>& heightmap);
+	std::vector<std::uint16_t>& heightmap);
 
-Status LoadHeightmapImageVfs(const VfsPath& filepath, std::vector<u16>& heightmap)
+Status LoadHeightmapImageVfs(const VfsPath& filepath, std::vector<std::uint16_t>& heightmap)
 {
 	std::shared_ptr<std::uint8_t> fileData;
 	size_t fileSize;
@@ -53,7 +53,7 @@ Status LoadHeightmapImageVfs(const VfsPath& filepath, std::vector<u16>& heightma
 	return ParseHeightmapImage(fileData, fileSize, heightmap);
 }
 
-Status LoadHeightmapImageOs(const OsPath& filepath, std::vector<u16>& heightmap)
+Status LoadHeightmapImageOs(const OsPath& filepath, std::vector<std::uint16_t>& heightmap)
 {
 	File file;
 	RETURN_STATUS_IF_ERR(file.Open(OsString(filepath), O_RDONLY));
@@ -74,7 +74,8 @@ Status LoadHeightmapImageOs(const OsPath& filepath, std::vector<u16>& heightmap)
 	return ParseHeightmapImage(fileData, fileSize, heightmap);
 }
 
-Status ParseHeightmapImage(const std::shared_ptr<std::uint8_t>& fileData, size_t fileSize, std::vector<u16>& heightmap)
+Status ParseHeightmapImage(const std::shared_ptr<std::uint8_t>& fileData, size_t fileSize,
+	std::vector<std::uint16_t>& heightmap)
 {
 	// Decode to a raw pixel format
 	Tex tex;
@@ -101,7 +102,8 @@ Status ParseHeightmapImage(const std::shared_ptr<std::uint8_t>& fileData, size_t
 			{
 				// Repeat the last pixel of the image for the last vertex of the heightmap
 				int offset = std::min(y, tileSize - 1) * mapLineSkip + std::min(x, tileSize - 1);
-				heightmap[(tileSize - y) * (tileSize + 1) + x] = static_cast<u16>(256) * mapdata[offset];
+				heightmap[(tileSize - y) * (tileSize + 1) + x] =
+					static_cast<std::uint16_t>(256) * mapdata[offset];
 			}
 	else if (bytesPP == 4)
 		for (ssize_t y = 0; y < tileSize + 1; ++y)
@@ -109,7 +111,8 @@ Status ParseHeightmapImage(const std::shared_ptr<std::uint8_t>& fileData, size_t
 			{
 				// Repeat the last pixel of the image for the last vertex of the heightmap
 				int offset = std::min(y, tileSize - 1) * mapLineSkip + std::min(x, tileSize - 1) * bytesPP;
-				heightmap[(tileSize - y) * (tileSize + 1) + x] = static_cast<u16>(256) * std::max({
+				heightmap[(tileSize - y) * (tileSize + 1) + x] =
+					static_cast<std::uint16_t>(256) * std::max({
 					mapdata[offset],
 					mapdata[offset + 1],
 					mapdata[offset + 2]});

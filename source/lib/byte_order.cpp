@@ -34,9 +34,9 @@
 #include <cstring>
 
 #ifndef swap16
-u16 swap16(const u16 x)
+std::uint16_t swap16(const std::uint16_t x)
 {
-	return (u16)(((x & 0xff) << 8) | (x >> 8));
+	return static_cast<std::uint16_t>(((x & 0xff) << 8) | (x >> 8));
 }
 #endif
 
@@ -67,9 +67,9 @@ u64 swap64(const u64 x)
 //-----------------------------------------------------------------------------
 
 
-u16 read_le16(const void* p)
+std::uint16_t read_le16(const void* p)
 {
-	u16 n;
+	std::uint16_t n;
 	memcpy(&n, p, sizeof(n));
 	return to_le16(n);
 }
@@ -89,9 +89,9 @@ u64 read_le64(const void* p)
 }
 
 
-u16 read_be16(const void* p)
+std::uint16_t read_be16(const void* p)
 {
-	u16 n;
+	std::uint16_t n;
 	memcpy(&n, p, sizeof(n));
 	return to_be16(n);
 }
@@ -111,9 +111,9 @@ u64 read_be64(const void* p)
 }
 
 
-void write_le16(void* p, u16 x)
+void write_le16(void* p, std::uint16_t x)
 {
-	u16 n = to_le16(x);
+	std::uint16_t n = to_le16(x);
 	memcpy(p, &n, sizeof(n));
 }
 
@@ -130,9 +130,9 @@ void write_le64(void* p, u64 x)
 }
 
 
-void write_be16(void* p, u16 x)
+void write_be16(void* p, std::uint16_t x)
 {
-	u16 n = to_be16(x);
+	std::uint16_t n = to_be16(x);
 	memcpy(p, &n, sizeof(n));
 }
 

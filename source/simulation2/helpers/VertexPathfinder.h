@@ -19,7 +19,6 @@
 #define INCLUDED_VERTEXPATHFINDER
 
 #include "graphics/Overlay.h"
-#include "lib/types.h"
 #include "maths/Fixed.h"
 #include "maths/FixedVector2D.h"
 #include "simulation2/helpers/Pathfinding.h"
@@ -46,7 +45,7 @@ struct Vertex
 
 	CFixedVector2D p;
 	fixed g, h;
-	u16 pred = 0;
+	std::uint16_t pred = 0;
 	std::uint8_t status;
 	std::uint8_t quadInward : 4; // the quadrant which is inside the shape (or NONE)
 	std::uint8_t quadOutward : 4; // the quadrants of the next point on the path which this vertex must be in, given 'pred'
@@ -88,7 +87,10 @@ struct EdgeAA
 class VertexPathfinder
 {
 public:
-	VertexPathfinder(const u16& gridSize, Grid<NavcellData>* const & terrainOnlyGrid) : m_GridSize(gridSize), m_TerrainOnlyGrid(terrainOnlyGrid) {};
+	VertexPathfinder(const std::uint16_t& gridSize, Grid<NavcellData>* const & terrainOnlyGrid) :
+		m_GridSize(gridSize),
+		m_TerrainOnlyGrid(terrainOnlyGrid)
+	{}
 	VertexPathfinder(const VertexPathfinder&) = delete;
 	VertexPathfinder(VertexPathfinder&& o) : m_GridSize(o.m_GridSize), m_TerrainOnlyGrid(o.m_TerrainOnlyGrid) {}
 
@@ -104,7 +106,7 @@ public:
 private:
 
 	// References to the Pathfinder for convenience.
-	const u16& m_GridSize;
+	const std::uint16_t& m_GridSize;
 	Grid<NavcellData>* const & m_TerrainOnlyGrid;
 
 	// These vectors are expensive to recreate on every call, so we cache them here.

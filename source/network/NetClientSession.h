@@ -56,7 +56,7 @@ public:
 	CNetClientSession(CNetClient& client);
 	~CNetClientSession();
 
-	bool Connect(const CStr& server, const u16 port, ENetHost* enetClient);
+	bool Connect(const CStr& server, const std::uint16_t port, ENetHost* enetClient);
 
 	/**
 	 * The client NetSession is threaded to avoid getting timeouts if the main thread hangs.

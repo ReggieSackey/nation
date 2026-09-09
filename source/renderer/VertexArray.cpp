@@ -47,16 +47,16 @@ uint32_t GetAttributeSize(const Renderer::Backend::Format format)
 	case Renderer::Backend::Format::R16_UINT:
 	case Renderer::Backend::Format::R16_SINT:
 	case Renderer::Backend::Format::R16_SFLOAT:
-		return sizeof(u16);
+		return sizeof(std::uint16_t);
 	case Renderer::Backend::Format::R16G16_UNORM:
 	case Renderer::Backend::Format::R16G16_UINT:
 	case Renderer::Backend::Format::R16G16_SINT:
 	case Renderer::Backend::Format::R16G16_SFLOAT:
-		return sizeof(u16) * 2;
+		return sizeof(std::uint16_t) * 2;
 	case Renderer::Backend::Format::R16G16B16_SFLOAT:
-		return sizeof(u16) * 3;
+		return sizeof(std::uint16_t) * 3;
 	case Renderer::Backend::Format::R16G16B16A16_SFLOAT:
-		return sizeof(u16) * 4;
+		return sizeof(std::uint16_t) * 4;
 	case Renderer::Backend::Format::R32_SFLOAT:
 		return sizeof(float);
 	case Renderer::Backend::Format::R32G32_SFLOAT:
@@ -169,21 +169,21 @@ VertexArrayIterator<SColor4ub> VertexArray::Attribute::GetIterator<SColor4ub>() 
 }
 
 template<>
-VertexArrayIterator<u16> VertexArray::Attribute::GetIterator<u16>() const
+VertexArrayIterator<std::uint16_t> VertexArray::Attribute::GetIterator<std::uint16_t>() const
 {
 	ENSURE(vertexArray);
 	ENSURE(format == Renderer::Backend::Format::R16_UINT);
 
-	return vertexArray->MakeIterator<u16>(this);
+	return vertexArray->MakeIterator<std::uint16_t>(this);
 }
 
 template<>
-VertexArrayIterator<u16[2]> VertexArray::Attribute::GetIterator<u16[2]>() const
+VertexArrayIterator<std::uint16_t[2]> VertexArray::Attribute::GetIterator<std::uint16_t[2]>() const
 {
 	ENSURE(vertexArray);
 	ENSURE(format == Renderer::Backend::Format::R16G16_UINT);
 
-	return vertexArray->MakeIterator<u16[2]>(this);
+	return vertexArray->MakeIterator<std::uint16_t[2]>(this);
 }
 
 template<>
@@ -320,7 +320,7 @@ VertexIndexArray::VertexIndexArray(const uint32_t usage) :
 	AddAttribute(&m_Attr);
 }
 
-VertexArrayIterator<u16> VertexIndexArray::GetIterator() const
+VertexArrayIterator<std::uint16_t> VertexIndexArray::GetIterator() const
 {
-	return m_Attr.GetIterator<u16>();
+	return m_Attr.GetIterator<std::uint16_t>();
 }

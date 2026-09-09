@@ -30,7 +30,6 @@
 #include "lib/debug.h"
 #include "lib/path.h"
 #include "lib/posix/posix_types.h"
-#include "lib/types.h"
 #include "maths/Fixed.h"
 #include "maths/FixedVector3D.h"
 #include "maths/MathUtil.h"
@@ -102,12 +101,13 @@ void CMapWriter::SaveMap(const VfsPath& pathname, CTerrain* pTerrain, WaterManag
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // GetHandleIndex: return the index of the given handle in the given list; or 0xFFFF if
 // handle isn't in list
-static u16 GetEntryIndex(const CTerrainTextureEntry* entry, const std::vector<CTerrainTextureEntry*>& entries)
+static std::uint16_t GetEntryIndex(const CTerrainTextureEntry* entry,
+	const std::vector<CTerrainTextureEntry*>& entries)
 {
 	const size_t limit = std::min(entries.size(), size_t(0xFFFEu));	// paranoia
 	for (size_t i=0;i<limit;i++) {
 		if (entries[i]==entry) {
-			return (u16)i;
+			return static_cast<std::uint16_t>(i);
 		}
 	}
 
@@ -135,9 +135,9 @@ void CMapWriter::EnumTerrainTextures(CTerrain *pTerrain,
 			for (ssize_t m=0;m<PATCH_SIZE;m++) {
 				for (ssize_t k=0;k<PATCH_SIZE;k++) {
 					CMiniPatch& mp=pTerrain->GetPatch(i,j)->m_MiniPatches[m][k];	// can't fail
-					u16 index=u16(GetEntryIndex(mp.GetTextureEntry(),entries));
+					std::uint16_t index = static_cast<std::uint16_t>(GetEntryIndex(mp.GetTextureEntry(),entries));
 					if (index==0xFFFF) {
-						index=(u16)entries.size();
+						index = static_cast<std::uint16_t>(entries.size());
 						entries.push_back(mp.GetTextureEntry());
 					}
 
@@ -182,7 +182,8 @@ void CMapWriter::PackTerrain(CFilePacker& packer, CTerrain* pTerrain)
 	packer.PackSize(mapsize);
 
 	// pack heightmap
-	packer.PackRaw(pTerrain->GetHeightMap(),sizeof(u16)*SQR(pTerrain->GetVerticesPerSide()));
+	packer.PackRaw(pTerrain->GetHeightMap(), sizeof(std::uint16_t) *
+		SQR(pTerrain->GetVerticesPerSide()));
 
 	// the list of textures used by map
 	std::vector<CStr> terrainTextures;

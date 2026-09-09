@@ -30,7 +30,6 @@
 #include "graphics/ShaderTechnique.h"
 #include "lib/debug.h"
 #include "lib/posix/posix_types.h"
-#include "lib/types.h"
 #include "maths/MathUtil.h"
 #include "maths/Matrix3D.h"
 #include "maths/Vector3D.h"
@@ -121,14 +120,14 @@ void SilhouetteRenderer::AddCaster(CModel* model)
  * that lets us pack and sort the edge/point list efficiently.
  */
 
-static const u16 g_MaxCoord = 1 << 14;
-static const u16 g_HalfMaxCoord = g_MaxCoord / 2;
+static const std::uint16_t g_MaxCoord = 1 << 14;
+static const std::uint16_t g_HalfMaxCoord = g_MaxCoord / 2;
 
 struct Occluder
 {
 	CRenderableObject* renderable;
 	bool isPatch;
-	u16 x0, y0, x1, y1;
+	std::uint16_t x0, y0, x1, y1;
 	float z;
 	bool rendered;
 };
@@ -136,7 +135,7 @@ struct Occluder
 struct Caster
 {
 	CModel* model;
-	u16 x, y;
+	std::uint16_t x, y;
 	float z;
 	bool rendered;
 };
@@ -145,9 +144,9 @@ enum { EDGE_IN, EDGE_OUT, POINT };
 
 // Entry is essentially:
 //   struct Entry {
-//     u16 id; // index into occluders array
-//     u16 type : 2;
-//     u16 x : 14;
+//     std::uint16_t id; // index into occluders array
+//     std::uint16_t type : 2;
+//     std::uint16_t x : 14;
 //  };
 // where x is in the most significant bits, so that sorting as a uint32_t
 // is the same as sorting by x. To avoid worrying about endianness and the
@@ -156,20 +155,23 @@ enum { EDGE_IN, EDGE_OUT, POINT };
 
 typedef uint32_t Entry;
 
-static Entry EntryCreate(int type, u16 id, u16 x) { return (x << 18) | (type << 16) | id; }
+static Entry EntryCreate(int type, std::uint16_t id, std::uint16_t x)
+{
+	return (x << 18) | (type << 16) | id;
+}
 static int EntryGetId(Entry e) { return e & 0xffff; }
 static int EntryGetType(Entry e) { return (e >> 16) & 3; }
 
 struct ActiveList
 {
-	std::vector<u16> m_Ids;
+	std::vector<std::uint16_t> m_Ids;
 
-	void Add(u16 id)
+	void Add(std::uint16_t id)
 	{
 		m_Ids.push_back(id);
 	}
 
-	void Remove(u16 id)
+	void Remove(std::uint16_t id)
 	{
 		ssize_t sz = m_Ids.size();
 		for (ssize_t i = sz-1; i >= 0; --i)
@@ -187,10 +189,10 @@ struct ActiveList
 
 static void ComputeScreenBounds(Occluder& occluder, const CBoundingBoxAligned& bounds, CMatrix3D& proj)
 {
-	u16 x0 = std::numeric_limits<u16>::max();
-	u16 y0 = std::numeric_limits<u16>::max();
-	u16 x1 = std::numeric_limits<u16>::min();
-	u16 y1 = std::numeric_limits<u16>::min();
+	std::uint16_t x0 = std::numeric_limits<std::uint16_t>::max();
+	std::uint16_t y0 = std::numeric_limits<std::uint16_t>::max();
+	std::uint16_t x1 = std::numeric_limits<std::uint16_t>::min();
+	std::uint16_t y1 = std::numeric_limits<std::uint16_t>::min();
 	float z0 = std::numeric_limits<float>::max();
 	for (size_t ix = 0; ix <= 1; ++ix)
 	{
@@ -200,8 +202,12 @@ static void ComputeScreenBounds(Occluder& occluder, const CBoundingBoxAligned& b
 			{
 				CVector4D svec = proj.Transform(CVector4D(bounds[ix].X, bounds[iy].Y, bounds[iz].Z, 1.0f));
 				// Avoid overflows
-				u16 svx = static_cast<u16>(Clamp(g_HalfMaxCoord + g_HalfMaxCoord * (svec.X / svec.W), 0.f, static_cast<float>(g_MaxCoord - 1)));
-				u16 svy = static_cast<u16>(Clamp(g_HalfMaxCoord + g_HalfMaxCoord * (svec.Y / svec.W), 0.f, static_cast<float>(g_MaxCoord - 1)));
+				std::uint16_t svx = static_cast<std::uint16_t>(Clamp(g_HalfMaxCoord +
+					g_HalfMaxCoord * (svec.X / svec.W), 0.f,
+					static_cast<float>(g_MaxCoord - 1)));
+				std::uint16_t svy = static_cast<std::uint16_t>(Clamp(g_HalfMaxCoord +
+					g_HalfMaxCoord * (svec.Y / svec.W), 0.f,
+					static_cast<float>(g_MaxCoord - 1)));
 				x0 = std::min(x0, svx);
 				y0 = std::min(y0, svy);
 				x1 = std::max(x1, svx);
@@ -213,18 +219,24 @@ static void ComputeScreenBounds(Occluder& occluder, const CBoundingBoxAligned& b
 	// TODO: there must be a quicker way to do this than to test every vertex,
 	// given the symmetry of the bounding box
 
-	occluder.x0 = Clamp(x0, std::numeric_limits<u16>::min(), static_cast<u16>(g_MaxCoord - 1));
-	occluder.y0 = Clamp(y0, std::numeric_limits<u16>::min(), static_cast<u16>(g_MaxCoord - 1));
-	occluder.x1 = Clamp(x1, std::numeric_limits<u16>::min(), static_cast<u16>(g_MaxCoord - 1));
-	occluder.y1 = Clamp(y1, std::numeric_limits<u16>::min(), static_cast<u16>(g_MaxCoord - 1));
+	occluder.x0 = Clamp(x0, std::numeric_limits<std::uint16_t>::min(),
+		static_cast<std::uint16_t>(g_MaxCoord - 1));
+	occluder.y0 = Clamp(y0, std::numeric_limits<std::uint16_t>::min(),
+		static_cast<std::uint16_t>(g_MaxCoord - 1));
+	occluder.x1 = Clamp(x1, std::numeric_limits<std::uint16_t>::min(),
+		static_cast<std::uint16_t>(g_MaxCoord - 1));
+	occluder.y1 = Clamp(y1, std::numeric_limits<std::uint16_t>::min(),
+		static_cast<std::uint16_t>(g_MaxCoord - 1));
 	occluder.z = z0;
 }
 
 static void ComputeScreenPos(Caster& caster, const CVector3D& pos, CMatrix3D& proj)
 {
 	CVector4D svec = proj.Transform(CVector4D(pos.X, pos.Y, pos.Z, 1.0f));
-	caster.x = static_cast<u16>(Clamp(g_HalfMaxCoord + g_HalfMaxCoord * (svec.X / svec.W), 0.f, static_cast<float>(g_MaxCoord - 1)));
-	caster.y = static_cast<u16>(Clamp(g_HalfMaxCoord + g_HalfMaxCoord * (svec.Y / svec.W), 0.f, static_cast<float>(g_MaxCoord - 1)));
+	caster.x = static_cast<std::uint16_t>(Clamp(g_HalfMaxCoord + g_HalfMaxCoord * (svec.X / svec.W), 0.f,
+		static_cast<float>(g_MaxCoord - 1)));
+	caster.y = static_cast<std::uint16_t>(Clamp(g_HalfMaxCoord + g_HalfMaxCoord * (svec.Y / svec.W), 0.f,
+		static_cast<float>(g_MaxCoord - 1)));
 	caster.z = svec.Z / svec.W;
 }
 
@@ -298,7 +310,7 @@ void SilhouetteRenderer::ComputeSubmissions(const CCamera& camera)
 			if (d.x0 == d.x1 || d.y0 == d.y1)
 				continue;
 
-			u16 id = static_cast<u16>(occluders.size());
+			std::uint16_t id = static_cast<std::uint16_t>(occluders.size());
 			occluders.push_back(d);
 
 			entries.push_back(EntryCreate(EDGE_IN, id, d.x0));
@@ -319,7 +331,7 @@ void SilhouetteRenderer::ComputeSubmissions(const CCamera& camera)
 			if (d.x0 == d.x1 || d.y0 == d.y1)
 				continue;
 
-			u16 id = static_cast<u16>(occluders.size());
+			std::uint16_t id = static_cast<std::uint16_t>(occluders.size());
 			occluders.push_back(d);
 
 			entries.push_back(EntryCreate(EDGE_IN, id, d.x0));
@@ -336,14 +348,14 @@ void SilhouetteRenderer::ComputeSubmissions(const CCamera& camera)
 			d.rendered = false;
 			ComputeScreenPos(d, pos, proj);
 
-			u16 id = static_cast<u16>(casters.size());
+			std::uint16_t id = static_cast<std::uint16_t>(casters.size());
 			casters.push_back(d);
 
 			entries.push_back(EntryCreate(POINT, id, d.x));
 		}
 	}
 
-	// Make sure the u16 id didn't overflow
+	// Make sure the std::uint16_t id didn't overflow
 	ENSURE(occluders.size() < 65536 && casters.size() < 65536);
 
 	{
@@ -361,7 +373,7 @@ void SilhouetteRenderer::ComputeSubmissions(const CCamera& camera)
 		{
 			Entry e = entries[i];
 			int type = EntryGetType(e);
-			u16 id = EntryGetId(e);
+			std::uint16_t id = EntryGetId(e);
 			if (type == EDGE_IN)
 				active.Add(id);
 			else if (type == EDGE_OUT)

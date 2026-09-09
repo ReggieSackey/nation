@@ -761,7 +761,7 @@ public:
 		// AI pathfinder
 		Serializer(deserializer, "non pathfinding pass classes", m_NonPathfindingPassClasses);
 		Serializer(deserializer, "pathfinding pass classes", m_PathfindingPassClasses);
-		u16 mapW, mapH;
+		std::uint16_t mapW, mapH;
 		deserializer.NumberU16_Unbounded("pathfinder grid w", mapW);
 		deserializer.NumberU16_Unbounded("pathfinder grid h", mapH);
 		m_PassabilityMap = Grid<NavcellData>(mapW, mapH);

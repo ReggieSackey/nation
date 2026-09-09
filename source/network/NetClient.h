@@ -314,7 +314,7 @@ private:
 
 	CStr m_HostJID;
 	CStr m_ServerAddressOrHostname;
-	u16 m_ServerPort{0};
+	std::uint16_t m_ServerPort{0};
 
 	/**
 	 * Password to join the game.

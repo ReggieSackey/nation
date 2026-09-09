@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Wildfire Games.
+/* Copyright (C) 2026 Wildfire Games.
  * This file is part of 0 A.D.
  *
  * 0 A.D. is free software: you can redistribute it and/or modify
@@ -27,7 +27,6 @@
 #include "graphics/TextRenderer.h"
 #include "graphics/TextureManager.h"
 #include "lib/debug.h"
-#include "lib/types.h"
 #include "maths/Matrix3D.h"
 #include "maths/Rect.h"
 #include "maths/Vector2D.h"
@@ -280,7 +279,7 @@ void CCanvas2D::DrawLine(const std::vector<CVector2D>& points, const float width
 
 	std::vector<std::array<CVector2D, 3>> vertices;
 	std::vector<std::array<CVector2D, 3>> uvs;
-	std::vector<u16> indices;
+	std::vector<std::uint16_t> indices;
 	const size_t reserveSize = 2 * pointsIndices.size() - 1;
 	vertices.reserve(reserveSize);
 	uvs.reserve(reserveSize);
@@ -290,7 +289,7 @@ void CCanvas2D::DrawLine(const std::vector<CVector2D>& points, const float width
 	{
 		if (!vertices.empty())
 		{
-			const u16 lastVertexIndex = static_cast<u16>(vertices.size() * 3 - 1);
+			const std::uint16_t lastVertexIndex = static_cast<std::uint16_t>(vertices.size() * 3 - 1);
 			ENSURE(lastVertexIndex >= 2);
 			// First vertical half of the segment.
 			indices.emplace_back(lastVertexIndex - 2);

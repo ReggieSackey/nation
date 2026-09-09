@@ -90,9 +90,9 @@ std::vector<STerritoryBoundary> CTerritoryBoundaryCalculator::ComputeBoundaries(
 	const int TERRITORY_DISCR_MASK = (ICmpTerritoryManager::TERRITORY_BLINKING_MASK | ICmpTerritoryManager::TERRITORY_PLAYER_MASK);
 
 	// Try to find an assigned tile
-	for (u16 j = 0; j < grid.m_H; ++j)
+	for (std::uint16_t j = 0; j < grid.m_H; ++j)
 	{
-		for (u16 i = 0; i < grid.m_W; ++i)
+		for (std::uint16_t i = 0; i < grid.m_W; ++i)
 		{
 			// saved tile state; from MSB to LSB:
 			// processed bit, blinking bit, player ID
@@ -123,10 +123,10 @@ std::vector<STerritoryBoundary> CTerritoryBoundaryCalculator::ComputeBoundaries(
 			std::uint8_t dir = TILE_BOTTOM;
 
 			std::uint8_t cdir = dir;
-			u16 ci = i, cj = j;
+			std::uint16_t ci = i, cj = j;
 
-			u16 maxi = (u16)(grid.m_W-1);
-			u16 maxj = (u16)(grid.m_H-1);
+			std::uint16_t maxi = static_cast<std::uint16_t>(grid.m_W - 1);
+			std::uint16_t maxj = static_cast<std::uint16_t>(grid.m_H - 1);
 
 			// Size of a territory tile in metres
 			float territoryTileSize = (Pathfinding::NAVCELL_SIZE * ICmpTerritoryManager::NAVCELLS_PER_TERRITORY_TILE).ToFloat();

@@ -90,16 +90,16 @@ static u32 FAT_from_time_t(time_t time)
 	// (values are adjusted for DST)
 	struct tm* t = localtime(&time);
 
-	const u16 fat_time = u16(
+	const std::uint16_t fat_time = static_cast<std::uint16_t>(
 		(t->tm_sec/2) |		    // 5
-		(u16(t->tm_min) << 5) | // 6
-		(u16(t->tm_hour) << 11)	// 5
+		(static_cast<std::uint16_t>(t->tm_min) << 5) | // 6
+		(static_cast<std::uint16_t>(t->tm_hour) << 11)	// 5
 		);
 
-	const u16 fat_date = u16(
+	const std::uint16_t fat_date = static_cast<std::uint16_t>(
 		(t->tm_mday) |            // 5
-		(u16(t->tm_mon+1) << 5) | // 4
-		(u16(t->tm_year-80) << 9) // 7
+		(static_cast<std::uint16_t>(t->tm_mon+1) << 5) | // 4
+		(static_cast<std::uint16_t>(t->tm_year-80) << 9) // 7
 		);
 
 	u32 fat_timedate = u32_from_u16(fat_date, fat_time);
@@ -157,15 +157,15 @@ public:
 
 private:
 	u32 m_magic;
-	u16 m_x1;			// version needed
-	u16 m_flags;
-	u16 m_method;
+	std::uint16_t m_x1;			// version needed
+	std::uint16_t m_flags;
+	std::uint16_t m_method;
 	u32 m_fat_mtime;	// last modified time (DOS FAT format)
 	u32 m_crc;
 	u32 m_csize;
 	u32 m_usize;
-	u16 m_fn_len;
-	u16 m_e_len;
+	std::uint16_t m_fn_len;
+	std::uint16_t m_e_len;
 };
 
 cassert(sizeof(LFH) == 30);
@@ -247,15 +247,15 @@ public:
 private:
 	u32 m_magic;
 	u32 m_x1;			// versions
-	u16 m_flags;
-	u16 m_method;
+	std::uint16_t m_flags;
+	std::uint16_t m_method;
 	u32 m_fat_mtime;	// last modified time (DOS FAT format)
 	u32 m_crc;
 	u32 m_csize;
 	u32 m_usize;
-	u16 m_fn_len;
-	u16 m_e_len;
-	u16 m_c_len;
+	std::uint16_t m_fn_len;
+	std::uint16_t m_e_len;
+	std::uint16_t m_c_len;
 	u32 m_x2;			// spanning
 	u32 m_x3;			// attributes
 	u32 m_lfh_ofs;
@@ -293,13 +293,13 @@ public:
 
 private:
 	u32 m_magic;
-	u16 m_diskNum;
-	u16 m_cd_diskNum;
-	u16 m_cd_numEntriesOnDisk;
-	u16 m_cd_numEntries;
+	std::uint16_t m_diskNum;
+	std::uint16_t m_cd_diskNum;
+	std::uint16_t m_cd_numEntriesOnDisk;
+	std::uint16_t m_cd_numEntries;
 	u32 m_cd_size;
 	u32 m_cd_ofs;
-	u16 m_comment_len;
+	std::uint16_t m_comment_len;
 };
 
 cassert(sizeof(ECDR) == 22);
@@ -316,7 +316,7 @@ class ArchiveFile_Zip final : public IArchiveFile
 public:
 	ArchiveFile_Zip(const PFile& file, off_t ofs, off_t csize, u32 checksum, ZipMethod method)
 		: m_file(file), m_ofs(ofs)
-		, m_csize(csize), m_checksum(checksum), m_method((u16)method)
+		, m_csize(csize), m_checksum(checksum), m_method(static_cast<std::uint16_t>(method))
 		, m_flags(NeedsFixup)
 	{
 	}
@@ -441,8 +441,8 @@ private:
 	mutable off_t m_ofs;
 	off_t m_csize;
 	u32 m_checksum;
-	u16 m_method;
-	mutable u16 m_flags;
+	std::uint16_t m_method;
+	mutable std::uint16_t m_flags;
 };
 
 

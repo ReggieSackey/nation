@@ -27,7 +27,6 @@
 #include "graphics/TextureManager.h"
 #include "lib/allocators/STLAllocators.h"
 #include "lib/debug.h"
-#include "lib/types.h"
 #include "maths/Matrix3D.h"
 #include "ps/memory/LinearAllocator.h"
 #include "ps/CStrIntern.h"
@@ -139,8 +138,8 @@ CParticleEmitter::CParticleEmitter(const CParticleEmitterType& type) :
 
 	m_IndexArray.SetNumberOfVertices(m_UseInstancing ? 6 : m_Type.m_MaxParticles * 6);
 	m_IndexArray.Layout();
-	VertexArrayIterator<u16> index = m_IndexArray.GetIterator();
-	for (u16 i = 0; i < (m_UseInstancing ? 1 : m_Type.m_MaxParticles); ++i)
+	VertexArrayIterator<std::uint16_t> index = m_IndexArray.GetIterator();
+	for (std::uint16_t i = 0; i < (m_UseInstancing ? 1 : m_Type.m_MaxParticles); ++i)
 	{
 		*index++ = i*4 + 0;
 		*index++ = i*4 + 1;

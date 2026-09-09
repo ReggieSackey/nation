@@ -37,14 +37,14 @@
  * Represents the 2D coordinates of a tile.
  * The i/j components are packed into a single u32, since we usually use these
  * objects for equality comparisons and the VC2010 optimizer doesn't seem to automatically
- * compare two u16s in a single operation.
+ * compare two std::uint16_ts in a single operation.
  * TODO: maybe VC2012 will?
  */
 struct TileID
 {
 	TileID() { }
 
-	TileID(u16 i, u16 j) : data((i << 16) | j) { }
+	TileID(std::uint16_t i, std::uint16_t j) : data((i << 16) | j) { }
 
 	bool operator==(const TileID& b) const
 	{
@@ -57,8 +57,8 @@ struct TileID
 		return data < b.data;
 	}
 
-	u16 i() const { return data >> 16; }
-	u16 j() const { return data & 0xFFFF; }
+	std::uint16_t i() const { return data >> 16; }
+	std::uint16_t j() const { return data & 0xFFFF; }
 
 private:
 	u32 data;
@@ -146,7 +146,7 @@ struct PathfinderState
 
 	PathGoal goal;
 
-	u16 iGoal, jGoal; // goal tile
+	std::uint16_t iGoal, jGoal; // goal tile
 
 	pass_class_t passClass;
 
@@ -157,7 +157,7 @@ struct PathfinderState
 	Grid<NavcellData>* terrain;
 
 	PathCost hBest; // heuristic of closest discovered tile to goal
-	u16 iBest, jBest; // closest tile
+	std::uint16_t iBest, jBest; // closest tile
 
 	const JumpPointCache* jpc;
 };
@@ -227,7 +227,7 @@ public:
 	}
 
 	Grid<NavcellData>* m_Grid;
-	u16 m_GridSize;
+	std::uint16_t m_GridSize;
 
 	// Debugging - output from last pathfind operation.
 	struct Debug

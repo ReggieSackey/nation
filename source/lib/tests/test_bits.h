@@ -56,9 +56,9 @@ public:
 
 	void test_bit_mask()
 	{
-		EQUALS(bit_mask<u16>(0), 0);
-		EQUALS(bit_mask<u16>(2), 0x3);
-		EQUALS(bit_mask<u16>(16), 0xFFFF);
+		EQUALS(bit_mask<std::uint16_t>(0), 0);
+		EQUALS(bit_mask<std::uint16_t>(2), 0x3);
+		EQUALS(bit_mask<std::uint16_t>(16), 0xFFFF);
 		EQUALS(bit_mask<u32>(0), 0u);
 		EQUALS(bit_mask<u32>(2), 0x3u);
 		EQUALS(bit_mask<u32>(32), 0xFFFFFFFFul);
@@ -70,12 +70,12 @@ public:
 
 	void test_bits()
 	{
-		EQUALS(bits<u16>(0xFFFF, 0, 15), 0xFFFF);
-		EQUALS(bits<u16>(0xFFFF, 0, 7), 0xFF);
-		EQUALS(bits<u16>(0xFFFF, 8, 15), 0xFF);
-		EQUALS(bits<u16>(0xFFFF, 14, 15), 0x3);
-		EQUALS(bits<u16>(0xAA55, 4, 11), 0xA5);
-		EQUALS(bits<u16>(0xAA55, 14, 15), 0x2);
+		EQUALS(bits<std::uint16_t>(0xFFFF, 0, 15), 0xFFFF);
+		EQUALS(bits<std::uint16_t>(0xFFFF, 0, 7), 0xFF);
+		EQUALS(bits<std::uint16_t>(0xFFFF, 8, 15), 0xFF);
+		EQUALS(bits<std::uint16_t>(0xFFFF, 14, 15), 0x3);
+		EQUALS(bits<std::uint16_t>(0xAA55, 4, 11), 0xA5);
+		EQUALS(bits<std::uint16_t>(0xAA55, 14, 15), 0x2);
 		EQUALS(bits<u32>(0ul, 0, 31), 0ul);
 		EQUALS(bits<u32>(0xFFFFFFFFul, 0, 31), 0xFFFFFFFFul);
 		EQUALS(bits<u64>(0ull, 0, 63), 0ull);

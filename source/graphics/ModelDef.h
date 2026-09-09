@@ -122,7 +122,7 @@ struct SModelVertex
 struct SModelFace
 {
 	// indices of the 3 vertices on this face
-	u16 m_Verts[3];
+	std::uint16_t m_Verts[3];
 };
 
 

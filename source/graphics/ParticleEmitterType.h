@@ -21,7 +21,6 @@
 #include "graphics/Texture.h"
 #include "lib/code_annotation.h"
 #include "lib/file/vfs/vfs_path.h"
-#include "lib/types.h"
 #include "maths/BoundingBoxAligned.h"
 
 #include <memory>
@@ -133,7 +132,7 @@ private:
 	bool m_UseVelocityAsAxisX{false};
 
 	float m_MaxLifetime;
-	u16 m_MaxParticles;
+	std::uint16_t m_MaxParticles;
 	CBoundingBoxAligned m_MaxBounds;
 
 	std::vector<std::unique_ptr<IParticleVar>> m_Variables;

@@ -180,7 +180,7 @@ struct AffinityMemory
 
 	AffinityHeader header;
 	u32 proximityDomainNumber;
-	u16 reserved1;
+	std::uint16_t reserved1;
 	u64 baseAddress;
 	u64 length;
 	u32 reserved2;

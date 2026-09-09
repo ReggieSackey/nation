@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Wildfire Games.
+/* Copyright (C) 2026 Wildfire Games.
  * This file is part of 0 A.D.
  *
  * 0 A.D. is free software: you can redistribute it and/or modify
@@ -19,7 +19,6 @@
 #define INCLUDED_RMS_ENTITY
 
 #include "lib/code_annotation.h"
-#include "lib/types.h"
 #include "maths/FixedVector3D.h"
 
 #include <string>
@@ -28,8 +27,8 @@
 struct Entity
 {
 	std::wstring templateName;
-	u16 entityID;
-	u16 playerID;
+	std::uint16_t entityID;
+	std::uint16_t playerID;
 	CFixedVector3D position;
 	CFixedVector3D rotation;
 };

@@ -95,10 +95,10 @@ namespace
 			size_t i = 0;
 			for (i = 0; i < len; i++)
 			{
-				const u16 bigEndian = to_be16(str[i]);
-				*(u16 *)(buffer + i * 2) = bigEndian;
+				const std::uint16_t bigEndian = to_be16(str[i]);
+				*reinterpret_cast<std::uint16_t*>(buffer + i * 2) = bigEndian;
 			}
-			*(u16 *)(buffer + i * 2) = 0;
+			*reinterpret_cast<std::uint16_t*>(buffer + i * 2) = 0;
 			return buffer + len * 2 + 2;
 		}
 		else
@@ -123,19 +123,19 @@ namespace
 		}
 		else if constexpr (std::is_same_v<Char, wchar_t>)
 		{
-			const u16 *strend = (const u16 *)buffer;
+			const std::uint16_t* strend = reinterpret_cast<const std::uint16_t*>(buffer);
 			while (reinterpret_cast<const std::uint8_t*>(strend) < bufferend && *strend)
 				strend++;
 			if (reinterpret_cast<const std::uint8_t*>(strend) >= bufferend)
 				return nullptr;
 
-			str.resize(strend - (const u16 *)buffer);
-			const u16 *ptr = (const u16 *)buffer;
+			str.resize(strend - reinterpret_cast<const std::uint16_t*>(buffer));
+			const std::uint16_t *ptr = reinterpret_cast<const std::uint16_t*>(buffer);
 
 			typename StrBase::iterator it = str.begin();
 			while (ptr < strend)
 			{
-				const u16 native = to_be16(*(ptr++));	// we want from_be16, but that's the same
+				const std::uint16_t native = to_be16(*(ptr++));	// we want from_be16, but that's the same
 				*(it++) = (Char)native;
 			}
 

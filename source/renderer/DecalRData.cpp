@@ -32,7 +32,6 @@
 #include "lib/allocators/STLAllocators.h"
 #include "lib/debug.h"
 #include "lib/posix/posix_types.h"
-#include "lib/types.h"
 #include "maths/Matrix3D.h"
 #include "ps/CLogger.h"
 #include "ps/CStrIntern.h"
@@ -357,7 +356,7 @@ void CDecalRData::BuildVertexData()
 	}
 	m_VBDecals->m_Owner->UpdateChunkVertices(m_VBDecals.Get(), vertices.data());
 
-	std::vector<u16> indices((i1 - i0) * (j1 - j0) * 6);
+	std::vector<std::uint16_t> indices((i1 - i0) * (j1 - j0) * 6);
 
 	const ssize_t w = i1 - i0 + 1;
 	auto itIdx = indices.begin();
@@ -369,23 +368,23 @@ void CDecalRData::BuildVertexData()
 			const bool dir = m_Decal->m_Terrain->GetTriangulationDir(i0 + di, j0 + dj);
 			if (dir)
 			{
-				*itIdx++ = u16(((dj + 0) * w + (di + 0)) + base);
-				*itIdx++ = u16(((dj + 0) * w + (di + 1)) + base);
-				*itIdx++ = u16(((dj + 1) * w + (di + 0)) + base);
+				*itIdx++ = static_cast<std::uint16_t>(((dj + 0) * w + (di + 0)) + base);
+				*itIdx++ = static_cast<std::uint16_t>(((dj + 0) * w + (di + 1)) + base);
+				*itIdx++ = static_cast<std::uint16_t>(((dj + 1) * w + (di + 0)) + base);
 
-				*itIdx++ = u16(((dj + 0) * w + (di + 1)) + base);
-				*itIdx++ = u16(((dj + 1) * w + (di + 1)) + base);
-				*itIdx++ = u16(((dj + 1) * w + (di + 0)) + base);
+				*itIdx++ = static_cast<std::uint16_t>(((dj + 0) * w + (di + 1)) + base);
+				*itIdx++ = static_cast<std::uint16_t>(((dj + 1) * w + (di + 1)) + base);
+				*itIdx++ = static_cast<std::uint16_t>(((dj + 1) * w + (di + 0)) + base);
 			}
 			else
 			{
-				*itIdx++ = u16(((dj + 0) * w + (di + 0)) + base);
-				*itIdx++ = u16(((dj + 0) * w + (di + 1)) + base);
-				*itIdx++ = u16(((dj + 1) * w + (di + 1)) + base);
+				*itIdx++ = static_cast<std::uint16_t>(((dj + 0) * w + (di + 0)) + base);
+				*itIdx++ = static_cast<std::uint16_t>(((dj + 0) * w + (di + 1)) + base);
+				*itIdx++ = static_cast<std::uint16_t>(((dj + 1) * w + (di + 1)) + base);
 
-				*itIdx++ = u16(((dj + 1) * w + (di + 1)) + base);
-				*itIdx++ = u16(((dj + 1) * w + (di + 0)) + base);
-				*itIdx++ = u16(((dj + 0) * w + (di + 0)) + base);
+				*itIdx++ = static_cast<std::uint16_t>(((dj + 1) * w + (di + 1)) + base);
+				*itIdx++ = static_cast<std::uint16_t>(((dj + 1) * w + (di + 0)) + base);
+				*itIdx++ = static_cast<std::uint16_t>(((dj + 0) * w + (di + 0)) + base);
 			}
 		}
 	}
@@ -394,7 +393,7 @@ void CDecalRData::BuildVertexData()
 	if (!m_VBDecalsIndices || m_VBDecalsIndices->m_Count != indices.size())
 	{
 		m_VBDecalsIndices = g_Renderer.GetVertexBufferManager().AllocateChunk(
-			sizeof(u16), indices.size(),
+			sizeof(std::uint16_t), indices.size(),
 			Renderer::Backend::IBuffer::Type::INDEX,
 			Renderer::Backend::IBuffer::Usage::TRANSFER_DST);
 	}

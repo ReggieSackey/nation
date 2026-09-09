@@ -56,14 +56,14 @@ void CHeightMipmap::ReleaseData()
 	m_Mipmap.clear();
 }
 
-void CHeightMipmap::Update(const u16* ptr)
+void CHeightMipmap::Update(const std::uint16_t* ptr)
 {
 	ENSURE(ptr != 0);
 
 	Update(ptr, 0, 0, m_MapSize, m_MapSize);
 }
 
-void CHeightMipmap::Update(const u16* ptr, size_t left, size_t bottom, size_t right, size_t top)
+void CHeightMipmap::Update(const std::uint16_t* ptr, size_t left, size_t bottom, size_t right, size_t top)
 {
 	ENSURE(ptr != 0);
 
@@ -88,7 +88,7 @@ void CHeightMipmap::Update(const u16* ptr, size_t left, size_t bottom, size_t ri
 	}
 }
 
-void CHeightMipmap::Initialize(size_t mapSize, const u16* ptr)
+void CHeightMipmap::Initialize(size_t mapSize, const std::uint16_t* ptr)
 {
 	ENSURE(ptr != 0);
 	ENSURE(mapSize > 0);
@@ -100,7 +100,7 @@ void CHeightMipmap::Initialize(size_t mapSize, const u16* ptr)
 
 	while (mipmapSize > 1)
 	{
-		m_Mipmap.push_back(SMipmap(mipmapSize, new u16[mipmapSize*mipmapSize]));
+		m_Mipmap.push_back(SMipmap(mipmapSize, new std::uint16_t[mipmapSize*mipmapSize]));
 		mipmapSize >>= 1;
 	};
 
@@ -148,7 +148,8 @@ float CHeightMipmap::BilinearFilter(const SMipmap &mipmap, float x, float z) con
 			   xf  *        zf  * h11;
 }
 
-void CHeightMipmap::HalfResizeUpdate(SMipmap &out_mipmap, size_t mapSize, const u16* ptr, size_t left, size_t bottom, size_t right, size_t top)
+void CHeightMipmap::HalfResizeUpdate(SMipmap &out_mipmap, size_t mapSize, const std::uint16_t* ptr,
+	size_t left, size_t bottom, size_t right, size_t top)
 {
 	// specialized, faster version of BilinearUpdate for powers of 2
 
@@ -170,17 +171,18 @@ void CHeightMipmap::HalfResizeUpdate(SMipmap &out_mipmap, size_t mapSize, const 
 			size_t srcX = dstX << 1;
 			size_t srcZ = dstZ << 1;
 
-			u16 h00 = ptr[srcX + 0 + srcZ * mapSize];
-			u16 h10 = ptr[srcX + 1 + srcZ * mapSize];
-			u16 h01 = ptr[srcX + 0 + (srcZ + 1) * mapSize];
-			u16 h11 = ptr[srcX + 1 + (srcZ + 1) * mapSize];
+			std::uint16_t h00 = ptr[srcX + 0 + srcZ * mapSize];
+			std::uint16_t h10 = ptr[srcX + 1 + srcZ * mapSize];
+			std::uint16_t h01 = ptr[srcX + 0 + (srcZ + 1) * mapSize];
+			std::uint16_t h11 = ptr[srcX + 1 + (srcZ + 1) * mapSize];
 
 			out_mipmap.m_Heightmap[dstX + dstZ * out_mipmap.m_MapSize] = (h00 + h10 + h01 + h11) / 4;
 		}
 	}
 }
 
-void CHeightMipmap::BilinearUpdate(SMipmap &out_mipmap, size_t mapSize, const u16* ptr, size_t left, size_t bottom, size_t right, size_t top)
+void CHeightMipmap::BilinearUpdate(SMipmap &out_mipmap, size_t mapSize, const std::uint16_t* ptr,
+	size_t left, size_t bottom, size_t right, size_t top)
 {
 	ENSURE(out_mipmap.m_MapSize != 0);
 
@@ -218,11 +220,9 @@ void CHeightMipmap::BilinearUpdate(SMipmap &out_mipmap, size_t mapSize, const u1
 				const float h01 = ptr[srcX + 0 + (srcZ + 1) * mapSize];
 				const float h11 = ptr[srcX + 1 + (srcZ + 1) * mapSize];
 
-				out_mipmap.m_Heightmap[dstX + dstZ * out_mipmap.m_MapSize] = (u16)
-					((1.f - fx) * (1.f - fz) * h00 +
-							fx  * (1.f - fz) * h10 +
-					 (1.f - fx) *        fz  * h01 +
-							fx  *        fz  * h11);
+				out_mipmap.m_Heightmap[dstX + dstZ * out_mipmap.m_MapSize] =
+					static_cast<std::uint16_t>((1.f - fx) * (1.f - fz) * h00 +
+						fx * (1.f - fz) * h10 + (1.f - fx) * fz * h01 + fx * fz * h11);
 			}
 		}
 	}
@@ -248,13 +248,13 @@ void CHeightMipmap::DumpToDisk(const VfsPath& filename) const
 	for (size_t i = 0; i < m_Mipmap.size(); ++i)
 	{
 		size_t size = m_Mipmap[i].m_MapSize;
-		u16* heightmap = m_Mipmap[i].m_Heightmap;
+		std::uint16_t* heightmap = m_Mipmap[i].m_Heightmap;
 		ENSURE(size+yoff <= h);
 		for (size_t y = 0; y < size; ++y)
 		{
 			for (size_t x = 0; x < size; ++x)
 			{
-				u16 val = heightmap[x + y*size];
+				std::uint16_t val = heightmap[x + y*size];
 				static_cast<std::uint8_t*>(img)[x + (y+yoff)*w] = val >> 8;
 			}
 		}

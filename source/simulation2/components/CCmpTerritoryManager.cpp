@@ -122,8 +122,8 @@ public:
 	// processed flag in bit 7 (TERRITORY_PROCESSED_MASK)
 	Grid<std::uint8_t>* m_Territories;
 
-	std::vector<u16> m_TerritoryCellCounts;
-	u16 m_TerritoryTotalPassableCellCount;
+	std::vector<std::uint16_t> m_TerritoryCellCounts;
+	std::uint16_t m_TerritoryTotalPassableCellCount;
 
 	// Saves the cost per tile (to stop territory on impassable tiles)
 	Grid<std::uint8_t>* m_CostGrid;
@@ -367,8 +367,8 @@ REGISTER_COMPONENT_TYPE(TerritoryManager)
 // Tile data type, for easier accessing of coordinates
 struct Tile
 {
-	Tile(u16 i, u16 j) : x(i), z(j) { }
-	u16 x, z;
+	Tile(std::uint16_t i, std::uint16_t j) : x(i), z(j) { }
+	std::uint16_t x, z;
 };
 
 /**
@@ -409,8 +409,9 @@ void Floodfill(const Tile& origin, const Tile& gridSize, Decider decider)
 		openTiles.pop();
 		for (const std::array<int, 2>& neighbour : neighbours)
 		{
-			const Tile neighbourTile{static_cast<u16>(currentTile.x + std::get<0>(neighbour)),
-				static_cast<u16>(currentTile.z + std::get<1>(neighbour))};
+			const Tile neighbourTile{
+				static_cast<std::uint16_t>(currentTile.x + std::get<0>(neighbour)),
+				static_cast<std::uint16_t>(currentTile.z + std::get<1>(neighbour))};
 
 			// Check the bounds, underflow will cause the values to be big again.
 			if (neighbourTile.x < gridSize.x && neighbourTile.z < gridSize.z)
@@ -422,7 +423,8 @@ void Floodfill(const Tile& origin, const Tile& gridSize, Decider decider)
 /**
  * Compute the tile indexes on the grid nearest to a given point
  */
-static void NearestTerritoryTile(entity_pos_t x, entity_pos_t z, u16& i, u16& j, u16 w, u16 h)
+static void NearestTerritoryTile(entity_pos_t x, entity_pos_t z, std::uint16_t& i, std::uint16_t& j,
+	std::uint16_t w, std::uint16_t h)
 {
 	entity_pos_t scale = Pathfinding::NAVCELL_SIZE * ICmpTerritoryManager::NAVCELLS_PER_TERRITORY_TILE;
 	i = Clamp((x / scale).ToInt_RoundToNegInfinity(), 0, w - 1);
@@ -454,8 +456,8 @@ void CCmpTerritoryManager::CalculateCostGrid()
 		for (int j = 0; j < tilesH; ++j)
 		{
 			NavcellData c = 0;
-			for (u16 di = 0; di < NAVCELLS_PER_TERRITORY_TILE; ++di)
-				for (u16 dj = 0; dj < NAVCELLS_PER_TERRITORY_TILE; ++dj)
+			for (std::uint16_t di = 0; di < NAVCELLS_PER_TERRITORY_TILE; ++di)
+				for (std::uint16_t dj = 0; dj < NAVCELLS_PER_TERRITORY_TILE; ++dj)
 					c |= passGrid.get(
 						i * NAVCELLS_PER_TERRITORY_TILE + di,
 						j * NAVCELLS_PER_TERRITORY_TILE + dj);
@@ -485,8 +487,8 @@ void CCmpTerritoryManager::CalculateTerritories()
 	if (!m_CostGrid)
 		return;
 
-	const u16 tilesW = m_CostGrid->m_W;
-	const u16 tilesH = m_CostGrid->m_H;
+	const std::uint16_t tilesW = m_CostGrid->m_W;
+	const std::uint16_t tilesH = m_CostGrid->m_H;
 
 	m_Territories = new Grid<std::uint8_t>(tilesW, tilesH);
 
@@ -494,7 +496,7 @@ void CCmpTerritoryManager::CalculateTerritories()
 	CmpPtr<ICmpPlayerManager> cmpPlayerManager(GetSystemEntity());
 	if (cmpPlayerManager && (size_t)cmpPlayerManager->GetNumPlayers() != m_TerritoryCellCounts.size())
 		m_TerritoryCellCounts.resize(cmpPlayerManager->GetNumPlayers());
-	for (u16& count : m_TerritoryCellCounts)
+	for (std::uint16_t& count : m_TerritoryCellCounts)
 		count = 0;
 
 	// Find all territory influence entities
@@ -551,7 +553,7 @@ void CCmpTerritoryManager::CalculateTerritories()
 				.ToInt_RoundToNegInfinity() / radius;
 
 			CFixedVector2D pos = cmpPosition->GetPosition2D();
-			u16 i, j;
+			std::uint16_t i, j;
 			NearestTerritoryTile(pos.X, pos.Y, i, j, tilesW, tilesH);
 
 			if (cmpTerritoryInfluence->IsRoot())
@@ -608,7 +610,7 @@ void CCmpTerritoryManager::CalculateTerritories()
 		CmpPtr<ICmpPosition> cmpPosition(GetSimContext(), ent);
 
 		CFixedVector2D pos = cmpPosition->GetPosition2D();
-		u16 i, j;
+		std::uint16_t i, j;
 		NearestTerritoryTile(pos.X, pos.Y, i, j, tilesW, tilesH);
 
 		std::uint8_t owner = static_cast<std::uint8_t>(cmpOwnership->GetOwner());
@@ -780,7 +782,7 @@ void CCmpTerritoryManager::RenderSubmit(SceneCollector& collector, const CFrustu
 
 player_id_t CCmpTerritoryManager::GetOwner(entity_pos_t x, entity_pos_t z)
 {
-	u16 i, j;
+	std::uint16_t i, j;
 	if (!m_Territories)
 	{
 		CalculateTerritories();
@@ -803,14 +805,14 @@ std::vector<u32> CCmpTerritoryManager::GetNeighbours(entity_pos_t x, entity_pos_
 	if (!m_Territories)
 		return ret;
 
-	u16 i, j;
+	std::uint16_t i, j;
 	NearestTerritoryTile(x, z, i, j, m_Territories->m_W, m_Territories->m_H);
 
 	// calculate the neighbours
 	player_id_t thisOwner = m_Territories->get(i, j) & TERRITORY_PLAYER_MASK;
 
-	u16 tilesW = m_Territories->m_W;
-	u16 tilesH = m_Territories->m_H;
+	std::uint16_t tilesW = m_Territories->m_W;
+	std::uint16_t tilesH = m_Territories->m_H;
 
 	// use a flood-fill algorithm that fills up to the borders and remembers the owners
 	Grid<bool> markerGrid(tilesW, tilesH);
@@ -836,7 +838,7 @@ std::vector<u32> CCmpTerritoryManager::GetNeighbours(entity_pos_t x, entity_pos_
 
 bool CCmpTerritoryManager::IsConnected(entity_pos_t x, entity_pos_t z)
 {
-	u16 i, j;
+	std::uint16_t i, j;
 	CalculateTerritories();
 	if (!m_Territories)
 		return false;
@@ -851,11 +853,11 @@ void CCmpTerritoryManager::SetTerritoryBlinking(entity_pos_t x, entity_pos_t z, 
 	if (!m_Territories)
 		return;
 
-	u16 i, j;
+	std::uint16_t i, j;
 	NearestTerritoryTile(x, z, i, j, m_Territories->m_W, m_Territories->m_H);
 
-	u16 tilesW = m_Territories->m_W;
-	u16 tilesH = m_Territories->m_H;
+	std::uint16_t tilesW = m_Territories->m_W;
+	std::uint16_t tilesH = m_Territories->m_H;
 
 	player_id_t thisOwner = m_Territories->get(i, j) & TERRITORY_PLAYER_MASK;
 
@@ -883,7 +885,7 @@ bool CCmpTerritoryManager::IsTerritoryBlinking(entity_pos_t x, entity_pos_t z)
 	if (!m_Territories)
 		return false;
 
-	u16 i, j;
+	std::uint16_t i, j;
 	NearestTerritoryTile(x, z, i, j, m_Territories->m_W, m_Territories->m_H);
 	return (m_Territories->get(i, j) & TERRITORY_BLINKING_MASK) != 0;
 }

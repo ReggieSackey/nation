@@ -27,7 +27,6 @@
 #include "graphics/MeshManager.h"
 #include "graphics/RenderableObject.h"
 #include "renderer/SceneRenderer.h"
-#include "lib/types.h"
 
 #include <memory>
 #include <span>
@@ -162,7 +161,7 @@ public:
 	 * mdef->GetNumFaces()*3 elements.
 	 */
 	static void BuildIndices(
-		const CModelDefPtr& mdef, const VertexArrayIterator<u16>& Indices);
+		const CModelDefPtr& mdef, const VertexArrayIterator<std::uint16_t>& Indices);
 
 	/**
 	 * GenTangents: Generate tangents for the given CModelDef.

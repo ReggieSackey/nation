@@ -267,7 +267,7 @@ inline static bool CheckVisibilityTop(const CFixedVector2D& a, const CFixedVecto
 	return true;
 }
 
-typedef PriorityQueueHeap<u16, fixed, fixed> VertexPriorityQueue;
+typedef PriorityQueueHeap<std::uint16_t, fixed, fixed> VertexPriorityQueue;
 
 /**
  * Add edges and vertexes to represent the boundaries between passable and impassable
@@ -339,8 +339,8 @@ static void AddTerrainEdges(std::vector<Edge>& edgesAligned, std::vector<Edge>& 
 	}
 
 	// XXX rewrite this stuff
-	std::vector<u16> segmentsR;
-	std::vector<u16> segmentsL;
+	std::vector<std::uint16_t> segmentsR;
+	std::vector<std::uint16_t> segmentsL;
 	for (int j = j0; j < j1; ++j)
 	{
 		segmentsR.clear();
@@ -358,8 +358,8 @@ static void AddTerrainEdges(std::vector<Edge>& edgesAligned, std::vector<Edge>& 
 		if (!segmentsR.empty())
 		{
 			segmentsR.push_back(0); // sentinel value to simplify the loop
-			u16 ia = segmentsR[0];
-			u16 ib = ia + 1;
+			std::uint16_t ia = segmentsR[0];
+			std::uint16_t ib = ia + 1;
 			for (size_t n = 1; n < segmentsR.size(); ++n)
 			{
 				if (segmentsR[n] == ib)
@@ -383,8 +383,8 @@ static void AddTerrainEdges(std::vector<Edge>& edgesAligned, std::vector<Edge>& 
 		if (!segmentsL.empty())
 		{
 			segmentsL.push_back(0); // sentinel value to simplify the loop
-			u16 ia = segmentsL[0];
-			u16 ib = ia + 1;
+			std::uint16_t ia = segmentsL[0];
+			std::uint16_t ib = ia + 1;
 			for (size_t n = 1; n < segmentsL.size(); ++n)
 			{
 				if (segmentsL[n] == ib)
@@ -405,8 +405,8 @@ static void AddTerrainEdges(std::vector<Edge>& edgesAligned, std::vector<Edge>& 
 			}
 		}
 	}
-	std::vector<u16> segmentsU;
-	std::vector<u16> segmentsD;
+	std::vector<std::uint16_t> segmentsU;
+	std::vector<std::uint16_t> segmentsD;
 	for (int i = i0; i < i1; ++i)
 	{
 		segmentsU.clear();
@@ -424,8 +424,8 @@ static void AddTerrainEdges(std::vector<Edge>& edgesAligned, std::vector<Edge>& 
 		if (!segmentsU.empty())
 		{
 			segmentsU.push_back(0); // sentinel value to simplify the loop
-			u16 ja = segmentsU[0];
-			u16 jb = ja + 1;
+			std::uint16_t ja = segmentsU[0];
+			std::uint16_t jb = ja + 1;
 			for (size_t n = 1; n < segmentsU.size(); ++n)
 			{
 				if (segmentsU[n] == jb)
@@ -449,8 +449,8 @@ static void AddTerrainEdges(std::vector<Edge>& edgesAligned, std::vector<Edge>& 
 		if (!segmentsD.empty())
 		{
 			segmentsD.push_back(0); // sentinel value to simplify the loop
-			u16 ja = segmentsD[0];
-			u16 jb = ja + 1;
+			std::uint16_t ja = segmentsD[0];
+			std::uint16_t jb = ja + 1;
 			for (size_t n = 1; n < segmentsD.size(); ++n)
 			{
 				if (segmentsD[n] == jb)
@@ -709,7 +709,7 @@ WaypointPath VertexPathfinder::ComputeShortPath(const ShortPathRequest& request,
 
 	// Add terrain obstructions
 	{
-		u16 i0, j0, i1, j1;
+		std::uint16_t i0, j0, i1, j1;
 		Pathfinding::NearestNavcell(rangeXMin, rangeZMin, i0, j0, m_GridSize, m_GridSize);
 		Pathfinding::NearestNavcell(rangeXMax, rangeZMax, i1, j1, m_GridSize, m_GridSize);
 		AddTerrainEdges(m_EdgesAligned, m_EdgesUnaligned, m_Vertexes, i0, j0, i1, j1, request.passClass, *m_TerrainOnlyGrid);
@@ -735,7 +735,7 @@ WaypointPath VertexPathfinder::ComputeShortPath(const ShortPathRequest& request,
 				m_Vertexes[j].status = Vertex::CLOSED;
 	}
 
-	ENSURE(m_Vertexes.size() < 65536); // We store array indexes as u16.
+	ENSURE(m_Vertexes.size() < 65536); // We store array indexes as std::uint16_t.
 
 	g_VertexPathfinderDebugOverlay.DebugRenderGraph(cmpObstructionManager->GetSimContext(), m_Vertexes, m_EdgesAligned, m_EdgeSquares);
 
@@ -765,7 +765,7 @@ WaypointPath VertexPathfinder::ComputeShortPath(const ShortPathRequest& request,
 	VertexPriorityQueue::Item qiStart = { START_VERTEX_ID, start.h, start.h };
 	open.push(qiStart);
 
-	u16 idBest = START_VERTEX_ID;
+	std::uint16_t idBest = START_VERTEX_ID;
 	fixed hBest = start.h;
 
 	while (!open.empty())
@@ -874,13 +874,14 @@ WaypointPath VertexPathfinder::ComputeShortPath(const ShortPathRequest& request,
 					if (n == GOAL_VERTEX_ID)
 						m_Vertexes[n].p = npos; // remember the new best goal position
 
-					VertexPriorityQueue::Item t = { (u16)n, g + m_Vertexes[n].h, m_Vertexes[n].h };
+					VertexPriorityQueue::Item t = { static_cast<std::uint16_t>(n),
+						g + m_Vertexes[n].h, m_Vertexes[n].h };
 					open.push(t);
 
 					// Remember the heuristically best vertex we've seen so far, in case we never actually reach the target
 					if (m_Vertexes[n].h < hBest)
 					{
-						idBest = (u16)n;
+						idBest = static_cast<std::uint16_t>(n);
 						hBest = m_Vertexes[n].h;
 					}
 				}
@@ -894,7 +895,8 @@ WaypointPath VertexPathfinder::ComputeShortPath(const ShortPathRequest& request,
 					if (n == GOAL_VERTEX_ID)
 						m_Vertexes[n].p = npos; // remember the new best goal position
 
-					open.promote((u16)n, gprev + m_Vertexes[n].h, g + m_Vertexes[n].h, m_Vertexes[n].h);
+					open.promote(static_cast<std::uint16_t>(n), gprev + m_Vertexes[n].h,
+						g + m_Vertexes[n].h, m_Vertexes[n].h);
 				}
 			}
 		}
@@ -902,7 +904,7 @@ WaypointPath VertexPathfinder::ComputeShortPath(const ShortPathRequest& request,
 
 	// Reconstruct the path (in reverse)
 	WaypointPath path;
-	for (u16 id = idBest; id != START_VERTEX_ID; id = m_Vertexes[id].pred)
+	for (std::uint16_t id = idBest; id != START_VERTEX_ID; id = m_Vertexes[id].pred)
 		path.m_Waypoints.emplace_back(Waypoint{ m_Vertexes[id].p.X, m_Vertexes[id].p.Y });
 
 	m_EdgesAligned.clear();

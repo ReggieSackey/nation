@@ -20,7 +20,6 @@
 
 #include "lib/debug.h"
 #include "lib/posix/posix_types.h"
-#include "lib/types.h"
 #include "renderer/VertexBuffer.h"
 #include "renderer/VertexBufferManager.h"
 #include "renderer/backend/Format.h"
@@ -158,7 +157,7 @@ public:
 		// Get an iterator over the backing store for the given attribute that
 		// initially points at the first vertex.
 		// Supported types T: CVector3D, CVector4D, float[2], SColor4ub,
-		// u16, u16[2], std::uint8_t[4], short, short[2].
+		// std::uint16_t, std::uint16_t[2], std::uint8_t[4], short, short[2].
 		// This function verifies at runtime that the requested type T matches
 		// the attribute definition passed to AddAttribute().
 		template<typename T>
@@ -233,8 +232,8 @@ class VertexIndexArray : public VertexArray
 public:
 	VertexIndexArray(const uint32_t usage);
 
-	/// Gets the iterator over the (only) attribute in this array, i.e. a u16.
-	VertexArrayIterator<u16> GetIterator() const;
+	/// Gets the iterator over the (only) attribute in this array, i.e. a std::uint16_t.
+	VertexArrayIterator<std::uint16_t> GetIterator() const;
 
 private:
 	Attribute m_Attr;

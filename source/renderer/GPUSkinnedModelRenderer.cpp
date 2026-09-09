@@ -29,7 +29,6 @@
 #include "graphics/ShaderTechniquePtr.h"
 #include "lib/debug.h"
 #include "lib/lib.h"
-#include "lib/types.h"
 #include "maths/Matrix3D.h"
 #include "maths/Vector3D.h"
 #include "maths/Vector4D.h"
@@ -266,7 +265,7 @@ ModelDefRData::ModelDefRData(const CModelDefPtr& modelDef)
 	m_IndexArray.Layout();
 
 	// Re-index geometry and upload index.
-	VertexArrayIterator<u16> indices{m_IndexArray.GetIterator()};
+	VertexArrayIterator<std::uint16_t> indices{m_IndexArray.GetIterator()};
 	for (uint32_t index{0}; index < modelDef->GetNumFaces() * 3; ++index)
 		indices[index] = remapTable[index];
 	m_IndexArray.Upload();

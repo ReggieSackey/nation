@@ -169,7 +169,7 @@ private:
 	struct CellIcon
 	{
 		// TODO: use CVector2DI.
-		u16 gridX, gridY;
+		std::uint16_t gridX, gridY;
 		float halfSize;
 		CVector2D worldPosition;
 	};

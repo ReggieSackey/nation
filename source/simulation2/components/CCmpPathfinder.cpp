@@ -132,7 +132,8 @@ void CCmpPathfinder::Init(const CParamNode&)
 	// to avoid spending too much time there (since the latter are threaded and thus much 'cheaper').
 	// This loads that maximum number (note that it's per computation call, not per turn for now).
 	const CParamNode pathingSettings = externalParamNode.GetChild("Pathfinder");
-	m_MaxSameTurnMoves = (u16)pathingSettings.GetChild("MaxSameTurnMoves").ToInt();
+	m_MaxSameTurnMoves = static_cast<std::uint16_t>(
+		pathingSettings.GetChild("MaxSameTurnMoves").ToInt());
 
 	const CParamNode::ChildrenMap& passClasses = externalParamNode.GetChild("Pathfinder").GetChild("PassabilityClasses").GetChildren();
 	for (CParamNode::ChildrenMap::const_iterator it = passClasses.begin(); it != passClasses.end(); ++it)
@@ -349,26 +350,26 @@ const Grid<NavcellData>& CCmpPathfinder::GetPassabilityGrid()
  * Euclidean distances; currently it effectively does dist=max(dx,dy) instead.
  * This would only really be a problem for big clearances.
  */
-static void ExpandImpassableCells(Grid<NavcellData>& grid, u16 clearance, pass_class_t mask)
+static void ExpandImpassableCells(Grid<NavcellData>& grid, std::uint16_t clearance, pass_class_t mask)
 {
 	PROFILE3("ExpandImpassableCells");
 
-	u16 w = grid.m_W;
-	u16 h = grid.m_H;
+	std::uint16_t w = grid.m_W;
+	std::uint16_t h = grid.m_H;
 
 	// First expand impassable cells horizontally into a temporary 1-bit grid
 	Grid<std::uint8_t> tempGrid(w, h);
-	for (u16 j = 0; j < h; ++j)
+	for (std::uint16_t j = 0; j < h; ++j)
 	{
 		// New cell (i,j) is blocked if (i',j) blocked for any i-clearance <= i' <= i+clearance
 
 		// Count the number of blocked cells around i=0
-		u16 numBlocked = 0;
-		for (u16 i = 0; i <= clearance && i < w; ++i)
+		std::uint16_t numBlocked = 0;
+		for (std::uint16_t i = 0; i <= clearance && i < w; ++i)
 			if (!IS_PASSABLE(grid.get(i, j), mask))
 				++numBlocked;
 
-		for (u16 i = 0; i < w; ++i)
+		for (std::uint16_t i = 0; i < w; ++i)
 		{
 			// Store a flag if blocked by at least one nearby cell
 			if (numBlocked)
@@ -384,16 +385,16 @@ static void ExpandImpassableCells(Grid<NavcellData>& grid, u16 clearance, pass_c
 		}
 	}
 
-	for (u16 i = 0; i < w; ++i)
+	for (std::uint16_t i = 0; i < w; ++i)
 	{
 		// New cell (i,j) is blocked if (i,j') blocked for any j-clearance <= j' <= j+clearance
 		// Count the number of blocked cells around j=0
-		u16 numBlocked = 0;
-		for (u16 j = 0; j <= clearance && j < h; ++j)
+		std::uint16_t numBlocked = 0;
+		for (std::uint16_t j = 0; j <= clearance && j < h; ++j)
 			if (tempGrid.get(i, j))
 				++numBlocked;
 
-		for (u16 j = 0; j < h; ++j)
+		for (std::uint16_t j = 0; j < h; ++j)
 		{
 			// Add the mask if blocked by at least one nearby cell
 			if (numBlocked)
@@ -410,7 +411,7 @@ static void ExpandImpassableCells(Grid<NavcellData>& grid, u16 clearance, pass_c
 	}
 }
 
-Grid<u16> CCmpPathfinder::ComputeShoreGrid(bool expandOnWater)
+Grid<std::uint16_t> CCmpPathfinder::ComputeShoreGrid(bool expandOnWater)
 {
 	PROFILE3("ComputeShoreGrid");
 
@@ -420,15 +421,15 @@ Grid<u16> CCmpPathfinder::ComputeShoreGrid(bool expandOnWater)
 	CTerrain& terrain = GetSimContext().GetTerrain();
 
 	// avoid integer overflow in intermediate calculation
-	const u16 shoreMax = 32767;
+	const std::uint16_t shoreMax = 32767;
 
-	u16 shoreGridSize = terrain.GetTilesPerSide();
+	std::uint16_t shoreGridSize = terrain.GetTilesPerSide();
 
 	// First pass - find underwater tiles
 	Grid<std::uint8_t> waterGrid(shoreGridSize, shoreGridSize);
-	for (u16 j = 0; j < shoreGridSize; ++j)
+	for (std::uint16_t j = 0; j < shoreGridSize; ++j)
 	{
-		for (u16 i = 0; i < shoreGridSize; ++i)
+		for (std::uint16_t i = 0; i < shoreGridSize; ++i)
 		{
 			fixed x, z;
 			Pathfinding::TerrainTileCenter(i, j, x, z);
@@ -439,10 +440,10 @@ Grid<u16> CCmpPathfinder::ComputeShoreGrid(bool expandOnWater)
 	}
 
 	// Second pass - find shore tiles
-	Grid<u16> shoreGrid(shoreGridSize, shoreGridSize);
-	for (u16 j = 0; j < shoreGridSize; ++j)
+	Grid<std::uint16_t> shoreGrid(shoreGridSize, shoreGridSize);
+	for (std::uint16_t j = 0; j < shoreGridSize; ++j)
 	{
-		for (u16 i = 0; i < shoreGridSize; ++i)
+		for (std::uint16_t i = 0; i < shoreGridSize; ++i)
 		{
 			// Find a land tile
 			if (!waterGrid.get(i, j))
@@ -463,14 +464,14 @@ Grid<u16> CCmpPathfinder::ComputeShoreGrid(bool expandOnWater)
 	}
 
 	// Expand influences on land to find shore distance
-	for (u16 y = 0; y < shoreGridSize; ++y)
+	for (std::uint16_t y = 0; y < shoreGridSize; ++y)
 	{
-		u16 min = shoreMax;
-		for (u16 x = 0; x < shoreGridSize; ++x)
+		std::uint16_t min = shoreMax;
+		for (std::uint16_t x = 0; x < shoreGridSize; ++x)
 		{
 			if (!waterGrid.get(x, y) || expandOnWater)
 			{
-				u16 g = shoreGrid.get(x, y);
+				std::uint16_t g = shoreGrid.get(x, y);
 				if (g > min)
 					shoreGrid.set(x, y, min);
 				else if (g < min)
@@ -479,11 +480,11 @@ Grid<u16> CCmpPathfinder::ComputeShoreGrid(bool expandOnWater)
 				++min;
 			}
 		}
-		for (u16 x = shoreGridSize; x > 0; --x)
+		for (std::uint16_t x = shoreGridSize; x > 0; --x)
 		{
 			if (!waterGrid.get(x-1, y) || expandOnWater)
 			{
-				u16 g = shoreGrid.get(x-1, y);
+				std::uint16_t g = shoreGrid.get(x-1, y);
 				if (g > min)
 					shoreGrid.set(x-1, y, min);
 				else if (g < min)
@@ -493,14 +494,14 @@ Grid<u16> CCmpPathfinder::ComputeShoreGrid(bool expandOnWater)
 			}
 		}
 	}
-	for (u16 x = 0; x < shoreGridSize; ++x)
+	for (std::uint16_t x = 0; x < shoreGridSize; ++x)
 	{
-		u16 min = shoreMax;
-		for (u16 y = 0; y < shoreGridSize; ++y)
+		std::uint16_t min = shoreMax;
+		for (std::uint16_t y = 0; y < shoreGridSize; ++y)
 		{
 			if (!waterGrid.get(x, y) || expandOnWater)
 			{
-				u16 g = shoreGrid.get(x, y);
+				std::uint16_t g = shoreGrid.get(x, y);
 				if (g > min)
 					shoreGrid.set(x, y, min);
 				else if (g < min)
@@ -509,11 +510,11 @@ Grid<u16> CCmpPathfinder::ComputeShoreGrid(bool expandOnWater)
 				++min;
 			}
 		}
-		for (u16 y = shoreGridSize; y > 0; --y)
+		for (std::uint16_t y = shoreGridSize; y > 0; --y)
 		{
 			if (!waterGrid.get(x, y-1) || expandOnWater)
 			{
-				u16 g = shoreGrid.get(x, y-1);
+				std::uint16_t g = shoreGrid.get(x, y-1);
 				if (g > min)
 					shoreGrid.set(x, y-1, min);
 				else if (g < min)
@@ -535,7 +536,7 @@ void CCmpPathfinder::UpdateGrid()
 	if (!cmpTerrain)
 		return; // error
 
-	u16 gridSize = cmpTerrain->GetMapSize() / Pathfinding::NAVCELL_SIZE_INT;
+	std::uint16_t gridSize = cmpTerrain->GetMapSize() / Pathfinding::NAVCELL_SIZE_INT;
 	if (gridSize == 0)
 		return;
 
@@ -593,8 +594,8 @@ void CCmpPathfinder::UpdateGrid()
 	{
 		ENSURE(m_Grid->compare_sizes(m_TerrainOnlyGrid));
 
-		for (u16 j = 0; j < m_DirtinessInformation.dirtinessGrid.m_H; ++j)
-			for (u16 i = 0; i < m_DirtinessInformation.dirtinessGrid.m_W; ++i)
+		for (std::uint16_t j = 0; j < m_DirtinessInformation.dirtinessGrid.m_H; ++j)
+			for (std::uint16_t i = 0; i < m_DirtinessInformation.dirtinessGrid.m_W; ++i)
 				if (m_DirtinessInformation.dirtinessGrid.get(i, j) == 1)
 					m_Grid->set(i, j, m_TerrainOnlyGrid->get(i, j));
 	}
@@ -637,7 +638,7 @@ void CCmpPathfinder::TerrainUpdateHelper(bool expandPassability, int itile0, int
 	if (!cmpTerrain || !cmpObstructionManager)
 		return;
 
-	u16 gridSize = cmpTerrain->GetMapSize() / Pathfinding::NAVCELL_SIZE_INT;
+	std::uint16_t gridSize = cmpTerrain->GetMapSize() / Pathfinding::NAVCELL_SIZE_INT;
 	if (gridSize == 0)
 		return;
 
@@ -660,7 +661,7 @@ void CCmpPathfinder::TerrainUpdateHelper(bool expandPassability, int itile0, int
 		}
 	}
 
-	Grid<u16> shoreGrid = ComputeShoreGrid();
+	Grid<std::uint16_t> shoreGrid = ComputeShoreGrid();
 
 	const bool partialTerrainGridUpdate =
 		!expandPassability && !needsNewTerrainGrid &&
@@ -749,17 +750,17 @@ void CCmpPathfinder::TerrainUpdateHelper(bool expandPassability, int itile0, int
 	}
 	else
 	{
-		for (u16 j = 0; j < h; ++j)
-			for (u16 i = 0; i < edgeSize; ++i)
+		for (std::uint16_t j = 0; j < h; ++j)
+			for (std::uint16_t i = 0; i < edgeSize; ++i)
 				m_TerrainOnlyGrid->set(i, j, m_TerrainOnlyGrid->get(i, j) | edgeMask);
-		for (u16 j = 0; j < h; ++j)
-			for (u16 i = w-edgeSize+1; i < w; ++i)
+		for (std::uint16_t j = 0; j < h; ++j)
+			for (std::uint16_t i = w-edgeSize+1; i < w; ++i)
 				m_TerrainOnlyGrid->set(i, j, m_TerrainOnlyGrid->get(i, j) | edgeMask);
-		for (u16 j = 0; j < edgeSize; ++j)
-			for (u16 i = edgeSize; i < w-edgeSize+1; ++i)
+		for (std::uint16_t j = 0; j < edgeSize; ++j)
+			for (std::uint16_t i = edgeSize; i < w-edgeSize+1; ++i)
 				m_TerrainOnlyGrid->set(i, j, m_TerrainOnlyGrid->get(i, j) | edgeMask);
-		for (u16 j = h-edgeSize+1; j < h; ++j)
-			for (u16 i = edgeSize; i < w-edgeSize+1; ++i)
+		for (std::uint16_t j = h-edgeSize+1; j < h; ++j)
+			for (std::uint16_t i = edgeSize; i < w-edgeSize+1; ++i)
 				m_TerrainOnlyGrid->set(i, j, m_TerrainOnlyGrid->get(i, j) | edgeMask);
 	}
 
@@ -898,7 +899,7 @@ bool CCmpPathfinder::IsGoalReachable(entity_pos_t x0, entity_pos_t z0, const Pat
 {
 	PROFILE2("IsGoalReachable");
 
-	u16 i, j;
+	std::uint16_t i, j;
 	Pathfinding::NearestNavcell(x0, z0, i, j, m_GridSize, m_GridSize);
 	if (!IS_PASSABLE(m_Grid->get(i, j), passClass))
 		m_PathfinderHier->FindNearestPassableNavcell(i, j, passClass);
@@ -1017,7 +1018,7 @@ ICmpObstruction::EFoundationCheck CCmpPathfinder::CheckUnitPlacement(const IObst
 
 	// Test against terrain and static obstructions:
 
-	u16 i, j;
+	std::uint16_t i, j;
 	Pathfinding::NearestNavcell(x, z, i, j, m_GridSize, m_GridSize);
 	if (!IS_PASSABLE(m_Grid->get(i, j), passClass))
 		return ICmpObstruction::FOUNDATION_CHECK_FAIL_TERRAIN_CLASS;

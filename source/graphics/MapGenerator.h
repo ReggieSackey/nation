@@ -19,7 +19,6 @@
 #define INCLUDED_MAPGENERATOR
 
 #include "lib/file/vfs/vfs_path.h"
-#include "lib/types.h"
 #include "scriptinterface/StructuredClone.h"
 
 #include <atomic>
@@ -49,6 +48,6 @@ constexpr std::wstring_view RANDOM_MAP_PREFIX{L"maps/random/"};
  */
 Script::StructuredClone RunMapGenerationScript(const StopToken stopToken, std::atomic<int>& progress,
 	Script::Interface& scriptInterface, const VfsPath& script, const std::string& settings,
-	const u16 flags = JSPROP_ENUMERATE | JSPROP_READONLY | JSPROP_PERMANENT);
+	const std::uint16_t flags = JSPROP_ENUMERATE | JSPROP_READONLY | JSPROP_PERMANENT);
 
 #endif	//INCLUDED_MAPGENERATOR

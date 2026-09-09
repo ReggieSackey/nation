@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Wildfire Games.
+/* Copyright (C) 2026 Wildfire Games.
  * This file is part of 0 A.D.
  *
  * 0 A.D. is free software: you can redistribute it and/or modify
@@ -21,7 +21,6 @@
 #include "graphics/Overlay.h"
 #include "graphics/RenderableObject.h"
 #include "lib/code_annotation.h"
-#include "lib/types.h"
 #include "maths/BoundingBoxAligned.h"
 #include "maths/Vector2D.h"
 #include "maths/Vector3D.h"
@@ -87,8 +86,10 @@ protected:
 	 * @param verticesOut Output vector of vertices for passing to the renderer.
 	 * @param indicesOut Output vector of vertex indices for passing to the renderer.
 	 */
-	void CreateLineCap(const SOverlayTexturedLine& line, const CVector3D& corner1, const CVector3D& corner2, const CVector3D& normal,
-		               SOverlayTexturedLine::LineCapType endCapType, std::vector<SVertex>& verticesOut, std::vector<u16>& indicesOut);
+	void CreateLineCap(const SOverlayTexturedLine& line, const CVector3D& corner1,
+		const CVector3D& corner2, const CVector3D& normal,
+		SOverlayTexturedLine::LineCapType endCapType, std::vector<SVertex>& verticesOut,
+		std::vector<std::uint16_t>& indicesOut);
 
 	/// Small utility function; grabs the centroid of the positions of two vertices
 	inline CVector3D Centroid(const SVertex& v1, const SVertex& v2)

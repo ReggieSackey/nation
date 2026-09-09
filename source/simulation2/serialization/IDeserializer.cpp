@@ -67,7 +67,7 @@ void IDeserializer::NumberI16(const char* name, int16_t& out, int16_t lower, int
 {
 	int16_t value;
 	Get(name, reinterpret_cast<std::uint8_t*>(&value), sizeof(uint16_t));
-	value = static_cast<std::int16_t>(to_le16((u16)value));
+	value = static_cast<std::int16_t>(to_le16(static_cast<std::uint16_t>(value)));
 
 	if (!(lower <= value && value <= upper))
 		throw PSERROR_Deserialize_OutOfBounds(name);
@@ -120,7 +120,7 @@ void IDeserializer::NumberI16_Unbounded(const char* name, int16_t& out)
 {
 	int16_t value;
 	Get(name, reinterpret_cast<std::uint8_t*>(&value), sizeof(int16_t));
-	out = static_cast<std::int16_t>(to_le16((u16)value));
+	out = static_cast<std::int16_t>(to_le16(static_cast<std::uint16_t>(value)));
 }
 
 void IDeserializer::NumberU32_Unbounded(const char* name, uint32_t& out)

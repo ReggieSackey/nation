@@ -68,8 +68,8 @@ struct FADT	// signature is FACP!
 	std::uint8_t unused1[40];
 	u32 pmTimerPortAddress;
 	std::uint8_t unused2[16];
-	u16 c2Latency;	// [us]
-	u16 c3Latency;	// [us]
+	std::uint16_t c2Latency;	// [us]
+	std::uint16_t c3Latency;	// [us]
 	std::uint8_t unused3[5];
 	std::uint8_t dutyWidth;
 	std::uint8_t unused4[6];

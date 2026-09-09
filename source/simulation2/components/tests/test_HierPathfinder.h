@@ -17,7 +17,6 @@
 
 #include "lib/self_test.h"
 
-#include "lib/types.h"
 #include "maths/Fixed.h"
 #include "simulation2/helpers/Grid.h"
 #include "simulation2/helpers/PathGoal.h"
@@ -49,7 +48,7 @@ public:
 	const pass_class_t PASS_2 = 2;
 	const pass_class_t NON_PASS_1 = 4;
 
-	const u16 mapSize = 240;
+	const std::uint16_t mapSize = 240;
 
 	std::map<std::string, pass_class_t> pathClassMask;
 	std::map<std::string, pass_class_t> nonPathClassMask;
@@ -64,7 +63,8 @@ public:
 		}
 	}
 
-	void debug_grid_points(Grid<NavcellData>& grid, u16 i1, u16 j1, u16 i2, u16 j2)
+	void debug_grid_points(Grid<NavcellData>& grid, std::uint16_t i1, std::uint16_t j1, std::uint16_t i2,
+		std::uint16_t j2)
 	{
 		for (size_t i = 0; i < grid.m_W; ++i)
 		{
@@ -85,15 +85,15 @@ public:
 	{
 		// test that the map has the same global region everywhere
 		HierarchicalPathfinder::GlobalRegionID globalRegionID = hierPath.GetGlobalRegion(35, 23, PASS_1);
-		for (u16 i = 0; i < mapSize; ++i)
-			for (u16 j = 0; j < mapSize; ++j)
+		for (std::uint16_t i = 0; i < mapSize; ++i)
+			for (std::uint16_t j = 0; j < mapSize; ++j)
 			{
 				TS_ASSERT(globalRegionID == hierPath.GetGlobalRegion(i, j, PASS_1));
 				TS_ASSERT(hierPath.GetGlobalRegion(i, j, PASS_2) == 0);
 			}
 
-		u16 i = 89;
-		u16 j = 34;
+		std::uint16_t i = 89;
+		std::uint16_t j = 34;
 		hierPath.FindNearestPassableNavcell(i, j, PASS_1);
 		TS_ASSERT(i == 89 && j == 34);
 
@@ -138,7 +138,7 @@ public:
 
 		//////////////////////////////////////////////////////
 		// Split the map in two in the middle.
-		for (u16 j = 0; j < mapSize; ++j)
+		for (std::uint16_t j = 0; j < mapSize; ++j)
 		{
 			grid.set(125, j, 7);
 			dirtyGrid.set(125, j, 1);
@@ -148,19 +148,19 @@ public:
 
 		// Global region: check we are now split in two.
 		TS_ASSERT(hierPath.GetGlobalRegion(50, 50, PASS_1) != hierPath.GetGlobalRegion(150, 50, PASS_1));
-		for (u16 j = 0; j < mapSize; ++j)
+		for (std::uint16_t j = 0; j < mapSize; ++j)
 		{
 			TS_ASSERT(hierPath.Get(125, j, PASS_1).r == 0);
 			TS_ASSERT(hierPath.GetGlobalRegion(125, j, PASS_1) == 0);
 		}
-		for (u16 i = 0; i < 125; ++i)
-			for (u16 j = 0; j < mapSize; ++j)
+		for (std::uint16_t i = 0; i < 125; ++i)
+			for (std::uint16_t j = 0; j < mapSize; ++j)
 			{
 				TS_ASSERT(hierPath.GetGlobalRegion(50, 50, PASS_1) == hierPath.GetGlobalRegion(i, j, PASS_1));
 				TS_ASSERT(hierPath.GetGlobalRegion(i, j, PASS_2) == 0);
 			}
-		for (u16 i = 126; i < mapSize; ++i)
-			for (u16 j = 0; j < mapSize; ++j)
+		for (std::uint16_t i = 126; i < mapSize; ++i)
+			for (std::uint16_t j = 0; j < mapSize; ++j)
 			{
 				TS_ASSERT(hierPath.GetGlobalRegion(150, 50, PASS_1) == hierPath.GetGlobalRegion(i, j, PASS_1));
 				TS_ASSERT(hierPath.GetGlobalRegion(i, j, PASS_2) == 0);
@@ -181,7 +181,7 @@ public:
 
 		//////////////////////////////////////////////////////
 		// Un-split the map in two in the middle.
-		for (u16 j = 0; j < mapSize; ++j)
+		for (std::uint16_t j = 0; j < mapSize; ++j)
 		{
 			grid.set(125, j, 6);
 			dirtyGrid.set(125, j, 1);
@@ -191,7 +191,7 @@ public:
 
 		//////////////////////////////////////////////////////
 		// Partial split in the middle chunk - no actual connectivity change
-		for (u16 j = 120; j < 150; ++j)
+		for (std::uint16_t j = 120; j < 150; ++j)
 		{
 			grid.set(125, j, 7);
 			dirtyGrid.set(125, j, 1);
@@ -204,7 +204,7 @@ public:
 
 		//////////////////////////////////////////////////////
 		// Block a strip along the edge, but regions are still connected.
-		for (u16 j = 70; j < 200; ++j)
+		for (std::uint16_t j = 70; j < 200; ++j)
 		{
 			grid.set(96, j, 7);
 			dirtyGrid.set(96, j, 1);
@@ -219,7 +219,7 @@ public:
 
 		//////////////////////////////////////////////////////
 		// Block the other edge
-		for (u16 j = 70; j < 200; ++j)
+		for (std::uint16_t j = 70; j < 200; ++j)
 		{
 			grid.set(192, j, 7);
 			dirtyGrid.set(192, j, 1);
@@ -234,17 +234,17 @@ public:
 
 		//////////////////////////////////////////////////////
 		// Create an isolated region in the middle chunk
-		for (u16 i = 96; i < 140; ++i)
+		for (std::uint16_t i = 96; i < 140; ++i)
 		{
 			grid.set(i, 110, 7);
 			dirtyGrid.set(i, 110, 1);
 		}
-		for (u16 i = 96; i < 140; ++i)
+		for (std::uint16_t i = 96; i < 140; ++i)
 		{
 			grid.set(i, 140, 7);
 			dirtyGrid.set(i, 140, 1);
 		}
-		for (u16 j = 110; j < 141; ++j)
+		for (std::uint16_t j = 110; j < 141; ++j)
 		{
 			grid.set(140, j, 7);
 			dirtyGrid.set(140, j, 1);
@@ -266,7 +266,7 @@ public:
 
 		//////////////////////////////////////////////////////
 		// Open it
-		for (u16 j = 110; j < 141; ++j)
+		for (std::uint16_t j = 110; j < 141; ++j)
 		{
 			grid.set(140, j, 6);
 			dirtyGrid.set(140, j, 1);
@@ -283,12 +283,12 @@ public:
 		TS_ASSERT(hierPath.m_Edges[PASS_1][hierPath.Get(120, 120, PASS_1)].size() == 2);
 	}
 
-	u16 manhattan(u16 i, u16 j, u16 gi, u16 gj)
+	std::uint16_t manhattan(std::uint16_t i, std::uint16_t j, std::uint16_t gi, std::uint16_t gj)
 	{
 		return abs(i - gi) + abs(j - gj);
 	}
 
-	double euclidian(u16 i, u16 j, u16 gi, u16 gj)
+	double euclidian(std::uint16_t i, std::uint16_t j, std::uint16_t gi, std::uint16_t gj)
 	{
 		return sqrt((i - gi) * (i - gi) + (j - gj) * (j - gj));
 	}
@@ -366,7 +366,7 @@ public:
 
 		hierPath.Recompute(&grid, nonPathClassMask, pathClassMask);
 
-		u16 i = 5, j = 5;
+		std::uint16_t i = 5, j = 5;
 		hierPath.FindNearestPassableNavcell(i, j, PASS_1);
 		TS_ASSERT(i == 5 && j == 5);
 
@@ -386,7 +386,7 @@ public:
 		TS_ASSERT(IS_PASSABLE(grid.get(pi, pj), PASS_1)); \
 		TS_ASSERT_EQUALS(manhattan(pi, pj, oi, oj), expected_manhattan); \
 	}
-		u16 oi, oj, pi, pj;
+		std::uint16_t oi, oj, pi, pj;
 
 		check_closest_passable(4 * scale, 4 * scale, 1);
 		check_closest_passable(4 * scale + 1, 4 * scale + 1, 2);

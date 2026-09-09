@@ -578,7 +578,7 @@ private:
 		if (m_UpdateInformations.dirtinessGrid.m_W == 0)
 			return;
 
-		u16 j0, j1, i0, i1;
+		std::uint16_t j0, j1, i0, i1;
 		Pathfinding::NearestNavcell(x - hbox.X, z - hbox.Y, i0, j0, m_UpdateInformations.dirtinessGrid.m_W, m_UpdateInformations.dirtinessGrid.m_H);
 		Pathfinding::NearestNavcell(x + hbox.X, z + hbox.Y, i1, j1, m_UpdateInformations.dirtinessGrid.m_W, m_UpdateInformations.dirtinessGrid.m_H);
 
@@ -1127,15 +1127,15 @@ void CCmpObstructionManager::Rasterize(Grid<NavcellData>& grid, const std::vecto
 	// Pass classes will get shapes rasterized on them depending on their Obstruction value.
 	// Classes with another value than "pathfinding" should not use Clearance.
 
-	std::map<entity_pos_t, u16> pathfindingMasks;
-	u16 foundationMask = 0;
+	std::map<entity_pos_t, std::uint16_t> pathfindingMasks;
+	std::uint16_t foundationMask = 0;
 	for (const PathfinderPassability& passability : passClasses)
 	{
 		switch (passability.m_Obstructions)
 		{
 		case PathfinderPassability::PATHFINDING:
 		{
-			std::map<entity_pos_t, u16>::iterator it = pathfindingMasks.find(passability.m_Clearance);
+			std::map<entity_pos_t, std::uint16_t>::iterator it = pathfindingMasks.find(passability.m_Clearance);
 			if (it == pathfindingMasks.end())
 				pathfindingMasks[passability.m_Clearance] = passability.m_Mask;
 			else
@@ -1200,11 +1200,11 @@ void CCmpObstructionManager::RasterizeHelper(Grid<NavcellData>& grid, ICmpObstru
 		CFixedVector2D center(pair.second.x, pair.second.z);
 		entity_pos_t r = pair.second.clearance + clearance;
 
-		u16 i0, j0, i1, j1;
+		std::uint16_t i0, j0, i1, j1;
 		Pathfinding::NearestNavcell(center.X - r, center.Y - r, i0, j0, grid.m_W, grid.m_H);
 		Pathfinding::NearestNavcell(center.X + r, center.Y + r, i1, j1, grid.m_W, grid.m_H);
-		for (u16 j = j0+1; j < j1; ++j)
-			for (u16 i = i0+1; i < i1; ++i)
+		for (std::uint16_t j = j0+1; j < j1; ++j)
+			for (std::uint16_t i = i0+1; i < i1; ++i)
 				grid.set(i, j, grid.get(i, j) | appliedMask);
 	}
 }
@@ -1318,8 +1318,8 @@ void CCmpObstructionManager::GetUnitsOnObstruction(const ObstructionSquare& squa
 		// Check whether the unit's center is on a navcell that's in
 		// any of the spans
 
-		u16 i = (shape.x / Pathfinding::NAVCELL_SIZE).ToInt_RoundToNegInfinity();
-		u16 j = (shape.z / Pathfinding::NAVCELL_SIZE).ToInt_RoundToNegInfinity();
+		std::uint16_t i = (shape.x / Pathfinding::NAVCELL_SIZE).ToInt_RoundToNegInfinity();
+		std::uint16_t j = (shape.z / Pathfinding::NAVCELL_SIZE).ToInt_RoundToNegInfinity();
 
 		for (const SimRasterize::Span& span : spans)
 		{

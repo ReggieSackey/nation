@@ -22,7 +22,6 @@
 #include "lib/allocators/shared_ptr.h"
 #include "lib/code_annotation.h"
 #include "lib/os_path.h"
-#include "lib/types.h"
 #include "maths/Rect.h"
 #include "renderer/backend/Format.h"
 
@@ -86,9 +85,9 @@ public:
 		* @param codepoint The unicode codepoint (0 ≤ cp ≤ 0x10FFFF)
 		* @param glyph The glyphData data to store
 		*/
-		void set(u16 codepoint, const GlyphData& glyph);
+		void set(std::uint16_t codepoint, const GlyphData& glyph);
 
-		const GlyphData* get(u16 codepoint) const;
+		const GlyphData* get(std::uint16_t codepoint) const;
 	private:
 		std::unique_ptr<std::array<GlyphData, 256>> m_Data[256];
 	};
@@ -120,7 +119,7 @@ public:
 		Renderer::Backend::IDeviceCommandContext* deviceCommandContext);
 	void UploadAtlasTextureToGPU(
 		Renderer::Backend::IDeviceCommandContext* deviceCommandContext);
-	const GlyphData* GetGlyph(u16 i);
+	const GlyphData* GetGlyph(std::uint16_t i);
 
 private:
 	static void ftFaceDeleter(FT_Face face)
@@ -149,10 +148,12 @@ private:
 		std::uint8_t g, std::uint8_t b);
 	void BlendGlyphBitmapToTextureR8(const FT_Bitmap& bitmap, int targetX, int targetY);
 
-	std::optional<CVector2D> GenerateStrokeGlyphBitmap(const FT_Glyph& glyph, u16 codepoint, FT_Render_Mode renderMode, const float baselineInAtlas);
-	std::optional<CVector2D> GenerateGlyphBitmap(FT_Glyph& glyph, u16 codepoint, FT_Render_Mode renderMode, CVector2D offset, const float baselineInAtlas);
+	std::optional<CVector2D> GenerateStrokeGlyphBitmap(const FT_Glyph& glyph, std::uint16_t codepoint,
+		FT_Render_Mode renderMode, const float baselineInAtlas);
+	std::optional<CVector2D> GenerateGlyphBitmap(FT_Glyph& glyph, std::uint16_t codepoint,
+		FT_Render_Mode renderMode, CVector2D offset, const float baselineInAtlas);
 
-	const GlyphData* ExtractAndGenerateGlyph(u16 codepoint);
+	const GlyphData* ExtractAndGenerateGlyph(std::uint16_t codepoint);
 	bool ConstructAtlasTexture(Renderer::Backend::IDevice* device);
 	Renderer::Backend::Sampler::Desc ChooseTextureFormatAndSampler();
 

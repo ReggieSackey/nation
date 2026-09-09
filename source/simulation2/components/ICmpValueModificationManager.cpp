@@ -40,9 +40,9 @@ public:
 		return m_Script.Call<u32>("ApplyModifications", valueName, currentValue, entity);
 	}
 
-	u16 ApplyModifications(std::wstring valueName, u16 currentValue, entity_id_t entity) const override
+	std::uint16_t ApplyModifications(std::wstring valueName, std::uint16_t currentValue, entity_id_t entity) const override
 	{
-		return m_Script.Call<u16>("ApplyModifications", valueName, currentValue, entity);
+		return m_Script.Call<std::uint16_t>("ApplyModifications", valueName, currentValue, entity);
 	}
 
 	std::wstring ApplyModifications(std::wstring valueName, std::wstring currentValue, entity_id_t entity) const override

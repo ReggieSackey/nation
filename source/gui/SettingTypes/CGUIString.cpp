@@ -41,7 +41,7 @@ struct CGUIColor;
 // The list contains ranges of word delimiters. The odd indexed chars are the start
 // of a range, the even are the end of a range. The list must be sorted in INCREASING ORDER
 static const int NUM_WORD_DELIMITERS = 4*2;
-static const u16 WordDelimiters[NUM_WORD_DELIMITERS] = {
+static const std::uint16_t WordDelimiters[NUM_WORD_DELIMITERS] = {
 	' '   , ' ',    // spaces
 	'-'   , '-',    // hyphens
 	0x3000, 0x31FF, // ideographic symbols

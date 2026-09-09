@@ -41,7 +41,7 @@ class CSimContext;
 namespace
 {
 // Find the root ID of a region, used by InitRegions
-u16 RootID(u16 x, const std::vector<u16>& v)
+std::uint16_t RootID(std::uint16_t x, const std::vector<std::uint16_t>& v)
 {
 	while (v[x] < x)
 		x = v[x];
@@ -52,7 +52,8 @@ u16 RootID(u16 x, const std::vector<u16>& v)
 void BuildTextureRGBA(HierarchicalPathfinder& pathfinderHier, std::uint8_t* data, std::size_t w,
 	std::size_t h)
 {
-	ENSURE(h <= std::numeric_limits<u16>::max() && w <= std::numeric_limits<u16>::max());
+	ENSURE(h <= std::numeric_limits<std::uint16_t>::max() &&
+		w <= std::numeric_limits<std::uint16_t>::max());
 	pass_class_t passClass = pathfinderHier.GetPassabilityClass("default");
 
 	TerrainTextureOverlay::OverwriteEachTile(data, w, h, [&](const int i, const int j)
@@ -84,11 +85,11 @@ void HierarchicalPathfinder::Chunk::InitRegions(int ci, int cj, Grid<NavcellData
 	// Efficiently flood-fill the m_Regions grid
 
 	int regionID = 0;
-	std::vector<u16> connect;
+	std::vector<std::uint16_t> connect;
 
-	u16* pCurrentID = NULL;
-	u16 LeftID = 0;
-	u16 DownID = 0;
+	std::uint16_t* pCurrentID = NULL;
+	std::uint16_t LeftID = 0;
+	std::uint16_t DownID = 0;
 	bool Checked = false; // prevent some unneccessary RootID calls
 
 	connect.reserve(32); // TODO: What's a sensible number?
@@ -120,8 +121,8 @@ void HierarchicalPathfinder::Chunk::InitRegions(int ci, int cj, Grid<NavcellData
 				*pCurrentID = LeftID;
 				if (*pCurrentID != DownID && DownID > 0 && !Checked)
 				{
-					u16 id0 = RootID(DownID, connect);
-					u16 id1 = RootID(LeftID, connect);
+					std::uint16_t id0 = RootID(DownID, connect);
+					std::uint16_t id1 = RootID(LeftID, connect);
 					Checked = true; // this avoids repeatedly connecting the same IDs
 
 					if (id0 < id1)
@@ -149,7 +150,7 @@ void HierarchicalPathfinder::Chunk::InitRegions(int ci, int cj, Grid<NavcellData
 
 	// Mark connected regions as being the same ID (i.e. the lowest)
 	m_RegionsID.clear();
-	for (u16 i = 1; i < regionID+1; ++i)
+	for (std::uint16_t i = 1; i < regionID+1; ++i)
 	{
 		if (connect[i] != i)
 			connect[i] = RootID(i, connect);
@@ -178,7 +179,7 @@ HierarchicalPathfinder::RegionID HierarchicalPathfinder::Chunk::Get(int i, int j
  * center of the given region in this chunk.
  * (This is not guaranteed to be actually inside the region.)
  */
-void HierarchicalPathfinder::Chunk::RegionCenter(u16 r, int& i_out, int& j_out) const
+void HierarchicalPathfinder::Chunk::RegionCenter(std::uint16_t r, int& i_out, int& j_out) const
 {
 	// Find the mean of i,j coords of navcells in this region:
 
@@ -213,7 +214,8 @@ void HierarchicalPathfinder::Chunk::RegionCenter(u16 r, int& i_out, int& j_out) 
  * navcell, of whichever navcell inside the given region is closest to
  * that goal.
  */
-void HierarchicalPathfinder::Chunk::RegionNavcellNearest(u16 r, int iGoal, int jGoal, int& iBest, int& jBest, u32& dist2Best) const
+void HierarchicalPathfinder::Chunk::RegionNavcellNearest(std::uint16_t r, int iGoal, int jGoal, int& iBest,
+	int& jBest, u32& dist2Best) const
 {
 	iBest = 0;
 	jBest = 0;
@@ -245,7 +247,8 @@ void HierarchicalPathfinder::Chunk::RegionNavcellNearest(u16 r, int iGoal, int j
  * is closest to (i0,j0)
  * Returns true if the goal is inside the region, false otherwise.
  */
-bool HierarchicalPathfinder::Chunk::RegionNearestNavcellInGoal(u16 r, u16 i0, u16 j0, const PathGoal& goal, u16& iOut, u16& jOut, u32& dist2Best) const
+bool HierarchicalPathfinder::Chunk::RegionNearestNavcellInGoal(std::uint16_t r, std::uint16_t i0,
+	std::uint16_t j0, const PathGoal& goal, std::uint16_t& iOut, std::uint16_t& jOut, u32& dist2Best) const
 {
 	// TODO: this should be optimized further.
 	// Most used cases empirically seem to be SQUARE, INVERTED_CIRCLE and then POINT and CIRCLE somehwat equally
@@ -286,9 +289,9 @@ bool HierarchicalPathfinder::Chunk::RegionNearestNavcellInGoal(u16 r, u16 i0, u1
 		int jmax = std::min((int)CHUNK_SIZE, gj-m_ChunkJ*CHUNK_SIZE+radius+1);
 		bool found = false;
 		u32 dist2 = std::numeric_limits<u32>::max();
-		for (u16 j = jmin; j < jmax; ++j)
+		for (std::uint16_t j = jmin; j < jmax; ++j)
 		{
-			for (u16 i = imin; i < imax; ++i)
+			for (std::uint16_t i = imin; i < imax; ++i)
 			{
 				if (m_Regions[j][i] != r)
 					continue;
@@ -323,9 +326,9 @@ bool HierarchicalPathfinder::Chunk::RegionNearestNavcellInGoal(u16 r, u16 i0, u1
 		bool found = false;
 		u32 dist2 = std::numeric_limits<u32>::max();
 		// loop over all navcells.
-		for (u16 j = 0; j < CHUNK_SIZE; ++j)
+		for (std::uint16_t j = 0; j < CHUNK_SIZE; ++j)
 		{
-			for (u16 i = 0; i < CHUNK_SIZE; ++i)
+			for (std::uint16_t i = 0; i < CHUNK_SIZE; ++i)
 			{
 				if (m_Regions[j][i] != r)
 					continue;
@@ -445,7 +448,7 @@ void HierarchicalPathfinder::Recompute(Grid<NavcellData>* grid,
 		globalRegion.clear();
 		for (std::uint8_t cj = 0; cj < m_ChunksH; ++cj)
 			for (std::uint8_t ci = 0; ci < m_ChunksW; ++ci)
-				for (u16 rid : GetChunk(ci, cj, passClass).m_RegionsID)
+				for (std::uint16_t rid : GetChunk(ci, cj, passClass).m_RegionsID)
 				{
 					RegionID reg{ci,cj,rid};
 					if (globalRegion.find(reg) == globalRegion.end())
@@ -511,7 +514,7 @@ void HierarchicalPathfinder::Update(Grid<NavcellData>* grid, const Grid<std::uin
 
 				// Clean up edges and global region ID
 				EdgesMap& edgeMap = m_Edges[passClass];
-				for (u16 i : a.m_RegionsID)
+				for (std::uint16_t i : a.m_RegionsID)
 				{
 					RegionID reg{ci, cj, i};
 					m_GlobalRegions[passClass].erase(reg);
@@ -527,7 +530,7 @@ void HierarchicalPathfinder::Update(Grid<NavcellData>* grid, const Grid<std::uin
 				// Recompute regions inside this chunk.
 				a.InitRegions(ci, cj, grid, passClass);
 
-				for (u16 i : a.m_RegionsID)
+				for (std::uint16_t i : a.m_RegionsID)
 					needNewGlobalRegionMap[passClass].push_back(RegionID{ci, cj, i});
 
 				UpdateEdges(ci, cj, passClass, edgeMap);
@@ -685,7 +688,7 @@ void HierarchicalPathfinder::UpdateGlobalRegions(const std::map<pass_class_t, st
 	}
 }
 
-HierarchicalPathfinder::RegionID HierarchicalPathfinder::Get(u16 i, u16 j, pass_class_t passClass) const
+HierarchicalPathfinder::RegionID HierarchicalPathfinder::Get(std::uint16_t i, std::uint16_t j, pass_class_t passClass) const
 {
 	int ci = i / CHUNK_SIZE;
 	int cj = j / CHUNK_SIZE;
@@ -693,7 +696,8 @@ HierarchicalPathfinder::RegionID HierarchicalPathfinder::Get(u16 i, u16 j, pass_
 	return m_Chunks.at(passClass)[cj*m_ChunksW + ci].Get(i % CHUNK_SIZE, j % CHUNK_SIZE);
 }
 
-HierarchicalPathfinder::GlobalRegionID HierarchicalPathfinder::GetGlobalRegion(u16 i, u16 j, pass_class_t passClass) const
+HierarchicalPathfinder::GlobalRegionID HierarchicalPathfinder::GetGlobalRegion(std::uint16_t i,
+	std::uint16_t j, pass_class_t passClass) const
 {
 	return GetGlobalRegion(Get(i, j, passClass), passClass);
 }
@@ -703,7 +707,7 @@ HierarchicalPathfinder::GlobalRegionID HierarchicalPathfinder::GetGlobalRegion(R
 	return region.r == 0 ? GlobalRegionID(0) : m_GlobalRegions.at(passClass).at(region);
 }
 
-void CreatePointGoalAt(u16 i, u16 j, PathGoal& goal)
+void CreatePointGoalAt(std::uint16_t i, std::uint16_t j, PathGoal& goal)
 {
 	PathGoal newGoal;
 	newGoal.type = PathGoal::POINT;
@@ -711,11 +715,12 @@ void CreatePointGoalAt(u16 i, u16 j, PathGoal& goal)
 	goal = newGoal;
 }
 
-bool HierarchicalPathfinder::MakeGoalReachable(u16 i0, u16 j0, PathGoal& goal, pass_class_t passClass) const
+bool HierarchicalPathfinder::MakeGoalReachable(std::uint16_t i0, std::uint16_t j0, PathGoal& goal,
+	pass_class_t passClass) const
 {
 	PROFILE2("MakeGoalReachable");
 
-	u16 iGoal, jGoal;
+	std::uint16_t iGoal, jGoal;
 	Pathfinding::NearestNavcell(goal.x, goal.z, iGoal, jGoal, m_W, m_H);
 
 	std::set<InterestingRegion, SortByBestToPoint> goalRegions(SortByBestToPoint(i0, j0));
@@ -745,11 +750,12 @@ bool HierarchicalPathfinder::MakeGoalReachable(u16 i0, u16 j0, PathGoal& goal, p
 }
 
 
-bool HierarchicalPathfinder::IsGoalReachable(u16 i0, u16 j0, const PathGoal& goal, pass_class_t passClass) const
+bool HierarchicalPathfinder::IsGoalReachable(std::uint16_t i0, std::uint16_t j0, const PathGoal& goal,
+	pass_class_t passClass) const
 {
 	PROFILE2("IsGoalReachable");
 
-	u16 iGoal, jGoal;
+	std::uint16_t iGoal, jGoal;
 	Pathfinding::NearestNavcell(goal.x, goal.z, iGoal, jGoal, m_W, m_H);
 
 	std::set<InterestingRegion, SortByBestToPoint> goalRegions(SortByBestToPoint(i0, j0));
@@ -763,7 +769,8 @@ bool HierarchicalPathfinder::IsGoalReachable(u16 i0, u16 j0, const PathGoal& goa
 	return false;
 }
 
-void HierarchicalPathfinder::FindNearestPassableNavcell(u16& i, u16& j, pass_class_t passClass) const
+void HierarchicalPathfinder::FindNearestPassableNavcell(std::uint16_t& i, std::uint16_t& j,
+	pass_class_t passClass) const
 {
 	std::set<RegionID, SortByCenterToPoint> regions(SortByCenterToPoint(i, j));
 
@@ -775,9 +782,11 @@ void HierarchicalPathfinder::FindNearestPassableNavcell(u16& i, u16& j, pass_cla
 	FindNearestNavcellInRegions(regions, i, j, passClass);
 }
 
-void HierarchicalPathfinder::FindNearestNavcellInRegions(const std::set<RegionID, SortByCenterToPoint>& regions, u16& iGoal, u16& jGoal, pass_class_t passClass) const
+void HierarchicalPathfinder::FindNearestNavcellInRegions(
+	const std::set<RegionID, SortByCenterToPoint>& regions, std::uint16_t& iGoal, std::uint16_t& jGoal,
+	pass_class_t passClass) const
 {
-	u16 bestI = iGoal, bestJ = jGoal; // Somewhat sensible default-values should regions() be passed empty.
+	std::uint16_t bestI = iGoal, bestJ = jGoal; // Somewhat sensible default-values should regions() be passed empty.
 	u32 bestDist = std::numeric_limits<u32>::max();
 
 	// Because regions are sorted by increasing distance, we can ignore regions that are obviously farther than the current best point.
@@ -785,7 +794,7 @@ void HierarchicalPathfinder::FindNearestNavcellInRegions(const std::set<RegionID
 	// Add one to avoid cases where the center navcell is actually slightly off-center (= CHUNK_SIZE is even)
 	u32 maxDistFromBest = (fixed::FromInt(3) / 2 * CHUNK_SIZE).ToInt_RoundToInfinity() + 1;
 	// TODO: update to static_assert with constexpr
-	ENSURE(maxDistFromBest < std::numeric_limits<u16>::max());
+	ENSURE(maxDistFromBest < std::numeric_limits<std::uint16_t>::max());
 	maxDistFromBest *= maxDistFromBest;
 
 	for (const RegionID& region : regions)
@@ -810,7 +819,9 @@ void HierarchicalPathfinder::FindNearestNavcellInRegions(const std::set<RegionID
 	jGoal = bestJ;
 }
 
-void HierarchicalPathfinder::FindGoalRegionsAndBestNavcells(u16 i0, u16 j0, u16 gi, u16 gj, const PathGoal& goal, std::set<InterestingRegion, SortByBestToPoint>& regions, pass_class_t passClass) const
+void HierarchicalPathfinder::FindGoalRegionsAndBestNavcells(std::uint16_t i0, std::uint16_t j0,
+	std::uint16_t gi, std::uint16_t gj, const PathGoal& goal,
+	std::set<InterestingRegion, SortByBestToPoint>& regions, pass_class_t passClass) const
 {
 	if (goal.type == PathGoal::POINT)
 	{
@@ -830,7 +841,7 @@ void HierarchicalPathfinder::FindGoalRegionsAndBestNavcells(u16 i0, u16 j0, u16 
 	// (and even then not always) and that just doesn't happen for Inverse-XX goals
 	int size = (std::max(goal.hh, goal.hw) * 3 / 2).ToInt_RoundToInfinity();
 
-	u16 bestI, bestJ;
+	std::uint16_t bestI, bestJ;
 	u32 c; // Unused.
 
 	for (std::uint8_t sz = std::max(0,(gj - size) / CHUNK_SIZE);
@@ -840,14 +851,15 @@ void HierarchicalPathfinder::FindGoalRegionsAndBestNavcells(u16 i0, u16 j0, u16 
 			sx <= std::min(m_ChunksW-1, (gi + size + 1) / CHUNK_SIZE); ++sx)
 		{
 			const Chunk& chunk = GetChunk(sx, sz, passClass);
-			for (u16 i : chunk.m_RegionsID)
+			for (std::uint16_t i : chunk.m_RegionsID)
 				if (chunk.RegionNearestNavcellInGoal(i, i0, j0, goal, bestI, bestJ, c))
 					regions.insert({RegionID{sx, sz, i}, bestI, bestJ});
 		}
 	}
 }
 
-void HierarchicalPathfinder::FillRegionOnGrid(const RegionID& region, pass_class_t passClass, u16 value, Grid<u16>& grid) const
+void HierarchicalPathfinder::FillRegionOnGrid(const RegionID& region, pass_class_t passClass,
+	std::uint16_t value, Grid<std::uint16_t>& grid) const
 {
 	ENSURE(grid.m_W == m_W && grid.m_H == m_H);
 
@@ -862,16 +874,16 @@ void HierarchicalPathfinder::FillRegionOnGrid(const RegionID& region, pass_class
 				grid.set(i0 + i, j0 + j, value);
 }
 
-Grid<u16> HierarchicalPathfinder::GetConnectivityGrid(pass_class_t passClass) const
+Grid<std::uint16_t> HierarchicalPathfinder::GetConnectivityGrid(pass_class_t passClass) const
 {
-	Grid<u16> connectivityGrid(m_W, m_H);
+	Grid<std::uint16_t> connectivityGrid(m_W, m_H);
 	connectivityGrid.reset();
 
-	u16 idx = 1;
+	std::uint16_t idx = 1;
 
-	for (u16 i = 0; i < m_W; ++i)
+	for (std::uint16_t i = 0; i < m_W; ++i)
 	{
-		for (u16 j = 0; j < m_H; ++j)
+		for (std::uint16_t j = 0; j < m_H; ++j)
 		{
 			if (connectivityGrid.get(i, j) != 0)
 				continue;

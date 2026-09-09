@@ -232,7 +232,7 @@ CMiniMapTexture::CMiniMapTexture(Renderer::Backend::IDevice* device, CSimulation
 
 	m_IndexArray.SetNumberOfVertices(MAX_ENTITIES_DRAWN * 6);
 	m_IndexArray.Layout();
-	VertexArrayIterator<u16> index = m_IndexArray.GetIterator();
+	VertexArrayIterator<std::uint16_t> index = m_IndexArray.GetIterator();
 	for (size_t i = 0; i < m_IndexArray.GetNumberOfVertices(); ++i)
 		*index++ = 0;
 	m_IndexArray.Upload();
@@ -709,9 +709,9 @@ void CMiniMapTexture::UpdateAndUploadEntities(
 
 				const CellIconKey key{
 					cmpMinimap->GetIconPath(), v.r, v.g, v.b};
-				const u16 gridX = Clamp<u16>(
+				const std::uint16_t gridX = Clamp<std::uint16_t>(
 					(v.position.X * invTileMapSize) * ICON_COMBINING_GRID_SIZE, 0, ICON_COMBINING_GRID_SIZE - 1);
-				const u16 gridY = Clamp<u16>(
+				const std::uint16_t gridY = Clamp<std::uint16_t>(
 					(v.position.Y * invTileMapSize) * ICON_COMBINING_GRID_SIZE, 0, ICON_COMBINING_GRID_SIZE - 1);
 				CellIcon icon{
 					gridX, gridY, cmpMinimap->GetIconSize() * iconsSizeScale * 0.5f, v.position};
@@ -798,15 +798,15 @@ void CMiniMapTexture::UpdateAndUploadEntities(
 
 	if (!m_UseInstancing)
 	{
-		VertexArrayIterator<u16> index = m_IndexArray.GetIterator();
+		VertexArrayIterator<std::uint16_t> index = m_IndexArray.GetIterator();
 		for (size_t entityIndex = 0; entityIndex < m_EntitiesDrawn; ++entityIndex)
 		{
-			index[entityIndex * 6 + 0] = static_cast<u16>(entityIndex * 4 + 0);
-			index[entityIndex * 6 + 1] = static_cast<u16>(entityIndex * 4 + 1);
-			index[entityIndex * 6 + 2] = static_cast<u16>(entityIndex * 4 + 2);
-			index[entityIndex * 6 + 3] = static_cast<u16>(entityIndex * 4 + 0);
-			index[entityIndex * 6 + 4] = static_cast<u16>(entityIndex * 4 + 2);
-			index[entityIndex * 6 + 5] = static_cast<u16>(entityIndex * 4 + 3);
+			index[entityIndex * 6 + 0] = static_cast<std::uint16_t>(entityIndex * 4 + 0);
+			index[entityIndex * 6 + 1] = static_cast<std::uint16_t>(entityIndex * 4 + 1);
+			index[entityIndex * 6 + 2] = static_cast<std::uint16_t>(entityIndex * 4 + 2);
+			index[entityIndex * 6 + 3] = static_cast<std::uint16_t>(entityIndex * 4 + 0);
+			index[entityIndex * 6 + 4] = static_cast<std::uint16_t>(entityIndex * 4 + 2);
+			index[entityIndex * 6 + 5] = static_cast<std::uint16_t>(entityIndex * 4 + 3);
 		}
 
 		m_IndexArray.Upload();

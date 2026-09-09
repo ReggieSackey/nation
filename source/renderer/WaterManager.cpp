@@ -479,7 +479,8 @@ void WaterManager::UnloadWaterTextures()
 }
 
 template<bool Transpose>
-static inline void ComputeDirection(float* distanceMap, const u16* heightmap, float waterHeight, size_t SideSize, size_t maxLevel)
+static inline void ComputeDirection(float* distanceMap, const std::uint16_t* heightmap, float waterHeight,
+	size_t SideSize, size_t maxLevel)
 {
 #define ABOVEWATER(x, z) (HEIGHT_SCALE * heightmap[z*SideSize + x] >= waterHeight)
 #define UPDATELOOKAHEAD \
@@ -545,7 +546,7 @@ void WaterManager::RecomputeDistanceHeightmap()
 	// Create a manhattan-distance heightmap.
 	// This could be refined to only be done near the coast itself, but it's probably not necessary.
 
-	const u16* const heightmap = terrain.GetHeightMap();
+	const std::uint16_t* const heightmap = terrain.GetHeightMap();
 
 	ComputeDirection<false>(m_DistanceHeightmap.get(), heightmap, m_WaterHeight, SideSize, maxLevel);
 	ComputeDirection<true>(m_DistanceHeightmap.get(), heightmap, m_WaterHeight, SideSize, maxLevel);
@@ -688,13 +689,13 @@ void WaterManager::CreateWaveMeshes()
 	}
 
 	// Fourth step: create waves themselves, using those chains. We basically create subchains.
-	u16 waveSizes = 14;	// maximal size in width.
+	std::uint16_t waveSizes = 14;	// maximal size in width.
 
 	// Construct indices buffer (we can afford one for all of them)
-	std::vector<u16> water_indices;
-	for (u16 a = 0; a < waveSizes - 1; ++a)
+	std::vector<std::uint16_t> water_indices;
+	for (std::uint16_t a = 0; a < waveSizes - 1; ++a)
 	{
-		for (u16 rect = 0; rect < 7; ++rect)
+		for (std::uint16_t rect = 0; rect < 7; ++rect)
 		{
 			water_indices.push_back(a * 9 + rect);
 			water_indices.push_back(a * 9 + 9 + rect);
@@ -706,7 +707,7 @@ void WaterManager::CreateWaveMeshes()
 	}
 	// Generic indexes, max-length
 	m_ShoreWavesVBIndices = g_Renderer.GetVertexBufferManager().AllocateChunk(
-		sizeof(u16), water_indices.size(),
+		sizeof(std::uint16_t), water_indices.size(),
 		Renderer::Backend::IBuffer::Type::INDEX,
 		Renderer::Backend::IBuffer::Usage::TRANSFER_DST,
 		nullptr, CVertexBufferManager::Group::WATER);
@@ -722,14 +723,14 @@ void WaterManager::CreateWaveMeshes()
 			if (CoastalPointsChains[i].size()- 1 - j < waveSizes)
 				break;
 
-			u16 width = waveSizes;
+			std::uint16_t width = waveSizes;
 
 			// First pass to get some parameters out.
 			float outmost = 0.0f;	// how far to move on the shore.
 			float avgDepth = 0.0f;
 			int sign = 1;
 			CVector2D firstPerp(0,0), perp(0,0), lastPerp(0,0);
-			for (u16 a = 0; a < waveSizes;++a)
+			for (std::uint16_t a = 0; a < waveSizes; ++a)
 			{
 				lastPerp = perp;
 				perp = CVector2D(0,0);
@@ -814,7 +815,7 @@ void WaterManager::CreateWaveMeshes()
 			shoreWave->m_TimeDiff = diff;
 			diff += (rand() % 100) / 25.0f + 4.0f;
 
-			for (u16 a = 0; a < width;++a)
+			for (std::uint16_t a = 0; a < width; ++a)
 			{
 				perp = CVector2D(0,0);
 				int nb = 0;

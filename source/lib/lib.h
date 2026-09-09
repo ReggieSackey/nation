@@ -115,13 +115,13 @@ inline bool IsSimilarMagnitude(double d1, double d2, const double relativeErrorT
 
 extern u32 u64_hi(u64 x);	/// return upper 32-bits
 extern u32 u64_lo(u64 x);	/// return lower 32-bits
-extern u16 u32_hi(u32 x);	/// return upper 16-bits
-extern u16 u32_lo(u32 x);	/// return lower 16-bits
+extern std::uint16_t u32_hi(u32 x);	/// return upper 16-bits
+extern std::uint16_t u32_lo(u32 x);	/// return lower 16-bits
 
 extern u64 u64_from_u32(u32 hi, u32 lo);	/// assemble u64 from u32
-extern u32 u32_from_u16(u16 hi, u16 lo);	/// assemble u32 from u16
+extern u32 u32_from_u16(std::uint16_t hi, std::uint16_t lo);	/// assemble u32 from std::uint16_t
 
-// safe downcasters: cast from any integral type to u32 or u16;
+// safe downcasters: cast from any integral type to u32 or std::uint16_t;
 // issues warning if larger than would fit in the target type.
 //
 // these are generally useful but included here (instead of e.g. lib.h) for
@@ -139,12 +139,12 @@ template<typename T> std::uint8_t u8_from_larger(T x)
 	return static_cast<std::uint8_t>(x & max);
 }
 
-template<typename T> u16 u16_from_larger(T x)
+template<typename T> std::uint16_t u16_from_larger(T x)
 {
-	const u16 max = std::numeric_limits<u16>::max();
+	const std::uint16_t max = std::numeric_limits<std::uint16_t>::max();
 	if((u64)x > (u64)max)
 		throw std::out_of_range("u16_from_larger");
-	return (u16)(x & max);
+	return static_cast<std::uint16_t>(x & max);
 }
 
 template<typename T> u32 u32_from_larger(T x)
@@ -157,7 +157,7 @@ template<typename T> u32 u32_from_larger(T x)
 
 /// convert double to std::uint8_t; verifies number is in range.
 extern std::uint8_t u8_from_double(double in);
-/// convert double to u16; verifies number is in range.
-extern u16 u16_from_double(double in);
+/// convert double to std::uint16_t; verifies number is in range.
+extern std::uint16_t u16_from_double(double in);
 
 #endif	// #ifndef INCLUDED_LIB

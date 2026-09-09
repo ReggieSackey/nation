@@ -79,7 +79,7 @@ public:
 	// Only the constructor and the destructor are called by C++.
 
 	CMapGenerationCallbacks(const StopToken stopToken, Script::Interface& scriptInterface,
-		const u16 flags) :
+		const std::uint16_t flags) :
 		m_StopToken{stopToken},
 		m_ScriptInterface{scriptInterface}
 	{
@@ -193,7 +193,7 @@ private:
 	 */
 	JS::Value LoadHeightmapImage(const VfsPath& filename)
 	{
-		std::vector<u16> heightmap;
+		std::vector<std::uint16_t> heightmap;
 		if (LoadHeightmapImageVfs(filename, heightmap) != INFO::OK)
 		{
 			LOGERROR("Could not load heightmap file '%s'", filename.string8());
@@ -235,9 +235,9 @@ private:
 		size_t verticesPerSide = patchesPerSide * PATCH_SIZE + 1;
 
 		// unpack heightmap
-		std::vector<u16> heightmap;
+		std::vector<std::uint16_t> heightmap;
 		heightmap.resize(SQR(verticesPerSide));
-		unpacker.UnpackRaw(&heightmap[0], SQR(verticesPerSide) * sizeof(u16));
+		unpacker.UnpackRaw(&heightmap[0], SQR(verticesPerSide) * sizeof(std::uint16_t));
 
 		// unpack texture names
 		size_t textureCount = unpacker.UnpackSize();
@@ -257,7 +257,7 @@ private:
 		unpacker.UnpackRaw(&tiles[0], sizeof(CMapIO::STileDesc) * tiles.size());
 
 		// reorder by patches and store and save texture IDs per tile
-		std::vector<u16> textureIDs;
+		std::vector<std::uint16_t> textureIDs;
 		for (ssize_t x = 0; x < tilesPerSide; ++x)
 		{
 			size_t patchX = x / PATCH_SIZE;
@@ -353,7 +353,8 @@ bool MapGenerationInterruptCallback(JSContext* cx)
 } // anonymous namespace
 
 Script::StructuredClone RunMapGenerationScript(const StopToken stopToken, std::atomic<int>& progress,
-	Script::Interface& scriptInterface, const VfsPath& script, const std::string& settings, const u16 flags)
+	Script::Interface& scriptInterface, const VfsPath& script, const std::string& settings,
+	const std::uint16_t flags)
 {
 	Script::Request rq(scriptInterface);
 

@@ -182,7 +182,7 @@ bool CNetServerWorker::CheckPassword(const std::string& password, const std::str
 }
 
 #if CONFIG2_MINIUPNPC
-void CNetServerWorker::SetupUPnP(const u16 port)
+void CNetServerWorker::SetupUPnP(const std::uint16_t port)
 {
 	debug_SetThreadName("UPnP");
 
@@ -1650,7 +1650,7 @@ CStrW CNetServerWorker::DeduplicatePlayerName(const CStrW& original)
 	}
 }
 
-void CNetServerWorker::SendHolePunchingMessage(const CStr& ipStr, u16 port)
+void CNetServerWorker::SendHolePunchingMessage(const CStr& ipStr, std::uint16_t port)
 {
 	if (m_Host)
 		StunClient::SendHolePunchingMessages(*m_Host, ipStr, port);
@@ -1686,12 +1686,12 @@ CStr CNetServer::GetPublicIp() const
 	return m_PublicIp;
 }
 
-u16 CNetServer::GetPublicPort() const
+std::uint16_t CNetServer::GetPublicPort() const
 {
 	return m_PublicPort;
 }
 
-u16 CNetServer::GetLocalPort() const
+std::uint16_t CNetServer::GetLocalPort() const
 {
 	std::lock_guard<std::mutex> lock(m_Worker.m_WorkerMutex);
 	if (!m_Worker.m_Host)
@@ -1739,7 +1739,7 @@ void CNetServer::SetTurnLength(u32 msecs)
 	m_Worker.m_TurnLengthQueue.push_back(msecs);
 }
 
-void CNetServer::SendHolePunchingMessage(const CStr& ip, u16 port)
+void CNetServer::SendHolePunchingMessage(const CStr& ip, std::uint16_t port)
 {
 	m_Worker.SendHolePunchingMessage(ip, port);
 }

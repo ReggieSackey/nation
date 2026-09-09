@@ -80,9 +80,9 @@ public:
 	struct RegionID
 	{
 		std::uint8_t ci, cj; // chunk ID
-		u16 r; // unique-per-chunk local region ID
+		std::uint16_t r; // unique-per-chunk local region ID
 
-		RegionID(std::uint8_t ci, std::uint8_t cj, u16 r) : ci(ci), cj(cj), r(r) { }
+		RegionID(std::uint8_t ci, std::uint8_t cj, std::uint16_t r) : ci(ci), cj(cj), r(r) { }
 
 		bool operator<(const RegionID& b) const
 		{
@@ -104,7 +104,7 @@ public:
 		}
 
 		// Returns the distance from the center to the point (i, j)
-		inline u32 DistanceTo(u16 i, u16 j) const
+		inline u32 DistanceTo(std::uint16_t i, std::uint16_t j) const
 		{
 			return (ci * CHUNK_SIZE + CHUNK_SIZE/2 - i) * (ci * CHUNK_SIZE + CHUNK_SIZE/2 - i) +
 			       (cj * CHUNK_SIZE + CHUNK_SIZE/2 - j) * (cj * CHUNK_SIZE + CHUNK_SIZE/2 - j);
@@ -124,9 +124,9 @@ public:
 
 	void Update(Grid<NavcellData>* grid, const Grid<std::uint8_t>& dirtinessGrid);
 
-	RegionID Get(u16 i, u16 j, pass_class_t passClass) const;
+	RegionID Get(std::uint16_t i, std::uint16_t j, pass_class_t passClass) const;
 
-	GlobalRegionID GetGlobalRegion(u16 i, u16 j, pass_class_t passClass) const;
+	GlobalRegionID GetGlobalRegion(std::uint16_t i, std::uint16_t j, pass_class_t passClass) const;
 	GlobalRegionID GetGlobalRegion(RegionID region, pass_class_t passClass) const;
 
 	/**
@@ -141,24 +141,26 @@ public:
 	 *
 	 * @returns true if the goal was reachable, false otherwise.
 	 */
-	bool MakeGoalReachable(u16 i0, u16 j0, PathGoal& goal, pass_class_t passClass) const;
+	bool MakeGoalReachable(std::uint16_t i0, std::uint16_t j0, PathGoal& goal,
+		pass_class_t passClass) const;
 
 	/**
 	 * @return true if the goal is reachable from navcell i0, j0.
 	 * (similar to MakeGoalReachable but only checking for reachability).
 	 */
-	bool IsGoalReachable(u16 i0, u16 j0, const PathGoal& goal, pass_class_t passClass) const;
+	bool IsGoalReachable(std::uint16_t i0, std::uint16_t j0, const PathGoal& goal,
+		pass_class_t passClass) const;
 
 	/**
 	 * Updates @p i, @p j (which is assumed to be an impassable navcell)
 	 * to the nearest passable navcell.
 	 */
-	void FindNearestPassableNavcell(u16& i, u16& j, pass_class_t passClass) const;
+	void FindNearestPassableNavcell(std::uint16_t& i, std::uint16_t& j, pass_class_t passClass) const;
 
 	/**
 	 * Generates the connectivity grid associated with the given pass_class
 	 */
-	Grid<u16> GetConnectivityGrid(pass_class_t passClass) const;
+	Grid<std::uint16_t> GetConnectivityGrid(pass_class_t passClass) const;
 
 	pass_class_t GetPassabilityClass(const std::string& name) const
 	{
@@ -179,8 +181,8 @@ private:
 	struct Chunk
 	{
 		std::uint8_t m_ChunkI, m_ChunkJ; // chunk ID
-		std::vector<u16> m_RegionsID; // IDs of local regions, 0 (impassable) excluded
-		u16 m_Regions[CHUNK_SIZE][CHUNK_SIZE]; // local region ID per navcell
+		std::vector<std::uint16_t> m_RegionsID; // IDs of local regions, 0 (impassable) excluded
+		std::uint16_t m_Regions[CHUNK_SIZE][CHUNK_SIZE]; // local region ID per navcell
 
 		cassert(CHUNK_SIZE*CHUNK_SIZE/2 < 65536); // otherwise we could overflow m_RegionsID with a checkerboard pattern
 
@@ -188,16 +190,21 @@ private:
 
 		RegionID Get(int i, int j) const;
 
-		void RegionCenter(u16 r, int& i, int& j) const;
+		void RegionCenter(std::uint16_t r, int& i, int& j) const;
 
-		void RegionNavcellNearest(u16 r, int iGoal, int jGoal, int& iBest, int& jBest, u32& dist2Best) const;
+		void RegionNavcellNearest(std::uint16_t r, int iGoal, int jGoal, int& iBest, int& jBest,
+			u32& dist2Best) const;
 
-		bool RegionNearestNavcellInGoal(u16 r, u16 i0, u16 j0, const PathGoal& goal, u16& iOut, u16& jOut, u32& dist2Best) const;
+		bool RegionNearestNavcellInGoal(std::uint16_t r, std::uint16_t i0, std::uint16_t j0,
+			const PathGoal& goal, std::uint16_t& iOut, std::uint16_t& jOut,
+			u32& dist2Best) const;
 
 #ifdef TEST
 		bool operator==(const Chunk& b) const
 		{
-			return (m_ChunkI == b.m_ChunkI && m_ChunkJ == b.m_ChunkJ && m_RegionsID.size() == b.m_RegionsID.size() && memcmp(&m_Regions, &b.m_Regions, sizeof(u16) * CHUNK_SIZE * CHUNK_SIZE) == 0);
+			return (m_ChunkI == b.m_ChunkI && m_ChunkJ == b.m_ChunkJ &&
+				m_RegionsID.size() == b.m_RegionsID.size() && memcmp(&m_Regions, &b.m_Regions,
+				sizeof(std::uint16_t) * CHUNK_SIZE * CHUNK_SIZE) == 0);
 		}
 #endif
 	};
@@ -248,7 +255,7 @@ private:
 
 	struct SortByCenterToPoint
 	{
-		SortByCenterToPoint(u16 i, u16 j): gi(i), gj(j) {};
+		SortByCenterToPoint(std::uint16_t i, std::uint16_t j): gi(i), gj(j) {};
 		bool operator()(const HierarchicalPathfinder::RegionID& a, const HierarchicalPathfinder::RegionID& b) const
 		{
 			if (a.DistanceTo(gi, gj) < b.DistanceTo(gi, gj))
@@ -257,21 +264,21 @@ private:
 				return false;
 			return a.r < b.r;
 		}
-		u16 gi, gj;
+		std::uint16_t gi, gj;
 	};
 
 	void FindNearestNavcellInRegions(const std::set<RegionID, SortByCenterToPoint>& regions,
-									 u16& iGoal, u16& jGoal, pass_class_t passClass) const;
+		std::uint16_t& iGoal, std::uint16_t& jGoal, pass_class_t passClass) const;
 
 	struct InterestingRegion {
 		RegionID region;
-		u16 bestI;
-		u16 bestJ;
+		std::uint16_t bestI;
+		std::uint16_t bestJ;
 	};
 
 	struct SortByBestToPoint
 	{
-		SortByBestToPoint(u16 i, u16 j): gi(i), gj(j) {};
+		SortByBestToPoint(std::uint16_t i, std::uint16_t j): gi(i), gj(j) {};
 		bool operator()(const InterestingRegion& a, const InterestingRegion& b) const
 		{
 			if ((a.bestI - gi) * (a.bestI - gi) + (a.bestJ - gj) * (a.bestJ - gj) < (b.bestI - gi) * (b.bestI - gi) + (b.bestJ - gj) * (b.bestJ - gj))
@@ -280,15 +287,18 @@ private:
 				return false;
 			return a.region.r < b.region.r;
 		}
-		u16 gi, gj;
+		std::uint16_t gi, gj;
 	};
 
 	// Returns the region along with the best cell for optimisation.
-	void FindGoalRegionsAndBestNavcells(u16 i0, u16 j0, u16 gi, u16 gj, const PathGoal& goal, std::set<InterestingRegion, SortByBestToPoint>& regions, pass_class_t passClass) const;
+	void FindGoalRegionsAndBestNavcells(std::uint16_t i0, std::uint16_t j0, std::uint16_t gi,
+		std::uint16_t gj, const PathGoal& goal, std::set<InterestingRegion,
+		SortByBestToPoint>& regions, pass_class_t passClass) const;
 
-	void FillRegionOnGrid(const RegionID& region, pass_class_t passClass, u16 value, Grid<u16>& grid) const;
+	void FillRegionOnGrid(const RegionID& region, pass_class_t passClass, std::uint16_t value,
+		Grid<std::uint16_t>& grid) const;
 
-	u16 m_W, m_H;
+	std::uint16_t m_W, m_H;
 	std::uint8_t m_ChunksW, m_ChunksH;
 	std::map<pass_class_t, std::vector<Chunk> > m_Chunks;
 

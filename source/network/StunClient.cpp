@@ -45,20 +45,20 @@ namespace StunClient
  * These constants are defined in Section 6 of RFC 5389.
  */
 const u32 m_MagicCookie = 0x2112A442;
-const u16 m_MethodTypeBinding = 0x01;
+const std::uint16_t m_MethodTypeBinding = 0x01;
 const u32 m_BindingSuccessResponse = 0x0101;
 
 /**
  * Bit determining whether comprehension of an attribute is optional.
  * Described in Section 15 of RFC 5389.
  */
-const u16 m_ComprehensionOptional = 0x1 << 15;
+const std::uint16_t m_ComprehensionOptional = 0x1 << 15;
 
 /**
  * Bit determining whether the bit was assigned by IETF Review.
  * Described in section 18.1. of  RFC 5389.
  */
-const u16 m_IETFReview = 0x1 << 14;
+const std::uint16_t m_IETFReview = 0x1 << 14;
 
 /**
  * These constants are defined in Section 15.1 of RFC 5389.
@@ -68,8 +68,8 @@ const std::uint8_t m_IPAddressFamilyIPv4 = 0x01;
 /**
  * These constants are defined in Section 18.2 of RFC 5389.
  */
-const u16 m_AttrTypeMappedAddress = 0x001;
-const u16 m_AttrTypeXORMappedAddress = 0x0020;
+const std::uint16_t m_AttrTypeMappedAddress = 0x001;
+const std::uint16_t m_AttrTypeXORMappedAddress = 0x0020;
 
 /**
  * Described in section 3 of RFC 5389.
@@ -127,8 +127,8 @@ bool GetFromBuffer(const std::vector<std::uint8_t>& buffer, u32& offset, T& resu
 void SendStunRequest(ENetHost& transactionHost, ENetAddress addr)
 {
 	std::vector<std::uint8_t> buffer;
-	AddToBuffer<u16>(buffer, m_MethodTypeBinding);
-	AddToBuffer<u16>(buffer, 0); // length
+	AddToBuffer<std::uint16_t>(buffer, m_MethodTypeBinding);
+	AddToBuffer<std::uint16_t>(buffer, 0); // length
 	AddToBuffer<u32>(buffer, m_MagicCookie);
 
 	for (std::size_t i = 0; i < sizeof(m_TransactionID); ++i)
@@ -222,7 +222,7 @@ bool ParseStunResponse(const std::vector<std::uint8_t>& buffer)
 {
 	u32 offset = 0;
 
-	u16 responseType = 0;
+	std::uint16_t responseType = 0;
 	if (!GetFromBuffer(buffer, offset, responseType) || responseType != m_BindingSuccessResponse)
 	{
 		LOGERROR("STUN response isn't a binding success response");
@@ -251,8 +251,8 @@ bool ParseStunResponse(const std::vector<std::uint8_t>& buffer)
 
 	while (offset < buffer.size())
 	{
-		u16 type = 0;
-		u16 size = 0;
+		std::uint16_t type = 0;
+		std::uint16_t size = 0;
 		if (!GetFromBuffer(buffer, offset, type) ||
 		    !GetFromBuffer(buffer, offset, size))
 		{
@@ -284,7 +284,7 @@ bool ParseStunResponse(const std::vector<std::uint8_t>& buffer)
 				return false;
 			}
 
-			u16 port = 0;
+			std::uint16_t port = 0;
 			u32 ip = 0;
 			if (!GetFromBuffer(buffer, offset, port) ||
 			    !GetFromBuffer(buffer, offset, ip))
@@ -336,7 +336,7 @@ bool STUNRequestAndResponse(ENetHost& transactionHost)
 	       ParseStunResponse(buffer);
 }
 
-bool FindPublicIP(ENetHost& transactionHost, CStr& ip, u16& port)
+bool FindPublicIP(ENetHost& transactionHost, CStr& ip, std::uint16_t& port)
 {
 	if (!STUNRequestAndResponse(transactionHost))
 		return false;
@@ -353,7 +353,8 @@ bool FindPublicIP(ENetHost& transactionHost, CStr& ip, u16& port)
 	return true;
 }
 
-void SendHolePunchingMessages(ENetHost& enetClient, const std::string& serverAddress, u16 serverPort)
+void SendHolePunchingMessages(ENetHost& enetClient, const std::string& serverAddress,
+	std::uint16_t serverPort)
 {
 	// Convert ip string to int64
 	ENetAddress addr;

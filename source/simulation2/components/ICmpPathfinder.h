@@ -100,7 +100,7 @@ public:
 	/**
 	 * Get a grid representing the distance to the shore of the terrain tile.
 	 */
-	virtual Grid<u16> ComputeShoreGrid(bool expandOnWater = false) = 0;
+	virtual Grid<std::uint16_t> ComputeShoreGrid(bool expandOnWater = false) = 0;
 
 	/**
 	 * Asynchronous version of ComputePath.
