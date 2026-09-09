@@ -69,7 +69,7 @@ template<> bool FromJSVal<double>(const Request& rq,  JS::HandleValue v, double&
 	return true;
 }
 
-template<> bool FromJSVal<i32>(const Request& rq,  JS::HandleValue v, i32& out)
+template<> bool FromJSVal<std::int32_t>(const Request& rq,  JS::HandleValue v, std::int32_t& out)
 {
 	FAIL_IF_NOT(v.isNumber(), v);
 	if (!JS::ToInt32(rq.cx, v, &out))
@@ -206,7 +206,7 @@ template<> void ToJSVal<double>(const Request&, JS::MutableHandleValue ret, cons
 	ret.set(JS::NumberValue(val));
 }
 
-template<> void ToJSVal<i32>(const Request&, JS::MutableHandleValue ret, const i32& val)
+template<> void ToJSVal<std::int32_t>(const Request&, JS::MutableHandleValue ret, const std::int32_t& val)
 {
 	ret.set(JS::NumberValue(val));
 }

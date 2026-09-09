@@ -421,7 +421,7 @@ void CBinarySerializerScriptImpl::HandleScriptVal(const Script::Request& rq, JS:
 		// their binary representation and thus the hash would be different.
 		double d;
 		d = val.toNumber();
-		i32 integer;
+		std::int32_t integer;
 
 		if (JS_DoubleIsInt32(d, &integer))
 		{

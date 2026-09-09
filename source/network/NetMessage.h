@@ -124,7 +124,8 @@ class CSimulationMessage : public CNetMessage
 {
 public:
 	CSimulationMessage(const Script::Interface& scriptInterface);
-	CSimulationMessage(const Script::Interface& scriptInterface, u32 client, i32 player, u32 turn, JS::HandleValue data);
+	CSimulationMessage(const Script::Interface& scriptInterface, u32 client, std::int32_t player,
+		u32 turn, JS::HandleValue data);
 
 	/** The compiler can't create a copy constructor because of the PersistentRooted member,
 	 * so we have to write it manually.
@@ -138,8 +139,8 @@ public:
 	virtual CStr ToString() const;
 
 	u32 m_Client;
-	i32 m_Player;
-	i32 m_Turn;
+	std::int32_t m_Player;
+	std::int32_t m_Turn;
 	JS::PersistentRooted<JS::Value> m_Data;
 private:
 	const Script::Interface& m_ScriptInterface;

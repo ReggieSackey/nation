@@ -25,7 +25,6 @@
 #include "gui/ObjectBases/IGUIScrollBarOwner.h"
 #include "gui/SettingTypes/CGUIColor.h"
 #include "gui/SettingTypes/CGUIString.h"
-#include "lib/types.h"
 #include "maths/Rect.h"
 #include "ps/CStr.h"
 #include "ps/Input.h"
@@ -227,14 +226,14 @@ protected:
 	static const CStr EventNamePress;
 	static const CStr EventNameTab;
 
-	CGUISimpleSetting<i32> m_BufferPosition;
+	CGUISimpleSetting<std::int32_t> m_BufferPosition;
 	CGUISimpleSetting<float> m_BufferZone;
 	CGUISimpleSetting<CStrW> m_Caption;
 	CGUISimpleSetting<CGUIString> m_PlaceholderText;
 	CGUISimpleSetting<CStrW> m_Font;
 	CGUISimpleSetting<CStrW> m_MaskChar;
 	CGUISimpleSetting<bool> m_Mask;
-	CGUISimpleSetting<i32> m_MaxLength;
+	CGUISimpleSetting<std::int32_t> m_MaxLength;
 	CGUISimpleSetting<bool> m_MultiLine;
 	CGUISimpleSetting<bool> m_Readonly;
 	CGUISimpleSetting<bool> m_ScrollBar;

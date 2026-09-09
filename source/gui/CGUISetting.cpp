@@ -119,7 +119,7 @@ void CGUISimpleSetting<T>::ToJSVal(const Script::Request& rq, JS::MutableHandleV
 	template class CGUISimpleSetting<T>;
 
 TYPE(bool)
-TYPE(i32)
+TYPE(std::int32_t)
 TYPE(u32)
 TYPE(float)
 TYPE(CVector2D)

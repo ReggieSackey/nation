@@ -23,7 +23,6 @@
 # pragma warning(disable: 4724)
 #endif
 
-#include "lib/types.h"
 #include "maths/Fixed.h"
 #include "ps/CStr.h"
 
@@ -73,13 +72,13 @@ public:
 		TS_ASSERT_EQUALS(b.ToDouble(), -123.125);
 
 		fixed c = fixed::FromFloat(std::numeric_limits<float>::infinity());
-		TS_ASSERT_EQUALS(c.GetInternalValue(), (i32)0);
+		TS_ASSERT_EQUALS(c.GetInternalValue(), static_cast<std::int32_t>(0));
 
 		fixed d = fixed::FromFloat(-std::numeric_limits<float>::infinity());
-		TS_ASSERT_EQUALS(d.GetInternalValue(), (i32)0);
+		TS_ASSERT_EQUALS(d.GetInternalValue(), static_cast<std::int32_t>(0));
 
 		fixed e = fixed::FromFloat(std::numeric_limits<float>::quiet_NaN());
-		TS_ASSERT_EQUALS(e.GetInternalValue(), (i32)0);
+		TS_ASSERT_EQUALS(e.GetInternalValue(), static_cast<std::int32_t>(0));
 	}
 
 	void test_FromDouble()
@@ -93,13 +92,13 @@ public:
 		TS_ASSERT_EQUALS(b.ToDouble(), -123.125);
 
 		fixed c = fixed::FromDouble(std::numeric_limits<double>::infinity());
-		TS_ASSERT_EQUALS(c.GetInternalValue(), (i32)0);
+		TS_ASSERT_EQUALS(c.GetInternalValue(), static_cast<std::int32_t>(0));
 
 		fixed d = fixed::FromDouble(-std::numeric_limits<double>::infinity());
-		TS_ASSERT_EQUALS(d.GetInternalValue(), (i32)0);
+		TS_ASSERT_EQUALS(d.GetInternalValue(), static_cast<std::int32_t>(0));
 
 		fixed e = fixed::FromDouble(std::numeric_limits<double>::quiet_NaN());
-		TS_ASSERT_EQUALS(e.GetInternalValue(), (i32)0);
+		TS_ASSERT_EQUALS(e.GetInternalValue(), static_cast<std::int32_t>(0));
 	}
 
 	void test_FromFloat_Rounding()

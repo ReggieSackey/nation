@@ -187,7 +187,7 @@ protected:
 
 	virtual void PutNumber(const char* name, int32_t value)
 	{
-		int32_t v = (i32)to_le32((u32)value);
+		int32_t v = static_cast<std::int32_t>(to_le32((u32)value));
 		m_Impl.Put(name, (const u8*)&v, sizeof(int32_t));
 	}
 
@@ -203,7 +203,7 @@ protected:
 
 	virtual void PutNumber(const char* name, fixed value)
 	{
-		int32_t v = (i32)to_le32((u32)value.GetInternalValue());
+		int32_t v = static_cast<std::int32_t>(to_le32((u32)value.GetInternalValue()));
 		m_Impl.Put(name, (const u8*)&v, sizeof(int32_t));
 	}
 

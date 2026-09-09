@@ -1,4 +1,4 @@
-/* Copyright (C) 2020 Wildfire Games.
+/* Copyright (C) 2026 Wildfire Games.
  * This file is part of 0 A.D.
  *
  * 0 A.D. is free software: you can redistribute it and/or modify
@@ -212,14 +212,14 @@ struct SerializeHelper<u32>
 };
 
 template<>
-struct SerializeHelper<i32>
+struct SerializeHelper<std::int32_t>
 {
-	void operator()(ISerializer& serialize, const char* name, i32 value)
+	void operator()(ISerializer& serialize, const char* name, std::int32_t value)
 	{
 		serialize.NumberI32_Unbounded(name, value);
 	}
 
-	void operator()(IDeserializer& deserialize, const char* name, i32& value)
+	void operator()(IDeserializer& deserialize, const char* name, std::int32_t& value)
 	{
 		deserialize.NumberI32_Unbounded(name, value);
 	}

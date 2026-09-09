@@ -29,7 +29,7 @@
  * This is the size, in meters, separating each LOS vertex.
  * (Note that this also means it is the minimal meaningful resolution of any vision range change).
  */
-static constexpr i32 LOS_TILE_SIZE = 4;
+static constexpr std::int32_t LOS_TILE_SIZE = 4;
 
 enum class LosState : u8
 {

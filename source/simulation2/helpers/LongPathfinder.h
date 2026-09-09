@@ -109,12 +109,12 @@ public:
 
 	int GetPredDI() const
 	{
-		return (i32)data >> 17;
+		return static_cast<std::int32_t>(data) >> 17;
 	}
 
 	int GetPredDJ() const
 	{
-		return ((i32)data << 15) >> 17;
+		return (static_cast<std::int32_t>(data) << 15) >> 17;
 	}
 
 	// Set the pi,pj coords of predecessor, given i,j coords of this tile

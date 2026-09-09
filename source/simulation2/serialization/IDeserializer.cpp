@@ -91,7 +91,7 @@ void IDeserializer::NumberI32(const char* name, int32_t& out, int32_t lower, int
 {
 	int32_t value;
 	Get(name, (u8*)&value, sizeof(uint32_t));
-	value = (i32)to_le32((u32)value);
+	value = static_cast<std::int32_t>(to_le32((u32)value));
 
 	if (!(lower <= value && value <= upper))
 		throw PSERROR_Deserialize_OutOfBounds(name);
@@ -134,7 +134,7 @@ void IDeserializer::NumberI32_Unbounded(const char* name, int32_t& out)
 {
 	int32_t value;
 	Get(name, (u8*)&value, sizeof(int32_t));
-	out = (i32)to_le32((u32)value);
+	out = static_cast<std::int32_t>(to_le32((u32)value));
 }
 
 void IDeserializer::NumberFloat_Unbounded(const char* name, float& out)

@@ -84,7 +84,7 @@ public:
 		deserialize.NumberU32_Unbounded("num commands", numCmds);
 		for (size_t i = 0; i < numCmds; ++i)
 		{
-			i32 player;
+			std::int32_t player;
 			JS::RootedValue data(rq.cx);
 			deserialize.NumberI32_Unbounded("player", player);
 			deserialize.ScriptVal("data", &data);

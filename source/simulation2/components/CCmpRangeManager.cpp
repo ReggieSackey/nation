@@ -191,7 +191,7 @@ struct Query
 	entity_pos_t baseRange;  // Non-parabolic detection range
 	entity_pos_t yOrigin; // Used for parabolas only.
 	u32 ownersMask;
-	i32 interface;
+	std::int32_t interface;
 	u8 flagsMask;
 	bool enabled;
 	bool parabolic;
@@ -214,9 +214,9 @@ static bool InParabolicRange(CFixedVector3D v, fixed range)
 	u64 zz = SQUARE_U64_FIXED(v.Z);
 	i64 d2 = (xx + zz) >> 1; // d2 <= 2^62 (no overflow)
 
-	i32 y = v.Y.GetInternalValue();
-	i32 c = range.GetInternalValue();
-	i32 c_2 = c >> 1;
+	std::int32_t y = v.Y.GetInternalValue();
+	std::int32_t c = range.GetInternalValue();
+	std::int32_t c_2 = c >> 1;
 
 	i64 c2 = MUL_I64_I32_I32(c_2 - y, c);
 
@@ -467,10 +467,10 @@ public:
 	std::array<bool, MAX_LOS_PLAYER_ID+1> m_LosRevealWholeMap;
 	bool m_LosRevealWholeMapForAll;
 	bool m_LosCircular;
-	i32 m_LosVerticesPerSide;
+	std::int32_t m_LosVerticesPerSide;
 
 	// Cache for visibility tracking
-	i32 m_LosRegionsPerSide;
+	std::int32_t m_LosRegionsPerSide;
 	bool m_GlobalVisibilityUpdate;
 	std::array<bool, MAX_LOS_PLAYER_ID> m_GlobalPlayerVisibilityUpdate;
 	Grid<u16> m_DirtyVisibility;
@@ -939,8 +939,8 @@ public:
 		if (m_Deserializing)
 		{
 			// recalc current exploration stats.
-			for (i32 j = 0; j < m_LosVerticesPerSide; j++)
-				for (i32 i = 0; i < m_LosVerticesPerSide; i++)
+			for (std::int32_t j = 0; j < m_LosVerticesPerSide; j++)
+				for (std::int32_t i = 0; i < m_LosVerticesPerSide; i++)
 					if (!LosIsOffWorld(i, j))
 						for (u8 k = 1; k < MAX_LOS_PLAYER_ID+1; ++k)
 							m_ExploredVertices.at(k) += ((m_LosState.get(i, j) & ((u32)LosState::EXPLORED << (2*(k-1)))) > 0);
@@ -972,8 +972,8 @@ public:
 			}
 
 		m_TotalInworldVertices = 0;
-		for (i32 j = 0; j < m_LosVerticesPerSide; ++j)
-			for (i32 i = 0; i < m_LosVerticesPerSide; ++i)
+		for (std::int32_t j = 0; j < m_LosVerticesPerSide; ++j)
+			for (std::int32_t i = 0; i < m_LosVerticesPerSide; ++i)
 			{
 				if (LosIsOffWorld(i,j))
 					m_LosStateRevealed.get(i, j) = 0;
@@ -1452,7 +1452,7 @@ public:
 			return NEVER_IN_RANGE;
 
 		entity_pos_t effectiveRange;
-		effectiveRange.SetInternalValue(static_cast<i32>(isqrt64(
+		effectiveRange.SetInternalValue(static_cast<std::int32_t>(isqrt64(
 			SQUARE_U64_FIXED(range) +
 			static_cast<i64>(heightDiff.GetInternalValue()) * static_cast<i64>(range.GetInternalValue()) * 2
 		)));
@@ -1501,7 +1501,8 @@ public:
 		i64 numerator = rangeSq - distSq;
 
 		entity_pos_t result;
-		result.SetInternalValue(static_cast<i32>(numerator / (static_cast<i64>(range.GetInternalValue()) * 2)));
+		result.SetInternalValue(static_cast<std::int32_t>(numerator /
+			(static_cast<i64>(range.GetInternalValue()) * 2)));
 		return yOrigin + result;
 	}
 
@@ -2198,8 +2199,8 @@ public:
 
 	void ExploreMap(player_id_t p) override
 	{
-		for (i32 j = 0; j < m_LosVerticesPerSide; ++j)
-			for (i32 i = 0; i < m_LosVerticesPerSide; ++i)
+		for (std::int32_t j = 0; j < m_LosVerticesPerSide; ++j)
+			for (std::int32_t i = 0; i < m_LosVerticesPerSide; ++i)
 			{
 				if (LosIsOffWorld(i,j))
 					continue;
@@ -2221,14 +2222,14 @@ public:
 		// Territory data is stored per territory-tile (typically a multiple of terrain-tiles).
 		// LOS data is stored per los vertex (in reality tiles too, but it's the center that matters).
 		// This scales from LOS coordinates to Territory coordinates.
-		auto scale = [](i32 coord, i32 max) -> i32 {
+		auto scale = [](std::int32_t coord, std::int32_t max) -> std::int32_t {
 			return std::min(max, (coord * LOS_TILE_SIZE + LOS_TILE_SIZE / 2) / (ICmpTerritoryManager::NAVCELLS_PER_TERRITORY_TILE * Pathfinding::NAVCELL_SIZE_INT));
 		};
 
 		// For each territory-tile, if it is owned by a valid player then update the LOS
 		// for every vertex inside/around that tile, to mark them as explored.
-		for (i32 j = 0; j < m_LosVerticesPerSide; ++j)
-			for (i32 i = 0; i < m_LosVerticesPerSide; ++i)
+		for (std::int32_t j = 0; j < m_LosVerticesPerSide; ++j)
+			for (std::int32_t i = 0; i < m_LosVerticesPerSide; ++i)
 			{
 				// TODO: This fetches data redundantly if the los grid is smaller than the territory grid
 				// (but it's unlikely to matter much).
@@ -2400,13 +2401,13 @@ public:
 	/**
 	 * Update the LOS state of tiles within a given horizontal strip (i0,j) to (i1,j) (inclusive).
 	 */
-	inline void LosAddStripHelper(u8 owner, i32 i0, i32 i1, i32 j, Grid<u16>& counts)
+	inline void LosAddStripHelper(u8 owner, std::int32_t i0, std::int32_t i1, std::int32_t j, Grid<u16>& counts)
 	{
 		if (i1 < i0)
 			return;
 
 		u32 &explored = m_ExploredVertices.at(owner);
-		for (i32 i = i0; i <= i1; ++i)
+		for (std::int32_t i = i0; i <= i1; ++i)
 		{
 			// Increasing from zero to non-zero - move from unexplored/explored to visible+explored
 			if (counts.get(i, j) == 0)
@@ -2428,12 +2429,13 @@ public:
 	/**
 	 * Update the LOS state of tiles within a given horizontal strip (i0,j) to (i1,j) (inclusive).
 	 */
-	inline void LosRemoveStripHelper(u8 owner, i32 i0, i32 i1, i32 j, Grid<u16>& counts)
+	inline void LosRemoveStripHelper(u8 owner, std::int32_t i0, std::int32_t i1, std::int32_t j,
+		Grid<u16>& counts)
 	{
 		if (i1 < i0)
 			return;
 
-		for (i32 i = i0; i <= i1; ++i)
+		for (std::int32_t i = i0; i <= i1; ++i)
 		{
 			ASSERT(counts.get(i, j) > 0);
 			counts.get(i, j) = (u16)(counts.get(i, j) - 1);
@@ -2449,7 +2451,7 @@ public:
 		}
 	}
 
-	inline void MarkVisibilityDirtyAroundTile(u8 owner, i32 i, i32 j)
+	inline void MarkVisibilityDirtyAroundTile(u8 owner, std::int32_t i, std::int32_t j)
 	{
 		// If we're still in the deserializing process, we must not modify m_DirtyVisibility
 		if (m_Deserializing)
@@ -2504,10 +2506,10 @@ public:
 
 		// Compute top/bottom coordinates, and clamp to exclude the 1-tile border around the map
 		// (so that we never render the sharp edge of the map)
-		i32 j0 = ((pos.Y - visionRange)/LOS_TILE_SIZE).ToInt_RoundToInfinity();
-		i32 j1 = ((pos.Y + visionRange)/LOS_TILE_SIZE).ToInt_RoundToNegInfinity();
-		i32 j0clamp = std::max(j0, 1);
-		i32 j1clamp = std::min(j1, m_LosVerticesPerSide-2);
+		std::int32_t j0 = ((pos.Y - visionRange)/LOS_TILE_SIZE).ToInt_RoundToInfinity();
+		std::int32_t j1 = ((pos.Y + visionRange)/LOS_TILE_SIZE).ToInt_RoundToNegInfinity();
+		std::int32_t j0clamp = std::max(j0, 1);
+		std::int32_t j1clamp = std::min(j1, m_LosVerticesPerSide-2);
 
 		// Translate world coordinates into fractional tile-space coordinates
 		entity_pos_t x = pos.X / LOS_TILE_SIZE;
@@ -2516,14 +2518,14 @@ public:
 		entity_pos_t r2 = r.Square();
 
 		// Compute the integers on either side of x
-		i32 xfloor = (x - entity_pos_t::Epsilon()).ToInt_RoundToNegInfinity();
-		i32 xceil = (x + entity_pos_t::Epsilon()).ToInt_RoundToInfinity();
+		std::int32_t xfloor = (x - entity_pos_t::Epsilon()).ToInt_RoundToNegInfinity();
+		std::int32_t xceil = (x + entity_pos_t::Epsilon()).ToInt_RoundToInfinity();
 
 		// Initialise the strip (i0, i1) to a rough guess
-		i32 i0 = xfloor;
-		i32 i1 = xceil;
+		std::int32_t i0 = xfloor;
+		std::int32_t i1 = xceil;
 
-		for (i32 j = j0clamp; j <= j1clamp; ++j)
+		for (std::int32_t j = j0clamp; j <= j1clamp; ++j)
 		{
 			// Adjust i0 and i1 to be the outermost values that don't exceed
 			// the circle's radius (i.e. require dy^2 + dx^2 <= r^2).
@@ -2553,8 +2555,8 @@ public:
 
 			// Clamp the strip to exclude the 1-tile border,
 			// then add or remove the strip as requested
-			i32 i0clamp = std::max(i0, 1);
-			i32 i1clamp = std::min(i1, m_LosVerticesPerSide-2);
+			std::int32_t i0clamp = std::max(i0, 1);
+			std::int32_t i1clamp = std::min(i1, m_LosVerticesPerSide-2);
 			if (adding)
 				LosAddStripHelper(owner, i0clamp, i1clamp, j, counts);
 			else
@@ -2587,12 +2589,12 @@ public:
 		// so we can compute the difference between the removed/added strips
 		// and only have to touch tiles that have a net change.)
 
-		i32 j0_from = ((from.Y - visionRange)/LOS_TILE_SIZE).ToInt_RoundToInfinity();
-		i32 j1_from = ((from.Y + visionRange)/LOS_TILE_SIZE).ToInt_RoundToNegInfinity();
-		i32 j0_to = ((to.Y - visionRange)/LOS_TILE_SIZE).ToInt_RoundToInfinity();
-		i32 j1_to = ((to.Y + visionRange)/LOS_TILE_SIZE).ToInt_RoundToNegInfinity();
-		i32 j0clamp = std::max(std::min(j0_from, j0_to), 1);
-		i32 j1clamp = std::min(std::max(j1_from, j1_to), m_LosVerticesPerSide-2);
+		std::int32_t j0_from = ((from.Y - visionRange)/LOS_TILE_SIZE).ToInt_RoundToInfinity();
+		std::int32_t j1_from = ((from.Y + visionRange)/LOS_TILE_SIZE).ToInt_RoundToNegInfinity();
+		std::int32_t j0_to = ((to.Y - visionRange)/LOS_TILE_SIZE).ToInt_RoundToInfinity();
+		std::int32_t j1_to = ((to.Y + visionRange)/LOS_TILE_SIZE).ToInt_RoundToNegInfinity();
+		std::int32_t j0clamp = std::max(std::min(j0_from, j0_to), 1);
+		std::int32_t j1clamp = std::min(std::max(j1_from, j1_to), m_LosVerticesPerSide-2);
 
 		entity_pos_t x_from = from.X / LOS_TILE_SIZE;
 		entity_pos_t y_from = from.Y / LOS_TILE_SIZE;
@@ -2601,17 +2603,17 @@ public:
 		entity_pos_t r = visionRange / LOS_TILE_SIZE;
 		entity_pos_t r2 = r.Square();
 
-		i32 xfloor_from = (x_from - entity_pos_t::Epsilon()).ToInt_RoundToNegInfinity();
-		i32 xceil_from = (x_from + entity_pos_t::Epsilon()).ToInt_RoundToInfinity();
-		i32 xfloor_to = (x_to - entity_pos_t::Epsilon()).ToInt_RoundToNegInfinity();
-		i32 xceil_to = (x_to + entity_pos_t::Epsilon()).ToInt_RoundToInfinity();
+		std::int32_t xfloor_from = (x_from - entity_pos_t::Epsilon()).ToInt_RoundToNegInfinity();
+		std::int32_t xceil_from = (x_from + entity_pos_t::Epsilon()).ToInt_RoundToInfinity();
+		std::int32_t xfloor_to = (x_to - entity_pos_t::Epsilon()).ToInt_RoundToNegInfinity();
+		std::int32_t xceil_to = (x_to + entity_pos_t::Epsilon()).ToInt_RoundToInfinity();
 
-		i32 i0_from = xfloor_from;
-		i32 i1_from = xceil_from;
-		i32 i0_to = xfloor_to;
-		i32 i1_to = xceil_to;
+		std::int32_t i0_from = xfloor_from;
+		std::int32_t i1_from = xceil_from;
+		std::int32_t i0_to = xfloor_to;
+		std::int32_t i1_to = xceil_to;
 
-		for (i32 j = j0clamp; j <= j1clamp; ++j)
+		for (std::int32_t j = j0clamp; j <= j1clamp; ++j)
 		{
 			entity_pos_t dy_from = entity_pos_t::FromInt(j) - y_from;
 			entity_pos_t dy2_from = dy_from.Square();
@@ -2655,10 +2657,10 @@ public:
 			// Check whether this strip moved at all
 			if (!(i0_to == i0_from && i1_to == i1_from))
 			{
-				i32 i0clamp_from = std::max(i0_from, 1);
-				i32 i1clamp_from = std::min(i1_from, m_LosVerticesPerSide-2);
-				i32 i0clamp_to = std::max(i0_to, 1);
-				i32 i1clamp_to = std::min(i1_to, m_LosVerticesPerSide-2);
+				std::int32_t i0clamp_from = std::max(i0_from, 1);
+				std::int32_t i1clamp_from = std::min(i1_from, m_LosVerticesPerSide-2);
+				std::int32_t i0clamp_to = std::max(i0_to, 1);
+				std::int32_t i1clamp_to = std::min(i1_to, m_LosVerticesPerSide-2);
 
 				// Check whether one strip is negative width,
 				// and we can just add/remove the entire other strip
@@ -2762,8 +2764,8 @@ public:
 		u32 exploredVertices = 0;
 		std::vector<player_id_t>::const_iterator playerIt;
 
-		for (i32 j = 0; j < m_LosVerticesPerSide; j++)
-			for (i32 i = 0; i < m_LosVerticesPerSide; i++)
+		for (std::int32_t j = 0; j < m_LosVerticesPerSide; j++)
+			for (std::int32_t i = 0; i < m_LosVerticesPerSide; i++)
 			{
 				if (LosIsOffWorld(i, j))
 					continue;

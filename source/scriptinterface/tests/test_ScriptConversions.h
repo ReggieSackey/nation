@@ -126,13 +126,13 @@ public:
 		roundtrip<float>(1e9f, "1000000000");
 		roundtrip<float>(1e30f, "1.0000000150474662e+30");
 
-		roundtrip<i32>(0, "0");
-		roundtrip<i32>(123, "123");
-		roundtrip<i32>(-123, "-123");
-		roundtrip<i32>(JSVAL_INT_MAX - 1, "2147483646");
-		roundtrip<i32>(JSVAL_INT_MAX, "2147483647");
-		roundtrip<i32>(JSVAL_INT_MIN + 1, "-2147483647");
-		roundtrip<i32>(JSVAL_INT_MIN, "-2147483648");
+		roundtrip<std::int32_t>(0, "0");
+		roundtrip<std::int32_t>(123, "123");
+		roundtrip<std::int32_t>(-123, "-123");
+		roundtrip<std::int32_t>(JSVAL_INT_MAX - 1, "2147483646");
+		roundtrip<std::int32_t>(JSVAL_INT_MAX, "2147483647");
+		roundtrip<std::int32_t>(JSVAL_INT_MIN + 1, "-2147483647");
+		roundtrip<std::int32_t>(JSVAL_INT_MIN, "-2147483648");
 
 		roundtrip<u32>(0, "0");
 		roundtrip<u32>(123, "123");
@@ -181,11 +181,11 @@ public:
 
 		// using new uninitialized variables each time to be sure the test doesn't succeeed if ToJSVal doesn't touch the value at all.
 		JS::RootedValue val0(rq.cx), val1(rq.cx), val2(rq.cx), val3(rq.cx), val4(rq.cx), val5(rq.cx), val6(rq.cx), val7(rq.cx), val8(rq.cx);
-		Script::ToJSVal<i32>(rq, &val0, 0);
-		Script::ToJSVal<i32>(rq, &val1, JSVAL_INT_MAX - 1);
-		Script::ToJSVal<i32>(rq, &val2, JSVAL_INT_MAX);
-		Script::ToJSVal<i32>(rq, &val3, JSVAL_INT_MIN + 1);
-		Script::ToJSVal<i32>(rq, &val4, -(i64)2147483648u); // JSVAL_INT_MIN
+		Script::ToJSVal<std::int32_t>(rq, &val0, 0);
+		Script::ToJSVal<std::int32_t>(rq, &val1, JSVAL_INT_MAX - 1);
+		Script::ToJSVal<std::int32_t>(rq, &val2, JSVAL_INT_MAX);
+		Script::ToJSVal<std::int32_t>(rq, &val3, JSVAL_INT_MIN + 1);
+		Script::ToJSVal<std::int32_t>(rq, &val4, -(i64)2147483648u); // JSVAL_INT_MIN
 		TS_ASSERT(val0.isInt32());
 		TS_ASSERT(val1.isInt32());
 		TS_ASSERT(val2.isInt32());

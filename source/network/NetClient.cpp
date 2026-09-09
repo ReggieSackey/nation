@@ -208,7 +208,7 @@ bool CNetClient::TryToConnectWithSTUN(std::string serverAddressOrHostname, std::
 		PushGuiMessage(
 			"type", "netstatus",
 			"status", "disconnected",
-			"reason", static_cast<i32>(NDR_SERVER_REFUSED));
+			"reason", static_cast<std::int32_t>(NDR_SERVER_REFUSED));
 		return false;
 	}
 
@@ -220,7 +220,7 @@ bool CNetClient::TryToConnectWithSTUN(std::string serverAddressOrHostname, std::
 		PushGuiMessage(
 			"type", "netstatus",
 			"status", "disconnected",
-			"reason", static_cast<i32>(NDR_STUN_PORT_FAILED));
+			"reason", static_cast<std::int32_t>(NDR_STUN_PORT_FAILED));
 		return false;
 	}
 
@@ -233,7 +233,7 @@ bool CNetClient::TryToConnectWithSTUN(std::string serverAddressOrHostname, std::
 			PushGuiMessage(
 				"type", "netstatus",
 				"status", "disconnected",
-				"reason", static_cast<i32>(NDR_STUN_ENDPOINT_FAILED));
+				"reason", static_cast<std::int32_t>(NDR_STUN_ENDPOINT_FAILED));
 			return false;
 		}
 
@@ -291,7 +291,7 @@ bool CNetClient::TryToConnectWithSTUN(std::string serverAddressOrHostname, std::
 		PushGuiMessage(
 			"type", "netstatus",
 			"status", "disconnected",
-			"reason", static_cast<i32>(NDR_UNKNOWN));
+			"reason", static_cast<std::int32_t>(NDR_UNKNOWN));
 		return false;
 	}
 
@@ -674,7 +674,8 @@ void CNetClient::SendAuthenticateMessage()
 void CNetClient::StartGame(const JS::MutableHandleValue initAttributes, const std::string& savedState)
 {
 	const auto foundPlayer = m_PlayerAssignments.find(m_GUID);
-	const i32 player{foundPlayer != m_PlayerAssignments.end() ? foundPlayer->second.m_PlayerID : -1};
+	const std::int32_t player{foundPlayer != m_PlayerAssignments.end() ? foundPlayer->second.m_PlayerID :
+		-1};
 
 	m_ClientTurnManager = new CNetClientTurnManager{*m_Game->GetSimulation2(), *this,
 		static_cast<int>(m_HostID), m_Game->GetReplayLogger()};
@@ -722,7 +723,7 @@ bool CNetClient::OnHandshakeResponse(CNetClient* client, CFsmEvent<CNetMessage*>
 			client->PushGuiMessage(
 				"type", "netstatus",
 				"status", "disconnected",
-				"reason", static_cast<i32>(NDR_LOBBY_AUTH_FAILED));
+				"reason", static_cast<std::int32_t>(NDR_LOBBY_AUTH_FAILED));
 
 			LOGMESSAGE("Net client: Couldn't send lobby auth xmpp message");
 		}

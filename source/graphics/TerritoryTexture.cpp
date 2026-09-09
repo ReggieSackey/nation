@@ -175,8 +175,8 @@ void CTerritoryTexture::GenerateBitmap(const Grid<u8>& territories, u8* bitmap, 
 	CmpPtr<ICmpPlayerManager> cmpPlayerManager(m_Simulation, SYSTEM_ENTITY);
 
 	std::vector<CColor> colors;
-	i32 numPlayers = cmpPlayerManager->GetNumPlayers();
-	for (i32 p = 0; p < numPlayers; ++p)
+	std::int32_t numPlayers = cmpPlayerManager->GetNumPlayers();
+	for (std::int32_t p = 0; p < numPlayers; ++p)
 	{
 		CColor color(1, 0, 1, 1);
 		CmpPtr<ICmpPlayer> cmpPlayer(m_Simulation, cmpPlayerManager->GetPlayerByID(p));

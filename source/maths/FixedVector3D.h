@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Wildfire Games.
+/* Copyright (C) 2026 Wildfire Games.
  * This file is part of 0 A.D.
  *
  * 0 A.D. is free software: you can redistribute it and/or modify
@@ -94,9 +94,9 @@ public:
 
 		u32 d = isqrt64(d2);
 
-		CheckU32CastOverflow(d, i32, L"Overflow in CFixedVector3D::Length() part 3")
+		CheckU32CastOverflow(d, std::int32_t, L"Overflow in CFixedVector3D::Length() part 3")
 		fixed r;
-		r.SetInternalValue((i32)d);
+		r.SetInternalValue(static_cast<std::int32_t>(d));
 		return r;
 	}
 
@@ -153,13 +153,13 @@ public:
 		i64 z = x_vy - y_vx;
 		z >>= fixed::fract_bits;
 
-		CheckCastOverflow(x, i32, L"Overflow in CFixedVector3D::Cross() part 4", L"Underflow in CFixedVector3D::Cross() part 4")
-		CheckCastOverflow(y, i32, L"Overflow in CFixedVector3D::Cross() part 5", L"Underflow in CFixedVector3D::Cross() part 5")
-		CheckCastOverflow(z, i32, L"Overflow in CFixedVector3D::Cross() part 6", L"Underflow in CFixedVector3D::Cross() part 6")
+		CheckCastOverflow(x, std::int32_t, L"Overflow in CFixedVector3D::Cross() part 4", L"Underflow in CFixedVector3D::Cross() part 4")
+		CheckCastOverflow(y, std::int32_t, L"Overflow in CFixedVector3D::Cross() part 5", L"Underflow in CFixedVector3D::Cross() part 5")
+		CheckCastOverflow(z, std::int32_t, L"Overflow in CFixedVector3D::Cross() part 6", L"Underflow in CFixedVector3D::Cross() part 6")
 		CFixedVector3D ret;
-		ret.X.SetInternalValue((i32)x);
-		ret.Y.SetInternalValue((i32)y);
-		ret.Z.SetInternalValue((i32)z);
+		ret.X.SetInternalValue(static_cast<std::int32_t>(x));
+		ret.Y.SetInternalValue(static_cast<std::int32_t>(y));
+		ret.Z.SetInternalValue(static_cast<std::int32_t>(z));
 		return ret;
 	}
 
@@ -177,10 +177,10 @@ public:
 		CheckSignedAdditionOverflow(i64, t, z, L"Overflow in CFixedVector3D::Dot() part 2", L"Underflow in CFixedVector3D::Dot() part 2")
 		i64 sum = t + z;
 		sum >>= fixed::fract_bits;
-		CheckCastOverflow(sum, i32, L"Overflow in CFixedVector3D::Dot() part 3", L"Underflow in CFixedVector3D::Dot() part 3")
+		CheckCastOverflow(sum, std::int32_t, L"Overflow in CFixedVector3D::Dot() part 3", L"Underflow in CFixedVector3D::Dot() part 3")
 
 		fixed ret;
-		ret.SetInternalValue((i32)sum);
+		ret.SetInternalValue(static_cast<std::int32_t>(sum));
 		return ret;
 	}
 };

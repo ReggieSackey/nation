@@ -715,7 +715,7 @@ void CNetServerWorker::OnUserLeave(CNetServerSession* session)
 void CNetServerWorker::AddPlayer(const CStr& guid, const CStrW& name)
 {
 	// Find all player IDs in active use; we mustn't give them to a second player (excluding the unassigned ID: -1)
-	std::set<i32> usedIDs;
+	std::set<std::int32_t> usedIDs;
 	for (const std::pair<const CStr, PlayerAssignment>& p : m_PlayerAssignments)
 		if (p.second.m_Enabled && p.second.m_PlayerID != -1)
 			usedIDs.insert(p.second.m_PlayerID);
@@ -724,7 +724,7 @@ void CNetServerWorker::AddPlayer(const CStr& guid, const CStrW& name)
 	// back their old player ID. Don't do this in pregame however,
 	// as that ID might be invalid for various reasons.
 
-	i32 playerID = -1;
+	std::int32_t playerID = -1;
 
 	if (m_State != SERVER_STATE_PREGAME)
 	{

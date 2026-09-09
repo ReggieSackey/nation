@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Wildfire Games.
+/* Copyright (C) 2026 Wildfire Games.
  * This file is part of 0 A.D.
  *
  * 0 A.D. is free software: you can redistribute it and/or modify
@@ -19,7 +19,6 @@
 
 #include "ICmpFootprint.h"
 
-#include "lib/types.h"
 #include "maths/Fixed.h"
 #include "maths/FixedVector2D.h"
 #include "maths/FixedVector3D.h"
@@ -330,20 +329,20 @@ public:
 		entity_angle_t initialAngle = cmpPosition->GetRotation().Y;
 
 		// Max spawning distance + 1 (in meters)
-		const i32 maxSpawningDistance = 13;
+		const std::int32_t maxSpawningDistance = 13;
 
 		if (m_Shape == CIRCLE)
 		{
 			// Expand outwards from foundation with a fixed step of 1 meter
-			for (i32 dist = 0; dist <= maxSpawningDistance; ++dist)
+			for (std::int32_t dist = 0; dist <= maxSpawningDistance; ++dist)
 			{
 				// The spawn point should be far enough from this footprint to fit the unit, plus a little gap
 				entity_pos_t clearance = spawnedRadius + entity_pos_t::FromInt(1+dist);
 				entity_pos_t radius = m_Size0 + clearance;
 
 				// Try equally-spaced points around the circle in alternating directions, starting from the front
-				const i32 numPoints = 31 + 2*dist;
-				for (i32 i = 0; i < (numPoints+1)/2; i = (i > 0 ? -i : 1-i)) // [0, +1, -1, +2, -2, ... (np-1)/2, -(np-1)/2]
+				const std::int32_t numPoints = 31 + 2*dist;
+				for (std::int32_t i = 0; i < (numPoints+1)/2; i = (i > 0 ? -i : 1-i)) // [0, +1, -1, +2, -2, ... (np-1)/2, -(np-1)/2]
 				{
 					entity_angle_t angle = initialAngle + (entity_angle_t::Pi()*2).Multiply(entity_angle_t::FromInt(i)/(int)numPoints);
 
@@ -365,12 +364,12 @@ public:
 			sincos_approx(initialAngle, s, c);
 
 			// Expand outwards from foundation with a fixed step of 1 meter
-			for (i32 dist = 0; dist <= maxSpawningDistance; ++dist)
+			for (std::int32_t dist = 0; dist <= maxSpawningDistance; ++dist)
 			{
 				// The spawn point should be far enough from this footprint to fit the unit, plus a little gap
 				entity_pos_t clearance = spawnedRadius + entity_pos_t::FromInt(1+dist);
 
-				for (i32 edge = 0; edge < 4; ++edge)
+				for (std::int32_t edge = 0; edge < 4; ++edge)
 				{
 					// Compute the direction and length of the current edge
 					CFixedVector2D dir;
@@ -401,9 +400,9 @@ public:
 					sx = sx/2 + clearance;
 					sy = sy/2 + clearance;
 					// Try equally-spaced (1 meter) points along the edge in alternating directions, starting from the middle
-					i32 numPoints = 1 + 2*sx.ToInt_RoundToNearest();
+					std::int32_t numPoints = 1 + 2*sx.ToInt_RoundToNearest();
 					CFixedVector2D center = initialPos - dir.Perpendicular().Multiply(sy);
-					for (i32 i = 0; i < (numPoints+1)/2; i = (i > 0 ? -i : 1-i)) // [0, +1, -1, +2, -2, ... (np-1)/2, -(np-1)/2]
+					for (std::int32_t i = 0; i < (numPoints+1)/2; i = (i > 0 ? -i : 1-i)) // [0, +1, -1, +2, -2, ... (np-1)/2, -(np-1)/2]
 					{
 						CFixedVector2D pos (center + dir*i);
 

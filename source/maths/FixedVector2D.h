@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Wildfire Games.
+/* Copyright (C) 2026 Wildfire Games.
  * This file is part of 0 A.D.
  *
  * 0 A.D. is free software: you can redistribute it and/or modify
@@ -109,9 +109,9 @@ public:
 
 		u32 d = isqrt64(d2);
 
-		CheckU32CastOverflow(d, i32, L"Overflow in CFixedVector2D::Length() part 2")
+		CheckU32CastOverflow(d, std::int32_t, L"Overflow in CFixedVector2D::Length() part 2")
 		fixed r;
-		r.SetInternalValue(static_cast<i32>(d));
+		r.SetInternalValue(static_cast<std::int32_t>(d));
 		return r;
 	}
 
@@ -215,9 +215,9 @@ public:
 		i64 sum = x + y;
 		sum >>= fixed::fract_bits;
 
-		CheckCastOverflow(sum, i32, L"Overflow in CFixedVector2D::Dot() part 2", L"Underflow in CFixedVector2D::Dot() part 2")
+		CheckCastOverflow(sum, std::int32_t, L"Overflow in CFixedVector2D::Dot() part 2", L"Underflow in CFixedVector2D::Dot() part 2")
 		fixed ret;
-		ret.SetInternalValue(static_cast<i32>(sum));
+		ret.SetInternalValue(static_cast<std::int32_t>(sum));
 		return ret;
 	}
 

@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Wildfire Games.
+/* Copyright (C) 2026 Wildfire Games.
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -51,15 +51,15 @@ struct BmpHeader
 
 	// BITMAPINFOHEADER
 	u32 biSize;
-	i32 biWidth;
-	i32 biHeight;
+	std::int32_t biWidth;
+	std::int32_t biHeight;
 	u16 biPlanes;
 	u16 biBitCount;
 	u32 biCompression;
 	u32 biSizeImage;
 	// the following are unused and zeroed when writing:
-	i32 biXPelsPerMeter;
-	i32 biYPelsPerMeter;
+	std::int32_t biXPelsPerMeter;
+	std::int32_t biYPelsPerMeter;
 	u32 biClrUsed;
 	u32 biClrImportant;
 };
@@ -138,7 +138,8 @@ Status TexCodecBmp::encode(Tex* RESTRICT t, DynArray* RESTRICT da) const
 	const size_t hdr_size = sizeof(BmpHeader);	// needed for BITMAPFILEHEADER
 	const size_t img_size = t->img_size();
 	const size_t file_size = hdr_size + img_size;
-	const i32 h = (t->m_Flags & TEX_TOP_DOWN)? -(i32)t->m_Height : (i32)t->m_Height;
+	const std::int32_t h = (t->m_Flags & TEX_TOP_DOWN)? -static_cast<std::int32_t>(t->m_Height) :
+		static_cast<std::int32_t>(t->m_Height);
 
 	size_t transforms = t->m_Flags;
 	transforms &= ~TEX_ORIENTATION;	// no flip needed - we can set top-down bit.
@@ -154,7 +155,7 @@ Status TexCodecBmp::encode(Tex* RESTRICT t, DynArray* RESTRICT da) const
 
 		// BITMAPINFOHEADER
 		40,					// biSize = sizeof(BITMAPINFOHEADER)
-		(i32)t->m_Width,
+		static_cast<std::int32_t>(t->m_Width),
 		h,
 		1,					// biPlanes
 		(u16)t->m_Bpp,

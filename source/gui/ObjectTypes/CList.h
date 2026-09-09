@@ -25,7 +25,6 @@
 #include "gui/ObjectBases/IGUITextOwner.h"
 #include "gui/SettingTypes/CGUIColor.h"
 #include "gui/SettingTypes/CGUIList.h"
-#include "lib/types.h"
 #include "maths/Rect.h"
 #include "ps/CStr.h"
 
@@ -149,9 +148,9 @@ protected:
 	CGUISimpleSetting<CGUISpriteInstance> m_SpriteSelectAreaOverlay;
 	CGUISimpleSetting<CGUIColor> m_TextColor;
 	CGUISimpleSetting<CGUIColor> m_TextColorSelected;
-	CGUISimpleSetting<i32> m_Selected;
+	CGUISimpleSetting<std::int32_t> m_Selected;
 	CGUISimpleSetting<bool> m_AutoScroll;
-	CGUISimpleSetting<i32> m_Hovered;
+	CGUISimpleSetting<std::int32_t> m_Hovered;
 	CGUISimpleSetting<CGUIList> m_List;
 	CGUISimpleSetting<CGUIList> m_ListData;
 

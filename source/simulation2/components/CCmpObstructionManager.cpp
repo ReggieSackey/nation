@@ -237,7 +237,7 @@ public:
 
 		SerializeCommon(deserialize);
 
-		i32 size = ((m_WorldX1-m_WorldX0)/Pathfinding::NAVCELL_SIZE_INT).ToInt_RoundToInfinity();
+		std::int32_t size = ((m_WorldX1-m_WorldX0)/Pathfinding::NAVCELL_SIZE_INT).ToInt_RoundToInfinity();
 		m_UpdateInformations.dirtinessGrid = Grid<u8>(size, size);
 	}
 
@@ -268,7 +268,7 @@ public:
 		ENSURE(x0.IsZero() && z0.IsZero()); // don't bother implementing non-zero offsets yet
 		ResetSubdivisions(x1, z1);
 
-		i32 size = ((m_WorldX1-m_WorldX0)/Pathfinding::NAVCELL_SIZE_INT).ToInt_RoundToInfinity();
+		std::int32_t size = ((m_WorldX1-m_WorldX0)/Pathfinding::NAVCELL_SIZE_INT).ToInt_RoundToInfinity();
 		m_UpdateInformations.dirtinessGrid = Grid<u8>(size, size);
 
 		CmpPtr<ICmpPathfinder> cmpPathfinder(GetSystemEntity());

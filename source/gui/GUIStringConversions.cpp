@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Wildfire Games.
+/* Copyright (C) 2026 Wildfire Games.
  * This file is part of 0 A.D.
  *
  * 0 A.D. is free software: you can redistribute it and/or modify
@@ -51,7 +51,7 @@ bool CGUI::ParseString<bool>(const CGUI*, const CStrW& Value, bool& Output)
 }
 
 template <>
-bool CGUI::ParseString<i32>(const CGUI*, const CStrW& Value, int& Output)
+bool CGUI::ParseString<std::int32_t>(const CGUI*, const CStrW& Value, int& Output)
 {
 	Output = Value.ToInt();
 	return true;

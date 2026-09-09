@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Wildfire Games.
+/* Copyright (C) 2026 Wildfire Games.
  * This file is part of 0 A.D.
  *
  * 0 A.D. is free software: you can redistribute it and/or modify
@@ -73,7 +73,7 @@ public:
 	 * exclusive upper bound) have been changed. CMessageTerrainChanged will be
 	 * sent to any components that care about terrain changes.
 	 */
-	virtual void MakeDirty(i32 i0, i32 j0, i32 i1, i32 j1) = 0;
+	virtual void MakeDirty(std::int32_t i0, std::int32_t j0, std::int32_t i1, std::int32_t j1) = 0;
 
 	DECLARE_INTERFACE_TYPE(Terrain)
 };

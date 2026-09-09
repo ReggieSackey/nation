@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Wildfire Games.
+/* Copyright (C) 2026 Wildfire Games.
  * This file is part of 0 A.D.
  *
  * 0 A.D. is free software: you can redistribute it and/or modify
@@ -24,7 +24,6 @@
 #include "gui/ObjectTypes/CTooltip.h"
 #include "lib/debug.h"
 #include "lib/timer.h"
-#include "lib/types.h"
 #include "ps/CLogger.h"
 
 #include <string>
@@ -180,7 +179,7 @@ void GUITooltip::HideTooltip(const CStr& style, CGUI& pGUI)
 		tooltipobj->SetHidden(true);
 }
 
-static i32 GetTooltipDelay(const CStr& style, CGUI& pGUI)
+static std::int32_t GetTooltipDelay(const CStr& style, CGUI& pGUI)
 {
 	// Objects in __tooltip_ are guaranteed to be CTooltip* by the engine.
 	CTooltip* tooltipobj = static_cast<CTooltip*>(pGUI.FindObjectByName("__tooltip_" + style));

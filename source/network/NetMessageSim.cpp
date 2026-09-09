@@ -123,7 +123,8 @@ CSimulationMessage::CSimulationMessage(const Script::Interface& scriptInterface)
 	m_Data.init(rq.cx);
 }
 
-CSimulationMessage::CSimulationMessage(const Script::Interface& scriptInterface, u32 client, i32 player, u32 turn, JS::HandleValue data) :
+CSimulationMessage::CSimulationMessage(const Script::Interface& scriptInterface, u32 client,
+	std::int32_t player, u32 turn, JS::HandleValue data) :
 	CNetMessage(NMT_SIMULATION_COMMAND), m_ScriptInterface(scriptInterface),
 	m_Client(client), m_Player(player), m_Turn(turn)
 {

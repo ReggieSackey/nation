@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Wildfire Games.
+/* Copyright (C) 2026 Wildfire Games.
  * This file is part of 0 A.D.
  *
  * 0 A.D. is free software: you can redistribute it and/or modify
@@ -35,7 +35,8 @@ class CStrW;
 #endif
 
 #if MSC_VERSION
-// i32*i32 -> i64 multiply: MSVC x86 doesn't optimise i64 multiplies automatically, so use the intrinsic
+// std::int32_t * std::int32_t -> i64 multiply: MSVC x86 doesn't optimise i64 multiplies automatically, so
+// use the intrinsic
 #include <intrin.h>
 #define MUL_I64_I32_I32(a, b)\
 	(__emul((a), (b)))
@@ -298,7 +299,7 @@ public:
 	{
 		i64 t = (i64)value * n;
 		t = std::max((i64)std::numeric_limits<T>::min(), std::min((i64)std::numeric_limits<T>::max(), t));
-		return CFixed((i32)t);
+		return CFixed(static_cast<std::int32_t>(t));
 	}
 
 	/// Divide by an integer. Must not have n == 0. Cannot overflow unless n == -1.
@@ -370,7 +371,7 @@ private:
 /**
  * A fixed-point number class with 1-bit sign, 15-bit integral part, 16-bit fractional part.
  */
-typedef CFixed<i32, (i32)0x7fffffff, 32, 15, 16, 65536> CFixed_15_16;
+typedef CFixed<std::int32_t, static_cast<std::int32_t>(0x7fffffff), 32, 15, 16, 65536> CFixed_15_16;
 
 /**
  * Default fixed-point type used by the engine.

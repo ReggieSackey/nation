@@ -1,4 +1,4 @@
-/* Copyright (C) 2024 Wildfire Games.
+/* Copyright (C) 2026 Wildfire Games.
  * This file is part of 0 A.D.
  *
  * 0 A.D. is free software: you can redistribute it and/or modify
@@ -24,7 +24,6 @@
 #include "gui/SettingTypes/CGUIColor.h"
 #include "gui/SettingTypes/CGUIList.h"
 #include "lib/code_annotation.h"
-#include "lib/types.h"
 #include "ps/CStr.h"
 
 #include <string>
@@ -54,7 +53,7 @@ public:
 	CGUISimpleSetting<CStrW> m_Heading; // CGUIString??
 	CGUISimpleSetting<CGUIList> m_List;
 	CGUISimpleSetting<bool> m_Hidden;
-	CGUISimpleSetting<i32> m_SortOrder;
+	CGUISimpleSetting<std::int32_t> m_SortOrder;
 };
 
 /**
@@ -96,7 +95,7 @@ protected:
 	CGUISimpleSetting<CGUISpriteInstance> m_SpriteHeading;
 	CGUISimpleSetting<bool> m_Sortable;
 	CGUISimpleSetting<CStr> m_SelectedColumn;
-	CGUISimpleSetting<i32> m_SelectedColumnOrder;
+	CGUISimpleSetting<std::int32_t> m_SelectedColumnOrder;
 	CGUISimpleSetting<CGUISpriteInstance> m_SpriteAsc;
 	CGUISimpleSetting<CGUISpriteInstance> m_SpriteDesc;
 	CGUISimpleSetting<CGUISpriteInstance> m_SpriteNotSorted;

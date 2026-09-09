@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Wildfire Games.
+/* Copyright (C) 2026 Wildfire Games.
  * This file is part of 0 A.D.
  *
  * 0 A.D. is free software: you can redistribute it and/or modify
@@ -17,7 +17,6 @@
 
 #include "lib/self_test.h"
 
-#include "lib/types.h"
 #include "maths/Fixed.h"
 #include "maths/FixedVector3D.h"
 
@@ -62,12 +61,13 @@ public:
 		TS_ASSERT_EQUALS(v1.Length().ToDouble(), 13.0);
 
 		fixed max;
-		max.SetInternalValue((i32)0x7fffffff);
+		max.SetInternalValue(static_cast<std::int32_t>(0x7fffffff));
 		CFixedVector3D v2 (max, fixed::FromInt(0), fixed::FromInt(0));
 		TS_ASSERT_EQUALS(v2.Length().ToDouble(), max.ToDouble());
 
+		// largest value that shouldn't cause overflow
 		fixed large;
-		large.SetInternalValue((i32)((double)0x7fffffff/sqrt(3.0))+1); // largest value that shouldn't cause overflow
+		large.SetInternalValue(static_cast<std::int32_t>(static_cast<double>(0x7fffffff)/sqrt(3.0))+1);
 		CFixedVector3D v3 (large, large, large);
 		TS_ASSERT_DELTA(v3.Length().ToDouble(), sqrt(3.0)*large.ToDouble(), 0.01);
 	}
@@ -83,13 +83,14 @@ public:
 		TS_ASSERT_VEC_DELTA(v1, 3.0/13.0, 4.0/13.0, 12.0/13.0, 0.01);
 
 		fixed max;
-		max.SetInternalValue((i32)0x7fffffff);
+		max.SetInternalValue(static_cast<std::int32_t>(0x7fffffff));
 		CFixedVector3D v2 (max, fixed::FromInt(0), fixed::FromInt(0));
 		v2.Normalize();
 		TS_ASSERT_VEC_EQUALS(v2, 1.0, 0.0, 0.0);
 
+		// largest value that shouldn't cause overflow
 		fixed large;
-		large.SetInternalValue((i32)((double)0x7fffffff/sqrt(3.0))+1); // largest value that shouldn't cause overflow
+		large.SetInternalValue(static_cast<std::int32_t>(static_cast<double>(0x7fffffff)/sqrt(3.0))+1);
 		CFixedVector3D v3 (large, large, large);
 		v3.Normalize();
 		TS_ASSERT_VEC_DELTA(v3, 1.0/sqrt(3.0), 1.0/sqrt(3.0), 1.0/sqrt(3.0), 0.01);

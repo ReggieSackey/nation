@@ -48,7 +48,7 @@ struct PlayerAssignment
 	CStrW m_Name;
 
 	/// The player that the given host controls, or -1 if none (observer)
-	i32 m_PlayerID;
+	std::int32_t m_PlayerID;
 
 	/// Status - Ready or not: 0 for not ready, 1 for ready, 2 to stay ready
 	u8 m_Status;

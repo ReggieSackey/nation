@@ -964,8 +964,8 @@ std::vector<CFixedVector2D> CCmpPathfinder::DistributeAround(std::vector<entity_
 		{
 			// Helper to compute squared distance between two points as integers
 			auto distSq = [](const CFixedVector2D& p1, const CFixedVector2D& p2) -> u32 {
-				i32 dx = (p1.X - p2.X).ToInt_RoundToInfinity();
-				i32 dy = (p1.Y - p2.Y).ToInt_RoundToInfinity();
+				std::int32_t dx = (p1.X - p2.X).ToInt_RoundToInfinity();
+				std::int32_t dy = (p1.Y - p2.Y).ToInt_RoundToInfinity();
 				return dx*dx + dy*dy;
 			};
 

@@ -24,7 +24,6 @@
 #include "gui/ObjectBases/IGUITextOwner.h"
 #include "gui/SettingTypes/CGUIColor.h"
 #include "gui/SettingTypes/CGUIString.h"
-#include "lib/types.h"
 #include "maths/Vector2D.h"
 #include "ps/CStr.h"
 
@@ -42,7 +41,7 @@ public:
 	CTooltip(CGUI& pGUI);
 
 	const CStr& GetUsedObject() const { return m_UseObject; }
-	i32 GetTooltipDelay() const { return m_Delay; }
+	std::int32_t GetTooltipDelay() const { return m_Delay; }
 	bool ShouldHideObject() const { return m_HideObject; }
 	void SetMousePos(const CVector2D& vec) { m_MousePos.Set(vec, true); }
 
@@ -67,7 +66,7 @@ protected:
 	CGUISimpleSetting<CGUIString> m_Caption;
 	CGUISimpleSetting<CStrW> m_Font;
 	CGUISimpleSetting<CGUISpriteInstance> m_Sprite;
-	CGUISimpleSetting<i32> m_Delay;
+	CGUISimpleSetting<std::int32_t> m_Delay;
 	CGUISimpleSetting<CGUIColor> m_TextColor;
 	CGUISimpleSetting<float> m_MaxWidth;
 	CGUISimpleSetting<CVector2D> m_Offset;

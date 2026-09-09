@@ -282,7 +282,7 @@ JS::Value CStdDeserializer::ReadScriptVal(const char* /*name*/, JS::HandleObject
 	}
 	case SCRIPT_TYPE_BACKREF:
 	{
-		i32 tag;
+		std::int32_t tag;
 		NumberI32("tag", tag, 0, JSVAL_INT_MAX);
 		JS::RootedObject obj(rq.cx);
 		GetScriptBackref(tag, &obj);

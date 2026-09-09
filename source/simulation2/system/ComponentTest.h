@@ -250,7 +250,7 @@ public:
 		return nullptr;
 	}
 
-	void MakeDirty(i32 /*i0*/, i32 /*j0*/, i32 /*i1*/, i32 /*j1*/) override
+	void MakeDirty(std::int32_t /*i0*/, std::int32_t /*j0*/, std::int32_t /*i1*/, std::int32_t /*j1*/) override
 	{
 	}
 
