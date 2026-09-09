@@ -61,7 +61,6 @@ scope
 #define INCLUDED_LIB
 
 #include "lib/debug.h"
-#include "lib/types.h"
 
 #include <cmath>	// fabsf
 #include <limits>	// numeric_limits
@@ -113,12 +112,12 @@ inline bool IsSimilarMagnitude(double d1, double d2, const double relativeErrorT
 // note: these avoid a common mistake in using >> (ANSI requires
 // shift count be less than the bit width of the type).
 
-extern std::uint32_t u64_hi(u64 x);	/// return upper 32-bits
-extern std::uint32_t u64_lo(u64 x);	/// return lower 32-bits
+extern std::uint32_t u64_hi(std::uint64_t x);	/// return upper 32-bits
+extern std::uint32_t u64_lo(std::uint64_t x);	/// return lower 32-bits
 extern std::uint16_t u32_hi(std::uint32_t x);	/// return upper 16-bits
 extern std::uint16_t u32_lo(std::uint32_t x);	/// return lower 16-bits
 
-extern u64 u64_from_u32(std::uint32_t hi, std::uint32_t lo);	/// assemble u64 from std::uint32_t
+extern std::uint64_t u64_from_u32(std::uint32_t hi, std::uint32_t lo);	/// assemble std::uint64_t from std::uint32_t
 extern std::uint32_t u32_from_u16(std::uint16_t hi, std::uint16_t lo);	/// assemble std::uint32_t from std::uint16_t
 
 // safe downcasters: cast from any integral type to std::uint32_t or
@@ -134,7 +133,7 @@ extern std::uint32_t u32_from_u16(std::uint16_t hi, std::uint16_t lo);	/// assem
 template<typename T> std::uint8_t u8_from_larger(T x)
 {
 	const std::uint8_t max = std::numeric_limits<std::uint8_t>::max();
-	if((u64)x > (u64)max)
+	if(static_cast<std::uint64_t>(x) > static_cast<std::uint64_t>(max))
 		throw std::out_of_range("u8_from_larger");
 	return static_cast<std::uint8_t>(x & max);
 }
@@ -142,7 +141,7 @@ template<typename T> std::uint8_t u8_from_larger(T x)
 template<typename T> std::uint16_t u16_from_larger(T x)
 {
 	const std::uint16_t max = std::numeric_limits<std::uint16_t>::max();
-	if((u64)x > (u64)max)
+	if(static_cast<std::uint64_t>(x) > static_cast<std::uint64_t>(max))
 		throw std::out_of_range("u16_from_larger");
 	return static_cast<std::uint16_t>(x & max);
 }
@@ -150,7 +149,7 @@ template<typename T> std::uint16_t u16_from_larger(T x)
 template<typename T> std::uint32_t u32_from_larger(T x)
 {
 	const std::uint32_t max = std::numeric_limits<std::uint32_t>::max();
-	if((u64)x > (u64)max)
+	if(static_cast<std::uint64_t>(x) > static_cast<std::uint64_t>(max))
 		throw std::out_of_range("u32_from_larger");
 	return static_cast<std::uint32_t>(x & max);
 }

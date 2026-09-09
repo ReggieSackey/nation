@@ -849,7 +849,7 @@ static Status dump_sym_array(DWORD type_id, const std::uint8_t* p, DumpState& st
 // if the current value is a printable character, display in that form.
 // this isn't only done in btChar because characters are sometimes stored
 // in integers.
-static void AppendCharacterIfPrintable(u64 data)
+static void AppendCharacterIfPrintable(std::uint64_t data)
 {
 	if(data < 0x100)
 	{
@@ -870,12 +870,12 @@ static Status dump_sym_base_type(DWORD type_id, const std::uint8_t* p, DumpState
 		WARN_RETURN(ERR::SYM_TYPE_INFO_UNAVAILABLE);
 	const size_t size = (size_t)size64;
 
-	// single out() call. note: we pass a single u64 for all sizes,
+	// single out() call. note: we pass a single std::uint64_t for all sizes,
 	// which will only work on little-endian systems.
 	// must be declared before goto to avoid W4 warning.
 	const wchar_t* fmt = L"";
 
-	u64 data = movzx_le64(p, size);
+	std::uint64_t data = movzx_le64(p, size);
 	// if value is 0xCC..CC (uninitialized mem), we display as hex.
 	// the output would otherwise be garbage; this makes it obvious.
 	// note: be very careful to correctly handle size=0 (e.g. void*).

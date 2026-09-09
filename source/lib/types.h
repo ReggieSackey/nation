@@ -29,8 +29,6 @@
 
 #include <cstdint>
 
-typedef uint64_t u64;
-
 typedef unsigned int uint;
 
 #endif // #ifndef INCLUDED_TYPES

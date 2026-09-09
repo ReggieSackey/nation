@@ -27,8 +27,6 @@
 #ifndef INCLUDED_FNV_HASH
 #define INCLUDED_FNV_HASH
 
-#include "lib/types.h"
-
 #include <cstddef>
 
 /**
@@ -48,6 +46,6 @@
  **/
 extern std::uint32_t fnv_hash(const void* buf, size_t len = 0);
 /// 64-bit version of fnv_hash.
-extern u64 fnv_hash64(const void* buf, size_t len = 0);
+extern std::uint64_t fnv_hash64(const void* buf, size_t len = 0);
 
 #endif	// INCLUDED_FNV_HASH

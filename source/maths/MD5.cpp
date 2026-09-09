@@ -75,7 +75,7 @@ void MD5::UpdateRest(const std::uint8_t* data, size_t len)
 void MD5::Final(std::uint8_t* digest)
 {
 	// Compute the message length in bits (before padding)
-	u64 len = m_InputLen * 8;
+	std::uint64_t len = m_InputLen * 8;
 
 	// Pad with 1-bit
 	const std::uint8_t pad = 0x80;

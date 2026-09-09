@@ -19,7 +19,6 @@
 #define INCLUDED_MD5
 
 #include "lib/code_annotation.h"
-#include "lib/types.h"
 
 #include <cstring>
 
@@ -69,7 +68,7 @@ private:
 	std::uint32_t m_Digest[4]; // internal state
 	std::uint8_t m_Buf[64]; // buffered input bytes
 	size_t m_BufLen; // bytes in m_Buf that are valid
-	u64 m_InputLen; // bytes
+	std::uint64_t m_InputLen; // bytes
 };
 
 #endif // INCLUDED_MD5

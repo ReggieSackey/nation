@@ -51,13 +51,13 @@ std::uint32_t swap32(const std::uint32_t x)
 #endif
 
 #ifndef swap64
-u64 swap64(const u64 x)
+std::uint64_t swap64(const std::uint64_t x)
 {
 	const std::uint32_t lo = static_cast<std::uint32_t>(x & 0xFFFFFFFF);
 	const std::uint32_t hi = static_cast<std::uint32_t>(x >> 32);
-	u64 ret = swap32(lo);
+	std::uint64_t ret = swap32(lo);
 	ret <<= 32;
-	// careful: must shift var of type u64, not std::uint32_t
+	// careful: must shift var of type std::uint64_t, not std::uint32_t
 	ret |= swap32(hi);
 	return ret;
 }
@@ -81,9 +81,9 @@ std::uint32_t read_le32(const void* p)
 	return to_le32(n);
 }
 
-u64 read_le64(const void* p)
+std::uint64_t read_le64(const void* p)
 {
-	u64 n;
+	std::uint64_t n;
 	memcpy(&n, p, sizeof(n));
 	return to_le64(n);
 }
@@ -103,9 +103,9 @@ std::uint32_t read_be32(const void* p)
 	return to_be32(n);
 }
 
-u64 read_be64(const void* p)
+std::uint64_t read_be64(const void* p)
 {
-	u64 n;
+	std::uint64_t n;
 	memcpy(&n, p, sizeof(n));
 	return to_be64(n);
 }
@@ -123,9 +123,9 @@ void write_le32(void* p, std::uint32_t x)
 	memcpy(p, &n, sizeof(n));
 }
 
-void write_le64(void* p, u64 x)
+void write_le64(void* p, std::uint64_t x)
 {
-	u64 n = to_le64(x);
+	std::uint64_t n = to_le64(x);
 	memcpy(p, &n, sizeof(n));
 }
 
@@ -142,25 +142,25 @@ void write_be32(void* p, std::uint32_t x)
 	memcpy(p, &n, sizeof(n));
 }
 
-void write_be64(void* p, u64 x)
+void write_be64(void* p, std::uint64_t x)
 {
-	u64 n = to_be64(x);
+	std::uint64_t n = to_be64(x);
 	memcpy(p, &n, sizeof(n));
 }
 
 
-u64 movzx_le64(const std::uint8_t* p, size_t size_bytes)
+std::uint64_t movzx_le64(const std::uint8_t* p, size_t size_bytes)
 {
-	u64 number = 0;
+	std::uint64_t number = 0;
 	for(size_t i = 0; i < std::min(size_bytes, (size_t)8u); i++)
-		number |= ((u64)p[i]) << (i*8);
+		number |= static_cast<std::uint64_t>(p[i]) << (i*8);
 
 	return number;
 }
 
-u64 movzx_be64(const std::uint8_t* p, size_t size_bytes)
+std::uint64_t movzx_be64(const std::uint8_t* p, size_t size_bytes)
 {
-	u64 number = 0;
+	std::uint64_t number = 0;
 	for(size_t i = 0; i < std::min(size_bytes, (size_t)8u); i++)
 	{
 		number <<= 8;
@@ -171,18 +171,18 @@ u64 movzx_be64(const std::uint8_t* p, size_t size_bytes)
 }
 
 
-static inline std::int64_t SignExtend(u64 bits, size_t size_bytes)
+static inline std::int64_t SignExtend(std::uint64_t bits, size_t size_bytes)
 {
 	// no point in sign-extending if >= 8 bytes were requested
 	if(size_bytes < 8)
 	{
-		const u64 sign_bit = Bit<u64>((size_bytes*8)-1);
+		const std::uint64_t sign_bit = Bit<std::uint64_t>((size_bytes*8)-1);
 
 		// number would be negative in the smaller type,
 		// so sign-extend, i.e. set all more significant bits.
 		if(bits & sign_bit)
 		{
-			const u64 valid_bit_mask = (sign_bit+sign_bit)-1;
+			const std::uint64_t valid_bit_mask = (sign_bit+sign_bit)-1;
 			bits |= ~valid_bit_mask;
 		}
 	}
@@ -193,12 +193,12 @@ static inline std::int64_t SignExtend(u64 bits, size_t size_bytes)
 
 std::int64_t movsx_le64(const std::uint8_t* p, size_t size_bytes)
 {
-	const u64 number = movzx_le64(p, size_bytes);
+	const std::uint64_t number = movzx_le64(p, size_bytes);
 	return SignExtend(number, size_bytes);
 }
 
 std::int64_t movsx_be64(const std::uint8_t* p, size_t size_bytes)
 {
-	const u64 number = movzx_be64(p, size_bytes);
+	const std::uint64_t number = movzx_be64(p, size_bytes);
 	return SignExtend(number, size_bytes);
 }

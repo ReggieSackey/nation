@@ -373,7 +373,7 @@ static const char* IdentifierString()
 // miscellaneous stateless functions
 
 #if !MSC_VERSION	// ensure not already defined in header
-u64 rdtsc()
+std::uint64_t rdtsc()
 {
 #if GCC_VERSION
 	// GCC supports "portable" assembly for both x86 and x64
@@ -458,12 +458,12 @@ double ClockFrequency()
 	for(size_t i = 0; i < numSamples; i++)
 	{
 		double dt;
-		std::int64_t dc;	// (std::int64_t instead of u64 for faster conversion to double)
+		std::int64_t dc;	// (std::int64_t instead of std::uint64_t for faster conversion to double)
 
 		// count # of clocks in max{1 tick, 1 ms}:
 		// .. wait for start of tick.
 		const double t0 = timer_Time();
-		u64 c1; double t1;
+		std::uint64_t c1; double t1;
 		do
 		{
 			// note: timer_Time effectively has a long delay (up to 5 us)
@@ -480,7 +480,7 @@ double ClockFrequency()
 		do
 		{
 			const double t2 = timer_Time();
-			const u64 c2 = rdtsc();
+			const std::uint64_t c2 = rdtsc();
 			dc = static_cast<std::int64_t>(c2 - c1);
 			dt = t2 - t1;
 		}

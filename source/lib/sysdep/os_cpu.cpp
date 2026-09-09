@@ -31,7 +31,6 @@
 #include "lib/alignment.h"
 #include "lib/code_annotation.h"
 #include "lib/sysdep/os.h"
-#include "lib/types.h"
 
 #if OS_WIN
 # include "lib/sysdep/os/win/wcpu.h"

@@ -28,7 +28,6 @@
 #define INCLUDED_BYTE_ORDER
 
 #include "lib/sysdep/compiler.h"
-#include "lib/types.h"
 
 #include <cstddef>
 
@@ -102,29 +101,29 @@
 /// read a little-endian number from memory into native byte order.
 std::uint16_t read_le16(const void* p);
 std::uint32_t read_le32(const void* p);	/// see read_le16
-u64 read_le64(const void* p);	/// see read_le16
+std::uint64_t read_le64(const void* p);	/// see read_le16
 
 /// read a big-endian number from memory into native byte order.
 std::uint16_t read_be16(const void* p);
 std::uint32_t read_be32(const void* p);	/// see read_be16
-u64 read_be64(const void* p);	/// see read_be16
+std::uint64_t read_be64(const void* p);	/// see read_be16
 
 /// write a little-endian number to memory in native byte order.
 void write_le16(void* p, std::uint16_t x);
 void write_le32(void* p, std::uint32_t x);	/// see write_le16
-void write_le64(void* p, u64 x);	/// see write_le16
+void write_le64(void* p, std::uint64_t x);	/// see write_le16
 
 /// write a big-endian number to memory in native byte order.
 void write_be16(void* p, std::uint16_t x);
 void write_be32(void* p, std::uint32_t x);	/// see write_be16
-void write_be64(void* p, u64 x);	/// see write_be16
+void write_be64(void* p, std::uint64_t x);	/// see write_be16
 
 /**
- * zero-extend \<size\> (truncated to 8) bytes of little-endian data to u64,
- * starting at address \<p\> (need not be aligned).
+ * zero-extend \<size\> (truncated to 8) bytes of little-endian data to
+ * std::uint64_t, starting at address \<p\> (need not be aligned).
  **/
-u64 movzx_le64(const std::uint8_t* p, size_t size);
-u64 movzx_be64(const std::uint8_t* p, size_t size);
+std::uint64_t movzx_le64(const std::uint8_t* p, size_t size);
+std::uint64_t movzx_be64(const std::uint8_t* p, size_t size);
 
 /**
  * sign-extend \<size\> (truncated to 8) bytes of little-endian data to
@@ -164,7 +163,7 @@ std::uint16_t swap16(const std::uint16_t x);
 std::uint32_t swap32(const std::uint32_t x);
 #endif
 #ifndef swap64
-u64 swap64(const u64 x);
+std::uint64_t swap64(const std::uint64_t x);
 #endif
 
 #endif	// #ifndef INCLUDED_BYTE_ORDER

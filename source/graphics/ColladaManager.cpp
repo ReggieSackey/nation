@@ -25,7 +25,6 @@
 #include "lib/file/vfs/vfs_util.h"
 #include "lib/path.h"
 #include "lib/status.h"
-#include "lib/types.h"
 #include "maths/MD5.h"
 #include "ps/CLogger.h"
 #include "ps/CStr.h"
@@ -300,8 +299,8 @@ public:
 				}
 				else
 				{
-					m_skeletonHashes.push_back((u64)fileInfo.MTime() & ~1); //skip lowest bit, since zip and FAT don't preserve it
-					m_skeletonHashes.push_back((u64)fileInfo.Size());
+					m_skeletonHashes.push_back(static_cast<std::uint64_t>(fileInfo.MTime()) & ~1); //skip lowest bit, since zip and FAT don't preserve it
+					m_skeletonHashes.push_back(static_cast<std::uint64_t>(fileInfo.Size()));
 				}
 			}
 
@@ -313,14 +312,14 @@ public:
 			m_skeletonHashInvalidated = false;
 		}
 
-		for (const u64& h : m_skeletonHashes)
+		for (const std::uint64_t& h : m_skeletonHashes)
 			hash.Update(reinterpret_cast<const std::uint8_t*>(&h), sizeof(h));
 	}
 
 private:
 	PIVFS m_VFS;
 	bool m_skeletonHashInvalidated;
-	std::vector<u64> m_skeletonHashes;
+	std::vector<std::uint64_t> m_skeletonHashes;
 };
 
 CColladaManager::CColladaManager(const PIVFS& vfs)

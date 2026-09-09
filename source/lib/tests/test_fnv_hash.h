@@ -23,7 +23,6 @@
 #include "lib/self_test.h"
 
 #include "lib/fnv_hash.h"
-#include "lib/types.h"
 
 class TestFnvHash : public CxxTest::TestSuite
 {
@@ -36,7 +35,7 @@ public:
 		TS_ASSERT_EQUALS(fnv_hash("abcdef", 6), h1);	// same result if hashing buffer
 
 		TS_ASSERT_EQUALS(fnv_hash64(""), 0xCBF29CE484222325ull);	// verify initial value
-		const u64 h2 = fnv_hash64("abcdef");
+		const std::uint64_t h2 = fnv_hash64("abcdef");
 		TS_ASSERT_EQUALS(h2, 0xD80BDA3FBE244A0Aull);		// verify value for simple string
 		TS_ASSERT_EQUALS(fnv_hash64("abcdef", 6), h2);	// same result if hashing buffer
 	}

@@ -20,11 +20,11 @@
 #include "Sqrt.h"
 
 // Based on http://freaknet.org/martin/tape/gos/misc/personal/msc/sqrt/sqrt.html
-std::uint32_t isqrt64(u64 n)
+std::uint32_t isqrt64(std::uint64_t n)
 {
-	u64 op = n;
-	u64 res = 0;
-	u64 one = (u64)1 << 62; // highest power of four <= than the argument
+	std::uint64_t op = n;
+	std::uint64_t res = 0;
+	std::uint64_t one = static_cast<std::uint64_t>(1) << 62; // highest power of four <= than the argument
 
 	while (one > op)
 		one >>= 2;

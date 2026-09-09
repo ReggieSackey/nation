@@ -59,7 +59,7 @@ struct AcpiGenericAddress
 	std::uint8_t registerBitWidth;
 	std::uint8_t registerBitOffset;
 	std::uint8_t accessSize;
-	u64 address;
+	std::uint64_t address;
 };
 
 struct FADT	// signature is FACP!

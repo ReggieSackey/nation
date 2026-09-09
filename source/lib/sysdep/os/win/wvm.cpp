@@ -231,7 +231,7 @@ CACHE_ALIGNED(struct AddressRangeDescriptor)	// POD
 		base = AllocateLargeOrSmallPages(0, m_TotalSize, MEM_RESERVE);
 		if(!base)
 		{
-			debug_printf("AllocateLargeOrSmallPages of %lld failed\n", (u64)m_TotalSize);
+			debug_printf("AllocateLargeOrSmallPages of %lld failed\n", static_cast<std::uint64_t>(m_TotalSize));
 			DEBUG_DISPLAY_ERROR(ErrorString());
 			return ERR::NO_MEM;	// NOWARN (error string is more helpful)
 		}

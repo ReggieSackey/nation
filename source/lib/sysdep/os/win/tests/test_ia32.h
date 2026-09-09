@@ -34,9 +34,9 @@ public:
 	void test_rdtsc()
 	{
 		// must increase monotonously
-		const u64 c1 = x86_x64::rdtsc();
-		const u64 c2 = x86_x64::rdtsc();
-		const u64 c3 = x86_x64::rdtsc();
+		const std::uint64_t c1 = x86_x64::rdtsc();
+		const std::uint64_t c2 = x86_x64::rdtsc();
+		const std::uint64_t c3 = x86_x64::rdtsc();
 		TS_ASSERT(c1 < c2 && c2 < c3);
 	}
 

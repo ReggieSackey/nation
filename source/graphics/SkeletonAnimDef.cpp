@@ -39,7 +39,8 @@ std::uint32_t g_NextSkeletonDefUID = 1;
 CSkeletonAnimDef::CSkeletonAnimDef() : m_FrameTime(0), m_NumKeys(0), m_NumFrames(0)
 {
 	m_UID = g_NextSkeletonDefUID++;
-	// Log a warning if we ever overflow. Should that not result from a bug, bumping to u64 ought to suffice.
+	// Log a warning if we ever overflow. Should that not result from a bug, bumping to std::uint64_t
+	// ought to suffice.
 	if (g_NextSkeletonDefUID == 0)
 	{
 		// Reset to 1.

@@ -24,7 +24,6 @@
 #include "graphics/Overlay.h"
 #include "lib/debug.h"
 #include "lib/posix/posix_types.h"
-#include "lib/types.h"
 #include "maths/Fixed.h"
 #include "maths/FixedVector2D.h"
 #include "maths/FixedVector3D.h"
@@ -210,8 +209,8 @@ struct Query
  */
 static bool InParabolicRange(CFixedVector3D v, fixed range)
 {
-	u64 xx = SQUARE_U64_FIXED(v.X); // xx <= 2^62
-	u64 zz = SQUARE_U64_FIXED(v.Z);
+	std::uint64_t xx = SQUARE_U64_FIXED(v.X); // xx <= 2^62
+	std::uint64_t zz = SQUARE_U64_FIXED(v.Z);
 	std::int64_t d2 = (xx + zz) >> 1; // d2 <= 2^62 (no overflow)
 
 	std::int32_t y = v.Y.GetInternalValue();
@@ -1547,7 +1546,7 @@ public:
 			return r;
 
 		// angle = 0 goes in the positive Z direction
-		u64 precisionSquared = SQUARE_U64_FIXED(PARABOLIC_RANGE_TOLERANCE);
+		std::uint64_t precisionSquared = SQUARE_U64_FIXED(PARABOLIC_RANGE_TOLERANCE);
 
 		CmpPtr<ICmpWaterManager> cmpWaterManager(GetSystemEntity());
 		entity_pos_t waterLevel = cmpWaterManager ? cmpWaterManager->GetWaterLevel(pos.X, pos.Z) : entity_pos_t::Zero();

@@ -129,8 +129,8 @@ VfsPath CCacheLoader::LooseCachePath(const VfsPath& sourcePath, const MD5& initi
 		return VfsPath();
 	}
 
-	u64 mtime = (u64)fileInfo.MTime() & ~1; // skip lowest bit, since zip and FAT don't preserve it
-	u64 size = (u64)fileInfo.Size();
+	std::uint64_t mtime = static_cast<std::uint64_t>(fileInfo.MTime()) & ~1; // skip lowest bit, since zip and FAT don't preserve it
+	std::uint64_t size = static_cast<std::uint64_t>(fileInfo.Size());
 
 	// Construct a hash of the file data and settings.
 

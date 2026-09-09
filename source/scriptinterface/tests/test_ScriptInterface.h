@@ -18,7 +18,6 @@
 #include "lib/self_test.h"
 
 #include "lib/path.h"
-#include "lib/types.h"
 #include "ps/CLogger.h"
 #include "scriptinterface/FunctionWrapper.h"
 #include "scriptinterface/JSON.h"
@@ -247,11 +246,11 @@ public:
 
 		boost::rand48 rng;
 		script.ReplaceNondeterministicRNG(rng);
-		rng.seed((u64)0);
+		rng.seed(static_cast<std::uint64_t>(0));
 		TS_ASSERT(script.Eval("Math.random()", d1));
 		TS_ASSERT(script.Eval("Math.random()", d2));
 		TS_ASSERT_DIFFERS(d1, d2);
-		rng.seed((u64)0);
+		rng.seed(static_cast<std::uint64_t>(0));
 		TS_ASSERT(script.Eval("Math.random()", d2));
 		TS_ASSERT_EQUALS(d1, d2);
 	}

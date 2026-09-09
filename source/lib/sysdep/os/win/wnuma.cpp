@@ -181,11 +181,11 @@ struct AffinityMemory
 	AffinityHeader header;
 	std::uint32_t proximityDomainNumber;
 	std::uint16_t reserved1;
-	u64 baseAddress;
-	u64 length;
+	std::uint64_t baseAddress;
+	std::uint64_t length;
 	std::uint32_t reserved2;
 	std::uint32_t flags;
-	u64 reserved3;
+	std::uint64_t reserved3;
 };
 
 // AffinityX2APIC omitted, since the APIC ID is sufficient for our purposes
@@ -363,7 +363,7 @@ size_t numa_AvailableMemory(size_t node)
 struct SLIT
 {
 	AcpiTable header;
-	u64 numSystemLocalities;
+	std::uint64_t numSystemLocalities;
 	std::uint8_t entries[1];		// numSystemLocalities*numSystemLocalities entries
 };
 

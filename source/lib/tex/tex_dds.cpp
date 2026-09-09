@@ -40,7 +40,6 @@
 #include "lib/status.h"
 #include "lib/tex/tex.h"
 #include "lib/tex/tex_internal.h"
-#include "lib/types.h"
 
 #include <algorithm>
 #include <bit>
@@ -224,7 +223,7 @@ private:
 	std::uint8_t dxt5_a_tbl[8];
 
 	// alpha block; interpretation depends on dxt.
-	u64 a_bits;
+	std::uint64_t a_bits;
 
 	// table of 2-bit color selectors
 	std::uint32_t c_selectors;

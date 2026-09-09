@@ -18,7 +18,6 @@
 #ifndef INCLUDED_FIXED_VECTOR2D
 #define INCLUDED_FIXED_VECTOR2D
 
-#include "lib/types.h"
 #include "maths/Fixed.h"
 #include "maths/Sqrt.h"
 
@@ -102,9 +101,9 @@ public:
 	fixed Length() const
 	{
 		// Do intermediate calculations with 64-bit ints to avoid overflows
-		u64 xx = SQUARE_U64_FIXED(X);
-		u64 yy = SQUARE_U64_FIXED(Y);
-		u64 d2 = xx + yy;
+		std::uint64_t xx = SQUARE_U64_FIXED(X);
+		std::uint64_t yy = SQUARE_U64_FIXED(Y);
+		std::uint64_t d2 = xx + yy;
 		CheckUnsignedAdditionOverflow(d2, xx, L"Overflow in CFixedVector2D::Length() part 1")
 
 		std::uint32_t d = isqrt64(d2);
@@ -122,8 +121,8 @@ public:
 	 */
 	int CompareLength(fixed cmp) const
 	{
-		u64 d2 = SQUARE_U64_FIXED(X) + SQUARE_U64_FIXED(Y); // d2 <= 2^63 (no overflow)
-		u64 cmpSquared = SQUARE_U64_FIXED(cmp);
+		std::uint64_t d2 = SQUARE_U64_FIXED(X) + SQUARE_U64_FIXED(Y); // d2 <= 2^63 (no overflow)
+		std::uint64_t cmpSquared = SQUARE_U64_FIXED(cmp);
 
 		if (d2 < cmpSquared)
 			return -1;
@@ -138,9 +137,9 @@ public:
 	 * Same as above, but avoids squaring the compared value.
 	 * The argument must be the result of an SQUARE_U64_FIXED operation.
 	 */
-	int CompareLengthSquared(u64 cmpSquared) const
+	int CompareLengthSquared(std::uint64_t cmpSquared) const
 	{
-		u64 d2 = SQUARE_U64_FIXED(X) + SQUARE_U64_FIXED(Y); // d2 <= 2^63 (no overflow)
+		std::uint64_t d2 = SQUARE_U64_FIXED(X) + SQUARE_U64_FIXED(Y); // d2 <= 2^63 (no overflow)
 
 		if (d2 < cmpSquared)
 			return -1;
@@ -158,8 +157,8 @@ public:
 	 */
 	int CompareLength(const CFixedVector2D& other) const
 	{
-		u64 d2 = SQUARE_U64_FIXED(X) + SQUARE_U64_FIXED(Y);
-		u64 od2 = SQUARE_U64_FIXED(other.X) + SQUARE_U64_FIXED(other.Y);
+		std::uint64_t d2 = SQUARE_U64_FIXED(X) + SQUARE_U64_FIXED(Y);
+		std::uint64_t od2 = SQUARE_U64_FIXED(other.X) + SQUARE_U64_FIXED(other.Y);
 
 		if (d2 < od2)
 			return -1;

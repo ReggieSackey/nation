@@ -74,7 +74,7 @@ CFixed_15_16 CFixed_15_16::FromString(const CStr8& s)
 				}
 			}
 			// too many digits or invalid character or end of string - add the fractional part and stop
-			r += CFixed_15_16(((u64)frac << 16) / div);
+			r += CFixed_15_16((static_cast<std::uint64_t>(frac) << 16) / div);
 			break;
 		}
 		else
@@ -120,18 +120,18 @@ CStr8 CFixed_15_16::ToString() const
 			div *= 10;
 
 			// Low estimate of d such that ((frac+d)<<16)/div == fraction
-			std::uint32_t digit = (((u64)fraction*div) >> 16) - frac;
+			std::uint32_t digit = ((static_cast<std::uint64_t>(fraction) * div) >> 16) - frac;
 			frac += digit;
 
 			// If this gives the exact target, then add the digit and stop
-			if (((u64)frac << 16) / div == fraction)
+			if ((static_cast<std::uint64_t>(frac) << 16) / div == fraction)
 			{
 				builder.Append(digit);
 				break;
 			}
 
 			// If the next higher digit gives the exact target, then add that digit and stop
-			if (digit <= 8 && (((u64)frac+1) << 16) / div == fraction)
+			if (digit <= 8 && ((static_cast<std::uint64_t>(frac) + 1) << 16) / div == fraction)
 			{
 				builder.Append(digit+1);
 				break;

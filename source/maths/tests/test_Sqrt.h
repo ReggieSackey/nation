@@ -17,7 +17,6 @@
 
 #include "lib/self_test.h"
 
-#include "lib/types.h"
 #include "maths/Sqrt.h"
 
 #include <cmath>
@@ -29,12 +28,12 @@ class TestSqrt : public CxxTest::TestSuite
 public:
 	void t(std::uint32_t n)
 	{
-		TS_ASSERT_EQUALS(isqrt64((u64)n*(u64)n), n);
+		TS_ASSERT_EQUALS(isqrt64(static_cast<std::uint64_t>(n) * static_cast<std::uint64_t>(n)), n);
 	}
 
-	void s(u64 n, u64 exp)
+	void s(std::uint64_t n, std::uint64_t exp)
 	{
-		TS_ASSERT_EQUALS((u64)isqrt64(n), exp);
+		TS_ASSERT_EQUALS(static_cast<std::uint64_t>(isqrt64(n)), exp);
 	}
 
 	void test_sqrt()
@@ -68,21 +67,21 @@ public:
 		s(999999, 999);
 		s(1000000, 1000);
 		s(1000001, 1000);
-		s((u64)-1, 4294967295u);
+		s(static_cast<std::uint64_t>(-1), 4294967295u);
 	}
 
 	void test_random()
 	{
-		// Test with some random u64s, to make sure the output agrees with floor(sqrt(double))
+		// Test with some random std::uint64_ts, to make sure the output agrees with floor(sqrt(double))
 		// (TODO: This might be making non-portable assumptions about sqrt(double))
 
 		std::mt19937 rng;
-		std::uniform_int_distribution<u64> ints(0, (u64)-1);
+		std::uniform_int_distribution<std::uint64_t> ints(0, static_cast<std::uint64_t>(-1));
 
 		for (size_t i = 0; i < 1024; ++i)
 		{
-			u64 n = ints(rng);
-			s(n, static_cast<u64>(sqrt(static_cast<double>(n))));
+			std::uint64_t n = ints(rng);
+			s(n, static_cast<std::uint64_t>(sqrt(static_cast<double>(n))));
 		}
 	}
 };

@@ -23,7 +23,6 @@
 #include "lib/self_test.h"
 
 #include "lib/bits.h"
-#include "lib/types.h"
 
 //#define EQUALS(actual, expected) ENSURE((actual) == (expected))
 #define EQUALS TS_ASSERT_EQUALS
@@ -36,9 +35,9 @@ public:
 		EQUALS(Bit<unsigned>(0), 1u);
 		EQUALS(Bit<unsigned>(8), 0x100u);
 		EQUALS(Bit<std::uint32_t>(31), static_cast<std::uint32_t>(0x80000000ul));
-		EQUALS(Bit<u64>(1), u64(2));
-		EQUALS(Bit<u64>(32), u64(0x100000000ull));
-		EQUALS(Bit<u64>(63), u64(0x8000000000000000ull));
+		EQUALS(Bit<std::uint64_t>(1), static_cast<std::uint64_t>(2));
+		EQUALS(Bit<std::uint64_t>(32), static_cast<std::uint64_t>(0x100000000ull));
+		EQUALS(Bit<std::uint64_t>(63), static_cast<std::uint64_t>(0x8000000000000000ull));
 	}
 
 	void test_IsBitSet()
@@ -48,10 +47,10 @@ public:
 		EQUALS(IsBitSet(2u, 1), true);
 		EQUALS(IsBitSet<std::uint32_t>(0xFFFFFFFFul, 0), true);
 		EQUALS(IsBitSet<std::uint32_t>(0xFFFFFFFFul, 31), true);
-		EQUALS(IsBitSet<u64>(0xFFFFFFFFFFFFFFFFull, 0), true);
-		EQUALS(IsBitSet<u64>(0xFFFFFFFFFFFFFFFFull, 31), true);
-		EQUALS(IsBitSet<u64>(0xFFFFFFFFFFFFFFFFull, 32), true);
-		EQUALS(IsBitSet<u64>(0xFFFFFFFFFFFFFFFFull, 63), true);
+		EQUALS(IsBitSet<std::uint64_t>(0xFFFFFFFFFFFFFFFFull, 0), true);
+		EQUALS(IsBitSet<std::uint64_t>(0xFFFFFFFFFFFFFFFFull, 31), true);
+		EQUALS(IsBitSet<std::uint64_t>(0xFFFFFFFFFFFFFFFFull, 32), true);
+		EQUALS(IsBitSet<std::uint64_t>(0xFFFFFFFFFFFFFFFFull, 63), true);
 	}
 
 	void test_bit_mask()
@@ -62,10 +61,10 @@ public:
 		EQUALS(bit_mask<std::uint32_t>(0), 0u);
 		EQUALS(bit_mask<std::uint32_t>(2), 0x3u);
 		EQUALS(bit_mask<std::uint32_t>(32), 0xFFFFFFFFul);
-		EQUALS(bit_mask<u64>(0), 0u);
-		EQUALS(bit_mask<u64>(2), 0x3u);
-		EQUALS(bit_mask<u64>(32), 0xFFFFFFFFull);
-		EQUALS(bit_mask<u64>(64), 0xFFFFFFFFFFFFFFFFull);
+		EQUALS(bit_mask<std::uint64_t>(0), 0u);
+		EQUALS(bit_mask<std::uint64_t>(2), 0x3u);
+		EQUALS(bit_mask<std::uint64_t>(32), 0xFFFFFFFFull);
+		EQUALS(bit_mask<std::uint64_t>(64), 0xFFFFFFFFFFFFFFFFull);
 	}
 
 	void test_bits()
@@ -78,11 +77,11 @@ public:
 		EQUALS(bits<std::uint16_t>(0xAA55, 14, 15), 0x2);
 		EQUALS(bits<std::uint32_t>(0ul, 0, 31), 0ul);
 		EQUALS(bits<std::uint32_t>(0xFFFFFFFFul, 0, 31), 0xFFFFFFFFul);
-		EQUALS(bits<u64>(0ull, 0, 63), 0ull);
-		EQUALS(bits<u64>(0xFFFFFFFFull, 0, 31), 0xFFFFFFFFull);
-		EQUALS(bits<u64>(0x0000FFFFFFFF0000ull, 16, 47), 0xFFFFFFFFull);
-		EQUALS(bits<u64>(0xFFFFFFFFFFFFFFFFull, 0, 63), 0xFFFFFFFFFFFFFFFFull);
-		EQUALS(bits<u64>(0xA5A5A5A5A5A5A5A5ull, 32, 63), 0xA5A5A5A5ull);
+		EQUALS(bits<std::uint64_t>(0ull, 0, 63), 0ull);
+		EQUALS(bits<std::uint64_t>(0xFFFFFFFFull, 0, 31), 0xFFFFFFFFull);
+		EQUALS(bits<std::uint64_t>(0x0000FFFFFFFF0000ull, 16, 47), 0xFFFFFFFFull);
+		EQUALS(bits<std::uint64_t>(0xFFFFFFFFFFFFFFFFull, 0, 63), 0xFFFFFFFFFFFFFFFFull);
+		EQUALS(bits<std::uint64_t>(0xA5A5A5A5A5A5A5A5ull, 32, 63), 0xA5A5A5A5ull);
 	}
 
 	void test_round_up()

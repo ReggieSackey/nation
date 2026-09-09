@@ -31,7 +31,6 @@
 #include "lib/sysdep/filesystem.h"
 #include "lib/sysdep/os.h"
 #include "lib/sysdep/sysdep.h"
-#include "lib/types.h"
 
 #include <climits>
 #include <cstdio>
@@ -45,7 +44,7 @@ class TestSysdep : public CxxTest::TestSuite
 public:
 	void test_random()
 	{
-		u64 a = 0, b = 0;
+		std::uint64_t a = 0, b = 0;
 		TS_ASSERT_OK(sys_generate_random_bytes(reinterpret_cast<std::uint8_t*>(&a), sizeof(a)));
 		TS_ASSERT_OK(sys_generate_random_bytes(reinterpret_cast<std::uint8_t*>(&b), sizeof(b)));
 		TS_ASSERT_DIFFERS(a, b);

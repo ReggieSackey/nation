@@ -26,7 +26,6 @@
 #include "lib/posix/posix_types.h"
 #include "lib/status.h"
 #include "lib/sysdep/filesystem.h"
-#include "lib/types.h"
 #include "network/NetClient.h"
 #include "network/NetServer.h"
 #include "ps/CLogger.h"
@@ -138,7 +137,7 @@ JS::HandleObject VisualReplay::ReloadReplayCache(const Script::Interface& script
 	Script::Request rq(scriptInterface);
 
 	// Maps the filename onto the index, mtime and size
-	using replayCacheMap = std::map<OsPath, std::tuple<std::uint32_t, u64, off_t>>;
+	using replayCacheMap = std::map<OsPath, std::tuple<std::uint32_t, std::uint64_t, off_t>>;
 
 	replayCacheMap fileList;
 
@@ -196,8 +195,11 @@ JS::HandleObject VisualReplay::ReloadReplayCache(const Script::Interface& script
 					continue;
 				CFileInfo fileInfo;
 				GetFileInfo(replayFile, &fileInfo);
-				if ((u64)fileInfo.MTime() == std::get<1>(it->second) && (off_t)fileInfo.Size() == std::get<2>(it->second))
+				if (static_cast<std::uint64_t>(fileInfo.MTime()) == std::get<1>(it->second) &&
+					(off_t)fileInfo.Size() == std::get<2>(it->second))
+				{
 					isNew = false;
+				}
 			}
 			else
 				isNew = false;

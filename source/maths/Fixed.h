@@ -20,7 +20,6 @@
 
 #include "lib/debug.h"
 #include "lib/sysdep/compiler.h"
-#include "lib/types.h"
 #include "maths/Sqrt.h"
 
 #include <algorithm>
@@ -41,12 +40,13 @@ class CStrW;
 #define MUL_I64_I32_I32(a, b)\
 	(__emul((a), (b)))
 #define SQUARE_U64_FIXED(a)\
-	static_cast<u64>(__emul((a).GetInternalValue(), (a).GetInternalValue()))
+	static_cast<std::uint64_t>(__emul((a).GetInternalValue(), (a).GetInternalValue()))
 #else
 #define MUL_I64_I32_I32(a, b)\
 	static_cast<std::int64_t>(a) * static_cast<std::int64_t>(b)
 #define SQUARE_U64_FIXED(a)\
-	static_cast<u64>(static_cast<std::int64_t>((a).GetInternalValue()) * static_cast<std::int64_t>((a).GetInternalValue()))
+	static_cast<std::uint64_t>(static_cast<std::int64_t>((a).GetInternalValue()) * \
+		static_cast<std::int64_t>((a).GetInternalValue()))
 #endif
 
 //define overflow macros
@@ -359,7 +359,7 @@ public:
 	{
 		if (value <= 0)
 			return CFixed(0);
-		std::uint32_t s = isqrt64((u64)value << fract_bits);
+		std::uint32_t s = isqrt64(static_cast<std::uint64_t>(value) << fract_bits);
 		return CFixed(s);
 	}
 

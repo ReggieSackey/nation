@@ -18,7 +18,6 @@
 #ifndef INCLUDED_FIXED_VECTOR3D
 #define INCLUDED_FIXED_VECTOR3D
 
-#include "lib/types.h"
 #include "maths/Fixed.h"
 #include "maths/Sqrt.h"
 
@@ -83,13 +82,13 @@ public:
 	fixed Length() const
 	{
 		// Do intermediate calculations with 64-bit ints to avoid overflows
-		u64 xx = SQUARE_U64_FIXED(X);
-		u64 yy = SQUARE_U64_FIXED(Y);
-		u64 zz = SQUARE_U64_FIXED(Z);
-		u64 t = xx + yy;
+		std::uint64_t xx = SQUARE_U64_FIXED(X);
+		std::uint64_t yy = SQUARE_U64_FIXED(Y);
+		std::uint64_t zz = SQUARE_U64_FIXED(Z);
+		std::uint64_t t = xx + yy;
 		CheckUnsignedAdditionOverflow(t, xx, L"Overflow in CFixedVector3D::Length() part 1")
 
-		u64 d2 = t + zz;
+		std::uint64_t d2 = t + zz;
 		CheckUnsignedAdditionOverflow(d2, t, L"Overflow in CFixedVector3D::Length() part 2")
 
 		std::uint32_t d = isqrt64(d2);

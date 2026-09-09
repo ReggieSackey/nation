@@ -29,7 +29,6 @@
 
 #include "lib/sysdep/arch.h"
 #include "lib/sysdep/compiler.h"
-#include "lib/types.h"
 
 #include <cstddef>
 
@@ -163,9 +162,9 @@ void GetCapBits(std::uint32_t* d0, std::uint32_t* d1, std::uint32_t* d2, std::ui
  * - x64 RDTSC writes to edx:eax and clears the upper halves of rdx and rax.
  **/
 #if MSC_VERSION
-static inline u64 rdtsc() { return __rdtsc(); }
+static inline std::uint64_t rdtsc() { return __rdtsc(); }
 #else
-u64 rdtsc();
+std::uint64_t rdtsc();
 #endif
 
 /**

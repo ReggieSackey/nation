@@ -53,7 +53,8 @@ Status GetFileInfo(const OsPath& pathname, CFileInfo* pPtrInfo)
 	try
 	{
 		const std::filesystem::path path{pathname.string()};
-		*pPtrInfo = CFileInfo(path.filename().wstring(), static_cast<u64>(std::filesystem::file_size(path)),
+		*pPtrInfo = CFileInfo(path.filename().wstring(),
+			static_cast<std::uint64_t>(std::filesystem::file_size(path)),
 			static_cast<time_t>(std::chrono::duration_cast<std::chrono::seconds>(std::filesystem::last_write_time(path).time_since_epoch()).count()));
 	}
 	catch (std::filesystem::filesystem_error& err)
@@ -76,7 +77,8 @@ Status GetDirectoryEntries(const OsPath& path, CFileInfos* files, DirectoryNames
 			}
 			else if (entry.is_regular_file() && files)
 			{
-				files->emplace_back(entry.path().filename().wstring(), static_cast<u64>(entry.file_size()),
+				files->emplace_back(entry.path().filename().wstring(),
+					static_cast<std::uint64_t>(entry.file_size()),
 					static_cast<time_t>(std::chrono::duration_cast<std::chrono::seconds>(entry.last_write_time().time_since_epoch()).count()));
 			}
 		}

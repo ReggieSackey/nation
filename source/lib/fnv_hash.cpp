@@ -62,9 +62,9 @@ std::uint32_t fnv_hash(const void* buf, size_t len)
 // FNV1-A hash - good for strings.
 // if len = 0 (default), treat buf as a C-string;
 // otherwise, hash <len> bytes of buf.
-u64 fnv_hash64(const void* buf, size_t len)
+std::uint64_t fnv_hash64(const void* buf, size_t len)
 {
-	u64 h = 0xCBF29CE484222325ull;
+	std::uint64_t h = 0xCBF29CE484222325ull;
 	// give distinct values for different length 0 buffers.
 	// value taken from FNV; it has no special significance.
 
