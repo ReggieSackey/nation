@@ -25,7 +25,6 @@
 #include "graphics/Color.h"
 #include "graphics/Texture.h"
 #include "lib/posix/posix_types.h"
-#include "lib/types.h"
 #include "maths/Matrix3D.h"
 #include "renderer/VertexBufferManager.h"
 
@@ -78,10 +77,10 @@ public:
 	std::unique_ptr<Renderer::Backend::ITexture> m_RefrFboDepthTexture;
 
 	// used to know what to update when updating parts of the terrain only.
-	u32 m_updatei0;
-	u32 m_updatej0;
-	u32 m_updatei1;
-	u32 m_updatej1;
+	std::uint32_t m_updatei0;
+	std::uint32_t m_updatej0;
+	std::uint32_t m_updatei1;
+	std::uint32_t m_updatej1;
 
 	bool m_RenderWater;
 

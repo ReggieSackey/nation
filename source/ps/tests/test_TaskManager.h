@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Wildfire Games.
+/* Copyright (C) 2026 Wildfire Games.
  * This file is part of 0 A.D.
  *
  * 0 A.D. is free software: you can redistribute it and/or modify
@@ -17,7 +17,6 @@
 
 #include "lib/self_test.h"
 
-#include "lib/types.h"
 #include "ps/Future.h"
 #include "ps/TaskManager.h"
 
@@ -89,20 +88,20 @@ public:
 #define ITERATIONS 100000
 		std::vector<Future<int>> futures;
 		futures.resize(ITERATIONS);
-		std::vector<u32> values(ITERATIONS);
+		std::vector<std::uint32_t> values(ITERATIONS);
 
 		Future f1{g_TaskManager, [&futures]{
-			for (u32 i = 0; i < ITERATIONS; i+=3)
+			for (std::uint32_t i = 0; i < ITERATIONS; i+=3)
 				futures[i] = {g_TaskManager, []{ return 5; }};
 		}};
 
 		Future f2{g_TaskManager, [&futures]{
-			for (u32 i = 1; i < ITERATIONS; i+=3)
+			for (std::uint32_t i = 1; i < ITERATIONS; i+=3)
 				futures[i] = {g_TaskManager, []{ return 5; }, Threading::TaskPriority::LOW};
 		}};
 
 		Future f3{g_TaskManager, [&futures]{
-			for (u32 i = 2; i < ITERATIONS; i+=3)
+			for (std::uint32_t i = 2; i < ITERATIONS; i+=3)
 				futures[i] = {g_TaskManager, []{ return 5; }};
 		}};
 

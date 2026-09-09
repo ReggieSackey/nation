@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Wildfire Games.
+/* Copyright (C) 2026 Wildfire Games.
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -49,10 +49,10 @@ namespace x86_x64 {
 #pragma pack(push, 1)	// (allows casting to int*)
 struct CpuidRegs
 {
-	u32 eax;
-	u32 ebx;
-	u32 ecx;
-	u32 edx;
+	std::uint32_t eax;
+	std::uint32_t ebx;
+	std::uint32_t ecx;
+	std::uint32_t edx;
 };
 #pragma pack(pop)
 
@@ -147,7 +147,7 @@ enum Caps
  **/
 bool Cap(Caps cap);
 
-void GetCapBits(u32* d0, u32* d1, u32* d2, u32* d3);
+void GetCapBits(std::uint32_t* d0, std::uint32_t* d1, std::uint32_t* d2, std::uint32_t* d3);
 
 
 //-----------------------------------------------------------------------------

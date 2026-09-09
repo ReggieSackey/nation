@@ -26,7 +26,6 @@
 #include "gui/SettingTypes/CGUIList.h"
 #include "gui/SettingTypes/CGUISeries.h"
 #include "gui/SettingTypes/CGUIString.h"
-#include "lib/types.h"
 #include "maths/Vector2D.h"
 #include "ps/CLogger.h"
 #include "ps/CStr.h"
@@ -120,7 +119,7 @@ void CGUISimpleSetting<T>::ToJSVal(const Script::Request& rq, JS::MutableHandleV
 
 TYPE(bool)
 TYPE(std::int32_t)
-TYPE(u32)
+TYPE(std::uint32_t)
 TYPE(float)
 TYPE(CVector2D)
 TYPE(CStr)

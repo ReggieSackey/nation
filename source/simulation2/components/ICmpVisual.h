@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Wildfire Games.
+/* Copyright (C) 2026 Wildfire Games.
  * This file is part of 0 A.D.
  *
  * 0 A.D. is free software: you can redistribute it and/or modify
@@ -21,7 +21,6 @@
 #include "simulation2/system/Interface.h"
 
 #include "lib/file/vfs/vfs_path.h"
-#include "lib/types.h"
 #include "maths/BoundingBoxAligned.h"
 #include "maths/BoundingBoxOriented.h"
 #include "maths/Fixed.h"
@@ -145,12 +144,12 @@ public:
 	/**
 	 * Get actor seed used for random variations
 	 */
-	virtual u32 GetActorSeed() const = 0;
+	virtual std::uint32_t GetActorSeed() const = 0;
 
 	/**
 	 * Set actor seed for random variations and reload model
 	 */
-	virtual void SetActorSeed(u32 seed) = 0;
+	virtual void SetActorSeed(std::uint32_t seed) = 0;
 
 	/**
 	 * Recalculate the actor name, applying modifiers.

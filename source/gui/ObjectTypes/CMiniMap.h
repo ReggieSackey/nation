@@ -23,7 +23,6 @@
 #include "gui/CGUISetting.h"
 #include "gui/ObjectBases/IGUIObject.h"
 #include "lib/posix/posix_types.h"
-#include "lib/types.h"
 #include "maths/Vector2D.h"
 #include "ps/CStr.h"
 
@@ -82,8 +81,8 @@ private:
 
 	std::vector<CTexturePtr> m_FlareTextures;
 
-	CGUISimpleSetting<u32> m_FlareTextureCount;
-	CGUISimpleSetting<u32> m_FlareRenderSize;
+	CGUISimpleSetting<std::uint32_t> m_FlareTextureCount;
+	CGUISimpleSetting<std::uint32_t> m_FlareRenderSize;
 	CGUISimpleSetting<bool> m_FlareInterleave;
 	CGUISimpleSetting<float> m_FlareAnimationSpeed;
 	CGUISimpleSetting<float> m_FlareLifetimeSeconds;
@@ -104,7 +103,8 @@ private:
 	void DrawViewRect(CCanvas2D& canvas) const;
 
 	void DrawFlare(CCanvas2D& canvas, const MapFlare& flare, double currentTime) const;
-	void DrawFlareFrame(CCanvas2D& canvas, const u32 frameIndex, const CRect& destination, const CColor& color, float alpha) const;
+	void DrawFlareFrame(CCanvas2D& canvas, const std::uint32_t frameIndex, const CRect& destination,
+		const CColor& color, float alpha) const;
 
 	void GetMouseWorldCoordinates(float& x, float& z) const;
 

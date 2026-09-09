@@ -33,14 +33,14 @@
 struct AcpiTable
 {
 	char signature[4];
-	u32 size;					// table size [bytes], including header
+	std::uint32_t size;					// table size [bytes], including header
 	std::uint8_t revision;
 	std::uint8_t checksum;				// to make sum of entire table == 0
 	char oemId[6];
 	char oemTableId[8];
-	u32 oemRevision;
+	std::uint32_t oemRevision;
 	char creatorId[4];
-	u32 creatorRevision;
+	std::uint32_t creatorRevision;
 };
 
 enum AcpiAddressSpace
@@ -66,14 +66,14 @@ struct FADT	// signature is FACP!
 {
 	AcpiTable header;
 	std::uint8_t unused1[40];
-	u32 pmTimerPortAddress;
+	std::uint32_t pmTimerPortAddress;
 	std::uint8_t unused2[16];
 	std::uint16_t c2Latency;	// [us]
 	std::uint16_t c3Latency;	// [us]
 	std::uint8_t unused3[5];
 	std::uint8_t dutyWidth;
 	std::uint8_t unused4[6];
-	u32 flags;
+	std::uint32_t flags;
 	// (ACPI4 defines additional fields after this)
 
 	bool IsDutyCycleSupported() const

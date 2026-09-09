@@ -48,7 +48,6 @@ that of Atlas depending on commandline parameters.
 #include "lib/sysdep/compiler.h"
 #include "lib/sysdep/os.h"
 #include "lib/timer.h"
-#include "lib/types.h"
 #include "lobby/XmppClient.h"
 #include "network/NetClient.h"
 #include "ps/ArchiveBuilder.h"
@@ -467,7 +466,7 @@ static void NonVisualFrame()
 	if (g_NetClient)
 		g_NetClient->Poll();
 
-	static u32 turn = 0;
+	static std::uint32_t turn = 0;
 	if (g_Game && g_Game->IsGameStarted() && g_Game->GetTurnManager())
 	{
 		if (g_Game->GetTurnManager()->Update(DEFAULT_TURN_LENGTH, 1,

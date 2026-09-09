@@ -45,7 +45,7 @@ public:
 	}
 
 	const std::string data;
-	const u32 hash; // fnv_hash of data
+	const std::uint32_t hash; // fnv_hash of data
 
 private:
 	CStrInternInternals& operator=(const CStrInternInternals&);
@@ -135,7 +135,7 @@ CStrIntern::CStrIntern(const std::string_view str)
 	m = GetString(str.data(), str.length());
 }
 
-u32 CStrIntern::GetHash() const
+std::uint32_t CStrIntern::GetHash() const
 {
 	return m->hash;
 }

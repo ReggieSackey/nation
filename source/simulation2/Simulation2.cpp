@@ -28,7 +28,6 @@
 #include "lib/path.h"
 #include "lib/sysdep/filesystem.h"
 #include "lib/timer.h"
-#include "lib/types.h"
 #include "lib/utf8.h"
 #include "maths/Fixed.h"
 #include "maths/MathUtil.h"
@@ -358,7 +357,7 @@ void CSimulation2Impl::ReportSerializationFailure(
 
 void CSimulation2Impl::InitRNGSeedSimulation()
 {
-	u32 seed = 0;
+	std::uint32_t seed = 0;
 	Script::Request rq(m_ComponentManager.GetScriptInterface());
 	if (!Script::HasProperty(rq, m_MapSettings, "Seed") ||
 		!Script::GetProperty(rq, m_MapSettings, "Seed", seed))
@@ -369,7 +368,7 @@ void CSimulation2Impl::InitRNGSeedSimulation()
 
 void CSimulation2Impl::InitRNGSeedAI()
 {
-	u32 seed = 0;
+	std::uint32_t seed = 0;
 	Script::Request rq(m_ComponentManager.GetScriptInterface());
 	if (!Script::HasProperty(rq, m_MapSettings, "AISeed") ||
 		!Script::GetProperty(rq, m_MapSettings, "AISeed", seed))

@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Wildfire Games.
+/* Copyright (C) 2026 Wildfire Games.
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -31,7 +31,7 @@ public:
 	void test_fnv_hash()
 	{
 		TS_ASSERT_EQUALS(fnv_hash(""), 0x811C9DC5u);		// verify initial value
-		const u32 h1 = fnv_hash("abcdef");
+		const std::uint32_t h1 = fnv_hash("abcdef");
 		TS_ASSERT_EQUALS(h1, 0xFF478A2A);					// verify value for simple string
 		TS_ASSERT_EQUALS(fnv_hash("abcdef", 6), h1);	// same result if hashing buffer
 

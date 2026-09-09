@@ -21,7 +21,6 @@
 #include "graphics/Color.h"
 #include "graphics/Overlay.h"
 #include "lib/debug.h"
-#include "lib/types.h"
 #include "maths/Fixed.h"
 #include "maths/FixedVector2D.h"
 #include "maths/FixedVector3D.h"
@@ -208,7 +207,7 @@ public:
 	std::uint8_t m_FollowKnownImperfectPathCountdown = 0;
 
 	struct Ticket {
-		u32 m_Ticket = 0; // asynchronous request ID we're waiting for, or 0 if none
+		std::uint32_t m_Ticket = 0; // asynchronous request ID we're waiting for, or 0 if none
 		enum Type {
 			SHORT_PATH,
 			LONG_PATH
@@ -768,7 +767,7 @@ private:
 	/**
 	 * Handle the result of an asynchronous path query.
 	 */
-	void PathResult(u32 ticket, const WaypointPath& path);
+	void PathResult(std::uint32_t ticket, const WaypointPath& path);
 
 	void OnValueModification()
 	{
@@ -938,7 +937,7 @@ bool CCmpUnitMotion::RejectFartherPaths(const PathGoal& goal, const WaypointPath
 	return false;
 }
 
-void CCmpUnitMotion::PathResult(u32 ticket, const WaypointPath& path)
+void CCmpUnitMotion::PathResult(std::uint32_t ticket, const WaypointPath& path)
 {
 	// Ignore obsolete path requests
 	if (ticket != m_ExpectedPathTicket.m_Ticket || m_MoveRequest.m_Type == MoveRequest::NONE)

@@ -205,7 +205,7 @@ bool CNetClientSession::SendMessage(const CNetMessage* message)
 	return true;
 }
 
-u32 CNetClientSession::GetLastReceivedTime() const
+std::uint32_t CNetClientSession::GetLastReceivedTime() const
 {
 	if (!m_Server)
 		return 0;
@@ -213,7 +213,7 @@ u32 CNetClientSession::GetLastReceivedTime() const
 	return m_LastReceivedTime;
 }
 
-u32 CNetClientSession::GetMeanRTT() const
+std::uint32_t CNetClientSession::GetMeanRTT() const
 {
 	if (!m_Server)
 		return 0;

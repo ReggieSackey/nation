@@ -25,8 +25,6 @@
 
 #include "simulation2/serialization/SerializeTemplates.h"
 
-#include "lib/types.h"
-
 #include <array>
 #include <map>
 #include <set>
@@ -56,7 +54,7 @@ struct SerializeHelper<std::vector<T>>
 	void operator()(ISerializer& serialize, const char* name, std::vector<T>& value)
 	{
 		size_t len = value.size();
-		serialize.NumberU32_Unbounded("length", (u32)len);
+		serialize.NumberU32_Unbounded("length", static_cast<std::uint32_t>(len));
 		for (size_t i = 0; i < len; ++i)
 			Serializer(serialize, name, value[i]);
 	}
@@ -64,7 +62,7 @@ struct SerializeHelper<std::vector<T>>
 	void operator()(IDeserializer& deserialize, const char* name, std::vector<T>& value)
 	{
 		value.clear();
-		u32 len;
+		std::uint32_t len;
 		deserialize.NumberU32_Unbounded("length", len);
 		value.reserve(len); // TODO: watch out for out-of-memory
 		for (size_t i = 0; i < len; ++i)
@@ -81,7 +79,7 @@ struct SerializeHelper<std::set<T>>
 {
 	void operator()(ISerializer& serialize, const char* name, const std::set<T>& value)
 	{
-		serialize.NumberU32_Unbounded("size", static_cast<u32>(value.size()));
+		serialize.NumberU32_Unbounded("size", static_cast<std::uint32_t>(value.size()));
 		for (const T& elem : value)
 			Serializer(serialize, name, elem);
 	}
@@ -89,7 +87,7 @@ struct SerializeHelper<std::set<T>>
 	void operator()(IDeserializer& deserialize, const char* name, std::set<T>& value)
 	{
 		value.clear();
-		u32 size;
+		std::uint32_t size;
 		deserialize.NumberU32_Unbounded("size", size);
 		for (size_t i = 0; i < size; ++i)
 		{
@@ -107,7 +105,7 @@ struct SerializeHelper<std::map<K, V>>
 	void operator()(ISerializer& serialize, const char* /*name*/, std::map<K, V>& value, Args&&... args)
 	{
 		size_t len = value.size();
-		serialize.NumberU32_Unbounded("length", (u32)len);
+		serialize.NumberU32_Unbounded("length", static_cast<std::uint32_t>(len));
 		for (typename std::map<K, V>::iterator it = value.begin(); it != value.end(); ++it)
 		{
 			Serializer(serialize, "key", it->first, std::forward<Args>(args)...);
@@ -120,7 +118,7 @@ struct SerializeHelper<std::map<K, V>>
 		Args&&... args)
 	{
 		value.clear();
-		u32 len;
+		std::uint32_t len;
 		deserialize.NumberU32_Unbounded("length", len);
 		for (size_t i = 0; i < len; ++i)
 		{
@@ -196,16 +194,16 @@ struct SerializeHelper<std::uint16_t>
 };
 
 template<>
-struct SerializeHelper<u32>
+struct SerializeHelper<std::uint32_t>
 {
 	template<typename... Args>
-	void operator()(ISerializer& serialize, const char* name, u32 value, Args&&...)
+	void operator()(ISerializer& serialize, const char* name, std::uint32_t value, Args&&...)
 	{
 		serialize.NumberU32_Unbounded(name, value);
 	}
 
 	template<typename... Args>
-	void operator()(IDeserializer& deserialize, const char* name, u32& value, Args&&...)
+	void operator()(IDeserializer& deserialize, const char* name, std::uint32_t& value, Args&&...)
 	{
 		deserialize.NumberU32_Unbounded(name, value);
 	}

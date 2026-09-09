@@ -19,7 +19,6 @@
 
 #include "ICmpTerritoryInfluence.h"
 
-#include "lib/types.h"
 #include "simulation2/components/ICmpValueModificationManager.h"
 #include "simulation2/system/Component.h"
 
@@ -36,7 +35,7 @@ public:
 
 	bool m_Root;
 	std::uint16_t m_Weight;
-	u32 m_Radius;
+	std::uint32_t m_Radius;
 
 	static std::string GetSchema()
 	{
@@ -92,13 +91,13 @@ public:
 		return cmpValueModificationManager->ApplyModifications(L"TerritoryInfluence/Weight", m_Weight, GetEntityId());
 	}
 
-	u32 GetRadius() const override
+	std::uint32_t GetRadius() const override
 	{
 		CmpPtr<ICmpValueModificationManager> cmpValueModificationManager(GetSystemEntity());
 		if (!cmpValueModificationManager)
 			return m_Radius;
 
-		u32 newRadius = cmpValueModificationManager->ApplyModifications(L"TerritoryInfluence/Radius", m_Radius, GetEntityId());
+		std::uint32_t newRadius = cmpValueModificationManager->ApplyModifications(L"TerritoryInfluence/Radius", m_Radius, GetEntityId());
 		return newRadius;
 	}
 };

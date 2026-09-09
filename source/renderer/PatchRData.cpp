@@ -869,7 +869,9 @@ typename M::mapped_type& PooledPairGet(M& m, const typename M::key_type& k, PS::
 }
 
 // Each multidraw batch has a list of index counts, and a list of pointers-to-first-indexes
-using BatchElements = std::pair<std::vector<u32, ProxyAllocator<u32, PS::Memory::ScopedLinearAllocator>>, std::vector<u32, ProxyAllocator<u32, PS::Memory::ScopedLinearAllocator>>>;
+using BatchElements = std::pair<
+	std::vector<std::uint32_t, ProxyAllocator<std::uint32_t, PS::Memory::ScopedLinearAllocator>>,
+	std::vector<std::uint32_t, ProxyAllocator<std::uint32_t, PS::Memory::ScopedLinearAllocator>>>;
 
 // Group batches by index buffer
 using IndexBufferBatches = PooledBatchMap<CVertexBuffer*, BatchElements>;
@@ -1265,7 +1267,7 @@ void CPatchRData::RenderStreams(
 	PROFILE3("render terrain streams");
 
 	// Each batch has a list of index counts, and a list of pointers-to-first-indexes
-	using StreamBatchElements = std::pair<std::vector<u32>, std::vector<u32>>;
+	using StreamBatchElements = std::pair<std::vector<std::uint32_t>, std::vector<std::uint32_t>>;
 
 	// Group batches by index buffer
 	using StreamIndexBufferBatches = std::map<CVertexBuffer*, StreamBatchElements>;

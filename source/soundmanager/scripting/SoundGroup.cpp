@@ -67,7 +67,7 @@ constexpr ALfloat MAX_ROLLOFF = 0.7f;
 class CFastRand
 {
 public:
-	using result_type = u32;
+	using result_type = std::uint32_t;
 
 	constexpr static result_type min() { return 0; }
 	constexpr static result_type max() { return 0xFFFF; }

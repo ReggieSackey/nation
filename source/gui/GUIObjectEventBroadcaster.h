@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Wildfire Games.
+/* Copyright (C) 2026 Wildfire Games.
  * This file is part of 0 A.D.
  *
  * 0 A.D. is free software: you can redistribute it and/or modify
@@ -24,7 +24,6 @@
 #include "lib/alignment.h"
 #include "lib/allocators/DynamicArena.h"
 #include "lib/allocators/STLAllocators.h"
-#include "lib/types.h"
 
 #include <algorithm>
 #include <utility>
@@ -36,7 +35,7 @@ namespace
 	{
 		IGUIObject* object;
 		// Index of the object in a depth-first search inside GUI tree.
-		u32 index;
+		std::uint32_t index;
 		// Cached value of GetBufferedZ to avoid recursive calls in a deep hierarchy.
 		float bufferedZ;
 	};
@@ -47,7 +46,8 @@ namespace
 		for (IGUIObject* const& object : objects)
 			if (!object->IsHidden())
 			{
-				visibleObjects->emplace_back(VisibleObject{ object, static_cast<u32>(visibleObjects->size()), 0.0f });
+				visibleObjects->emplace_back(VisibleObject{ object,
+					static_cast<std::uint32_t>(visibleObjects->size()), 0.0f });
 				CollectVisibleObjectsRecursively(object->GetVisibleChildren(), visibleObjects);
 			}
 	}

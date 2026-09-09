@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Wildfire Games.
+/* Copyright (C) 2026 Wildfire Games.
  * This file is part of 0 A.D.
  *
  * 0 A.D. is free software: you can redistribute it and/or modify
@@ -22,7 +22,6 @@
 #include "lib/debug.h"
 #include "lib/posix/posix.h"
 #include "lib/secure_crt.h"
-#include "lib/types.h"
 #include "ps/XMB/XMBStorage.h"
 
 #include <cstring>
@@ -48,7 +47,7 @@ bool XMBData::Initialise(const XMBStorage& doc)
 		return false;
 	ENSURE(strcmp(Header, XMBStorage::HeaderMagicStr) == 0 && "Invalid XMB header!");
 
-	u32 Version = read<u32>(m_Pointer);
+	std::uint32_t Version = read<std::uint32_t>(m_Pointer);
 	m_Pointer += 4;
 	if (Version != XMBStorage::XMBVersion)
 		return false;
@@ -58,9 +57,9 @@ bool XMBData::Initialise(const XMBStorage& doc)
 	// access, but it might crash on an invalid file, reading a couple of
 	// billion random element names from RAM)
 
-	m_ElementPointer = start + read<u32>(m_Pointer); m_Pointer += 4;
+	m_ElementPointer = start + read<std::uint32_t>(m_Pointer); m_Pointer += 4;
 	m_ElementNameCount = read<int>(m_Pointer); m_Pointer += 4;
-	m_AttributePointer = start + read<u32>(m_Pointer); m_Pointer += 4;
+	m_AttributePointer = start + read<std::uint32_t>(m_Pointer); m_Pointer += 4;
 	m_AttributeNameCount = read<int>(m_Pointer); m_Pointer += 4;
 	// At this point m_Pointer points to the element start, as expected.
 	return true;	// success

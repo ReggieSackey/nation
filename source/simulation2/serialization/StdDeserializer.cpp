@@ -159,7 +159,7 @@ JS::Value CStdDeserializer::ReadScriptVal(const char* /*name*/, JS::HandleObject
 		JS::RootedObject obj(rq.cx);
 		if (type == SCRIPT_TYPE_ARRAY)
 		{
-			u32 length;
+			std::uint32_t length;
 			NumberU32_Unbounded("array length", length);
 			obj.set(JS::NewArrayObject(rq.cx, length));
 		}
@@ -346,7 +346,7 @@ JS::Value CStdDeserializer::ReadScriptVal(const char* /*name*/, JS::HandleObject
 	case SCRIPT_TYPE_TYPED_ARRAY:
 	{
 		std::uint8_t arrayType;
-		u32 byteOffset, length;
+		std::uint32_t byteOffset, length;
 		NumberU8_Unbounded("array type", arrayType);
 		NumberU32_Unbounded("byte offset", byteOffset);
 		NumberU32_Unbounded("length", length);
@@ -404,7 +404,7 @@ JS::Value CStdDeserializer::ReadScriptVal(const char* /*name*/, JS::HandleObject
 	}
 	case SCRIPT_TYPE_ARRAY_BUFFER:
 	{
-		u32 length;
+		std::uint32_t length;
 		NumberU32_Unbounded("buffer length", length);
 
 #if BYTE_ORDER != LITTLE_ENDIAN
@@ -425,10 +425,10 @@ JS::Value CStdDeserializer::ReadScriptVal(const char* /*name*/, JS::HandleObject
 		JS::RootedObject obj(rq.cx, JS::NewMapObject(rq.cx));
 		AddScriptBackref(obj);
 
-		u32 mapSize;
+		std::uint32_t mapSize;
 		NumberU32_Unbounded("map size", mapSize);
 
-		for (u32 i=0; i<mapSize; ++i)
+		for (std::uint32_t i=0; i<mapSize; ++i)
 		{
 			JS::RootedValue key(rq.cx, ReadScriptVal("map key", nullptr));
 			JS::RootedValue value(rq.cx, ReadScriptVal("map value", nullptr));
@@ -442,10 +442,10 @@ JS::Value CStdDeserializer::ReadScriptVal(const char* /*name*/, JS::HandleObject
 		JS::RootedObject obj(rq.cx, JS::NewSetObject(rq.cx));
 		AddScriptBackref(obj);
 
-		u32 setSize;
+		std::uint32_t setSize;
 		NumberU32_Unbounded("set size", setSize);
 
-		for (u32 i=0; i<setSize; ++i)
+		for (std::uint32_t i=0; i<setSize; ++i)
 		{
 			JS::RootedValue value(rq.cx, ReadScriptVal("set value", nullptr));
 			JS::SetAdd(rq.cx, obj, value);

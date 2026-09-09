@@ -35,7 +35,6 @@
 #include "lib/sysdep/os_cpu.h"
 #include "lib/sysdep/sysdep.h"	// sys_OpenFile
 #include "lib/timer.h"
-#include "lib/types.h"
 #include "ps/CLogger.h"
 #include "ps/CStr.h"
 #include "ps/Errors.h"
@@ -431,23 +430,23 @@ void RunHardwareDetection(bool writeSystemInfoBeforeDetection, Renderer::Backend
 
 	Script::SetProperty(rq, settings, "cpu_identifier", std::string(cpu_IdentifierString()));
 	Script::SetProperty(rq, settings, "cpu_frequency", os_cpu_ClockFrequency());
-	Script::SetProperty(rq, settings, "cpu_pagesize", (u32)os_cpu_PageSize());
-	Script::SetProperty(rq, settings, "cpu_largepagesize", (u32)os_cpu_LargePageSize());
-	Script::SetProperty(rq, settings, "cpu_numprocs", (u32)os_cpu_NumProcessors());
+	Script::SetProperty(rq, settings, "cpu_pagesize", static_cast<std::uint32_t>(os_cpu_PageSize()));
+	Script::SetProperty(rq, settings, "cpu_largepagesize", static_cast<std::uint32_t>(os_cpu_LargePageSize()));
+	Script::SetProperty(rq, settings, "cpu_numprocs", static_cast<std::uint32_t>(os_cpu_NumProcessors()));
 
-	Script::SetProperty(rq, settings, "numa_numnodes", (u32)numa_NumNodes());
+	Script::SetProperty(rq, settings, "numa_numnodes", static_cast<std::uint32_t>(numa_NumNodes()));
 	Script::SetProperty(rq, settings, "numa_factor", numa_Factor());
 	Script::SetProperty(rq, settings, "numa_interleaved", numa_IsMemoryInterleaved());
 
-	Script::SetProperty(rq, settings, "ram_total", (u32)os_cpu_MemorySize());
-	Script::SetProperty(rq, settings, "ram_total_os", (u32)os_cpu_QueryMemorySize());
+	Script::SetProperty(rq, settings, "ram_total", static_cast<std::uint32_t>(os_cpu_MemorySize()));
+	Script::SetProperty(rq, settings, "ram_total_os", static_cast<std::uint32_t>(os_cpu_QueryMemorySize()));
 
 #if ARCH_X86_X64
-	Script::SetProperty(rq, settings, "x86_vendor", (u32)x86_x64::Vendor());
-	Script::SetProperty(rq, settings, "x86_model", (u32)x86_x64::Model());
-	Script::SetProperty(rq, settings, "x86_family", (u32)x86_x64::Family());
+	Script::SetProperty(rq, settings, "x86_vendor", static_cast<std::uint32_t>(x86_x64::Vendor()));
+	Script::SetProperty(rq, settings, "x86_model", static_cast<std::uint32_t>(x86_x64::Model()));
+	Script::SetProperty(rq, settings, "x86_family", static_cast<std::uint32_t>(x86_x64::Family()));
 
-	u32 caps0, caps1, caps2, caps3;
+	std::uint32_t caps0, caps1, caps2, caps3;
 	x86_x64::GetCapBits(&caps0, &caps1, &caps2, &caps3);
 	Script::SetProperty(rq, settings, "x86_caps[0]", caps0);
 	Script::SetProperty(rq, settings, "x86_caps[1]", caps1);

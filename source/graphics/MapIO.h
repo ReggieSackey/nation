@@ -21,7 +21,6 @@
 #include "lib/file/vfs/vfs_path.h"
 #include "lib/os_path.h"
 #include "lib/status.h"
-#include "lib/types.h"
 
 #include <vector>
 
@@ -45,7 +44,7 @@ public:
 		std::uint16_t m_Tex1Index;
 		// Index into the texture array of second texture; (0xFFFF) if none.
 		std::uint16_t m_Tex2Index;
-		u32 m_Priority;
+		std::uint32_t m_Priority;
 	};
 #pragma pack(pop)
 };

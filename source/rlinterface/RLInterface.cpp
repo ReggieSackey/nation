@@ -23,7 +23,6 @@
 
 #include "gui/GUIManager.h"
 #include "lib/debug.h"
-#include "lib/types.h"
 #include "network/HttpServer.h"
 #include "ps/CLogger.h"
 #include "ps/CStr.h"
@@ -339,7 +338,7 @@ void Interface::ApplyMessage(const GameMessage& msg)
 				turnMgr->PostCommand(command.playerID, commandJSON);
 			}
 
-			const u32 deltaRealTime = DEFAULT_TURN_LENGTH;
+			const std::uint32_t deltaRealTime = DEFAULT_TURN_LENGTH;
 			if (nonVisual)
 			{
 				const double deltaSimTime = deltaRealTime * g_Game->GetSimRate();

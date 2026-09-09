@@ -46,7 +46,6 @@
 #include "lib/path.h"
 #include "lib/posix/posix_types.h"
 #include "lib/status.h"
-#include "lib/types.h"
 #include "lib/utf8.h"
 
 #include <algorithm>
@@ -62,10 +61,10 @@
 // timestamp conversion: DOS FAT <-> Unix time_t
 //-----------------------------------------------------------------------------
 
-static time_t time_t_from_FAT(u32 fat_timedate)
+static time_t time_t_from_FAT(std::uint32_t fat_timedate)
 {
-	const u32 fat_time = bits(fat_timedate, 0, 15);
-	const u32 fat_date = bits(fat_timedate, 16, 31);
+	const std::uint32_t fat_time = bits(fat_timedate, 0, 15);
+	const std::uint32_t fat_date = bits(fat_timedate, 16, 31);
 
 	struct tm t;							// struct tm format:
 	t.tm_sec   = bits(fat_time, 0,4) * 2;	// [0,59]
@@ -85,7 +84,7 @@ static time_t time_t_from_FAT(u32 fat_timedate)
 }
 
 
-static u32 FAT_from_time_t(time_t time)
+static std::uint32_t FAT_from_time_t(time_t time)
 {
 	// (values are adjusted for DST)
 	struct tm* t = localtime(&time);
@@ -102,7 +101,7 @@ static u32 FAT_from_time_t(time_t time)
 		(static_cast<std::uint16_t>(t->tm_year-80) << 9) // 7
 		);
 
-	u32 fat_timedate = u32_from_u16(fat_date, fat_time);
+	std::uint32_t fat_timedate = u32_from_u16(fat_date, fat_time);
 	return fat_timedate;
 }
 
@@ -111,9 +110,9 @@ static u32 FAT_from_time_t(time_t time)
 // Zip archive definitions
 //-----------------------------------------------------------------------------
 
-static const u32 cdfh_magic = FOURCC_LE('P','K','\1','\2');
-static const u32  lfh_magic = FOURCC_LE('P','K','\3','\4');
-static const u32 ecdr_magic = FOURCC_LE('P','K','\5','\6');
+static const std::uint32_t cdfh_magic = FOURCC_LE('P','K','\1','\2');
+static const std::uint32_t lfh_magic = FOURCC_LE('P','K','\3','\4');
+static const std::uint32_t ecdr_magic = FOURCC_LE('P','K','\5','\6');
 
 enum ZipMethod
 {
@@ -126,7 +125,8 @@ enum ZipMethod
 class LFH
 {
 public:
-	void Init(const CFileInfo& fileInfo, off_t csize, ZipMethod method, u32 checksum, const Path& pathname)
+	void Init(const CFileInfo& fileInfo, off_t csize, ZipMethod method, std::uint32_t checksum,
+		const Path& pathname)
 	{
 		const std::string pathnameUTF8 = utf8_from_wstring(pathname.string());
 		const size_t pathnameSize = pathnameUTF8.length();
@@ -156,14 +156,14 @@ public:
 	}
 
 private:
-	u32 m_magic;
+	std::uint32_t m_magic;
 	std::uint16_t m_x1;			// version needed
 	std::uint16_t m_flags;
 	std::uint16_t m_method;
-	u32 m_fat_mtime;	// last modified time (DOS FAT format)
-	u32 m_crc;
-	u32 m_csize;
-	u32 m_usize;
+	std::uint32_t m_fat_mtime;	// last modified time (DOS FAT format)
+	std::uint32_t m_crc;
+	std::uint32_t m_csize;
+	std::uint32_t m_usize;
 	std::uint16_t m_fn_len;
 	std::uint16_t m_e_len;
 };
@@ -174,7 +174,8 @@ cassert(sizeof(LFH) == 30);
 class CDFH
 {
 public:
-	void Init(const CFileInfo& fileInfo, off_t ofs, off_t csize, ZipMethod method, u32 checksum, const Path& pathname, size_t slack)
+	void Init(const CFileInfo& fileInfo, off_t ofs, off_t csize, ZipMethod method,
+		std::uint32_t checksum, const Path& pathname, size_t slack)
 	{
 		const std::string pathnameUTF8 = utf8_from_wstring(pathname.string());
 		const size_t pathnameLength = pathnameUTF8.length();
@@ -224,14 +225,14 @@ public:
 		return (ZipMethod)read_le16(&m_method);
 	}
 
-	u32 Checksum() const
+	std::uint32_t Checksum() const
 	{
 		return read_le32(&m_crc);
 	}
 
 	time_t MTime() const
 	{
-		const u32 fat_mtime = read_le32(&m_fat_mtime);
+		const std::uint32_t fat_mtime = read_le32(&m_fat_mtime);
 		return time_t_from_FAT(fat_mtime);
 	}
 
@@ -245,20 +246,20 @@ public:
 	}
 
 private:
-	u32 m_magic;
-	u32 m_x1;			// versions
+	std::uint32_t m_magic;
+	std::uint32_t m_x1;			// versions
 	std::uint16_t m_flags;
 	std::uint16_t m_method;
-	u32 m_fat_mtime;	// last modified time (DOS FAT format)
-	u32 m_crc;
-	u32 m_csize;
-	u32 m_usize;
+	std::uint32_t m_fat_mtime;	// last modified time (DOS FAT format)
+	std::uint32_t m_crc;
+	std::uint32_t m_csize;
+	std::uint32_t m_usize;
 	std::uint16_t m_fn_len;
 	std::uint16_t m_e_len;
 	std::uint16_t m_c_len;
-	u32 m_x2;			// spanning
-	u32 m_x3;			// attributes
-	u32 m_lfh_ofs;
+	std::uint32_t m_x2;			// spanning
+	std::uint32_t m_x3;			// attributes
+	std::uint32_t m_lfh_ofs;
 };
 
 cassert(sizeof(CDFH) == 46);
@@ -292,13 +293,13 @@ public:
 	}
 
 private:
-	u32 m_magic;
+	std::uint32_t m_magic;
 	std::uint16_t m_diskNum;
 	std::uint16_t m_cd_diskNum;
 	std::uint16_t m_cd_numEntriesOnDisk;
 	std::uint16_t m_cd_numEntries;
-	u32 m_cd_size;
-	u32 m_cd_ofs;
+	std::uint32_t m_cd_size;
+	std::uint32_t m_cd_ofs;
 	std::uint16_t m_comment_len;
 };
 
@@ -314,7 +315,7 @@ cassert(sizeof(ECDR) == 22);
 class ArchiveFile_Zip final : public IArchiveFile
 {
 public:
-	ArchiveFile_Zip(const PFile& file, off_t ofs, off_t csize, u32 checksum, ZipMethod method)
+	ArchiveFile_Zip(const PFile& file, off_t ofs, off_t csize, std::uint32_t checksum, ZipMethod method)
 		: m_file(file), m_ofs(ofs)
 		, m_csize(csize), m_checksum(checksum), m_method(static_cast<std::uint16_t>(method))
 		, m_flags(NeedsFixup)
@@ -440,7 +441,7 @@ private:
 	// all relevant LFH/CDFH fields not covered by CFileInfo
 	mutable off_t m_ofs;
 	off_t m_csize;
-	u32 m_checksum;
+	std::uint32_t m_checksum;
 	std::uint16_t m_method;
 	mutable std::uint16_t m_flags;
 };
@@ -511,14 +512,14 @@ private:
 	 * @return pointer to record within buffer or 0 if not found.
 	 **/
 	static const std::uint8_t* FindRecord(const std::uint8_t* buf, size_t size,
-		const std::uint8_t* start, u32 magic, size_t recordSize)
+		const std::uint8_t* start, std::uint32_t magic, size_t recordSize)
 	{
 		// (don't use <start> as the counter - otherwise we can't tell if
 		// scanning within the buffer was necessary.)
 		for(const std::uint8_t* p = start; p <= buf+size-recordSize; p++)
 		{
 			// found it
-			if(*(u32*)p == magic)
+			if(*reinterpret_cast<const std::uint32_t*>(p) == magic)
 			{
 				ENSURE(p == start);	// otherwise, the archive is a bit broken
 				return p;
@@ -554,7 +555,7 @@ private:
 		for (off_t commentSize = 0; commentSize <= offsetInBlock && !ecdr; ++commentSize)
 		{
 			const std::uint8_t *pECDRTest = buf + offsetInBlock - commentSize;
-			if (*reinterpret_cast<const u32*>(pECDRTest) == ecdr_magic)
+			if (*reinterpret_cast<const std::uint32_t*>(pECDRTest) == ecdr_magic)
 			{
 				// Signature matches, test whether comment
 				// fills up the whole space following the
@@ -717,7 +718,7 @@ public:
 		io::BufferPtr buf(io::Allocate(sizeof(LFH) + pathnameLength + csizeMax));
 
 		// read and compress file contents
-		size_t csize; u32 checksum;
+		size_t csize; std::uint32_t checksum;
 		{
 			std::uint8_t* cdata = buf.get() + sizeof(LFH) + pathnameLength;
 			Stream stream(codec);

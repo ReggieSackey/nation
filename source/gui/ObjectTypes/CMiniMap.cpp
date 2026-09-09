@@ -197,7 +197,7 @@ void CMiniMap::RecreateFlareTextures()
 	const CStr textureNumberingFormat = "art/textures/animated/minimap-flare/frame%02u.png";
 	m_FlareTextures.clear();
 	m_FlareTextures.reserve(m_FlareTextureCount);
-	for (u32 i = 0; i < m_FlareTextureCount; ++i)
+	for (std::uint32_t i = 0; i < m_FlareTextureCount; ++i)
 	{
 		CTextureProperties textureProps(fmt::sprintf(textureNumberingFormat, i).c_str());
 		textureProps.SetIgnoreQuality(true);
@@ -327,7 +327,7 @@ void CMiniMap::DrawFlare(CCanvas2D& canvas, const MapFlare& flare, double curren
 
 	const double deltaTime = currentTime - flare.time;
 	const double remainingTime = m_FlareLifetimeSeconds - deltaTime;
-	const u32 flooredStep = floor(deltaTime * m_FlareAnimationSpeed);
+	const std::uint32_t flooredStep = floor(deltaTime * m_FlareAnimationSpeed);
 
 	const float startFadeAlpha = m_FlareStartFadeSeconds > 0.0f ? deltaTime / m_FlareStartFadeSeconds : 1.0f;
 	const float stopFadeAlpha = m_FlareStopFadeSeconds > 0.0f ? remainingTime / m_FlareStopFadeSeconds : 1.0f;
@@ -345,7 +345,7 @@ void CMiniMap::DrawFlare(CCanvas2D& canvas, const MapFlare& flare, double curren
 	}
 }
 
-void CMiniMap::DrawFlareFrame(CCanvas2D& canvas, const u32 frameIndex,
+void CMiniMap::DrawFlareFrame(CCanvas2D& canvas, const std::uint32_t frameIndex,
 	const CRect& destination, const CColor& color, float alpha) const
 {
 	// TODO: Only draw inside the minimap circle.

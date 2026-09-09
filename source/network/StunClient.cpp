@@ -44,9 +44,9 @@ namespace StunClient
 /**
  * These constants are defined in Section 6 of RFC 5389.
  */
-const u32 m_MagicCookie = 0x2112A442;
+const std::uint32_t m_MagicCookie = 0x2112A442;
 const std::uint16_t m_MethodTypeBinding = 0x01;
-const u32 m_BindingSuccessResponse = 0x0101;
+const std::uint32_t m_BindingSuccessResponse = 0x0101;
 
 /**
  * Bit determining whether comprehension of an attribute is optional.
@@ -105,7 +105,7 @@ void AddToBuffer(std::vector<std::uint8_t>& buffer, const T value)
  * Read integral type from a network-byte-order buffer.
  */
 template<std::integral T, size_t n = sizeof(T)>
-bool GetFromBuffer(const std::vector<std::uint8_t>& buffer, u32& offset, T& result)
+bool GetFromBuffer(const std::vector<std::uint8_t>& buffer, std::uint32_t& offset, T& result)
 {
 	if (offset + n > buffer.size())
 		return false;
@@ -129,7 +129,7 @@ void SendStunRequest(ENetHost& transactionHost, ENetAddress addr)
 	std::vector<std::uint8_t> buffer;
 	AddToBuffer<std::uint16_t>(buffer, m_MethodTypeBinding);
 	AddToBuffer<std::uint16_t>(buffer, 0); // length
-	AddToBuffer<u32>(buffer, m_MagicCookie);
+	AddToBuffer<std::uint32_t>(buffer, m_MagicCookie);
 
 	for (std::size_t i = 0; i < sizeof(m_TransactionID); ++i)
 	{
@@ -220,7 +220,7 @@ bool ReceiveStunResponse(ENetHost& transactionHost, std::vector<std::uint8_t>& b
 
 bool ParseStunResponse(const std::vector<std::uint8_t>& buffer)
 {
-	u32 offset = 0;
+	std::uint32_t offset = 0;
 
 	std::uint16_t responseType = 0;
 	if (!GetFromBuffer(buffer, offset, responseType) || responseType != m_BindingSuccessResponse)
@@ -232,7 +232,7 @@ bool ParseStunResponse(const std::vector<std::uint8_t>& buffer)
 	// Ignore message size
 	offset += 2;
 
-	u32 cookie = 0;
+	std::uint32_t cookie = 0;
 	if (!GetFromBuffer(buffer, offset, cookie) || cookie != m_MagicCookie)
 	{
 		LOGERROR("STUN response doesn't contain the magic cookie");
@@ -285,7 +285,7 @@ bool ParseStunResponse(const std::vector<std::uint8_t>& buffer)
 			}
 
 			std::uint16_t port = 0;
-			u32 ip = 0;
+			std::uint32_t ip = 0;
 			if (!GetFromBuffer(buffer, offset, port) ||
 			    !GetFromBuffer(buffer, offset, ip))
 			{

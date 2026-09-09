@@ -80,8 +80,8 @@ static void Invoke_cpuid(CpuidRegs* regs)
 	__cpuidex((int*)regs, regs->eax, regs->ecx);
 }
 
-static u32 cpuid_maxFunction;
-static u32 cpuid_maxExtendedFunction;
+static std::uint32_t cpuid_maxFunction;
+static std::uint32_t cpuid_maxExtendedFunction;
 
 static Status InitCpuid()
 {
@@ -103,7 +103,7 @@ bool cpuid(CpuidRegs* regs)
 	static ModuleInitState initState{ 0 };
 	ModuleInit(&initState, InitCpuid);
 
-	const u32 function = regs->eax;
+	const std::uint32_t function = regs->eax;
 	if(function > cpuid_maxExtendedFunction)
 		return false;
 	if(function < 0x80000000 && function > cpuid_maxFunction)
@@ -119,7 +119,7 @@ bool cpuid(CpuidRegs* regs)
 
 // treated as 128 bit field; order: std ecx, std edx, ext ecx, ext edx
 // keep in sync with enum Cap!
-static u32 caps[4];
+static std::uint32_t caps[4];
 
 static ModuleInitState capsInitState{ 0 };
 
@@ -156,7 +156,7 @@ bool Cap(Caps cap)
 	return IsBitSet(caps[index], bit);
 }
 
-void GetCapBits(u32* d0, u32* d1, u32* d2, u32* d3)
+void GetCapBits(std::uint32_t* d0, std::uint32_t* d1, std::uint32_t* d2, std::uint32_t* d3)
 {
 	ModuleInit(&capsInitState, InitCaps);
 
@@ -287,7 +287,7 @@ static Status InitIdentifierString()
 	// get brand string (if available)
 	char* pos = identifierString;
 	bool gotBrandString = true;
-	for(u32 function = 0x80000002; function <= 0x80000004; function++)
+	for(std::uint32_t function = 0x80000002; function <= 0x80000004; function++)
 	{
 		CpuidRegs regs = { 0 };
 		regs.eax = function;
@@ -377,7 +377,7 @@ u64 rdtsc()
 {
 #if GCC_VERSION
 	// GCC supports "portable" assembly for both x86 and x64
-	volatile u32 lo, hi;
+	volatile std::uint32_t lo, hi;
 	__asm__ __volatile__ ("rdtsc" : "=a" (lo), "=d" (hi));
 	return u64_from_u32(hi, lo);
 #endif

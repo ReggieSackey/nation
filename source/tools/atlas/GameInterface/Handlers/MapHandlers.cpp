@@ -36,7 +36,6 @@
 #include "lib/path.h"
 #include "lib/posix/posix_types.h"
 #include "lib/status.h"
-#include "lib/types.h"
 #include "maths/Fixed.h"
 #include "maths/FixedVector3D.h"
 #include "maths/MathUtil.h"
@@ -355,8 +354,9 @@ QUERYHANDLER(RasterizeMinimap)
 			}
 			else
 			{
-				u32 color = std::numeric_limits<u32>::max();
-				const u32 hmap = static_cast<u32>(terrain.GetHeightMap()[j * dimension + i]) >> 8;
+				std::uint32_t color = std::numeric_limits<std::uint32_t>::max();
+				const std::uint32_t hmap =
+					static_cast<std::uint32_t>(terrain.GetHeightMap()[j * dimension + i]) >> 8;
 				float scale = hmap / 3.0f + 170.0f / 255.0f;
 
 				CMiniPatch* const mp = terrain.GetTile(i, j);
@@ -449,7 +449,7 @@ BEGIN_COMMAND(ResizeMap)
 		player_id_t owner;
 		CFixedVector3D pos;
 		CFixedVector3D rot;
-		u32 actorSeed;
+		std::uint32_t actorSeed;
 	};
 
 	ssize_t m_OldPatches, m_NewPatches;

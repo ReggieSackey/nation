@@ -19,7 +19,6 @@
 #define INCLUDED_PATHFINDING
 
 #include "graphics/Terrain.h"
-#include "lib/types.h"
 #include "maths/Fixed.h"
 #include "maths/MathUtil.h"
 #include "simulation2/helpers/PathGoal.h"
@@ -35,7 +34,7 @@ typedef std::uint16_t pass_class_t;
 
 struct LongPathRequest
 {
-	u32 ticket;
+	std::uint32_t ticket;
 	entity_pos_t x0;
 	entity_pos_t z0;
 	PathGoal goal;
@@ -45,7 +44,7 @@ struct LongPathRequest
 
 struct ShortPathRequest
 {
-	u32 ticket;
+	std::uint32_t ticket;
 	entity_pos_t x0;
 	entity_pos_t z0;
 	entity_pos_t clearance;
@@ -116,13 +115,13 @@ struct PathCost
 	bool operator>=(const PathCost& b) const { return data >= b.data; }
 	bool operator>(const PathCost& b) const { return data >  b.data; }
 
-	u32 ToInt()
+	std::uint32_t ToInt()
 	{
 		return data;
 	}
 
 private:
-	u32 data;
+	std::uint32_t data;
 };
 
 inline constexpr int PASS_CLASS_BITS = 16;

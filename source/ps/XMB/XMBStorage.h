@@ -18,8 +18,6 @@
 #ifndef INCLUDED_XMBSTORAGE
 #define INCLUDED_XMBSTORAGE
 
-#include "lib/types.h"
-
 #include <cstddef>
 #include <js/TypeDecls.h>
 #include <libxml/parser.h>
@@ -46,7 +44,7 @@ public:
 	// File headers, to make sure it doesn't try loading anything other than an XMB
 	static const char* HeaderMagicStr;
 	static const char* UnfinishedHeaderMagicStr;
-	static const u32 XMBVersion;
+	static const std::uint32_t XMBVersion;
 
 	XMBStorage() = default;
 

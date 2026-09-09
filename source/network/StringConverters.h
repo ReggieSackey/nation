@@ -18,12 +18,11 @@
 #ifndef INCLUDED_NETWORK_STRINGCONVERTERS
 #define INCLUDED_NETWORK_STRINGCONVERTERS
 
-#include "lib/types.h"
 #include "ps/CStr.h"
 
 #include <string>
 
-static inline CStr NetMessageStringConvert(u32 arg)
+static inline CStr NetMessageStringConvert(std::uint32_t arg)
 {
 	return std::to_string(arg);
 }

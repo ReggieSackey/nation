@@ -29,7 +29,6 @@
 #include "lib/code_generation.h"
 #include "lib/debug.h"
 #include "lib/path.h"
-#include "lib/types.h"
 #include "maths/Fixed.h"
 #include "maths/FixedVector2D.h"
 #include "maths/MathUtil.h"
@@ -284,7 +283,7 @@ public:
 	}
 
 	player_id_t GetOwner(entity_pos_t x, entity_pos_t z) override;
-	std::vector<u32> GetNeighbours(entity_pos_t x, entity_pos_t z, bool filterConnected) override;
+	std::vector<std::uint32_t> GetNeighbours(entity_pos_t x, entity_pos_t z, bool filterConnected) override;
 	bool IsConnected(entity_pos_t x, entity_pos_t z) override;
 
 	void SetTerritoryBlinking(entity_pos_t x, entity_pos_t z, bool enable) override;
@@ -521,16 +520,16 @@ void CCmpTerritoryManager::CalculateTerritories()
 	}
 
 	// Store the overall best weight for comparison
-	Grid<u32> bestWeightGrid(tilesW, tilesH);
+	Grid<std::uint32_t> bestWeightGrid(tilesW, tilesH);
 	// store the root influences to mark territory as connected
 	std::vector<entity_id_t> rootInfluenceEntities;
 
 	for (const std::pair<const player_id_t, std::vector<entity_id_t>>& pair : influenceEntities)
 	{
 		// entityGrid stores the weight for a single entity, and is reset per entity
-		Grid<u32> entityGrid(tilesW, tilesH);
+		Grid<std::uint32_t> entityGrid(tilesW, tilesH);
 		// playerGrid stores the combined weight of all entities for this player
-		Grid<u32> playerGrid(tilesW, tilesH);
+		Grid<std::uint32_t> playerGrid(tilesW, tilesH);
 
 		std::uint8_t owner = static_cast<std::uint8_t>(pair.first);
 		const std::vector<entity_id_t>& ents = pair.second;
@@ -544,11 +543,11 @@ void CCmpTerritoryManager::CalculateTerritories()
 				continue;
 
 			CmpPtr<ICmpTerritoryInfluence> cmpTerritoryInfluence(GetSimContext(), ent);
-			const u32 originWeight = cmpTerritoryInfluence->GetWeight();
-			u32 radius = cmpTerritoryInfluence->GetRadius();
+			const std::uint32_t originWeight = cmpTerritoryInfluence->GetWeight();
+			std::uint32_t radius = cmpTerritoryInfluence->GetRadius();
 			if (originWeight == 0 || radius == 0)
 				continue;
-			const u32 relativeFalloff = originWeight *
+			const std::uint32_t relativeFalloff = originWeight *
 				(Pathfinding::NAVCELL_SIZE * NAVCELLS_PER_TERRITORY_TILE)
 				.ToInt_RoundToNegInfinity() / radius;
 
@@ -565,10 +564,10 @@ void CCmpTerritoryManager::CalculateTerritories()
 					const bool diagonalProgression{current && neighbour.x != current->x &&
 						neighbour.z != current->z};
 
-					const u32 falloffPerTile{relativeFalloff *
+					const std::uint32_t falloffPerTile{relativeFalloff *
 						m_CostGrid->get(neighbour.x, neighbour.z)};
 					// diagonal neighbour -> multiply with approx sqrt(2)
-					const u32 falloff{diagonalProgression ? (falloffPerTile * 362) / 256 :
+					const std::uint32_t falloff{diagonalProgression ? (falloffPerTile * 362) / 256 :
 						falloffPerTile};
 
 					// Don't expand if new cost is not better than previous value for that tile
@@ -581,9 +580,9 @@ void CCmpTerritoryManager::CalculateTerritories()
 						}
 
 					// weight of this tile = weight of predecessor - falloff from predecessor
-					const u32 weight{current ? entityGrid.get(current->x, current->z) - falloff :
-						originWeight};
-					const u32 totalWeight{weight + (current ?
+					const std::uint32_t weight{current ?
+						entityGrid.get(current->x, current->z) - falloff : originWeight};
+					const std::uint32_t totalWeight{weight + (current ?
 						playerGrid.get(neighbour.x, neighbour.z) -
 						entityGrid.get(neighbour.x, neighbour.z) : 0)};
 
@@ -794,13 +793,13 @@ player_id_t CCmpTerritoryManager::GetOwner(entity_pos_t x, entity_pos_t z)
 	return m_Territories->get(i, j) & TERRITORY_PLAYER_MASK;
 }
 
-std::vector<u32> CCmpTerritoryManager::GetNeighbours(entity_pos_t x, entity_pos_t z, bool filterConnected)
+std::vector<std::uint32_t> CCmpTerritoryManager::GetNeighbours(entity_pos_t x, entity_pos_t z, bool filterConnected)
 {
 	CmpPtr<ICmpPlayerManager> cmpPlayerManager(GetSystemEntity());
 	if (!cmpPlayerManager)
-		return std::vector<u32>();
+		return std::vector<std::uint32_t>();
 
-	std::vector<u32> ret(cmpPlayerManager->GetNumPlayers(), 0);
+	std::vector<std::uint32_t> ret(cmpPlayerManager->GetNumPlayers(), 0);
 	CalculateTerritories();
 	if (!m_Territories)
 		return ret;

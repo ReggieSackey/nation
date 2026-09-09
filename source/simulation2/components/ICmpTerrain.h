@@ -18,7 +18,6 @@
 #ifndef INCLUDED_ICMPTERRAIN
 #define INCLUDED_ICMPTERRAIN
 
-#include "lib/types.h"
 #include "maths/FixedVector3D.h"
 #include "simulation2/helpers/Position.h"
 #include "simulation2/system/Component.h"
@@ -57,7 +56,7 @@ public:
 	/**
 	 * Returns the map size in metres (world space units).
 	 */
-	virtual u32 GetMapSize() const = 0;
+	virtual std::uint32_t GetMapSize() const = 0;
 
 	virtual CTerrain* GetCTerrain() = 0;
 

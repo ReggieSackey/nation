@@ -50,7 +50,7 @@ double os_cpu_ClockFrequency()
 		return clockFrequency;
 
 #if OS_WIN
-	u32 freqMhz;
+	std::uint32_t freqMhz;
 	if(wcpu_ReadFrequencyFromRegistry(freqMhz) == INFO::OK)
 		return clockFrequency = freqMhz * 1e6;
 #endif

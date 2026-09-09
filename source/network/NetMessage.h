@@ -19,7 +19,6 @@
 #define NETMESSAGE_H
 
 #include "lib/code_annotation.h"
-#include "lib/types.h"
 #include "network/Serialization.h"
 #include "ps/CStr.h"
 
@@ -124,8 +123,8 @@ class CSimulationMessage : public CNetMessage
 {
 public:
 	CSimulationMessage(const Script::Interface& scriptInterface);
-	CSimulationMessage(const Script::Interface& scriptInterface, u32 client, std::int32_t player,
-		u32 turn, JS::HandleValue data);
+	CSimulationMessage(const Script::Interface& scriptInterface, std::uint32_t client,
+		std::int32_t player, std::uint32_t turn, JS::HandleValue data);
 
 	/** The compiler can't create a copy constructor because of the PersistentRooted member,
 	 * so we have to write it manually.
@@ -138,7 +137,7 @@ public:
 	virtual size_t GetSerializedLength() const;
 	virtual CStr ToString() const;
 
-	u32 m_Client;
+	std::uint32_t m_Client;
 	std::int32_t m_Player;
 	std::int32_t m_Turn;
 	JS::PersistentRooted<JS::Value> m_Data;

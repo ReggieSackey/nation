@@ -20,7 +20,6 @@
 
 #include "lib/code_annotation.h"
 #include "lib/external_libraries/enet.h"
-#include "lib/types.h"
 #include "network/FSM.h"
 #include "network/NetHost.h"
 #include "network/NetMessage.h"
@@ -191,7 +190,7 @@ public:
 	/**
 	 * Call when the network connection has been lost.
 	 */
-	void HandleDisconnect(u32 reason);
+	void HandleDisconnect(std::uint32_t reason);
 
 	/**
 	 * Call when a message has been received from the network.
@@ -336,7 +335,7 @@ private:
 	CNetClientTurnManager* m_ClientTurnManager{nullptr};
 
 	/// Unique-per-game identifier of this client, used to identify the sender of simulation commands
-	u32 m_HostID{static_cast<u32>(-1)};
+	std::uint32_t m_HostID{static_cast<std::uint32_t>(-1)};
 
 	/// True if the player is currently rejoining or has already rejoined the game.
 	bool m_Rejoin{false};

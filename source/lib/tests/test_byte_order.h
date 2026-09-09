@@ -23,7 +23,6 @@
 #include "lib/self_test.h"
 
 #include "lib/byte_order.h"
-#include "lib/types.h"
 
 #include <cstring>
 
@@ -32,7 +31,7 @@ class TestByteOrder : public CxxTest::TestSuite
 public:
 	void test_conversion()
 	{
-		const u32 x = 0x01234567u;
+		const std::uint32_t x = 0x01234567u;
 		std::uint8_t LS_byte;
 		memcpy(&LS_byte, &x, 1);
 		// little endian

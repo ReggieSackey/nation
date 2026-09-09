@@ -108,7 +108,6 @@ library and IO layer. Read and write are zero-copy.
 #include "lib/file/vfs/vfs_path.h"
 #include "lib/os_path.h"
 #include "lib/status.h"
-#include "lib/types.h"
 
 #include <cstddef>
 #include <memory>
@@ -218,9 +217,9 @@ public:
 	{
 		// A pointer to the mip level image data (pixels).
 		std::uint8_t* data;
-		u32 dataSize;
-		u32 width;
-		u32 height;
+		std::uint32_t dataSize;
+		std::uint32_t width;
+		std::uint32_t height;
 	};
 
 	/**
@@ -354,7 +353,7 @@ public:
 	 *
 	 * @return ARGB value (or 0 if texture does not have mipmaps)
 	 **/
-	u32 get_average_color() const;
+	std::uint32_t get_average_color() const;
 
 	/**
 	 * return total byte size of the image pixels. (including mipmaps!)

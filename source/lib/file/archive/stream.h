@@ -30,7 +30,6 @@
 #include "lib/code_annotation.h"
 #include "lib/file/archive/codec.h"
 #include "lib/status.h"
-#include "lib/types.h"
 
 #include <cstddef>
 #include <memory>
@@ -102,7 +101,7 @@ public:
 		return m_outProduced;
 	}
 
-	u32 Checksum() const
+	std::uint32_t Checksum() const
 	{
 		return m_checksum;
 	}
@@ -113,7 +112,7 @@ private:
 
 	size_t m_inConsumed;
 	size_t m_outProduced;
-	u32 m_checksum;
+	std::uint32_t m_checksum;
 };
 
 // avoids the need for std::bind (not supported on all compilers) and boost::bind (can't be

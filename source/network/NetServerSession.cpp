@@ -30,12 +30,12 @@ CNetServerSession::CNetServerSession(CNetServerWorker& server, ENetPeer* peer) :
 {
 }
 
-u32 CNetServerSession::GetIPAddress() const
+std::uint32_t CNetServerSession::GetIPAddress() const
 {
 	return m_Peer->address.host;
 }
 
-u32 CNetServerSession::GetLastReceivedTime() const
+std::uint32_t CNetServerSession::GetLastReceivedTime() const
 {
 	if (!m_Peer)
 		return 0;
@@ -43,7 +43,7 @@ u32 CNetServerSession::GetLastReceivedTime() const
 	return enet_time_get() - m_Peer->lastReceiveTime;
 }
 
-u32 CNetServerSession::GetMeanRTT() const
+std::uint32_t CNetServerSession::GetMeanRTT() const
 {
 	if (!m_Peer)
 		return 0;

@@ -62,7 +62,7 @@
  * Since commands are sent client -> server -> client, divide by 2.
  * (duplicated in NetServer.cpp to avoid having to fetch the constants in a header file)
  */
-constexpr u32 NETWORK_BAD_PING = DEFAULT_TURN_LENGTH * COMMAND_DELAY_MP / 2;
+constexpr std::uint32_t NETWORK_BAD_PING = DEFAULT_TURN_LENGTH * COMMAND_DELAY_MP / 2;
 
 CNetClient *g_NetClient = NULL;
 
@@ -343,7 +343,7 @@ void CNetClient::CheckServerConnection()
 	m_LastConnectionCheck = now;
 
 	// Report if we are losing the connection to the server
-	u32 lastReceived = m_Session->GetLastReceivedTime();
+	std::uint32_t lastReceived = m_Session->GetLastReceivedTime();
 	if (lastReceived > NETWORK_WARNING_TIMEOUT)
 	{
 		PushGuiMessage(
@@ -354,7 +354,7 @@ void CNetClient::CheckServerConnection()
 	}
 
 	// Report if we have a bad ping to the server.
-	u32 meanRTT = m_Session->GetMeanRTT();
+	std::uint32_t meanRTT = m_Session->GetMeanRTT();
 	if (meanRTT > NETWORK_BAD_PING)
 	{
 		PushGuiMessage(
@@ -466,7 +466,7 @@ void CNetClient::HandleConnect()
 	Update((uint)NMT_CONNECT_COMPLETE, NULL);
 }
 
-void CNetClient::HandleDisconnect(u32 reason)
+void CNetClient::HandleDisconnect(std::uint32_t reason)
 {
 	if (reason == NDR_INCORRECT_SOFTWARE_VERSION) {
 		const auto& mismatch = CheckHandshake(m_ServerHandshake, CreateHandshake<CCliHandshakeMessage>());
@@ -604,7 +604,7 @@ bool CNetClient::HandleMessage(CNetMessage* message)
 				std::stringstream stream;
 
 				LOGMESSAGERENDER("Serializing game at turn %u for rejoining player", m_ClientTurnManager->GetCurrentTurn());
-				u32 turn = to_le32(m_ClientTurnManager->GetCurrentTurn());
+				std::uint32_t turn = to_le32(m_ClientTurnManager->GetCurrentTurn());
 				stream.write((char*)&turn, sizeof(turn));
 
 				bool ok = m_Game->GetSimulation2()->SerializeState(stream);
@@ -634,7 +634,7 @@ void CNetClient::LoadFinished()
 
 		std::stringstream stream(m_JoinSyncBuffer);
 
-		u32 turn;
+		std::uint32_t turn;
 		stream.read((char*)&turn, sizeof(turn));
 		turn = to_le32(turn);
 

@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Wildfire Games.
+/* Copyright (C) 2026 Wildfire Games.
  * This file is part of 0 A.D.
  *
  * 0 A.D. is free software: you can redistribute it and/or modify
@@ -18,8 +18,6 @@
 #ifndef INCLUDED_ENTITY
 #define INCLUDED_ENTITY
 
-#include "lib/types.h"
-
 #include <cstddef>
 
 class IComponent;
@@ -28,7 +26,7 @@ class IComponent;
  * Entity ID type.
  * ID numbers are never reused within a simulation run.
  */
-typedef u32 entity_id_t;
+typedef std::uint32_t entity_id_t;
 
 /**
  * Invalid entity ID. Used as an error return value by some functions.

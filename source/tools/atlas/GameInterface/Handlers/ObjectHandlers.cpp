@@ -24,7 +24,6 @@
 #include "graphics/GameView.h"
 #include "graphics/Terrain.h"
 #include "lib/debug.h"
-#include "lib/types.h"
 #include "lib/utf8.h"
 #include "maths/Fixed.h"
 #include "maths/FixedVector3D.h"
@@ -597,7 +596,7 @@ BEGIN_COMMAND(CreateObject)
 	float m_Angle;
 	player_id_t m_Player;
 	entity_id_t m_EntityID;
-	u32 m_ActorSeed;
+	std::uint32_t m_ActorSeed;
 
 	void Do()
 	{
@@ -1020,7 +1019,7 @@ BEGIN_COMMAND(DeleteObjects)
 		player_id_t owner;
 		CFixedVector3D pos;
 		CFixedVector3D rot;
-		u32 actorSeed;
+		std::uint32_t actorSeed;
 	};
 
 	std::vector<OldObject> oldObjects;

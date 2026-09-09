@@ -30,7 +30,6 @@
 #define INCLUDED_CODEC
 
 #include "lib/status.h"
-#include "lib/types.h"
 
 #include <cstddef>
 #include <memory>
@@ -82,7 +81,7 @@ public:
 	 * @param outProduced
 	 * @return error status for the entire operation.
 	 **/
-	virtual Status Finish(u32& checksum, size_t& outProduced) = 0;
+	virtual Status Finish(std::uint32_t& checksum, size_t& outProduced) = 0;
 
 	/**
 	 * update a checksum to reflect the contents of a buffer.
@@ -93,7 +92,8 @@ public:
 	 * @return the new checksum. note: after all data has been seen, this is
 	 * identical to the what Finish would return.
 	 **/
-	virtual u32 UpdateChecksum(u32 checksum, const std::uint8_t* in, size_t inSize) const = 0;
+	virtual std::uint32_t UpdateChecksum(std::uint32_t checksum, const std::uint8_t* in,
+		size_t inSize) const = 0;
 };
 
 typedef std::shared_ptr<ICodec> PICodec;

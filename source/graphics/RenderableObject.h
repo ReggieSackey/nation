@@ -1,4 +1,4 @@
-/* Copyright (C) 2022 Wildfire Games.
+/* Copyright (C) 2026 Wildfire Games.
  * This file is part of 0 A.D.
  *
  * 0 A.D. is free software: you can redistribute it and/or modify
@@ -23,7 +23,6 @@
 #define INCLUDED_RENDERABLEOBJECT
 
 #include "lib/code_annotation.h"
-#include "lib/types.h"
 #include "maths/BoundingBoxAligned.h"
 #include "maths/Matrix3D.h"
 
@@ -84,7 +83,7 @@ public:
 
 	// mark some part of the renderdata as dirty, and requiring
 	// an update on next render
-	void SetDirty(u32 dirtyflags)
+	void SetDirty(std::uint32_t dirtyflags)
 	{
 		if (m_RenderData)
 			m_RenderData->m_UpdateFlags |= dirtyflags;

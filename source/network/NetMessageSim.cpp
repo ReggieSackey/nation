@@ -20,7 +20,6 @@
 #include "NetMessage.h"
 
 #include "lib/code_annotation.h"
-#include "lib/types.h"
 #include "network/NetMessage.h"
 #include "ps/CStr.h"
 #include "scriptinterface/JSON.h"
@@ -123,8 +122,8 @@ CSimulationMessage::CSimulationMessage(const Script::Interface& scriptInterface)
 	m_Data.init(rq.cx);
 }
 
-CSimulationMessage::CSimulationMessage(const Script::Interface& scriptInterface, u32 client,
-	std::int32_t player, u32 turn, JS::HandleValue data) :
+CSimulationMessage::CSimulationMessage(const Script::Interface& scriptInterface, std::uint32_t client,
+	std::int32_t player, std::uint32_t turn, JS::HandleValue data) :
 	CNetMessage(NMT_SIMULATION_COMMAND), m_ScriptInterface(scriptInterface),
 	m_Client(client), m_Player(player), m_Turn(turn)
 {

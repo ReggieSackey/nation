@@ -20,7 +20,6 @@
 
 #include "lib/code_annotation.h"
 #include "lib/os_path.h"
-#include "lib/types.h"
 
 #include <iosfwd>
 #include <js/RootingAPI.h>
@@ -51,7 +50,7 @@ public:
 	/**
 	 * Run the given turn with the given collection of player commands.
 	 */
-	virtual void Turn(u32 n, u32 turnLength, std::vector<SimulationCommand>& commands) = 0;
+	virtual void Turn(std::uint32_t n, std::uint32_t turnLength, std::vector<SimulationCommand>& commands) = 0;
 
 	/**
 	 * Optional hash of simulation state (for sync checking).
@@ -76,7 +75,8 @@ class CDummyReplayLogger : public IReplayLogger
 {
 public:
 	virtual void StartGame(JS::MutableHandleValue /*attribs*/) { }
-	virtual void Turn(u32 /*n*/, u32 /*turnLength*/, std::vector<SimulationCommand>&) { }
+	virtual void Turn(std::uint32_t /*n*/, std::uint32_t /*turnLength*/, std::vector<SimulationCommand>&)
+	{}
 	virtual void Hash(const std::string& /*hash*/, bool /*quick*/) { }
 	virtual void SaveMetadata(const CSimulation2&) { };
 	virtual OsPath GetDirectory() const { return OsPath(); }
@@ -93,7 +93,7 @@ public:
 	~CReplayLogger();
 
 	virtual void StartGame(JS::MutableHandleValue attribs);
-	virtual void Turn(u32 n, u32 turnLength, std::vector<SimulationCommand>& commands);
+	virtual void Turn(std::uint32_t n, std::uint32_t turnLength, std::vector<SimulationCommand>& commands);
 	virtual void Hash(const std::string& hash, bool quick);
 	virtual void SaveMetadata(const CSimulation2& simulation);
 	virtual OsPath GetDirectory() const;

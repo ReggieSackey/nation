@@ -81,7 +81,6 @@
 #include "lib/code_annotation.h"
 #include "lib/debug.h"
 #include "lib/timer.h"
-#include "lib/types.h"
 #include "ps/ThreadUtil.h"
 
 #include <atomic>
@@ -210,9 +209,9 @@ private:
 		/**
 		 * Store an item into the buffer.
 		 */
-		void Write(EItem type, const void* item, u32 itemSize);
+		void Write(EItem type, const void* item, std::uint32_t itemSize);
 
-		void WriteHold(EItem type, const void* item, u32 itemSize);
+		void WriteHold(EItem type, const void* item, std::uint32_t itemSize);
 
 		CProfiler2& m_Profiler;
 		std::string m_Name;

@@ -183,8 +183,8 @@ void HierarchicalPathfinder::Chunk::RegionCenter(std::uint16_t r, int& i_out, in
 {
 	// Find the mean of i,j coords of navcells in this region:
 
-	u32 si = 0, sj = 0; // sum of i,j coords
-	u32 n = 0; // number of navcells in region
+	std::uint32_t si = 0, sj = 0; // sum of i,j coords
+	std::uint32_t n = 0; // number of navcells in region
 
 	cassert(CHUNK_SIZE < 256); // conservative limit to ensure si and sj don't overflow
 
@@ -215,11 +215,11 @@ void HierarchicalPathfinder::Chunk::RegionCenter(std::uint16_t r, int& i_out, in
  * that goal.
  */
 void HierarchicalPathfinder::Chunk::RegionNavcellNearest(std::uint16_t r, int iGoal, int jGoal, int& iBest,
-	int& jBest, u32& dist2Best) const
+	int& jBest, std::uint32_t& dist2Best) const
 {
 	iBest = 0;
 	jBest = 0;
-	dist2Best = std::numeric_limits<u32>::max();
+	dist2Best = std::numeric_limits<std::uint32_t>::max();
 
 	for (int j = 0; j < CHUNK_SIZE; ++j)
 	{
@@ -228,7 +228,7 @@ void HierarchicalPathfinder::Chunk::RegionNavcellNearest(std::uint16_t r, int iG
 			if (m_Regions[j][i] != r)
 				continue;
 
-			u32 dist2 = (i + m_ChunkI*CHUNK_SIZE - iGoal)*(i + m_ChunkI*CHUNK_SIZE - iGoal)
+			std::uint32_t dist2 = (i + m_ChunkI*CHUNK_SIZE - iGoal)*(i + m_ChunkI*CHUNK_SIZE - iGoal)
 				        + (j + m_ChunkJ*CHUNK_SIZE - jGoal)*(j + m_ChunkJ*CHUNK_SIZE - jGoal);
 
 			if (dist2 < dist2Best)
@@ -248,13 +248,14 @@ void HierarchicalPathfinder::Chunk::RegionNavcellNearest(std::uint16_t r, int iG
  * Returns true if the goal is inside the region, false otherwise.
  */
 bool HierarchicalPathfinder::Chunk::RegionNearestNavcellInGoal(std::uint16_t r, std::uint16_t i0,
-	std::uint16_t j0, const PathGoal& goal, std::uint16_t& iOut, std::uint16_t& jOut, u32& dist2Best) const
+	std::uint16_t j0, const PathGoal& goal, std::uint16_t& iOut, std::uint16_t& jOut,
+	std::uint32_t& dist2Best) const
 {
 	// TODO: this should be optimized further.
 	// Most used cases empirically seem to be SQUARE, INVERTED_CIRCLE and then POINT and CIRCLE somehwat equally
 	iOut = 0;
 	jOut = 0;
-	dist2Best = std::numeric_limits<u32>::max();
+	dist2Best = std::numeric_limits<std::uint32_t>::max();
 
 	// Calculate the navcell that contains the center of the goal.
 	int gi = (goal.x >> Pathfinding::NAVCELL_SIZE_LOG2).ToInt_RoundToNegInfinity();
@@ -288,7 +289,7 @@ bool HierarchicalPathfinder::Chunk::RegionNearestNavcellInGoal(std::uint16_t r, 
 		int jmin = std::max(0, gj-m_ChunkJ*CHUNK_SIZE-radius);
 		int jmax = std::min((int)CHUNK_SIZE, gj-m_ChunkJ*CHUNK_SIZE+radius+1);
 		bool found = false;
-		u32 dist2 = std::numeric_limits<u32>::max();
+		std::uint32_t dist2 = std::numeric_limits<std::uint32_t>::max();
 		for (std::uint16_t j = jmin; j < jmax; ++j)
 		{
 			for (std::uint16_t i = imin; i < imax; ++i)
@@ -324,7 +325,7 @@ bool HierarchicalPathfinder::Chunk::RegionNearestNavcellInGoal(std::uint16_t r, 
 	case PathGoal::INVERTED_SQUARE:
 	{
 		bool found = false;
-		u32 dist2 = std::numeric_limits<u32>::max();
+		std::uint32_t dist2 = std::numeric_limits<std::uint32_t>::max();
 		// loop over all navcells.
 		for (std::uint16_t j = 0; j < CHUNK_SIZE; ++j)
 		{
@@ -787,26 +788,29 @@ void HierarchicalPathfinder::FindNearestNavcellInRegions(
 	pass_class_t passClass) const
 {
 	std::uint16_t bestI = iGoal, bestJ = jGoal; // Somewhat sensible default-values should regions() be passed empty.
-	u32 bestDist = std::numeric_limits<u32>::max();
+	std::uint32_t bestDist = std::numeric_limits<std::uint32_t>::max();
 
 	// Because regions are sorted by increasing distance, we can ignore regions that are obviously farther than the current best point.
 	// Since regions are squares, that happens when the center of a region is at least sqrt(2) * CHUNK_SIZE farther than the current best point.
 	// Add one to avoid cases where the center navcell is actually slightly off-center (= CHUNK_SIZE is even)
-	u32 maxDistFromBest = (fixed::FromInt(3) / 2 * CHUNK_SIZE).ToInt_RoundToInfinity() + 1;
+	std::uint32_t maxDistFromBest = (fixed::FromInt(3) / 2 * CHUNK_SIZE).ToInt_RoundToInfinity() + 1;
 	// TODO: update to static_assert with constexpr
 	ENSURE(maxDistFromBest < std::numeric_limits<std::uint16_t>::max());
 	maxDistFromBest *= maxDistFromBest;
 
 	for (const RegionID& region : regions)
 	{
-		u32 chunkDist = region.DistanceTo(iGoal, jGoal);
+		std::uint32_t chunkDist = region.DistanceTo(iGoal, jGoal);
 		// This might overflow, but only if we are already close to the maximal possible distance, so the condition would probably be false anyways.
 		// It's also a bit pessimistic, so we'll still consider a few too many regions.
-		if (bestDist < std::numeric_limits<u32>::max() && chunkDist > maxDistFromBest + bestDist)
+		if (bestDist < std::numeric_limits<std::uint32_t>::max() &&
+			chunkDist > maxDistFromBest + bestDist)
+		{
 			break; // Break, the set is ordered by increased distance so a closer region will not be found.
+		}
 
 		int ri, rj;
-		u32 dist;
+		std::uint32_t dist;
 		GetChunk(region.ci, region.cj, passClass).RegionNavcellNearest(region.r, iGoal, jGoal, ri, rj, dist);
 		if (dist < bestDist)
 		{
@@ -842,7 +846,7 @@ void HierarchicalPathfinder::FindGoalRegionsAndBestNavcells(std::uint16_t i0, st
 	int size = (std::max(goal.hh, goal.hw) * 3 / 2).ToInt_RoundToInfinity();
 
 	std::uint16_t bestI, bestJ;
-	u32 c; // Unused.
+	std::uint32_t c; // Unused.
 
 	for (std::uint8_t sz = std::max(0,(gj - size) / CHUNK_SIZE);
 		sz <= std::min(m_ChunksH-1, (gj + size + 1) / CHUNK_SIZE); ++sz)

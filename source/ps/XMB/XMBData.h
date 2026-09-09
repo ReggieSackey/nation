@@ -28,7 +28,7 @@ Theoretical file structure:
 
 XMB_File {
 	char Header[4]; // because everyone has one; currently "XMB0"
-	u32 Version;
+	std::uint32_t Version;
 
  	int OffsetFromStartToElementNames;
  	int ElementNameCount;

@@ -51,7 +51,7 @@ void MD5::UpdateRest(const std::uint8_t* data, size_t len)
 	len -= n;
 
 	// Flush the (now full) buffer
-	Transform((const u32*)m_Buf); // assumes little-endian
+	Transform(reinterpret_cast<const std::uint32_t*>(m_Buf)); // assumes little-endian
 
 	// Process whole chunks of the input
 	while (len >= CHUNK_SIZE)
@@ -59,9 +59,9 @@ void MD5::UpdateRest(const std::uint8_t* data, size_t len)
 #if defined(__ARM_ARCH_7A__)
 		// Avoid SIGBUS on alignment-sensitive architecture
 		memcpy(m_Buf, data, CHUNK_SIZE);
-		Transform((const u32*)m_Buf);
+		Transform(reinterpret_cast<const std::uint32_t*>(m_Buf));
 #else
-		Transform((const u32*)data); // assumes little-endian; ignores alignment
+		Transform(reinterpret_cast<const std::uint32_t*>(data)); // assumes little-endian; ignores alignment
 #endif
 		data += CHUNK_SIZE;
 		len -= CHUNK_SIZE;
@@ -102,7 +102,7 @@ void MD5::Final(std::uint8_t* digest)
 #define rotlFixed(x, y) (((x) << (y)) | ((x) >> (32 - (y))))
 // TODO: Crypto++ has an overload using _lrotl on MSVC - is that worthwhile?
 
-void MD5::Transform(const u32* in)
+void MD5::Transform(const std::uint32_t* in)
 {
 #define F1(x, y, z) (z ^ (x & (y ^ z)))
 #define F2(x, y, z) F1(z, x, y)
@@ -112,10 +112,10 @@ void MD5::Transform(const u32* in)
 #define MD5STEP(f, w, x, y, z, data, s) \
 	t = w + f(x, y, z) + data; w = rotlFixed(t, s) + x
 
-	u32* digest = m_Digest;
+	std::uint32_t* digest = m_Digest;
 
-	u32 a, b, c, d;
-	u32 t;
+	std::uint32_t a, b, c, d;
+	std::uint32_t t;
 
 	a = digest[0];
 	b = digest[1];

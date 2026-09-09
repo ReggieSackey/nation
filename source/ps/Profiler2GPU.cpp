@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Wildfire Games.
+/* Copyright (C) 2026 Wildfire Games.
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -25,7 +25,6 @@
 #include "Profiler2GPU.h"
 
 #include "lib/debug.h"
-#include "lib/types.h"
 #include "ps/ConfigDB.h"
 #include "ps/Profiler2.h"
 #include "ps/VideoMode.h"
@@ -57,7 +56,7 @@ class CProfiler2GPUImpl
 
 	struct SFrame
 	{
-		u32 num;
+		std::uint32_t num;
 
 		double syncTimeStart; // CPU time at start of this frame.
 

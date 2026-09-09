@@ -45,7 +45,7 @@
 
 
 /**
- * convert 4 characters to u32 (at compile time) for easy comparison.
+ * convert 4 characters to std::uint32_t (at compile time) for easy comparison.
  * output is in native byte order; e.g. FOURCC_LE can be used instead.
  **/
 #define FOURCC(a,b,c,d)	// real definition is below
@@ -55,20 +55,22 @@
 // - can't pass code as string, and use s[0]..s[3], because
 //   VC6/7 don't realize the macro is constant
 //   (it should be usable as a switch{} expression)
-// - the casts are ugly but necessary. u32 is required because
+// - the casts are ugly but necessary. std::uint32_t is required because
 //   std::uint8_t << 8 == 0; the additional std::uint8_t cast ensures each
 //   character is treated as unsigned (otherwise, they'd be promoted to signed
-//   int before the u32 cast, which would break things).
+//   int before the std::uint32_t cast, which would break things).
 
 /// big-endian version of FOURCC
-#define FOURCC_BE(a,b,c,d) ( ((u32)static_cast<std::uint8_t>(a)) << 24 | \
-	((u32)static_cast<std::uint8_t>(b)) << 16 | ((u32)static_cast<std::uint8_t>(c)) << 8  | \
-	((u32)static_cast<std::uint8_t>(d)) << 0 )
+#define FOURCC_BE(a,b,c,d) ( static_cast<std::uint32_t>(static_cast<std::uint8_t>(a)) << 24 | \
+	static_cast<std::uint32_t>(static_cast<std::uint8_t>(b)) << 16 | \
+	static_cast<std::uint32_t>(static_cast<std::uint8_t>(c)) << 8  | \
+	static_cast<std::uint32_t>(static_cast<std::uint8_t>(d)) << 0 )
 
 /// little-endian version of FOURCC
-#define FOURCC_LE(a,b,c,d) ( ((u32)static_cast<std::uint8_t>(a)) << 0 | \
-	((u32)static_cast<std::uint8_t>(b)) << 8 | ((u32)static_cast<std::uint8_t>(c)) << 16 | \
-	((u32)static_cast<std::uint8_t>(d)) << 24 )
+#define FOURCC_LE(a,b,c,d) ( static_cast<std::uint32_t>(static_cast<std::uint8_t>(a)) << 0 | \
+	static_cast<std::uint32_t>(static_cast<std::uint8_t>(b)) << 8 | \
+	static_cast<std::uint32_t>(static_cast<std::uint8_t>(c)) << 16 | \
+	static_cast<std::uint32_t>(static_cast<std::uint8_t>(d)) << 24 )
 
 #if BYTE_ORDER == BIG_ENDIAN
 # define FOURCC FOURCC_BE
@@ -99,22 +101,22 @@
 
 /// read a little-endian number from memory into native byte order.
 std::uint16_t read_le16(const void* p);
-u32 read_le32(const void* p);	/// see read_le16
+std::uint32_t read_le32(const void* p);	/// see read_le16
 u64 read_le64(const void* p);	/// see read_le16
 
 /// read a big-endian number from memory into native byte order.
 std::uint16_t read_be16(const void* p);
-u32 read_be32(const void* p);	/// see read_be16
+std::uint32_t read_be32(const void* p);	/// see read_be16
 u64 read_be64(const void* p);	/// see read_be16
 
 /// write a little-endian number to memory in native byte order.
 void write_le16(void* p, std::uint16_t x);
-void write_le32(void* p, u32 x);	/// see write_le16
+void write_le32(void* p, std::uint32_t x);	/// see write_le16
 void write_le64(void* p, u64 x);	/// see write_le16
 
 /// write a big-endian number to memory in native byte order.
 void write_be16(void* p, std::uint16_t x);
-void write_be32(void* p, u32 x);	/// see write_be16
+void write_be32(void* p, std::uint32_t x);	/// see write_be16
 void write_be64(void* p, u64 x);	/// see write_be16
 
 /**
@@ -159,7 +161,7 @@ extern unsigned __int64 _byteswap_uint64(unsigned __int64);
 std::uint16_t swap16(const std::uint16_t x);
 #endif
 #ifndef swap32
-u32 swap32(const u32 x);
+std::uint32_t swap32(const std::uint32_t x);
 #endif
 #ifndef swap64
 u64 swap64(const u64 x);

@@ -158,10 +158,10 @@ public:
 	SpatialSubdivision m_StaticSubdivision;
 
 	// TODO: using std::map is a bit inefficient; is there a better way to store these?
-	std::map<u32, UnitShape> m_UnitShapes;
-	std::map<u32, StaticShape> m_StaticShapes;
-	u32 m_UnitShapeNext; // next allocated id
-	u32 m_StaticShapeNext;
+	std::map<std::uint32_t, UnitShape> m_UnitShapes;
+	std::map<std::uint32_t, StaticShape> m_StaticShapes;
+	std::uint32_t m_UnitShapeNext; // next allocated id
+	std::uint32_t m_StaticShapeNext;
 
 	entity_pos_t m_MaxClearance;
 
@@ -280,14 +280,14 @@ public:
 		m_UnitSubdivision.Reset(x1, z1, OBSTRUCTION_SUBDIVISION_SIZE);
 		m_StaticSubdivision.Reset(x1, z1, OBSTRUCTION_SUBDIVISION_SIZE);
 
-		for (std::map<u32, UnitShape>::iterator it = m_UnitShapes.begin(); it != m_UnitShapes.end(); ++it)
+		for (auto it = m_UnitShapes.begin(); it != m_UnitShapes.end(); ++it)
 		{
 			CFixedVector2D center(it->second.x, it->second.z);
 			CFixedVector2D halfSize(it->second.clearance, it->second.clearance);
 			m_UnitSubdivision.Add(it->first, center - halfSize, center + halfSize);
 		}
 
-		for (std::map<u32, StaticShape>::iterator it = m_StaticShapes.begin(); it != m_StaticShapes.end(); ++it)
+		for (auto it = m_StaticShapes.begin(); it != m_StaticShapes.end(); ++it)
 		{
 			CFixedVector2D center(it->second.x, it->second.z);
 			CFixedVector2D bbHalfSize = Geometry::GetHalfBoundingBox(it->second.u, it->second.v, CFixedVector2D(it->second.hw, it->second.hh));
@@ -298,7 +298,7 @@ public:
 	tag_t AddUnitShape(entity_id_t ent, entity_pos_t x, entity_pos_t z, entity_pos_t clearance, flags_t flags, entity_id_t group) override
 	{
 		UnitShape shape = { ent, x, z, clearance, flags, group };
-		u32 id = m_UnitShapeNext++;
+		std::uint32_t id = m_UnitShapeNext++;
 		m_UnitShapes[id] = shape;
 
 		m_UnitSubdivision.Add(id, CFixedVector2D(x - clearance, z - clearance), CFixedVector2D(x + clearance, z + clearance));
@@ -316,7 +316,7 @@ public:
 		CFixedVector2D v(s, c);
 
 		StaticShape shape = { ent, x, z, u, v, w/2, h/2, flags, group, group2 };
-		u32 id = m_StaticShapeNext++;
+		std::uint32_t id = m_StaticShapeNext++;
 		m_StaticShapes[id] = shape;
 
 		CFixedVector2D center(x, z);
@@ -543,8 +543,8 @@ private:
 	// Dynamic updates for the long-range pathfinder
 	GridUpdateInformation m_UpdateInformations;
 	// These vectors might contain shapes that were deleted
-	std::vector<u32> m_DirtyStaticShapes;
-	std::vector<u32> m_DirtyUnitShapes;
+	std::vector<std::uint32_t> m_DirtyStaticShapes;
+	std::vector<std::uint32_t> m_DirtyUnitShapes;
 
 	/**
 	 * Mark all previous Rasterize()d grids as dirty, and the debug display.
@@ -591,7 +591,7 @@ private:
 	 * Mark all previous Rasterize()d grids as dirty, if they depend on this shape.
 	 * Call this when a static shape has changed.
 	 */
-	void MakeDirtyStatic(flags_t flags, u32 index, const StaticShape& shape)
+	void MakeDirtyStatic(flags_t flags, std::uint32_t index, const StaticShape& shape)
 	{
 		m_DebugOverlayDirty = true;
 
@@ -615,15 +615,15 @@ private:
 			CFixedVector2D hbox = Geometry::GetHalfBoundingBox(shape.u, shape.v, CFixedVector2D(shape.hw, shape.hh));
 			CFixedVector2D expand(m_MaxClearance, m_MaxClearance);
 
-			std::vector<u32> staticsNear;
+			std::vector<std::uint32_t> staticsNear;
 			m_StaticSubdivision.GetInRange(staticsNear, center - hbox - expand*2, center + hbox + expand*2);
-			for (u32& staticId : staticsNear)
+			for (std::uint32_t& staticId : staticsNear)
 				if (std::find(m_DirtyStaticShapes.begin(), m_DirtyStaticShapes.end(), staticId) == m_DirtyStaticShapes.end())
 					m_DirtyStaticShapes.push_back(staticId);
 
-			std::vector<u32> unitsNear;
+			std::vector<std::uint32_t> unitsNear;
 			m_UnitSubdivision.GetInRange(unitsNear, center - hbox - expand*2, center + hbox + expand*2);
-			for (u32& unitId : unitsNear)
+			for (std::uint32_t& unitId : unitsNear)
 				if (std::find(m_DirtyUnitShapes.begin(), m_DirtyUnitShapes.end(), unitId) == m_DirtyUnitShapes.end())
 					m_DirtyUnitShapes.push_back(unitId);
 
@@ -635,7 +635,7 @@ private:
 	 * Mark all previous Rasterize()d grids as dirty, if they depend on this shape.
 	 * Call this when a unit shape has changed.
 	 */
-	void MakeDirtyUnit(flags_t flags, u32 index, const UnitShape& shape)
+	void MakeDirtyUnit(flags_t flags, std::uint32_t index, const UnitShape& shape)
 	{
 		m_DebugOverlayDirty = true;
 
@@ -657,15 +657,15 @@ private:
 
 			CFixedVector2D center(shape.x, shape.z);
 
-			std::vector<u32> staticsNear;
+			std::vector<std::uint32_t> staticsNear;
 			m_StaticSubdivision.GetNear(staticsNear, center, shape.clearance + m_MaxClearance*2);
-			for (u32& staticId : staticsNear)
+			for (std::uint32_t& staticId : staticsNear)
 				if (std::find(m_DirtyStaticShapes.begin(), m_DirtyStaticShapes.end(), staticId) == m_DirtyStaticShapes.end())
 					m_DirtyStaticShapes.push_back(staticId);
 
-			std::vector<u32> unitsNear;
+			std::vector<std::uint32_t> unitsNear;
 			m_UnitSubdivision.GetNear(unitsNear, center, shape.clearance + m_MaxClearance*2);
-			for (u32& unitId : unitsNear)
+			for (std::uint32_t& unitId : unitsNear)
 				if (std::find(m_DirtyUnitShapes.begin(), m_DirtyUnitShapes.end(), unitId) == m_DirtyUnitShapes.end())
 					m_DirtyUnitShapes.push_back(unitId);
 
@@ -902,7 +902,7 @@ bool CCmpObstructionManager::TestLine(const IObstructionTestFilter& filter, enti
 	m_UnitSubdivision.GetInRange(unitShapes, posMin, posMax);
 	for (const entity_id_t& shape : unitShapes)
 	{
-		std::map<u32, UnitShape>::const_iterator it = m_UnitShapes.find(shape);
+		std::map<std::uint32_t, UnitShape>::const_iterator it = m_UnitShapes.find(shape);
 		ENSURE(it != m_UnitShapes.end());
 
 		if (!filter.TestShape(UNIT_INDEX_TO_TAG(it->first), it->second.flags, it->second.group, INVALID_ENTITY))
@@ -918,7 +918,7 @@ bool CCmpObstructionManager::TestLine(const IObstructionTestFilter& filter, enti
 	m_StaticSubdivision.GetInRange(staticShapes, posMin, posMax);
 	for (const entity_id_t& shape : staticShapes)
 	{
-		std::map<u32, StaticShape>::const_iterator it = m_StaticShapes.find(shape);
+		std::map<std::uint32_t, StaticShape>::const_iterator it = m_StaticShapes.find(shape);
 		ENSURE(it != m_StaticShapes.end());
 
 		if (!filter.TestShape(STATIC_INDEX_TO_TAG(it->first), it->second.flags, it->second.group, it->second.group2))
@@ -951,7 +951,7 @@ bool CCmpObstructionManager::TestUnitLine(const IObstructionTestFilter& filter, 
 	m_UnitSubdivision.GetInRange(unitShapes, posMin, posMax);
 	for (const entity_id_t& shape : unitShapes)
 	{
-		std::map<u32, UnitShape>::const_iterator it = m_UnitShapes.find(shape);
+		std::map<std::uint32_t, UnitShape>::const_iterator it = m_UnitShapes.find(shape);
 		ENSURE(it != m_UnitShapes.end());
 
 		if (!filter.TestShape(UNIT_INDEX_TO_TAG(it->first), it->second.flags, it->second.group, INVALID_ENTITY))
@@ -1003,7 +1003,7 @@ bool CCmpObstructionManager::TestStaticShape(const IObstructionTestFilter& filte
 	m_UnitSubdivision.GetInRange(unitShapes, posMin, posMax);
 	for (entity_id_t& shape : unitShapes)
 	{
-		std::map<u32, UnitShape>::const_iterator it = m_UnitShapes.find(shape);
+		std::map<std::uint32_t, UnitShape>::const_iterator it = m_UnitShapes.find(shape);
 		ENSURE(it != m_UnitShapes.end());
 
 		if (!filter.TestShape(UNIT_INDEX_TO_TAG(it->first), it->second.flags, it->second.group, INVALID_ENTITY))
@@ -1024,7 +1024,7 @@ bool CCmpObstructionManager::TestStaticShape(const IObstructionTestFilter& filte
 	m_StaticSubdivision.GetInRange(staticShapes, posMin, posMax);
 	for (entity_id_t& shape : staticShapes)
 	{
-		std::map<u32, StaticShape>::const_iterator it = m_StaticShapes.find(shape);
+		std::map<std::uint32_t, StaticShape>::const_iterator it = m_StaticShapes.find(shape);
 		ENSURE(it != m_StaticShapes.end());
 
 		if (!filter.TestShape(STATIC_INDEX_TO_TAG(it->first), it->second.flags, it->second.group, it->second.group2))
@@ -1070,7 +1070,7 @@ bool CCmpObstructionManager::TestUnitShape(const IObstructionTestFilter& filter,
 	m_UnitSubdivision.GetInRange(unitShapes, posMin, posMax);
 	for (const entity_id_t& shape : unitShapes)
 	{
-		std::map<u32, UnitShape>::const_iterator it = m_UnitShapes.find(shape);
+		std::map<std::uint32_t, UnitShape>::const_iterator it = m_UnitShapes.find(shape);
 		ENSURE(it != m_UnitShapes.end());
 
 		if (!filter.TestShape(UNIT_INDEX_TO_TAG(it->first), it->second.flags, it->second.group, INVALID_ENTITY))
@@ -1095,7 +1095,7 @@ bool CCmpObstructionManager::TestUnitShape(const IObstructionTestFilter& filter,
 	m_StaticSubdivision.GetInRange(staticShapes, posMin, posMax);
 	for (const entity_id_t& shape : staticShapes)
 	{
-		std::map<u32, StaticShape>::const_iterator it = m_StaticShapes.find(shape);
+		std::map<std::uint32_t, StaticShape>::const_iterator it = m_StaticShapes.find(shape);
 		ENSURE(it != m_StaticShapes.end());
 
 		if (!filter.TestShape(STATIC_INDEX_TO_TAG(it->first), it->second.flags, it->second.group, it->second.group2))
@@ -1225,7 +1225,7 @@ void CCmpObstructionManager::GetUnitObstructionsInRange(const IObstructionTestFi
 	m_UnitSubdivision.GetInRange(unitShapes, CFixedVector2D(x0, z0), CFixedVector2D(x1, z1));
 	for (entity_id_t& unitShape : unitShapes)
 	{
-		std::map<u32, UnitShape>::const_iterator it = m_UnitShapes.find(unitShape);
+		std::map<std::uint32_t, UnitShape>::const_iterator it = m_UnitShapes.find(unitShape);
 		ENSURE(it != m_UnitShapes.end());
 
 		if (!filter.TestShape(UNIT_INDEX_TO_TAG(it->first), it->second.flags, it->second.group, INVALID_ENTITY))
@@ -1253,7 +1253,7 @@ void CCmpObstructionManager::GetStaticObstructionsInRange(const IObstructionTest
 	m_StaticSubdivision.GetInRange(staticShapes, CFixedVector2D(x0, z0), CFixedVector2D(x1, z1));
 	for (entity_id_t& staticShape : staticShapes)
 	{
-		std::map<u32, StaticShape>::const_iterator it = m_StaticShapes.find(staticShape);
+		std::map<std::uint32_t, StaticShape>::const_iterator it = m_StaticShapes.find(staticShape);
 		ENSURE(it != m_StaticShapes.end());
 
 		if (!filter.TestShape(STATIC_INDEX_TO_TAG(it->first), it->second.flags, it->second.group, it->second.group2))
@@ -1288,9 +1288,9 @@ void CCmpObstructionManager::GetUnitsOnObstruction(const ObstructionSquare& squa
 
 	std::map<entity_pos_t, SimRasterize::Spans> rasterizedRects;
 
-	for (const u32& unitShape : unitShapes)
+	for (const std::uint32_t& unitShape : unitShapes)
 	{
-		std::map<u32, UnitShape>::const_iterator it = m_UnitShapes.find(unitShape);
+		std::map<std::uint32_t, UnitShape>::const_iterator it = m_UnitShapes.find(unitShape);
 		ENSURE(it != m_UnitShapes.end());
 
 		const UnitShape& shape = it->second;
@@ -1341,9 +1341,9 @@ void CCmpObstructionManager::GetStaticObstructionsOnObstruction(const Obstructio
 	CFixedVector2D expandedBox = Geometry::GetHalfBoundingBox(square.u, square.v, CFixedVector2D(square.hw, square.hh));
 	m_StaticSubdivision.GetInRange(staticShapes, center - expandedBox, center + expandedBox);
 
-	for (const u32& staticShape : staticShapes)
+	for (const std::uint32_t& staticShape : staticShapes)
 	{
-		std::map<u32, StaticShape>::const_iterator it = m_StaticShapes.find(staticShape);
+		std::map<std::uint32_t, StaticShape>::const_iterator it = m_StaticShapes.find(staticShape);
 		ENSURE(it != m_StaticShapes.end());
 
 		const StaticShape& shape = it->second;
@@ -1387,14 +1387,14 @@ void CCmpObstructionManager::RenderSubmit(SceneCollector& collector)
 				(m_WorldX1-m_WorldX0).ToFloat(), (m_WorldZ1-m_WorldZ0).ToFloat(),
 				0, m_DebugOverlayLines.back(), true);
 
-		for (std::map<u32, UnitShape>::iterator it = m_UnitShapes.begin(); it != m_UnitShapes.end(); ++it)
+		for (std::map<std::uint32_t, UnitShape>::iterator it = m_UnitShapes.begin(); it != m_UnitShapes.end(); ++it)
 		{
 			m_DebugOverlayLines.push_back(SOverlayLine());
 			m_DebugOverlayLines.back().m_Color = ((it->second.flags & FLAG_MOVING) ? movingColor : defaultColor);
 			SimRender::ConstructSquareOnGround(GetSimContext(), it->second.x.ToFloat(), it->second.z.ToFloat(), it->second.clearance.ToFloat(), it->second.clearance.ToFloat(), 0, m_DebugOverlayLines.back(), true);
 		}
 
-		for (std::map<u32, StaticShape>::iterator it = m_StaticShapes.begin(); it != m_StaticShapes.end(); ++it)
+		for (std::map<std::uint32_t, StaticShape>::iterator it = m_StaticShapes.begin(); it != m_StaticShapes.end(); ++it)
 		{
 			m_DebugOverlayLines.push_back(SOverlayLine());
 			m_DebugOverlayLines.back().m_Color = defaultColor;

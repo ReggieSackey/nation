@@ -19,7 +19,6 @@
 
 #include "ICmpCommandQueue.h"
 
-#include "lib/types.h"
 #include "ps/CLogger.h"
 #include "ps/Game.h"
 #include "ps/Profiler2.h"
@@ -68,7 +67,7 @@ public:
 	{
 		Script::Request rq(GetSimContext().GetScriptInterface());
 
-		serialize.NumberU32_Unbounded("num commands", (u32)m_LocalQueue.size());
+		serialize.NumberU32_Unbounded("num commands", static_cast<std::uint32_t>(m_LocalQueue.size()));
 		for (size_t i = 0; i < m_LocalQueue.size(); ++i)
 		{
 			serialize.NumberI32_Unbounded("player", m_LocalQueue[i].player);
@@ -80,7 +79,7 @@ public:
 	{
 		Script::Request rq(GetSimContext().GetScriptInterface());
 
-		u32 numCmds;
+		std::uint32_t numCmds;
 		deserialize.NumberU32_Unbounded("num commands", numCmds);
 		for (size_t i = 0; i < numCmds; ++i)
 		{

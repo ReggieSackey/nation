@@ -29,7 +29,6 @@
 #include "lib/os_path.h"
 #include "lib/path.h"
 #include "lib/tex/tex.h"
-#include "lib/types.h"
 #include "lib/utf8.h"
 #include "maths/FixedVector2D.h"
 #include "ps/CLogger.h"
@@ -368,7 +367,8 @@ public:
 	/**
 	 * Debug function for AI scripts to dump 2D array data (e.g. terrain tile weights).
 	 */
-	void DumpImage(const std::wstring& name, const std::vector<u32>& data, u32 w, u32 h, u32 max)
+	void DumpImage(const std::wstring& name, const std::vector<std::uint32_t>& data, std::uint32_t w,
+		std::uint32_t h, std::uint32_t max)
 	{
 		// TODO: this is totally not threadsafe.
 		VfsPath filename = L"screenshots/aidump/" + name;
@@ -403,7 +403,7 @@ public:
 		tex_write(&t, filename);
 	}
 
-	void SetRNGSeed(u32 seed)
+	void SetRNGSeed(std::uint32_t seed)
 	{
 		m_RNG.seed(seed);
 	}
@@ -561,9 +561,9 @@ public:
 			ENSURE(JS_GetProperty(rq.cx, mapObj, "data", &mapData));
 			JS::RootedObject dataObj(rq.cx, &mapData.toObject());
 
-			u32 length = 0;
+			std::uint32_t length = 0;
 			ENSURE(JS::GetArrayLength(rq.cx, dataObj, &length));
-			u32 nbytes = (u32)(length * sizeof(NavcellData));
+			std::uint32_t nbytes = static_cast<std::uint32_t>(length * sizeof(NavcellData));
 
 			bool sharedMemory;
 			JS::AutoCheckCannotGC nogc;
@@ -589,9 +589,9 @@ public:
 			ENSURE(JS_GetProperty(rq.cx, mapObj, "data", &mapData));
 			JS::RootedObject dataObj(rq.cx, &mapData.toObject());
 
-			u32 length = 0;
+			std::uint32_t length = 0;
 			ENSURE(JS::GetArrayLength(rq.cx, dataObj, &length));
-			u32 nbytes = (u32)(length * sizeof(std::uint8_t));
+			std::uint32_t nbytes = static_cast<std::uint32_t>(length * sizeof(std::uint8_t));
 
 			bool sharedMemory;
 			JS::AutoCheckCannotGC nogc;
@@ -682,7 +682,7 @@ public:
 			serializer.NumberU8_Unbounded("difficulty", m_Players[i]->m_Difficulty);
 			serializer.String("behavior", m_Players[i]->m_Behavior, 1, 256);
 
-			serializer.NumberU32_Unbounded("num commands", (u32)m_Players[i]->m_Commands.size());
+			serializer.NumberU32_Unbounded("num commands", static_cast<std::uint32_t>(m_Players[i]->m_Commands.size()));
 			for (size_t j = 0; j < m_Players[i]->m_Commands.size(); ++j)
 			{
 				JS::RootedValue val(rq.cx);
@@ -703,7 +703,7 @@ public:
 			m_PassabilityMap.m_W*m_PassabilityMap.m_H*sizeof(NavcellData));
 	}
 
-	void Deserialize(std::istream& stream, u32 numAis)
+	void Deserialize(std::istream& stream, std::uint32_t numAis)
 	{
 		m_PlayerMetadata.clear();
 		m_Players.clear();
@@ -745,7 +745,7 @@ public:
 			if (!AddPlayer(name, player, difficulty, behavior))
 				throw PSERROR_Deserialize_ScriptError();
 
-			u32 numCommands;
+			std::uint32_t numCommands;
 			deserializer.NumberU32_Unbounded("num commands", numCommands);
 			m_Players.back()->m_Commands.reserve(numCommands);
 			for (size_t j = 0; j < numCommands; ++j)
@@ -838,7 +838,7 @@ private:
 
 	std::shared_ptr<Script::Interface> m_ScriptInterface;
 	boost::rand48 m_RNG;
-	u32 m_TurnNum;
+	std::uint32_t m_TurnNum;
 
 	JS::PersistentRootedValue m_EntityTemplates;
 	bool m_HasLoadedEntityTemplates;
@@ -915,7 +915,7 @@ public:
 	{
 		Init(paramNode);
 
-		u32 numAis;
+		std::uint32_t numAis;
 		deserialize.NumberU32_Unbounded("num ais", numAis);
 		if (numAis > 0)
 			LoadUsedEntityTemplates();
@@ -940,7 +940,7 @@ public:
 			cmpRangeManager->SetLosRevealWholeMap(player, true);
 	}
 
-	void SetRNGSeed(u32 seed) override
+	void SetRNGSeed(std::uint32_t seed) override
 	{
 		m_Worker.SetRNGSeed(seed);
 	}

@@ -24,7 +24,6 @@
 
 #include "lib/code_annotation.h"
 #include "lib/file/vfs/vfs_path.h"
-#include "lib/types.h"
 #include "maths/BoundingBoxAligned.h"
 #include "maths/Matrix3D.h"
 #include "maths/Quaternion.h"
@@ -280,7 +279,7 @@ private:
 	VfsPath m_Name;	// filename
 
 	// Maximal bounding box of this mesh for a given animation.
-	std::unordered_map<u32, CBoundingBoxAligned> m_MaxBoundsPerAnimDef;
+	std::unordered_map<std::uint32_t, CBoundingBoxAligned> m_MaxBoundsPerAnimDef;
 
 	// renderdata shared by models of the same modeldef,
 	// by render path

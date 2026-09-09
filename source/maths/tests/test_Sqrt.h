@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Wildfire Games.
+/* Copyright (C) 2026 Wildfire Games.
  * This file is part of 0 A.D.
  *
  * 0 A.D. is free software: you can redistribute it and/or modify
@@ -27,7 +27,7 @@
 class TestSqrt : public CxxTest::TestSuite
 {
 public:
-	void t(u32 n)
+	void t(std::uint32_t n)
 	{
 		TS_ASSERT_EQUALS(isqrt64((u64)n*(u64)n), n);
 	}

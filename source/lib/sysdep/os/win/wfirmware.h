@@ -27,9 +27,9 @@
 
 namespace wfirmware {
 
-typedef u32 Provider;
+typedef std::uint32_t Provider;
 
-typedef u32 TableId;
+typedef std::uint32_t TableId;
 typedef std::vector<TableId> TableIds;
 
 extern TableIds GetTableIDs(Provider provider);

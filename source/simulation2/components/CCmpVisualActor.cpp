@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Wildfire Games.
+/* Copyright (C) 2026 Wildfire Games.
  * This file is part of 0 A.D.
  *
  * 0 A.D. is free software: you can redistribute it and/or modify
@@ -30,7 +30,6 @@
 #include "graphics/UnitManager.h"
 #include "lib/debug.h"
 #include "lib/path.h"
-#include "lib/types.h"
 #include "lib/utf8.h"
 #include "maths/BoundingBoxAligned.h"
 #include "maths/BoundingBoxOriented.h"
@@ -104,7 +103,7 @@ private:
 
 	std::map<CStr, CStr> m_VariantSelections;
 
-	u32 m_Seed; // seed used for random variations
+	std::uint32_t m_Seed; // seed used for random variations
 
 	bool m_ConstructionPreview;
 
@@ -300,7 +299,7 @@ public:
 	{
 		Init(paramNode);
 
-		u32 oldSeed = GetActorSeed();
+		std::uint32_t oldSeed = GetActorSeed();
 
 		SerializeCommon(deserialize);
 
@@ -531,12 +530,12 @@ public:
 			m_Unit->GetModel().SetEntityVariable(name, value);
 	}
 
-	u32 GetActorSeed() const override
+	std::uint32_t GetActorSeed() const override
 	{
 		return m_Seed;
 	}
 
-	void SetActorSeed(u32 seed) override
+	void SetActorSeed(std::uint32_t seed) override
 	{
 		if (seed == m_Seed)
 			return;
@@ -625,7 +624,7 @@ void CCmpVisualActor::InitModel()
 	CModelAbstract& model = m_Unit->GetModel();
 	if (model.ToCModel())
 	{
-		u32 modelFlags = 0;
+		std::uint32_t modelFlags = 0;
 
 		if (m_SilhouetteDisplay)
 			modelFlags |= ModelFlag::SILHOUETTE_DISPLAY;

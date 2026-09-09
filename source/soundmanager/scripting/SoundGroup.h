@@ -21,7 +21,6 @@
 #include "lib/code_annotation.h"
 #include "lib/config2.h"
 #include "lib/file/vfs/vfs_path.h"
-#include "lib/types.h"
 #include "simulation2/system/Entity.h"
 
 #include <cstddef>
@@ -86,7 +85,7 @@ private:
 	// We store the handles so we can load now and play later
 	std::vector<CSoundData*> m_SoundGroups;
 #endif
-	u32 m_Seed;
+	std::uint32_t m_Seed;
 	// We need the filenames so we can reload when necessary.
 	std::vector<std::wstring> m_Filenames;
 	// The file path for the list of sound file resources

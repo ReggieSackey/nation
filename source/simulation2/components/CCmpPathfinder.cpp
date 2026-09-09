@@ -28,7 +28,6 @@
 #include "lib/code_generation.h"
 #include "lib/debug.h"
 #include "lib/path.h"
-#include "lib/types.h"
 #include "maths/Fixed.h"
 #include "maths/FixedVector2D.h"
 #include "maths/MathUtil.h"
@@ -271,7 +270,7 @@ void CCmpPathfinder::SetHierDebugOverlay(bool enabled)
 	m_PathfinderHier->SetDebugOverlay(enabled, &GetSimContext());
 }
 
-void CCmpPathfinder::GetDebugData(u32& steps, double& time, Grid<std::uint8_t>& grid) const
+void CCmpPathfinder::GetDebugData(std::uint32_t& steps, double& time, Grid<std::uint8_t>& grid) const
 {
 	m_LongPathfinder->GetDebugData(steps, time, grid);
 }
@@ -784,14 +783,15 @@ void CCmpPathfinder::TerrainUpdateHelper(bool expandPassability, int itile0, int
 
 //////////////////////////////////////////////////////////
 
-u32 CCmpPathfinder::ComputePathAsync(entity_pos_t x0, entity_pos_t z0, const PathGoal& goal, pass_class_t passClass, entity_id_t notify)
+std::uint32_t CCmpPathfinder::ComputePathAsync(entity_pos_t x0, entity_pos_t z0, const PathGoal& goal,
+	pass_class_t passClass, entity_id_t notify)
 {
 	LongPathRequest req = { m_NextAsyncTicket++, x0, z0, goal, passClass, notify };
 	m_LongPathRequests.m_Requests.push_back(req);
 	return req.ticket;
 }
 
-u32 CCmpPathfinder::ComputeShortPathAsync(entity_pos_t x0, entity_pos_t z0, entity_pos_t clearance, entity_pos_t range,
+std::uint32_t CCmpPathfinder::ComputeShortPathAsync(entity_pos_t x0, entity_pos_t z0, entity_pos_t clearance, entity_pos_t range,
                                           const PathGoal& goal, pass_class_t passClass, bool avoidMovingUnits,
                                           entity_id_t group, entity_id_t notify)
 {
@@ -964,7 +964,7 @@ std::vector<CFixedVector2D> CCmpPathfinder::DistributeAround(std::vector<entity_
 		for (size_t i = 0; i < positions.size(); ++i)
 		{
 			// Helper to compute squared distance between two points as integers
-			auto distSq = [](const CFixedVector2D& p1, const CFixedVector2D& p2) -> u32 {
+			auto distSq = [](const CFixedVector2D& p1, const CFixedVector2D& p2) -> std::uint32_t {
 				std::int32_t dx = (p1.X - p2.X).ToInt_RoundToInfinity();
 				std::int32_t dy = (p1.Y - p2.Y).ToInt_RoundToInfinity();
 				return dx*dx + dy*dy;
@@ -972,8 +972,10 @@ std::vector<CFixedVector2D> CCmpPathfinder::DistributeAround(std::vector<entity_
 
 			for (size_t j = i + 1; j < positions.size(); ++j)
 			{
-				u32 currentDistSq = distSq(positions[i], unitPositions[i]) + distSq(positions[j], unitPositions[j]);
-				u32 swappedDistSq = distSq(positions[j], unitPositions[i]) + distSq(positions[i], unitPositions[j]);
+				std::uint32_t currentDistSq = distSq(positions[i], unitPositions[i]) +
+					distSq(positions[j], unitPositions[j]);
+				std::uint32_t swappedDistSq = distSq(positions[j], unitPositions[i]) +
+					distSq(positions[i], unitPositions[j]);
 
 				// Swap if it reduces total squared distance
 				if (swappedDistSq < currentDistSq)

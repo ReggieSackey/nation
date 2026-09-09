@@ -18,7 +18,6 @@
 #ifndef INCLUDED_REPLAYTURNMANAGER
 #define INCLUDED_REPLAYTURNMANAGER
 
-#include "lib/types.h"
 #include "ps/CStr.h"
 #include "simulation2/helpers/Player.h"
 #include "simulation2/system/LocalTurnManager.h"
@@ -42,7 +41,7 @@ public:
 
 	void StoreReplayCommand(turn_id_t turn, int player, const std::string& command);
 
-	void StoreReplayTurnLength(turn_id_t turn, u32 turnLength);
+	void StoreReplayTurnLength(turn_id_t turn, std::uint32_t turnLength);
 
 	void StoreReplayHash(turn_id_t turn, const std::string& hash, bool quick);
 
@@ -62,7 +61,7 @@ private:
 	std::map<turn_id_t, std::vector<std::pair<player_id_t, std::string>>> m_ReplayCommands;
 
 	// Contains the length of every turn
-	std::map<turn_id_t, u32> m_ReplayTurnLengths;
+	std::map<turn_id_t, std::uint32_t> m_ReplayTurnLengths;
 
 	// Contains all replay hash values and weather or not the quick hash method was used
 	std::map<turn_id_t, std::pair<std::string, bool>> m_ReplayHash;

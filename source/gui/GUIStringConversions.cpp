@@ -24,7 +24,6 @@
 #include "gui/SettingTypes/CGUIString.h"
 #include "gui/SettingTypes/EAlign.h"
 #include "gui/SettingTypes/EScrollOrientation.h"
-#include "lib/types.h"
 #include "maths/Rect.h"
 #include "maths/Size2D.h"
 #include "maths/Vector2D.h"
@@ -58,7 +57,7 @@ bool CGUI::ParseString<std::int32_t>(const CGUI*, const CStrW& Value, int& Outpu
 }
 
 template <>
-bool CGUI::ParseString<u32>(const CGUI*, const CStrW& Value, u32& Output)
+bool CGUI::ParseString<std::uint32_t>(const CGUI*, const CStrW& Value, std::uint32_t& Output)
 {
 	Output = Value.ToUInt();
 	return true;

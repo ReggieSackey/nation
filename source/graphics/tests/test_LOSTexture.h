@@ -21,7 +21,6 @@
 
 #include "lib/posix/posix_types.h"
 #include "lib/timer.h"
-#include "lib/types.h"
 #include "scriptinterface/Interface.h"
 #include "simulation2/Simulation2.h"
 #include "simulation2/helpers/Grid.h"
@@ -40,7 +39,7 @@ public:
 		CLOSTexture tex(sim);
 
 		const ssize_t size = 8;
-		u32 inputData[size*size] = {
+		std::uint32_t inputData[size*size] = {
 			2, 2, 2, 0, 0, 0, 0, 0,
 			2, 2, 2, 0, 0, 0, 0, 0,
 			2, 2, 2, 0, 0, 0, 0, 0,
@@ -50,7 +49,7 @@ public:
 			0, 0, 0, 0, 0, 0, 0, 0,
 			0, 0, 0, 0, 0, 0, 0, 2
 		};
-		Grid<u32> inputDataVec(size, size);
+		Grid<std::uint32_t> inputDataVec(size, size);
 
 		for (std::uint8_t i = 0; i < size; ++i)
 			for (std::uint8_t j = 0; j < size; ++j)
@@ -59,7 +58,7 @@ public:
 		// LosState::MASK should be cmpRanageManager->GetSharedLosMask(1),
 		// but that would mean adding a huge mock component for this and it
 		// should always be LosState::MASK for player 1 (as the other players are bit-shifted).
-		CLosQuerier los((u32)LosState::MASK, inputDataVec, size);
+		CLosQuerier los(static_cast<std::uint32_t>(LosState::MASK), inputDataVec, size);
 
 		std::vector<std::uint8_t> losData;
 		size_t pitch;
@@ -79,12 +78,12 @@ public:
 		CLOSTexture tex(sim);
 
 		const ssize_t size = 257;
-		Grid<u32> inputDataVec(size, size);
+		Grid<std::uint32_t> inputDataVec(size, size);
 
 		// LosState::MASK should be cmpRanageManager->GetSharedLosMask(1),
 		// but that would mean adding a huge mock component for this and it
 		// should always be LosState::MASK for player 1 (as the other players are bit-shifted).
-		CLosQuerier los((u32)LosState::MASK, inputDataVec, size);
+		CLosQuerier los(static_cast<std::uint32_t>(LosState::MASK), inputDataVec, size);
 
 		size_t reps = 128;
 		double t = timer_Time();

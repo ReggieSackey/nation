@@ -22,7 +22,6 @@
 #include "lib/code_annotation.h"
 #include "lib/file/vfs/vfs.h"
 #include "lib/file/vfs/vfs_path.h"
-#include "lib/types.h"
 #include "renderer/backend/Format.h"
 #include "renderer/backend/Sampler.h"
 
@@ -294,7 +293,7 @@ public:
 	 * average of the whole texture).
 	 * Returns 0 if the texture has no mipmaps.
 	 */
-	u32 GetBaseColor() const;
+	std::uint32_t GetBaseColor() const;
 
 	/**
 	 * Returns total number of bytes uploaded for this texture.
@@ -364,7 +363,7 @@ private:
 	std::unique_ptr<Renderer::Backend::ITexture> m_BackendTexture;
 	// It's possible to m_FallbackBackendTexture references m_BackendTexture.
 	Renderer::Backend::ITexture* m_FallbackBackendTexture = nullptr;
-	u32 m_BaseColor;
+	std::uint32_t m_BaseColor;
 	std::unique_ptr<Tex> m_TextureData;
 	size_t m_UploadedSize = 0;
 	uint32_t m_BaseLevelOffset = 0;

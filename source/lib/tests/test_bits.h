@@ -35,7 +35,7 @@ public:
 	{
 		EQUALS(Bit<unsigned>(0), 1u);
 		EQUALS(Bit<unsigned>(8), 0x100u);
-		EQUALS(Bit<u32>(31), u32(0x80000000ul));
+		EQUALS(Bit<std::uint32_t>(31), static_cast<std::uint32_t>(0x80000000ul));
 		EQUALS(Bit<u64>(1), u64(2));
 		EQUALS(Bit<u64>(32), u64(0x100000000ull));
 		EQUALS(Bit<u64>(63), u64(0x8000000000000000ull));
@@ -46,8 +46,8 @@ public:
 		EQUALS(IsBitSet(0u, 1), false);
 		EQUALS(IsBitSet(1u, 1), false);
 		EQUALS(IsBitSet(2u, 1), true);
-		EQUALS(IsBitSet<u32>(0xFFFFFFFFul, 0), true);
-		EQUALS(IsBitSet<u32>(0xFFFFFFFFul, 31), true);
+		EQUALS(IsBitSet<std::uint32_t>(0xFFFFFFFFul, 0), true);
+		EQUALS(IsBitSet<std::uint32_t>(0xFFFFFFFFul, 31), true);
 		EQUALS(IsBitSet<u64>(0xFFFFFFFFFFFFFFFFull, 0), true);
 		EQUALS(IsBitSet<u64>(0xFFFFFFFFFFFFFFFFull, 31), true);
 		EQUALS(IsBitSet<u64>(0xFFFFFFFFFFFFFFFFull, 32), true);
@@ -59,9 +59,9 @@ public:
 		EQUALS(bit_mask<std::uint16_t>(0), 0);
 		EQUALS(bit_mask<std::uint16_t>(2), 0x3);
 		EQUALS(bit_mask<std::uint16_t>(16), 0xFFFF);
-		EQUALS(bit_mask<u32>(0), 0u);
-		EQUALS(bit_mask<u32>(2), 0x3u);
-		EQUALS(bit_mask<u32>(32), 0xFFFFFFFFul);
+		EQUALS(bit_mask<std::uint32_t>(0), 0u);
+		EQUALS(bit_mask<std::uint32_t>(2), 0x3u);
+		EQUALS(bit_mask<std::uint32_t>(32), 0xFFFFFFFFul);
 		EQUALS(bit_mask<u64>(0), 0u);
 		EQUALS(bit_mask<u64>(2), 0x3u);
 		EQUALS(bit_mask<u64>(32), 0xFFFFFFFFull);
@@ -76,8 +76,8 @@ public:
 		EQUALS(bits<std::uint16_t>(0xFFFF, 14, 15), 0x3);
 		EQUALS(bits<std::uint16_t>(0xAA55, 4, 11), 0xA5);
 		EQUALS(bits<std::uint16_t>(0xAA55, 14, 15), 0x2);
-		EQUALS(bits<u32>(0ul, 0, 31), 0ul);
-		EQUALS(bits<u32>(0xFFFFFFFFul, 0, 31), 0xFFFFFFFFul);
+		EQUALS(bits<std::uint32_t>(0ul, 0, 31), 0ul);
+		EQUALS(bits<std::uint32_t>(0xFFFFFFFFul, 0, 31), 0xFFFFFFFFul);
 		EQUALS(bits<u64>(0ull, 0, 63), 0ull);
 		EQUALS(bits<u64>(0xFFFFFFFFull, 0, 31), 0xFFFFFFFFull);
 		EQUALS(bits<u64>(0x0000FFFFFFFF0000ull, 16, 47), 0xFFFFFFFFull);

@@ -20,7 +20,6 @@
 #include "CCmpUnitMotion.h"
 
 #include "lib/debug.h"
-#include "lib/types.h"
 #include "maths/Fixed.h"
 #include "maths/FixedVector2D.h"
 #include "maths/FixedVector3D.h"
@@ -313,7 +312,7 @@ struct SerializeHelper<EntityMap<CCmpUnitMotionManager::MotionState>>
 		EntityMap<CCmpUnitMotionManager::MotionState>& value)
 	{
 		// Serialize manually, we don't have a default-constructor for deserialization.
-		Serializer(serialize, "size", static_cast<u32>(value.size()));
+		Serializer(serialize, "size", static_cast<std::uint32_t>(value.size()));
 		for (EntityMap<CCmpUnitMotionManager::MotionState>::iterator it = value.begin(); it != value.end(); ++it)
 		{
 			Serializer(serialize, "ent id", it->first);
@@ -324,9 +323,9 @@ struct SerializeHelper<EntityMap<CCmpUnitMotionManager::MotionState>>
 	void operator()(IDeserializer& deserialize, const char* /*name*/,
 		EntityMap<CCmpUnitMotionManager::MotionState>& value)
 	{
-		u32 units = 0;
+		std::uint32_t units = 0;
 		Serializer(deserialize, "size", units);
-		for (u32 i = 0; i < units; ++i)
+		for (std::uint32_t i = 0; i < units; ++i)
 		{
 			entity_id_t ent = INVALID_ENTITY;
 			Serializer(deserialize, "ent id", ent);

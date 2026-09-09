@@ -41,8 +41,8 @@
 struct FileHeader
 {
 	char magic[4];
-	u32 version_le;
-	u32 payloadSize_le;	// = file size - sizeof(FileHeader)
+	std::uint32_t version_le;
+	std::uint32_t payloadSize_le;	// = file size - sizeof(FileHeader)
 };
 cassert(sizeof(FileHeader) == 12);
 
@@ -52,7 +52,7 @@ cassert(sizeof(FileHeader) == 12);
 //-----------------------------------------------------------------------------
 // CFilePacker
 
-CFilePacker::CFilePacker(u32 version, const char magic[4])
+CFilePacker::CFilePacker(std::uint32_t version, const char magic[4])
 {
 	// put header in our data array.
 	// (its payloadSize_le will be updated on every Pack*() call)
@@ -72,7 +72,7 @@ CFilePacker::~CFilePacker()
 void CFilePacker::Write(const VfsPath& filename)
 {
 	const size_t payloadSize = m_writeBuffer.Size() - sizeof(FileHeader);
-	const u32 payloadSize_le = to_le32(u32_from_larger(payloadSize));
+	const std::uint32_t payloadSize_le = to_le32(u32_from_larger(payloadSize));
 	m_writeBuffer.Overwrite(&payloadSize_le, sizeof(payloadSize_le), 0+offsetof(FileHeader, payloadSize_le));
 
 	// write out all data (including header)
@@ -92,7 +92,7 @@ void CFilePacker::PackRaw(const void* rawData, size_t rawSize)
 
 void CFilePacker::PackSize(size_t value)
 {
-	const u32 value_le32 = to_le32(u32_from_larger(value));
+	const std::uint32_t value_le32 = to_le32(u32_from_larger(value));
 	PackRaw(&value_le32, sizeof(value_le32));
 }
 
@@ -171,7 +171,7 @@ void CFileUnpacker::UnpackRaw(void* rawData, size_t rawDataSize)
 
 size_t CFileUnpacker::UnpackSize()
 {
-	u32 value_le32;
+	std::uint32_t value_le32;
 	UnpackRaw(&value_le32, sizeof(value_le32));
 	return (size_t)to_le32(value_le32);
 }

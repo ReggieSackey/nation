@@ -18,7 +18,6 @@
 #ifndef INCLUDED_ICMPVALUEMODIFICATIONMANAGER
 #define INCLUDED_ICMPVALUEMODIFICATIONMANAGER
 
-#include "lib/types.h"
 #include "maths/Fixed.h"
 #include "simulation2/system/Component.h"
 #include "simulation2/system/Entity.h"
@@ -36,7 +35,8 @@ class ICmpValueModificationManager : public IComponent
 {
 public:
 	virtual fixed ApplyModifications(std::wstring valueName, fixed currentValue, entity_id_t entity) const = 0;
-	virtual u32 ApplyModifications(std::wstring valueName, u32 currentValue, entity_id_t entity) const = 0;
+	virtual std::uint32_t ApplyModifications(std::wstring valueName,
+		std::uint32_t currentValue, entity_id_t entity) const = 0;
 	virtual std::uint16_t ApplyModifications(std::wstring valueName, std::uint16_t currentValue,
 		entity_id_t entity) const = 0;
 	virtual std::wstring ApplyModifications(std::wstring valueName, std::wstring currentValue, entity_id_t entity) const = 0;

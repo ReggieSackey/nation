@@ -633,7 +633,7 @@ std::uint8_t* Tex::get_data()
 }
 
 // returns color of 1x1 mipmap level
-u32 Tex::get_average_color() const
+std::uint32_t Tex::get_average_color() const
 {
 	// require mipmaps
 	if(!(m_Flags & TEX_MIPMAPS))
@@ -658,7 +658,7 @@ u32 Tex::get_average_color() const
 	// convert to BGRA
 	WARN_IF_ERR(basetex.transform_to(TEX_BGR | TEX_ALPHA));
 
-	// extract components into u32
+	// extract components into std::uint32_t
 	ENSURE(basetex.m_DataSize >= basetex.m_Ofs+4);
 	std::uint8_t b = basetex.m_Data.get()[basetex.m_Ofs];
 	std::uint8_t g = basetex.m_Data.get()[basetex.m_Ofs+1];
@@ -788,11 +788,11 @@ void Tex::UpdateMIPLevels()
 	std::uint8_t* levelData = m_Data.get();
 	levelData += m_Ofs;
 
-	const u32 dataPadding = (m_Flags & TEX_DXT) != 0 ? 4 : 1;
-	u32 levelWidth = m_Width, levelHeight = m_Height;
+	const std::uint32_t dataPadding = (m_Flags & TEX_DXT) != 0 ? 4 : 1;
+	std::uint32_t levelWidth = m_Width, levelHeight = m_Height;
 	for (;;)
 	{
-		const u32 levelDataSize = round_up(levelWidth, dataPadding) * round_up(levelHeight, dataPadding) * m_Bpp / 8;
+		const std::uint32_t levelDataSize = round_up(levelWidth, dataPadding) * round_up(levelHeight, dataPadding) * m_Bpp / 8;
 		m_MIPLevels.emplace_back();
 		m_MIPLevels.back().data = levelData;
 		m_MIPLevels.back().dataSize = levelDataSize;
@@ -806,7 +806,7 @@ void Tex::UpdateMIPLevels()
 			break;
 
 		levelData += levelDataSize;
-		levelWidth = std::max<u32>(levelWidth / 2, 1);
-		levelHeight = std::max<u32>(levelHeight / 2, 1);
+		levelWidth = std::max<std::uint32_t>(levelWidth / 2, 1);
+		levelHeight = std::max<std::uint32_t>(levelHeight / 2, 1);
 	}
 }

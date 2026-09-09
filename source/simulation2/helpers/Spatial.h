@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Wildfire Games.
+/* Copyright (C) 2026 Wildfire Games.
  * This file is part of 0 A.D.
  *
  * 0 A.D. is free software: you can redistribute it and/or modify
@@ -19,7 +19,6 @@
 #define INCLUDED_SPATIAL
 
 #include "lib/debug.h"
-#include "lib/types.h"
 #include "maths/Fixed.h"
 #include "maths/FixedVector2D.h"
 #include "maths/MathUtil.h"
@@ -172,13 +171,13 @@ public:
 	{
 		ENSURE(toMin.X <= toMax.X && toMin.Y <= toMax.Y);
 
-		u32 i0 = GetI0(toMin.X);
-		u32 j0 = GetJ0(toMin.Y);
-		u32 i1 = GetI1(toMax.X);
-		u32 j1 = GetJ1(toMax.Y);
-		for (u32 j = j0; j <= j1; ++j)
+		std::uint32_t i0 = GetI0(toMin.X);
+		std::uint32_t j0 = GetJ0(toMin.Y);
+		std::uint32_t i1 = GetI1(toMax.X);
+		std::uint32_t j1 = GetJ1(toMax.Y);
+		for (std::uint32_t j = j0; j <= j1; ++j)
 		{
-			for (u32 i = i0; i <= i1; ++i)
+			for (std::uint32_t i = i0; i <= i1; ++i)
 			{
 				m_Divisions[i + j*m_DivisionsW].push_back(item);
 			}
@@ -194,13 +193,13 @@ public:
 	{
 		ENSURE(fromMin.X <= fromMax.X && fromMin.Y <= fromMax.Y);
 
-		u32 i0 = GetI0(fromMin.X);
-		u32 j0 = GetJ0(fromMin.Y);
-		u32 i1 = GetI1(fromMax.X);
-		u32 j1 = GetJ1(fromMax.Y);
-		for (u32 j = j0; j <= j1; ++j)
+		std::uint32_t i0 = GetI0(fromMin.X);
+		std::uint32_t j0 = GetJ0(fromMin.Y);
+		std::uint32_t i1 = GetI1(fromMax.X);
+		std::uint32_t j1 = GetJ1(fromMax.Y);
+		for (std::uint32_t j = j0; j <= j1; ++j)
 		{
-			for (u32 i = i0; i <= i1; ++i)
+			for (std::uint32_t i = i0; i <= i1; ++i)
 			{
 				SubDivisionGrid& div = m_Divisions[i + j*m_DivisionsW];
 				int size = div.items.size();
@@ -263,13 +262,13 @@ public:
 		out.clear();
 		ENSURE(posMin.X <= posMax.X && posMin.Y <= posMax.Y);
 
-		u32 i0 = GetI0(posMin.X);
-		u32 j0 = GetJ0(posMin.Y);
-		u32 i1 = GetI1(posMax.X);
-		u32 j1 = GetJ1(posMax.Y);
-		for (u32 j = j0; j <= j1; ++j)
+		std::uint32_t i0 = GetI0(posMin.X);
+		std::uint32_t j0 = GetJ0(posMin.Y);
+		std::uint32_t i1 = GetI1(posMax.X);
+		std::uint32_t j1 = GetJ1(posMax.Y);
+		for (std::uint32_t j = j0; j <= j1; ++j)
 		{
-			for (u32 i = i0; i <= i1; ++i)
+			for (std::uint32_t i = i0; i <= i1; ++i)
 			{
 				m_Divisions[i + j*m_DivisionsW].copy_items_at_end(out);
 			}
@@ -475,7 +474,7 @@ public:
 	/**
 	 * Add an item.
 	 */
-	void Add(entity_id_t item, CFixedVector2D position, u32 size)
+	void Add(entity_id_t item, CFixedVector2D position, std::uint32_t size)
 	{
 		if (size > SUBDIVISION_SIZE)
 		{
@@ -494,7 +493,7 @@ public:
 	 * Remove an item.
 	 * Position must be where we expect to find it, or we won't find it.
 	 */
-	void Remove(entity_id_t item, CFixedVector2D position, u32 size)
+	void Remove(entity_id_t item, CFixedVector2D position, std::uint32_t size)
 	{
 		if (size > SUBDIVISION_SIZE)
 			EraseFrom(m_OverSizedData, item);
@@ -509,7 +508,7 @@ public:
 	 * Equivalent to Remove() then Add(), but slightly faster.
 	 * In particular for big objects nothing needs to be done.
 	 */
-	void Move(entity_id_t item, CFixedVector2D oldPosition, CFixedVector2D newPosition, u32 size)
+	void Move(entity_id_t item, CFixedVector2D oldPosition, CFixedVector2D newPosition, std::uint32_t size)
 	{
 		if (size > SUBDIVISION_SIZE)
 			return;

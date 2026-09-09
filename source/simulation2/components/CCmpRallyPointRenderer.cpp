@@ -993,7 +993,7 @@ void CCmpRallyPointRenderer::SetPosition(const CFixedVector2D& pos)
 	}
 }
 
-void CCmpRallyPointRenderer::UpdatePosition(u32 rallyPointId, const CFixedVector2D& pos)
+void CCmpRallyPointRenderer::UpdatePosition(std::uint32_t rallyPointId, const CFixedVector2D& pos)
 {
 	if (rallyPointId >= m_RallyPoints.size())
 		return;

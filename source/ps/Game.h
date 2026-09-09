@@ -20,7 +20,6 @@
 
 #include "lib/code_annotation.h"
 #include "lib/os_path.h"
-#include "lib/types.h"
 #include "ps/CStr.h"
 #include "ps/Errors.h"
 #include "simulation2/helpers/Player.h"
@@ -233,7 +232,7 @@ private:
 	OsPath m_ReplayPath;
 	bool m_IsVisualReplay;
 	std::istream* m_ReplayStream;
-	u32 m_FinalReplayTurn;
+	std::uint32_t m_FinalReplayTurn;
 };
 
 extern CGame *g_Game;

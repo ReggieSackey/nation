@@ -42,7 +42,7 @@ static std::mutex g_DebugMutex;
 void BuildTextureRGBA(LongPathfinder& pathfinder, std::uint8_t* data, std::size_t w, std::size_t h)
 {
 	// Grab the debug data for the most recently generated path
-	u32 steps;
+	std::uint32_t steps;
 	double time;
 	Grid<std::uint8_t> debugGrid;
 	pathfinder.GetDebugData(steps, time, debugGrid);
@@ -181,7 +181,7 @@ class JumpPointCache
 		/**
 		 * Represents an interval [u15 x0, u16 x1)
 		 * with a boolean obstruction flag,
-		 * packed into a single u32.
+		 * packed into a single std::uint32_t.
 		 */
 		struct Interval
 		{
@@ -191,14 +191,16 @@ class JumpPointCache
 			{
 				ENSURE(0 <= x0 && x0 < 0x8000);
 				ENSURE(0 <= x1 && x1 < 0x10000);
-				data = ((u32)x0 << 17) | (u32)(obstruction ? 0x10000 : 0) | (u32)x1;
+				data = static_cast<std::uint32_t>(x0 << 17) |
+					static_cast<std::uint32_t>(obstruction ? 0x10000 : 0) |
+					static_cast<std::uint32_t>(x1);
 			}
 
 			int x0() { return data >> 17; }
 			int x1() { return data & 0xFFFF; }
 			bool obstruction() { return (data & 0x10000) != 0; }
 
-			u32 data;
+			std::uint32_t data;
 		};
 
 		std::vector<Interval> data;
@@ -1060,7 +1062,7 @@ void LongPathfinder::ImprovePathWaypoints(WaypointPath& path, pass_class_t passC
 	path.m_Waypoints.swap(newWaypoints);
 }
 
-void LongPathfinder::GetDebugDataJPS(u32& steps, double& time, Grid<std::uint8_t>& grid) const
+void LongPathfinder::GetDebugDataJPS(std::uint32_t& steps, double& time, Grid<std::uint8_t>& grid) const
 {
 	steps = m_Debug.Steps;
 	time = m_Debug.Time;

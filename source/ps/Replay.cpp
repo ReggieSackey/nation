@@ -92,7 +92,7 @@ void CReplayLogger::StartGame(JS::MutableHandleValue attribs)
 	*m_Stream << "start " << Script::StringifyJSON(rq, attribs, false) << "\n";
 }
 
-void CReplayLogger::Turn(u32 n, u32 turnLength, std::vector<SimulationCommand>& commands)
+void CReplayLogger::Turn(std::uint32_t n, std::uint32_t turnLength, std::vector<SimulationCommand>& commands)
 {
 	Script::Request rq(m_ScriptInterface);
 
@@ -206,8 +206,8 @@ void CReplayPlayer::Replay(const int serializationtestturn, const int rejointest
 	g_ScriptContext = std::make_shared<Script::Context>(contextSize, heapGrowthBytesGCTrigger);
 
 	std::vector<SimulationCommand> commands;
-	u32 turn = 0;
-	u32 turnLength = 0;
+	std::uint32_t turn = 0;
+	std::uint32_t turnLength = 0;
 
 	{
 	std::string type;

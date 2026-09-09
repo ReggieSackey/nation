@@ -23,7 +23,6 @@
 #include "lib/file/vfs/vfs_util.h"
 #include "lib/path.h"
 #include "lib/status.h"
-#include "lib/types.h"
 #include "ps/Filesystem.h"
 #include "scriptinterface/JSON.h"
 #include "scriptinterface/Object.h"
@@ -84,7 +83,7 @@ public:
 		Script::ReadJSONFile(rq, pathname, &data);
 		Script::SetProperty(rq, ai, "id", dirname, true);
 		Script::SetProperty(rq, ai, "data", data, true);
-		u32 length;
+		std::uint32_t length;
 		JS::GetArrayLength(rq.cx, self->m_AIs, &length);
 		JS_SetElement(rq.cx, self->m_AIs, length, ai);
 

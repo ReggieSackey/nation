@@ -21,7 +21,6 @@
 #include "lib/code_annotation.h"
 #include "lib/code_generation.h"
 #include "lib/debug.h"
-#include "lib/types.h"
 #include "simulation2/serialization/SerializeTemplates.h"
 #include "simulation2/system/Component.h"
 
@@ -258,7 +257,7 @@ struct SerializeHelper<Grid<T>>
 		serialize.NumberU16_Unbounded("height", value.m_H);
 		if (len == 0)
 			return;
-		u32 count = 1;
+		std::uint32_t count = 1;
 		T prevVal = value.m_Data[0];
 		for (size_t i = 1; i < len; ++i)
 		{
@@ -281,11 +280,11 @@ struct SerializeHelper<Grid<T>>
 		std::uint16_t w, h;
 		deserialize.NumberU16_Unbounded("width", w);
 		deserialize.NumberU16_Unbounded("height", h);
-		u32 len = h * w;
+		std::uint32_t len = h * w;
 		value.resize(w, h);
 		for (size_t i = 0; i < len;)
 		{
-			u32 count;
+			std::uint32_t count;
 			deserialize.NumberU32_Unbounded("#", count);
 			T el;
 			Serializer(deserialize, name, el);

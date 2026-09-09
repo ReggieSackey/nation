@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Wildfire Games.
+/* Copyright (C) 2026 Wildfire Games.
  * This file is part of 0 A.D.
  *
  * 0 A.D. is free software: you can redistribute it and/or modify
@@ -22,7 +22,6 @@
 #ifndef INCLUDED_VERTEXBUFFERMANAGER
 #define INCLUDED_VERTEXBUFFERMANAGER
 
-#include "lib/types.h"
 #include "renderer/VertexBuffer.h"
 #include "renderer/backend/IBuffer.h"
 
@@ -41,7 +40,7 @@ class CVertexBufferManager
 public:
 	CVertexBufferManager(Renderer::Backend::IDevice* device) : m_Device(device) {}
 
-	enum class Group : u32
+	enum class Group : std::uint32_t
 	{
 		DEFAULT,
 		TERRAIN,

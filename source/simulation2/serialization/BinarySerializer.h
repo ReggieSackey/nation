@@ -23,7 +23,6 @@
 #include "lib/byte_order.h"
 #include "lib/code_annotation.h"
 #include "lib/debug.h"
-#include "lib/types.h"
 #include "maths/Fixed.h"
 #include "simulation2/system/Component.h"
 
@@ -110,10 +109,11 @@ private:
 	const Script::Interface& m_ScriptInterface;
 	ISerializer& m_Serializer;
 
-	using ObjectTagMap = JS::GCHashMap<JS::Heap<JSObject*>, u32, js::StableCellHasher<JSObject*>, js::SystemAllocPolicy>;
+	using ObjectTagMap = JS::GCHashMap<JS::Heap<JSObject*>, std::uint32_t,
+		js::StableCellHasher<JSObject*>, js::SystemAllocPolicy>;
 	ObjectTagMap m_ScriptBackrefTags;
-	u32 m_ScriptBackrefsNext;
-	u32 GetScriptBackrefTag(const Script::Request& rq, JS::HandleObject obj);
+	std::uint32_t m_ScriptBackrefsNext;
+	std::uint32_t GetScriptBackrefTag(const Script::Request& rq, JS::HandleObject obj);
 
 	JS::PropertyKey m_SerializePropId;
 	JS::PropertyKey m_DeserializePropId;
@@ -187,7 +187,7 @@ protected:
 
 	virtual void PutNumber(const char* name, int32_t value)
 	{
-		int32_t v = static_cast<std::int32_t>(to_le32((u32)value));
+		int32_t v = static_cast<std::int32_t>(to_le32(static_cast<std::uint32_t>(value)));
 		m_Impl.Put(name, reinterpret_cast<const std::uint8_t*>(&v), sizeof(int32_t));
 	}
 
@@ -203,7 +203,8 @@ protected:
 
 	virtual void PutNumber(const char* name, fixed value)
 	{
-		int32_t v = static_cast<std::int32_t>(to_le32((u32)value.GetInternalValue()));
+		int32_t v = static_cast<std::int32_t>(to_le32(static_cast<std::uint32_t>(
+			value.GetInternalValue())));
 		m_Impl.Put(name, reinterpret_cast<const std::uint8_t*>(&v), sizeof(int32_t));
 	}
 

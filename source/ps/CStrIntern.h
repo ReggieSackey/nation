@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Wildfire Games.
+/* Copyright (C) 2026 Wildfire Games.
  * This file is part of 0 A.D.
  *
  * 0 A.D. is free software: you can redistribute it and/or modify
@@ -17,8 +17,6 @@
 
 #ifndef INCLUDED_CSTRINTERN
 #define INCLUDED_CSTRINTERN
-
-#include "lib/types.h"
 
 #include <cstddef>
 #include <string>
@@ -51,7 +49,7 @@ public:
 	/**
 	 * Returns cached FNV1-A hash of the string.
 	 */
-	u32 GetHash() const;
+	std::uint32_t GetHash() const;
 
 	/**
 	 * Returns null-terminated string.

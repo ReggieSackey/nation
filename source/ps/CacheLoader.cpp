@@ -34,7 +34,8 @@ CCacheLoader::CCacheLoader(PIVFS vfs, const std::wstring& fileExtension) :
 {
 }
 
-Status CCacheLoader::TryLoadingCached(const VfsPath& sourcePath, const MD5& initialHash, u32 version, VfsPath& loadPath)
+Status CCacheLoader::TryLoadingCached(const VfsPath& sourcePath, const MD5& initialHash,
+	std::uint32_t version, VfsPath& loadPath)
 {
 	VfsPath archiveCachePath = ArchiveCachePath(sourcePath);
 
@@ -119,7 +120,7 @@ VfsPath CCacheLoader::ArchiveCachePath(const VfsPath& sourcePath) const
 	return sourcePath.ChangeExtension(std::wstring{sourcePath.Extension()} + L".cached" + m_FileExtension);
 }
 
-VfsPath CCacheLoader::LooseCachePath(const VfsPath& sourcePath, const MD5& initialHash, u32 version)
+VfsPath CCacheLoader::LooseCachePath(const VfsPath& sourcePath, const MD5& initialHash, std::uint32_t version)
 {
 	CFileInfo fileInfo;
 	if (m_VFS->GetFileInfo(sourcePath, &fileInfo) < 0)

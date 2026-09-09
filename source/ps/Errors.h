@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Wildfire Games.
+/* Copyright (C) 2026 Wildfire Games.
  * This file is part of 0 A.D.
  *
  * 0 A.D. is free software: you can redistribute it and/or modify
@@ -70,11 +70,9 @@ plus a few extra things for converting between error codes and exceptions.
 
 */
 
-#include "lib/types.h"
-
 #include <exception>
 
-typedef u32 PSRETURN;
+typedef std::uint32_t PSRETURN;
 
 class PSERROR : public std::exception
 {

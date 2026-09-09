@@ -151,7 +151,7 @@ bool CTerrainProperties::HasBaseColor()
 	return m_HasBaseColor || (m_pParent && m_pParent->HasBaseColor());
 }
 
-u32 CTerrainProperties::GetBaseColor()
+std::uint32_t CTerrainProperties::GetBaseColor()
 {
 	if (m_HasBaseColor || !m_pParent)
 		return m_BaseColor;

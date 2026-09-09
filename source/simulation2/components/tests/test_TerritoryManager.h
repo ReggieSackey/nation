@@ -22,7 +22,6 @@
 #include "lib/file/file_system.h"
 #include "lib/file/vfs/vfs.h"
 #include "lib/path.h"
-#include "lib/types.h"
 #include "maths/Fixed.h"
 #include "maths/FixedVector2D.h"
 #include "maths/FixedVector3D.h"
@@ -75,9 +74,11 @@ public:
 	const GridUpdateInformation& GetAIPathfinderDirtinessInformation() const override { static GridUpdateInformation gridInfo; return gridInfo; }
 	void FlushAIPathfinderDirtinessInformation() override {}
 	Grid<std::uint16_t> ComputeShoreGrid(bool = false) override { return Grid<std::uint16_t> {}; }
-	u32 ComputePathAsync(entity_pos_t, entity_pos_t, const PathGoal&, pass_class_t, entity_id_t) override { return 1; }
+	std::uint32_t ComputePathAsync(entity_pos_t, entity_pos_t, const PathGoal&, pass_class_t,
+		entity_id_t) override { return 1; }
 	void ComputePathImmediate(entity_pos_t, entity_pos_t, const PathGoal&, pass_class_t, WaypointPath&) const override {}
-	u32 ComputeShortPathAsync(entity_pos_t, entity_pos_t, entity_pos_t, entity_pos_t, const PathGoal&, pass_class_t, bool, entity_id_t, entity_id_t) override { return 1; }
+	std::uint32_t ComputeShortPathAsync(entity_pos_t, entity_pos_t, entity_pos_t, entity_pos_t,
+		const PathGoal&, pass_class_t, bool, entity_id_t, entity_id_t) override { return 1; }
 	WaypointPath ComputeShortPathImmediate(const ShortPathRequest&) const override { return WaypointPath(); }
 	void SetDebugPath(entity_pos_t, entity_pos_t, const PathGoal&, pass_class_t) override {}
 	bool IsGoalReachable(entity_pos_t, entity_pos_t, const PathGoal&, pass_class_t) override { return false; }
@@ -91,7 +92,7 @@ public:
 	void SendRequestedPaths() override {}
 	void StartProcessingMoves(bool) override {}
 	void UpdateGrid() override {}
-	void GetDebugData(u32&, double&, Grid<std::uint8_t>&) const override {}
+	void GetDebugData(std::uint32_t&, double&, Grid<std::uint8_t>&) const override {}
 	void SetAtlasOverlay(bool, pass_class_t = 0) override {}
 };
 
@@ -111,9 +112,9 @@ public:
 
 	bool IsRoot() const override { return true; };
 	std::uint16_t GetWeight() const override { return 10; };
-	u32 GetRadius() const override { return m_Radius; };
+	std::uint32_t GetRadius() const override { return m_Radius; };
 
-	u32 m_Radius = 0;
+	std::uint32_t m_Radius = 0;
 };
 
 class MockOwnershipTerrManager : public ICmpOwnership

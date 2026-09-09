@@ -20,7 +20,6 @@
 
 #include "lib/code_annotation.h"
 #include "lib/external_libraries/enet.h"
-#include "lib/types.h"
 #include "network/NetFileTransfer.h"
 #include "network/NetHost.h"
 
@@ -82,12 +81,12 @@ public:
 	/**
 	 * Number of milliseconds since the most recent packet of the server was received.
 	 */
-	u32 GetLastReceivedTime() const;
+	std::uint32_t GetLastReceivedTime() const;
 
 	/**
 	 * Average round trip time to the server.
 	 */
-	u32 GetMeanRTT() const;
+	std::uint32_t GetMeanRTT() const;
 
 	CNetFileTransferer& GetFileTransferer() { return m_FileTransferer; }
 private:
@@ -117,8 +116,8 @@ private:
 	bool m_WasConnected{false};
 
 	// Wrapper around enet stats - those are atomic as the code is lock-free.
-	std::atomic<u32> m_LastReceivedTime{0};
-	std::atomic<u32> m_MeanRTT{0};
+	std::atomic<std::uint32_t> m_LastReceivedTime{0};
+	std::atomic<std::uint32_t> m_MeanRTT{0};
 
 	// If this is true, calling Connect() or deleting the session is an error.
 	std::atomic<bool> m_LoopRunning{false};

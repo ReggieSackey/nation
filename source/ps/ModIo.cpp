@@ -327,7 +327,7 @@ void ModIo::StartListMods()
 	m_DownloadProgressData.status = DownloadProgressStatus::LISTING;
 }
 
-void ModIo::StartDownloadMod(u32 idx)
+void ModIo::StartDownloadMod(std::uint32_t idx)
 {
 	// Don't start such a request during active downloads.
 	if (m_DownloadProgressData.status == DownloadProgressStatus::GAMEID ||
@@ -646,7 +646,7 @@ bool ModIo::ParseGameIdResponse(const Script::Interface& scriptInterface, const 
 		FAIL("data property not an object.");
 
 	JS::RootedObject data(rq.cx, dataVal.toObjectOrNull());
-	u32 length;
+	std::uint32_t length;
 	bool isArray;
 	if (!JS::IsArrayObject(rq.cx, data, &isArray) || !isArray || !JS::GetArrayLength(rq.cx, data, &length) || !length)
 		FAIL("data property not an array with at least one element.");
@@ -714,7 +714,7 @@ bool ModIo::ParseModsResponse(const Script::Interface& scriptInterface, const st
 		FAIL("data property not an object.");
 
 	JS::RootedObject rData(rq.cx, dataVal.toObjectOrNull());
-	u32 length;
+	std::uint32_t length;
 	bool isArray;
 	if (!JS::IsArrayObject(rq.cx, rData, &isArray) || !isArray || !JS::GetArrayLength(rq.cx, rData, &length) || !length)
 		FAIL("data property not an array with at least one element.");
@@ -729,7 +729,7 @@ bool ModIo::ParseModsResponse(const Script::Interface& scriptInterface, const st
 		continue;\
 	}
 
-	for (u32 i = 0; i < length; ++i)
+	for (std::uint32_t i = 0; i < length; ++i)
 	{
 		modData.emplace_back();
 		ModIoModData& data = modData.back();

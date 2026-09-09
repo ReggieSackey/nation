@@ -47,7 +47,7 @@ CNetServerTurnManager::CNetServerTurnManager(CNetServerWorker& server)
 	m_SavedTurnLengths.push_back(0);
 	// Turns [1..COMMAND_DELAY - 1] are special: all clients run them without waiting on a server command batch.
 	// Because of this, they are always run with the default MP turn length.
-	for (u32 i = 1; i < COMMAND_DELAY_MP; ++i)
+	for (std::uint32_t i = 1; i < COMMAND_DELAY_MP; ++i)
 		m_SavedTurnLengths.push_back(m_TurnLength);
 }
 
@@ -224,12 +224,12 @@ void CNetServerTurnManager::UninitialiseClient(int client)
 	}
 }
 
-void CNetServerTurnManager::SetTurnLength(u32 msecs)
+void CNetServerTurnManager::SetTurnLength(std::uint32_t msecs)
 {
 	m_TurnLength = msecs;
 }
 
-u32 CNetServerTurnManager::GetSavedTurnLength(turn_id_t turn)
+std::uint32_t CNetServerTurnManager::GetSavedTurnLength(turn_id_t turn)
 {
 	ENSURE(turn <= m_ReadyTurn);
 	return m_SavedTurnLengths.at(static_cast<size_t>(turn));

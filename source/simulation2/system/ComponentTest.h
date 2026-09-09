@@ -21,7 +21,6 @@
 #include "lib/self_test.h"
 
 #include "graphics/Terrain.h"
-#include "lib/types.h"
 #include "maths/Fixed.h"
 #include "maths/FixedVector3D.h"
 #include "maths/Vector3D.h"
@@ -235,7 +234,7 @@ public:
 		return 16;
 	}
 
-	u32 GetMapSize() const override
+	std::uint32_t GetMapSize() const override
 	{
 		return GetTilesPerSide() * TERRAIN_TILE_SIZE;
 	}

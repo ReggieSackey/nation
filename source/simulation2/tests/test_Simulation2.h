@@ -21,7 +21,6 @@
 #include "lib/file/file_system.h"
 #include "lib/file/vfs/vfs.h"
 #include "lib/path.h"
-#include "lib/types.h"
 #include "ps/Filesystem.h"
 #include "ps/XML/Xeromyces.h"
 #include "scriptinterface/Interface.h"
@@ -69,13 +68,13 @@ public:
 		sim.ResetState(true, true);
 
 		entity_id_t ent1 = sim.AddEntity(L"test1");
-		TS_ASSERT_EQUALS(ent1, (u32)2);
+		TS_ASSERT_EQUALS(ent1, static_cast<std::uint32_t>(2));
 
 		TS_ASSERT_EQUALS(static_cast<ICmpTest1*> (sim.QueryInterface(ent1, IID_Test1))->GetX(), 999);
 		TS_ASSERT_EQUALS(static_cast<ICmpTest2*> (sim.QueryInterface(ent1, IID_Test2))->GetX(), 12345);
 
 		entity_id_t ent2 = sim.AddEntity(L"test1-inherit");
-		TS_ASSERT_EQUALS(ent2, (u32)3);
+		TS_ASSERT_EQUALS(ent2, static_cast<std::uint32_t>(3));
 
 		TS_ASSERT_EQUALS(static_cast<ICmpTest1*> (sim.QueryInterface(ent2, IID_Test1))->GetX(), 1234);
 		TS_ASSERT_EQUALS(static_cast<ICmpTest2*> (sim.QueryInterface(ent2, IID_Test2))->GetX(), 12345);

@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Wildfire Games.
+/* Copyright (C) 2026 Wildfire Games.
  * This file is part of 0 A.D.
  *
  * 0 A.D. is free software: you can redistribute it and/or modify
@@ -28,7 +28,6 @@
 #define INCLUDED_TERRAINPROPERTIES
 
 #include "lib/file/vfs/vfs_path.h"
-#include "lib/types.h"
 
 #include <memory>
 #include <vector>
@@ -53,7 +52,7 @@ private:
 	// ..Valid is true if the base color is specified in this terrain XML
 	// No caching here, since ideally, a saved XML file of an object should
 	// produce be equivalent to the source file
-	u32 m_BaseColor;
+	std::uint32_t m_BaseColor;
 	bool m_HasBaseColor;
 
 	// Orientation of texture (in radians) (default pi/4 = 45 degrees)
@@ -90,7 +89,7 @@ public:
 	// its parents. If no minimap color is specified, return garbage.
 	// Use HasBaseColor() to see if the value is valid.
 	// The color value is in BGRA format
-	u32 GetBaseColor();
+	std::uint32_t GetBaseColor();
 
 	float GetTextureAngle()
 	{

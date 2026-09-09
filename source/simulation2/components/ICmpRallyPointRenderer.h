@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Wildfire Games.
+/* Copyright (C) 2026 Wildfire Games.
  * This file is part of 0 A.D.
  *
  * 0 A.D. is free software: you can redistribute it and/or modify
@@ -18,7 +18,6 @@
 #ifndef INCLUDED_ICMPRALLYPOINTRENDERER
 #define INCLUDED_ICMPRALLYPOINTRENDERER
 
-#include "lib/types.h"
 #include "maths/FixedVector2D.h"
 #include "simulation2/system/Component.h"
 #include "simulation2/system/Interface.h"
@@ -41,7 +40,7 @@ public:
 	virtual void SetPosition(const CFixedVector2D& position) = 0;
 
 	/// Updates the position of one given rally point marker.
-	virtual void UpdatePosition(u32 rallyPointId, const CFixedVector2D& position) = 0;
+	virtual void UpdatePosition(std::uint32_t rallyPointId, const CFixedVector2D& position) = 0;
 
 	/// Add another position at which a marker should be displayed, connected
 	/// to the previous one.

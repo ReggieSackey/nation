@@ -19,7 +19,6 @@
 #define INCLUDED_PARAMNODE
 
 #include "lib/file/vfs/vfs_path.h"
-#include "lib/types.h"
 #include "maths/Fixed.h"
 #include "ps/Errors.h"
 
@@ -275,7 +274,7 @@ public:
 	static std::string EscapeXMLString(const std::string& str);
 
 	std::string m_Name;
-	u32 m_Index;
+	std::uint32_t m_Index;
 
 private:
 

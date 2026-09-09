@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Wildfire Games.
+/* Copyright (C) 2026 Wildfire Games.
  * This file is part of 0 A.D.
  *
  * 0 A.D. is free software: you can redistribute it and/or modify
@@ -22,7 +22,6 @@
 #include "graphics/TerrainTextureManager.h"
 #include "graphics/Texture.h"
 #include "lib/file/vfs/vfs_path.h"
-#include "lib/types.h"
 #include "maths/Matrix3D.h"
 #include "ps/CStr.h"
 
@@ -74,7 +73,7 @@ public:
 	const VfsPath& GetDiffuseTexturePath() const { return m_DiffuseTexturePath; }
 
 	// Get mipmap color in BGRA format
-	u32 GetBaseColor()
+	std::uint32_t GetBaseColor()
 	{
 		if (!m_BaseColorValid) BuildBaseColor();
 		return m_BaseColor;
@@ -98,7 +97,7 @@ private:
 
 	// BGRA color of topmost mipmap level, for coloring minimap, or a color
 	// specified by the terrain properties
-	u32 m_BaseColor;
+	std::uint32_t m_BaseColor;
 	// ..Valid is true if the base color has been cached
 	bool m_BaseColorValid;
 

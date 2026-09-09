@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Wildfire Games.
+/* Copyright (C) 2026 Wildfire Games.
  * This file is part of 0 A.D.
  *
  * 0 A.D. is free software: you can redistribute it and/or modify
@@ -28,7 +28,6 @@
 #define INCLUDED_CONFIGDB
 
 #include "lib/file/vfs/vfs_path.h"
-#include "lib/types.h"
 #include "ps/CStr.h"
 
 #include <array>
@@ -89,7 +88,7 @@ public:
 	///@copydoc CConfigDB::GetValue
 	void GetValue(EConfigNamespace ns, const std::string_view name, int& value);
 	///@copydoc CConfigDB::GetValue
-	void GetValue(EConfigNamespace ns, const std::string_view name, u32& value);
+	void GetValue(EConfigNamespace ns, const std::string_view name, std::uint32_t& value);
 	///@copydoc CConfigDB::GetValue
 	void GetValue(EConfigNamespace ns, const std::string_view name, float& value);
 	///@copydoc CConfigDB::GetValue

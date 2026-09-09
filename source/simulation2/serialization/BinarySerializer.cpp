@@ -117,7 +117,7 @@ void CBinarySerializerScriptImpl::HandleScriptVal(const Script::Request& rq, JS:
 		JS::RootedObject obj(rq.cx, &val.toObject());
 
 		// If we've already serialized this object, just output a reference to it
-		u32 tag = GetScriptBackrefTag(rq, obj);
+		std::uint32_t tag = GetScriptBackrefTag(rq, obj);
 		if (tag != 0)
 		{
 			m_Serializer.NumberU8_Unbounded("type", SCRIPT_TYPE_BACKREF);
@@ -165,7 +165,7 @@ void CBinarySerializerScriptImpl::HandleScriptVal(const Script::Request& rq, JS:
 #error TODO: need to convert JS ArrayBuffer data to little-endian
 #endif
 
-			u32 length = JS::GetArrayBufferByteLength(obj);
+			std::uint32_t length = JS::GetArrayBufferByteLength(obj);
 			m_Serializer.NumberU32_Unbounded("buffer length", length);
 			JS::AutoCheckCannotGC nogc;
 			bool sharedMemory;
@@ -332,7 +332,7 @@ void CBinarySerializerScriptImpl::HandleScriptVal(const Script::Request& rq, JS:
 		if (!JS_Enumerate(rq.cx, obj, &ida))
 			throw PSERROR_Serialize_ScriptError("JS_Enumerate failed");
 
-		m_Serializer.NumberU32_Unbounded("num props", (u32)ida.length());
+		m_Serializer.NumberU32_Unbounded("num props", static_cast<std::uint32_t>(ida.length()));
 
 		for (size_t i = 0; i < ida.length(); ++i)
 		{
@@ -467,7 +467,7 @@ void CBinarySerializerScriptImpl::ScriptString(const Script::Request& rq, const 
 		const JS::Latin1Char* chars = JS_GetLatin1StringCharsAndLength(rq.cx, nogc, string, &length);
 		if (!chars)
 			throw PSERROR_Serialize_ScriptError("JS_GetLatin1StringCharsAndLength failed");
-		m_Serializer.NumberU32_Unbounded("string length", (u32)length);
+		m_Serializer.NumberU32_Unbounded("string length", static_cast<std::uint32_t>(length));
 		m_Serializer.RawBytes(name, static_cast<const std::uint8_t*>(chars), length);
 	}
 	else
@@ -476,7 +476,7 @@ void CBinarySerializerScriptImpl::ScriptString(const Script::Request& rq, const 
 
 		if (!chars)
 			throw PSERROR_Serialize_ScriptError("JS_GetTwoByteStringCharsAndLength failed");
-		m_Serializer.NumberU32_Unbounded("string length", (u32)length);
+		m_Serializer.NumberU32_Unbounded("string length", static_cast<std::uint32_t>(length));
 		m_Serializer.RawBytes(name, reinterpret_cast<const std::uint8_t*>(chars), length*2);
 	}
 }
@@ -487,7 +487,7 @@ void CBinarySerializerScriptImpl::Trace(JSTracer *trc, void *data)
 	serializer->m_ScriptBackrefTags.trace(trc);
 }
 
-u32 CBinarySerializerScriptImpl::GetScriptBackrefTag(const Script::Request& rq, JS::HandleObject obj)
+std::uint32_t CBinarySerializerScriptImpl::GetScriptBackrefTag(const Script::Request& rq, JS::HandleObject obj)
 {
 	// To support non-tree structures (e.g. "var x = []; var y = [x, x];"), we need a way
 	// to indicate multiple references to one object(/array). So every time we serialize a

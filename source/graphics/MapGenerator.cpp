@@ -374,7 +374,7 @@ Script::StructuredClone RunMapGenerationScript(const StopToken stopToken, std::a
 	}
 
 	// Init RNG seed
-	u32 seed = 0;
+	std::uint32_t seed = 0;
 	if (!Script::HasProperty(rq, settingsVal, "Seed") ||
 		!Script::GetProperty(rq, settingsVal, "Seed", seed))
 		LOGWARNING("RunMapGenerationScript: No seed value specified - using 0");

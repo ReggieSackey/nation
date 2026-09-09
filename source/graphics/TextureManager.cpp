@@ -601,7 +601,7 @@ public:
 	/**
 	 * Set up some parameters for the loose cache filename code.
 	 */
-	void PrepareCacheKey(const CTexturePtr& texture, MD5& hash, u32& version)
+	void PrepareCacheKey(const CTexturePtr& texture, MD5& hash, std::uint32_t& version)
 	{
 		// Hash the settings, so we won't use an old loose cache file if the
 		// settings have changed
@@ -621,7 +621,7 @@ public:
 	bool TryLoadingCached(const CTexturePtr& texture)
 	{
 		MD5 hash;
-		u32 version;
+		std::uint32_t version;
 		PrepareCacheKey(texture, hash, version);
 
 		VfsPath loadPath;
@@ -663,7 +663,7 @@ public:
 		PROFILE2_ATTR("name: %ls", sourcePath.string().c_str());
 
 		MD5 hash;
-		u32 version;
+		std::uint32_t version;
 		PrepareCacheKey(texture, hash, version);
 		const VfsPath looseCachePath = m_CacheLoader.LooseCachePath(sourcePath, hash, version);
 
@@ -1036,7 +1036,7 @@ bool CTexture::HasAlpha() const
 		format == Renderer::Backend::Format::BC3_UNORM;
 }
 
-u32 CTexture::GetBaseColor() const
+std::uint32_t CTexture::GetBaseColor() const
 {
 	return m_BaseColor;
 }

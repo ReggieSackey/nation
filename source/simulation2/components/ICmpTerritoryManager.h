@@ -18,7 +18,6 @@
 #ifndef INCLUDED_ICMPTERRITORYMANAGER
 #define INCLUDED_ICMPTERRITORYMANAGER
 
-#include "lib/types.h"
 #include "simulation2/helpers/Player.h"
 #include "simulation2/helpers/Position.h"
 #include "simulation2/system/Component.h"
@@ -73,7 +72,7 @@ public:
 	 * get the number of neighbour tiles for per player for the selected position
 	 * @return A list with the number of neighbour tiles per player
 	 */
-	virtual std::vector<u32> GetNeighbours(entity_pos_t x, entity_pos_t z, bool filterConnected) = 0;
+	virtual std::vector<std::uint32_t> GetNeighbours(entity_pos_t x, entity_pos_t z, bool filterConnected) = 0;
 
 	/**
 	 * Get whether territory at given position is connected to a root object

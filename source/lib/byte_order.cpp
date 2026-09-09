@@ -41,7 +41,7 @@ std::uint16_t swap16(const std::uint16_t x)
 #endif
 
 #ifndef swap32
-u32 swap32(const u32 x)
+std::uint32_t swap32(const std::uint32_t x)
 {
 	return (x << 24) |
 		(x >> 24) |
@@ -53,11 +53,11 @@ u32 swap32(const u32 x)
 #ifndef swap64
 u64 swap64(const u64 x)
 {
-	const u32 lo = (u32)(x & 0xFFFFFFFF);
-	const u32 hi = (u32)(x >> 32);
+	const std::uint32_t lo = static_cast<std::uint32_t>(x & 0xFFFFFFFF);
+	const std::uint32_t hi = static_cast<std::uint32_t>(x >> 32);
 	u64 ret = swap32(lo);
 	ret <<= 32;
-	// careful: must shift var of type u64, not u32
+	// careful: must shift var of type u64, not std::uint32_t
 	ret |= swap32(hi);
 	return ret;
 }
@@ -74,9 +74,9 @@ std::uint16_t read_le16(const void* p)
 	return to_le16(n);
 }
 
-u32 read_le32(const void* p)
+std::uint32_t read_le32(const void* p)
 {
-	u32 n;
+	std::uint32_t n;
 	memcpy(&n, p, sizeof(n));
 	return to_le32(n);
 }
@@ -96,9 +96,9 @@ std::uint16_t read_be16(const void* p)
 	return to_be16(n);
 }
 
-u32 read_be32(const void* p)
+std::uint32_t read_be32(const void* p)
 {
-	u32 n;
+	std::uint32_t n;
 	memcpy(&n, p, sizeof(n));
 	return to_be32(n);
 }
@@ -117,9 +117,9 @@ void write_le16(void* p, std::uint16_t x)
 	memcpy(p, &n, sizeof(n));
 }
 
-void write_le32(void* p, u32 x)
+void write_le32(void* p, std::uint32_t x)
 {
-	u32 n = to_le32(x);
+	std::uint32_t n = to_le32(x);
 	memcpy(p, &n, sizeof(n));
 }
 
@@ -136,9 +136,9 @@ void write_be16(void* p, std::uint16_t x)
 	memcpy(p, &n, sizeof(n));
 }
 
-void write_be32(void* p, u32 x)
+void write_be32(void* p, std::uint32_t x)
 {
-	u32 n = to_be32(x);
+	std::uint32_t n = to_be32(x);
 	memcpy(p, &n, sizeof(n));
 }
 

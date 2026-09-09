@@ -138,7 +138,7 @@ JS::HandleObject VisualReplay::ReloadReplayCache(const Script::Interface& script
 	Script::Request rq(scriptInterface);
 
 	// Maps the filename onto the index, mtime and size
-	using replayCacheMap = std::map<OsPath, std::tuple<u32, u64, off_t>>;
+	using replayCacheMap = std::map<OsPath, std::tuple<std::uint32_t, u64, off_t>>;
 
 	replayCacheMap fileList;
 
@@ -146,9 +146,9 @@ JS::HandleObject VisualReplay::ReloadReplayCache(const Script::Interface& script
 	if (ReadCacheFile(scriptInterface, &cachedReplaysObject))
 	{
 		// Create list of files included in the cache
-		u32 cacheLength = 0;
+		std::uint32_t cacheLength = 0;
 		JS::GetArrayLength(rq.cx, cachedReplaysObject, &cacheLength);
-		for (u32 j = 0; j < cacheLength; ++j)
+		for (std::uint32_t j = 0; j < cacheLength; ++j)
 		{
 			JS::RootedValue replay(rq.cx);
 			JS_GetElement(rq.cx, cachedReplaysObject, j, &replay);
@@ -172,9 +172,9 @@ JS::HandleObject VisualReplay::ReloadReplayCache(const Script::Interface& script
 		return replays;
 
 	bool newReplays = false;
-	std::vector<u32> copyFromOldCache;
+	std::vector<std::uint32_t> copyFromOldCache;
 	// Specifies where the next replay should be kept
-	u32 i = 0;
+	std::uint32_t i = 0;
 
 	for (const OsPath& directory : directories)
 	{
@@ -241,7 +241,7 @@ JS::HandleObject VisualReplay::ReloadReplayCache(const Script::Interface& script
 	{
 		// Copy the replays from the old cache that are not deleted
 		if (!copyFromOldCache.empty())
-			for (u32 j : copyFromOldCache)
+			for (std::uint32_t j : copyFromOldCache)
 			{
 				JS::RootedValue replay(rq.cx);
 				JS_GetElement(rq.cx, cachedReplaysObject, j, &replay);
@@ -261,9 +261,9 @@ JS::Value VisualReplay::GetReplays(const Script::Interface& scriptInterface, boo
 	// Only take entries with data
 	JS::RootedValueVector replaysWithoutNullEntries{rq.cx};
 
-	u32 replaysLength = 0;
+	std::uint32_t replaysLength = 0;
 	JS::GetArrayLength(rq.cx, replays, &replaysLength);
-	for (u32 j = 0; j < replaysLength; ++j)
+	for (std::uint32_t j = 0; j < replaysLength; ++j)
 	{
 		JS::RootedValue replay(rq.cx);
 		JS_GetElement(rq.cx, replays, j, &replay);
@@ -345,7 +345,7 @@ inline int getReplayDuration(std::istream* replayStream, const OsPath& fileName,
 		// Found last turn, compute duration.
 		if (currentPosition + 4 < fileSize && (*replayStream >> type).good() && type == "turn")
 		{
-			u32 turn = 0, turnLength = 0;
+			std::uint32_t turn = 0, turnLength = 0;
 			*replayStream >> turn >> turnLength;
 			return (turn+1) * turnLength / 1000; // add +1 as turn numbers starts with 0
 		}
@@ -411,7 +411,7 @@ JS::Value VisualReplay::LoadReplayData(const Script::Interface& scriptInterface,
 	}
 
 	// Don't process files of rejoined clients
-	u32 turn = 1;
+	std::uint32_t turn = 1;
 	*replayStream >> turn;
 	if (turn != 0)
 	{
@@ -489,7 +489,7 @@ void VisualReplay::AddReplayToCache(const Script::Interface& scriptInterface, co
 	if (!ReadCacheFile(scriptInterface, &cachedReplaysObject))
 		cachedReplaysObject = JS::NewArrayObject(rq.cx, 0);
 
-	u32 cacheLength = 0;
+	std::uint32_t cacheLength = 0;
 	JS::GetArrayLength(rq.cx, cachedReplaysObject, &cacheLength);
 	JS_SetElement(rq.cx, cachedReplaysObject, cacheLength, replayData);
 

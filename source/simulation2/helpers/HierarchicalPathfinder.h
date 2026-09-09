@@ -23,7 +23,6 @@
 #include "graphics/SColor.h"
 #include "lib/code_annotation.h"
 #include "lib/debug.h"
-#include "lib/types.h"
 #include "ps/CLogger.h"
 #include "renderer/TerrainOverlay.h"
 
@@ -75,7 +74,7 @@ class HierarchicalPathfinder
 	friend class TestHierarchicalPathfinder;
 #endif
 public:
-	typedef u32 GlobalRegionID;
+	typedef std::uint32_t GlobalRegionID;
 
 	struct RegionID
 	{
@@ -104,7 +103,7 @@ public:
 		}
 
 		// Returns the distance from the center to the point (i, j)
-		inline u32 DistanceTo(std::uint16_t i, std::uint16_t j) const
+		inline std::uint32_t DistanceTo(std::uint16_t i, std::uint16_t j) const
 		{
 			return (ci * CHUNK_SIZE + CHUNK_SIZE/2 - i) * (ci * CHUNK_SIZE + CHUNK_SIZE/2 - i) +
 			       (cj * CHUNK_SIZE + CHUNK_SIZE/2 - j) * (cj * CHUNK_SIZE + CHUNK_SIZE/2 - j);
@@ -193,11 +192,11 @@ private:
 		void RegionCenter(std::uint16_t r, int& i, int& j) const;
 
 		void RegionNavcellNearest(std::uint16_t r, int iGoal, int jGoal, int& iBest, int& jBest,
-			u32& dist2Best) const;
+			std::uint32_t& dist2Best) const;
 
 		bool RegionNearestNavcellInGoal(std::uint16_t r, std::uint16_t i0, std::uint16_t j0,
 			const PathGoal& goal, std::uint16_t& iOut, std::uint16_t& jOut,
-			u32& dist2Best) const;
+			std::uint32_t& dist2Best) const;
 
 #ifdef TEST
 		bool operator==(const Chunk& b) const

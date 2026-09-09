@@ -82,7 +82,7 @@ namespace
 			// CStr8 is always serialized to / from ASCII(or whatever 8 - bit codepage stored
 			// in the CStr).
 			size_t len = str.length();
-			Serialize_int_4(buffer, (u32)len);
+			Serialize_int_4(buffer, static_cast<std::uint32_t>(len));
 			size_t i = 0;
 			for (i = 0; i < len; i++)
 				buffer[i] = str[i];
@@ -114,7 +114,7 @@ namespace
 		ENSURE(bufferend);
 		if constexpr (std::is_same_v<Char, char>)
 		{
-			u32 len;
+			std::uint32_t len;
 			Deserialize_int_4(buffer, len);
 			if (buffer + len > bufferend)
 				return NULL;

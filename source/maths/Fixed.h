@@ -83,7 +83,7 @@ class CStrW;
 		debug_warn(underflowWarning);
 
 #define CheckU32CastOverflow(var, targetType, overflowWarning) \
-	if(var > (u32)std::numeric_limits<targetType>::max()) \
+	if(var > static_cast<std::uint32_t>(std::numeric_limits<targetType>::max())) \
 		debug_warn(overflowWarning);
 
 #define CheckUnsignedAdditionOverflow(result, operand, overflowWarning) \
@@ -359,7 +359,7 @@ public:
 	{
 		if (value <= 0)
 			return CFixed(0);
-		u32 s = isqrt64((u64)value << fract_bits);
+		std::uint32_t s = isqrt64((u64)value << fract_bits);
 		return CFixed(s);
 	}
 

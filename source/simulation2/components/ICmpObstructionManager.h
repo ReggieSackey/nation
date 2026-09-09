@@ -19,7 +19,6 @@
 #define INCLUDED_ICMPOBSTRUCTIONMANAGER
 
 #include "lib/debug.h"
-#include "lib/types.h"
 #include "maths/Fixed.h"
 #include "maths/FixedVector2D.h"
 #include "simulation2/helpers/Position.h"
@@ -76,15 +75,15 @@ public:
 
 	/**
 	 * External identifiers for shapes.
-	 * (This is a struct rather than a raw u32 for type-safety.)
+	 * (This is a struct rather than a raw std::uint32_t for type-safety.)
 	 */
 	struct tag_t
 	{
 		tag_t() : n(0) {}
-		explicit tag_t(u32 n) : n(n) {}
+		explicit tag_t(std::uint32_t n) : n(n) {}
 		bool valid() const { return n != 0; }
 
-		u32 n;
+		std::uint32_t n;
 	};
 
 	/**

@@ -70,7 +70,7 @@
 #include <utility>
 
 const double SELECT_DBLCLICK_RATE = 0.5;
-const u32 MAX_OBJECT_DEPTH = 100; // Max number of nesting for GUI includes. Used to detect recursive inclusion
+const std::uint32_t MAX_OBJECT_DEPTH = 100; // Max number of nesting for GUI includes. Used to detect recursive inclusion
 
 const CStr CGUI::EventNameLoad = "Load";
 const CStr CGUI::EventNameTick = "Tick";
@@ -661,7 +661,7 @@ void CGUI::Xeromyces_ReadRootSetup(const XMBData& xmb, XMBElement element)
 
 void CGUI::Xeromyces_ReadObject(const XMBData& xmb, XMBElement element, IGUIObject& parent,
 	std::vector<std::pair<CStr, CStr> >& NameSubst, std::unordered_set<VfsPath>& Paths,
-	u32 nesting_depth)
+	std::uint32_t nesting_depth)
 {
 	XMBAttributeList attributes = element.GetAttributes();
 
@@ -960,7 +960,8 @@ void CGUI::Xeromyces_ReadObject(const XMBData& xmb, XMBElement element, IGUIObje
 }
 
 void CGUI::Xeromyces_ReadRepeat(const XMBData& xmb, XMBElement element, IGUIObject& parent,
-	std::vector<std::pair<CStr, CStr>>& NameSubst, std::unordered_set<VfsPath>& Paths, u32 nesting_depth)
+	std::vector<std::pair<CStr, CStr>>& NameSubst, std::unordered_set<VfsPath>& Paths,
+	std::uint32_t nesting_depth)
 {
 	#define ELMT(x) int elmt_##x = xmb.GetElementID(#x)
 	#define ATTR(x) int attr_##x = xmb.GetAttributeID(#x)

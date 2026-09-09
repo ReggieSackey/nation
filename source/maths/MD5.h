@@ -65,8 +65,8 @@ public:
 private:
 	void InitState();
 	void UpdateRest(const std::uint8_t* data, size_t len);
-	void Transform(const u32* in);
-	u32 m_Digest[4]; // internal state
+	void Transform(const std::uint32_t* in);
+	std::uint32_t m_Digest[4]; // internal state
 	std::uint8_t m_Buf[64]; // buffered input bytes
 	size_t m_BufLen; // bytes in m_Buf that are valid
 	u64 m_InputLen; // bytes

@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Wildfire Games.
+/* Copyright (C) 2026 Wildfire Games.
  * This file is part of 0 A.D.
  *
  * 0 A.D. is free software: you can redistribute it and/or modify
@@ -18,7 +18,6 @@
 #define INCLUDED_ENTITYMAP
 
 #include "lib/debug.h"
-#include "lib/types.h"
 #include "simulation2/serialization/SerializeTemplates.h"
 #include "simulation2/system/Component.h"
 #include "simulation2/system/Entity.h"
@@ -263,7 +262,7 @@ struct SerializeHelper<EntityMap<T>>
 	void operator()(ISerializer& serialize, const char* /*name*/, EntityMap<T>& value)
 	{
 		size_t len = value.size();
-		serialize.NumberU32_Unbounded("length", (u32)len);
+		serialize.NumberU32_Unbounded("length", static_cast<std::uint32_t>(len));
 		size_t count = 0;
 		for (typename EntityMap<T>::iterator it = value.begin(); it != value.end(); ++it)
 		{

@@ -54,7 +54,7 @@ struct Node	// POD
 	// we associate them with contiguous indices in nodes[])
 	UCHAR nodeNumber;
 
-	u32 proximityDomainNumber;
+	std::uint32_t proximityDomainNumber;
 	uintptr_t processorMask;
 };
 
@@ -158,15 +158,15 @@ struct AffinityAPIC
 	AffinityHeader header;
 	std::uint8_t proximityDomainNumber0;
 	std::uint8_t apicId;
-	u32 flags;
+	std::uint32_t flags;
 	std::uint8_t sapicId;
 	std::uint8_t proximityDomainNumber123[3];
-	u32 clockDomain;
+	std::uint32_t clockDomain;
 
-	u32 ProximityDomainNumber() const
+	std::uint32_t ProximityDomainNumber() const
 	{
 		// (this is the apparent result of backwards compatibility, ugh.)
-		u32 proximityDomainNumber;
+		std::uint32_t proximityDomainNumber;
 		memcpy(&proximityDomainNumber, &proximityDomainNumber123[0]-1, sizeof(proximityDomainNumber));
 		proximityDomainNumber &= ~0xFF;
 		proximityDomainNumber |= proximityDomainNumber0;
@@ -179,12 +179,12 @@ struct AffinityMemory
 	static const std::uint8_t type = 1;
 
 	AffinityHeader header;
-	u32 proximityDomainNumber;
+	std::uint32_t proximityDomainNumber;
 	std::uint16_t reserved1;
 	u64 baseAddress;
 	u64 length;
-	u32 reserved2;
-	u32 flags;
+	std::uint32_t reserved2;
+	std::uint32_t flags;
 	u64 reserved3;
 };
 
@@ -194,7 +194,7 @@ struct AffinityMemory
 struct SRAT
 {
 	AcpiTable header;
-	u32 reserved1;
+	std::uint32_t reserved1;
 	std::uint8_t reserved2[8];
 	AffinityHeader affinities[1];
 };
@@ -223,7 +223,7 @@ struct ProximityDomain
 	// (AffinityMemory's fields are not currently needed)
 };
 
-typedef std::map<u32, ProximityDomain> ProximityDomains;
+typedef std::map<std::uint32_t, ProximityDomain> ProximityDomains;
 
 static ProximityDomains ExtractProximityDomainsFromSRAT(const SRAT* srat)
 {
@@ -244,7 +244,7 @@ static ProximityDomains ExtractProximityDomainsFromSRAT(const SRAT* srat)
 		}
 
 		const size_t processor = ProcessorFromApicId(affinityAPIC->apicId);
-		const u32 proximityDomainNumber = affinityAPIC->ProximityDomainNumber();
+		const std::uint32_t proximityDomainNumber = affinityAPIC->ProximityDomainNumber();
 		ProximityDomain& proximityDomain = proximityDomains[proximityDomainNumber];
 		proximityDomain.processorMask |= Bit<uintptr_t>(processor);
 	}
@@ -256,7 +256,7 @@ static void PopulateNodesFromProximityDomains(const ProximityDomains& proximityD
 {
 	for(ProximityDomains::const_iterator it = proximityDomains.begin(); it != proximityDomains.end(); ++it)
 	{
-		const u32 proximityDomainNumber = it->first;
+		const std::uint32_t proximityDomainNumber = it->first;
 		const ProximityDomain& proximityDomain = it->second;
 
 		Node* node = FindNodeWithProcessorMask(proximityDomain.processorMask);

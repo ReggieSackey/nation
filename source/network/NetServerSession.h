@@ -50,20 +50,20 @@ public:
 	const CStrW& GetUserName() const { return m_UserName; }
 	void SetUserName(const CStrW& name) { m_UserName = name; }
 
-	u32 GetHostID() const { return m_HostID; }
-	void SetHostID(u32 id) { m_HostID = id; }
+	std::uint32_t GetHostID() const { return m_HostID; }
+	void SetHostID(std::uint32_t id) { m_HostID = id; }
 
-	u32 GetIPAddress() const;
+	std::uint32_t GetIPAddress() const;
 
 	/**
 	 * Number of milliseconds since the latest packet of that client was received.
 	 */
-	u32 GetLastReceivedTime() const;
+	std::uint32_t GetLastReceivedTime() const;
 
 	/**
 	 * Average round trip time to the client.
 	 */
-	u32 GetMeanRTT() const;
+	std::uint32_t GetMeanRTT() const;
 
 	/**
 	 * Sends a disconnection notification to the client,
@@ -96,7 +96,7 @@ private:
 
 	CStr m_GUID;
 	CStrW m_UserName;
-	u32 m_HostID{0};
+	std::uint32_t m_HostID{0};
 	CStr m_Password;
 };
 

@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Wildfire Games.
+/* Copyright (C) 2026 Wildfire Games.
  * This file is part of 0 A.D.
  *
  * 0 A.D. is free software: you can redistribute it and/or modify
@@ -24,6 +24,6 @@
  * 64-bit integer square root.
  * Returns r such that r^2 <= n < (r+1)^2, for the complete u64 range.
  */
-u32 isqrt64(u64 n);
+std::uint32_t isqrt64(u64 n);
 
 #endif // INCLUDED_MATH_SQRT

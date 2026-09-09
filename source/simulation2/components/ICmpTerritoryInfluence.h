@@ -18,7 +18,6 @@
 #ifndef INCLUDED_ICMPTERRITORYINFLUENCE
 #define INCLUDED_ICMPTERRITORYINFLUENCE
 
-#include "lib/types.h"
 #include "simulation2/system/Component.h"
 #include "simulation2/system/Interface.h"
 
@@ -31,7 +30,7 @@ public:
 
 	virtual std::uint16_t GetWeight() const = 0;
 
-	virtual u32 GetRadius() const = 0;
+	virtual std::uint32_t GetRadius() const = 0;
 
 	DECLARE_INTERFACE_TYPE(TerritoryInfluence)
 };

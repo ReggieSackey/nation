@@ -227,7 +227,7 @@ private:
 	u64 a_bits;
 
 	// table of 2-bit color selectors
-	u32 c_selectors;
+	std::uint32_t c_selectors;
 
 	size_t m_Dxt;
 };
@@ -337,14 +337,14 @@ static Status s3tc_decompress(Tex* t)
 
 struct DDS_PIXELFORMAT
 {
-	u32 dwSize;                       // size of structure (32)
-	u32 dwFlags;                      // indicates which fields are valid
-	u32 dwFourCC;                     // (DDPF_FOURCC) FOURCC code, "DXTn"
-	u32 dwRGBBitCount;                // (DDPF_RGB) bits per pixel
-	u32 dwRBitMask;
-	u32 dwGBitMask;
-	u32 dwBBitMask;
-	u32 dwABitMask;                   // (DDPF_ALPHA or DDPF_ALPHAPIXELS)
+	std::uint32_t dwSize;                       // size of structure (32)
+	std::uint32_t dwFlags;                      // indicates which fields are valid
+	std::uint32_t dwFourCC;                     // (DDPF_FOURCC) FOURCC code, "DXTn"
+	std::uint32_t dwRGBBitCount;                // (DDPF_RGB) bits per pixel
+	std::uint32_t dwRBitMask;
+	std::uint32_t dwGBitMask;
+	std::uint32_t dwBBitMask;
+	std::uint32_t dwABitMask;                   // (DDPF_ALPHA or DDPF_ALPHAPIXELS)
 };
 
 
@@ -365,21 +365,21 @@ struct DDS_PIXELFORMAT
 struct DDS_HEADER
 {
 	// (preceded by the FOURCC "DDS ")
-	u32 dwSize;                    // size of structure (124)
-	u32 dwFlags;                   // indicates which fields are valid
-	u32 dwHeight;                  // (DDSD_HEIGHT) height of main image (pixels)
-	u32 dwWidth;                   // (DDSD_WIDTH ) width  of main image (pixels)
-	u32 dwPitchOrLinearSize;       // (DDSD_LINEARSIZE) size [bytes] of top level
+	std::uint32_t dwSize;                    // size of structure (124)
+	std::uint32_t dwFlags;                   // indicates which fields are valid
+	std::uint32_t dwHeight;                  // (DDSD_HEIGHT) height of main image (pixels)
+	std::uint32_t dwWidth;                   // (DDSD_WIDTH ) width  of main image (pixels)
+	std::uint32_t dwPitchOrLinearSize;       // (DDSD_LINEARSIZE) size [bytes] of top level
 	                               // (DDSD_PITCH) bytes per row (%4 = 0)
-	u32 dwDepth;                   // (DDSD_DEPTH) vol. textures: vol. depth
-	u32 dwMipMapCount;             // (DDSD_MIPMAPCOUNT) total # levels
-	u32 dwReserved1[11];           // reserved
+	std::uint32_t dwDepth;                   // (DDSD_DEPTH) vol. textures: vol. depth
+	std::uint32_t dwMipMapCount;             // (DDSD_MIPMAPCOUNT) total # levels
+	std::uint32_t dwReserved1[11];           // reserved
 	DDS_PIXELFORMAT ddpf;          // (DDSD_PIXELFORMAT) surface description
-	u32 dwCaps;                    // (DDSD_CAPS) misc. surface flags
-	u32 dwCaps2;
-	u32 dwCaps3;
-	u32 dwCaps4;
-	u32 dwReserved2;               // reserved
+	std::uint32_t dwCaps;                    // (DDSD_CAPS) misc. surface flags
+	std::uint32_t dwCaps2;
+	std::uint32_t dwCaps3;
+	std::uint32_t dwCaps4;
+	std::uint32_t dwReserved2;               // reserved
 };
 
 #pragma pack(pop)
@@ -609,7 +609,7 @@ static Status decode_sd(const DDS_HEADER* sd, size_t& w, size_t& h, size_t& bpp,
 
 bool TexCodecDds::is_hdr(const std::uint8_t* file) const
 {
-	return *(u32*)file == FOURCC('D','D','S',' ');
+	return *reinterpret_cast<const std::uint32_t*>(file) == FOURCC('D','D','S',' ');
 }
 
 

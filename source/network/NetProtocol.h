@@ -30,7 +30,7 @@
 /**
  * Report the peer if we didn't receive a packet after this time (milliseconds).
  */
-inline constexpr u32 NETWORK_WARNING_TIMEOUT{2000};
+inline constexpr std::uint32_t NETWORK_WARNING_TIMEOUT{2000};
 
 struct HandshakeError
 {

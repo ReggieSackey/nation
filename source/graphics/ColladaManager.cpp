@@ -265,7 +265,7 @@ public:
 	 * @param[out] version version passed to CCacheLoader, used if code change should force
 	 *		  cache invalidation
 	 */
-	void PrepareCacheKey(MD5& hash, u32& version)
+	void PrepareCacheKey(MD5& hash, std::uint32_t& version)
 	{
 		// Add converter version to the hash
 		version = COLLADA_CONVERTER_VERSION;
@@ -380,7 +380,7 @@ VfsPath CColladaManager::GetLoadablePath(const VfsPath& pathnameNoExtension, Fil
 	// Now we're looking for cached files
 	CCacheLoader cacheLoader(m_VFS, extn);
 	MD5 hash;
-	u32 version;
+	std::uint32_t version;
 	m->PrepareCacheKey(hash, version);
 
 	VfsPath cachePath;

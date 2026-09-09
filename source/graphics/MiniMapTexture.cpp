@@ -409,7 +409,7 @@ void CMiniMapTexture::CreateTextures(
 
 	// Initialise texture with solid black, for the areas we don't
 	// overwrite with uploading later.
-	std::unique_ptr<u32[]> texData = std::make_unique<u32[]>(textureSize * textureSize);
+	std::unique_ptr<std::uint32_t[]> texData = std::make_unique<std::uint32_t[]>(textureSize * textureSize);
 	for (size_t i = 0; i < textureSize * textureSize; ++i)
 		texData[i] = 0xFF000000;
 	deviceCommandContext->UploadTexture(
@@ -417,7 +417,7 @@ void CMiniMapTexture::CreateTextures(
 		texData.get(), textureSize * textureSize * 4);
 	texData.reset();
 
-	m_TerrainData = std::make_unique<u32[]>((m_MapSize - 1) * (m_MapSize - 1));
+	m_TerrainData = std::make_unique<std::uint32_t[]>((m_MapSize - 1) * (m_MapSize - 1));
 
 	m_FinalTexture = g_Renderer.GetTextureManager().WrapBackendTexture(
 		backendDevice->CreateTexture2D("MiniMapFinalTexture",
@@ -447,18 +447,18 @@ void CMiniMapTexture::RebuildTerrainTexture(
 	Renderer::Backend::IDeviceCommandContext* deviceCommandContext,
 	const CTerrain& terrain)
 {
-	const u32 x = 0;
-	const u32 y = 0;
-	const u32 width = m_MapSize - 1;
-	const u32 height = m_MapSize - 1;
+	const std::uint32_t x = 0;
+	const std::uint32_t y = 0;
+	const std::uint32_t width = m_MapSize - 1;
+	const std::uint32_t height = m_MapSize - 1;
 
 	m_WaterHeight = g_Renderer.GetSceneRenderer().GetWaterManager().m_WaterHeight;
 	m_TerrainTextureDirty = false;
 
-	for (u32 j = 0; j < height; ++j)
+	for (std::uint32_t j = 0; j < height; ++j)
 	{
-		u32* dataPtr = m_TerrainData.get() + ((y + j) * width) + x;
-		for (u32 i = 0; i < width; ++i)
+		std::uint32_t* dataPtr = m_TerrainData.get() + ((y + j) * width) + x;
+		for (std::uint32_t i = 0; i < width; ++i)
 		{
 			const float avgHeight = (
 				terrain.GetVertexGroundLevel(static_cast<int>(i), static_cast<int>(j))
@@ -483,7 +483,7 @@ void CMiniMapTexture::RebuildTerrainTexture(
 					static_cast<int>(terrain.GetHeightMap()[(y + j) * m_MapSize + x + i]) >> 8;
 				int val = (hmap / 3) + 170;
 
-				u32 color = 0xFFFFFFFF;
+				std::uint32_t color = 0xFFFFFFFF;
 
 				CMiniPatch* const mp = terrain.GetTile(x + i, y + j);
 				if (mp)
@@ -732,7 +732,7 @@ void CMiniMapTexture::UpdateAndUploadEntities(
 	// row.
 	struct Cell
 	{
-		u32 count;
+		std::uint32_t count;
 		float maxHalfSize;
 		CVector2D averagePosition;
 	};

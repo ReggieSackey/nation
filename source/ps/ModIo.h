@@ -26,7 +26,6 @@
 #include "lib/code_annotation.h"
 #include "lib/external_libraries/curl.h"
 #include "lib/os_path.h"
-#include "lib/types.h"
 
 #include <cstddef>
 #include <map>
@@ -139,7 +138,7 @@ public:
 	// Async requests
 	void StartGetGameId();
 	void StartListMods();
-	void StartDownloadMod(u32 idx);
+	void StartDownloadMod(std::uint32_t idx);
 
 	/**
 	 * Advance the current async request and perform final steps if the download is complete.

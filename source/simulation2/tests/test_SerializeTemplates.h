@@ -17,7 +17,6 @@
 
 #include "lib/self_test.h"
 
-#include "lib/types.h"
 #include "scriptinterface/Interface.h"
 #include "simulation2/helpers/Grid.h"
 #include "simulation2/serialization/DebugSerializer.h"
@@ -40,7 +39,7 @@ public:
 		std::stringstream stream;
 
 		CDebugSerializer serialize(script, stream);
-		std::array<u32, 6> value = {
+		std::array<std::uint32_t, 6> value = {
 			3, 0, 1, 4, 1, 5
 		};
 		Serializer(serialize, "E", value);
@@ -53,7 +52,7 @@ public:
 		std::stringstream stream;
 
 		CDebugSerializer serialize(script, stream);
-		std::vector<u32> value = {
+		std::vector<std::uint32_t> value = {
 			3, 0, 1, 4, 1, 5
 		};
 		Serializer(serialize, "E", value);
@@ -66,7 +65,7 @@ public:
 		std::stringstream stream;
 
 		CDebugSerializer serialize(script, stream);
-		std::set<u32> value = {
+		std::set<std::uint32_t> value = {
 			3, 0, 1, 4, 1, 5
 		};
 		Serializer(serialize, "E", value);

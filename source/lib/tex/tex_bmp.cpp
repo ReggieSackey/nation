@@ -34,7 +34,6 @@
 #include "lib/os_path.h"
 #include "lib/status.h"
 #include "lib/tex/tex.h"
-#include "lib/types.h"
 
 #include <cstdlib>
 
@@ -44,24 +43,24 @@ struct BmpHeader
 {
 	// BITMAPFILEHEADER
 	std::uint16_t bfType;			// "BM"
-	u32 bfSize;			// of file
+	std::uint32_t bfSize;			// of file
 	std::uint16_t bfReserved1;
 	std::uint16_t bfReserved2;
-	u32 bfOffBits;		// offset to image data
+	std::uint32_t bfOffBits;		// offset to image data
 
 	// BITMAPINFOHEADER
-	u32 biSize;
+	std::uint32_t biSize;
 	std::int32_t biWidth;
 	std::int32_t biHeight;
 	std::uint16_t biPlanes;
 	std::uint16_t biBitCount;
-	u32 biCompression;
-	u32 biSizeImage;
+	std::uint32_t biCompression;
+	std::uint32_t biSizeImage;
 	// the following are unused and zeroed when writing:
 	std::int32_t biXPelsPerMeter;
 	std::int32_t biYPelsPerMeter;
-	u32 biClrUsed;
-	u32 biClrImportant;
+	std::uint32_t biClrUsed;
+	std::uint32_t biClrImportant;
 };
 
 #pragma pack(pop)
@@ -95,7 +94,7 @@ size_t TexCodecBmp::hdr_size(const std::uint8_t* file) const
 	if(file)
 	{
 		BmpHeader* hdr = (BmpHeader*)file;
-		const u32 ofs = read_le32(&hdr->bfOffBits);
+		const std::uint32_t ofs = read_le32(&hdr->bfOffBits);
 		ENSURE(ofs >= hdr_size && "bmp_hdr_size invalid");
 		return ofs;
 	}
@@ -110,7 +109,7 @@ Status TexCodecBmp::decode(std::uint8_t* RESTRICT data, size_t /*size*/, Tex* RE
 	const long w       = (long)read_le32(&hdr->biWidth);
 	const long h_      = (long)read_le32(&hdr->biHeight);
 	const std::uint16_t bpp = read_le16(&hdr->biBitCount);
-	const u32 compress = read_le32(&hdr->biCompression);
+	const std::uint32_t compress = read_le32(&hdr->biCompression);
 
 	const long h = std::labs(h_);
 
@@ -149,7 +148,7 @@ Status TexCodecBmp::encode(Tex* RESTRICT t, DynArray* RESTRICT da) const
 	{
 		// BITMAPFILEHEADER
 		0x4D42,				// bfType = 'B','M'
-		(u32)file_size,		// bfSize
+		static_cast<std::uint32_t>(file_size),		// bfSize
 		0, 0,				// bfReserved1,2
 		hdr_size,			// bfOffBits
 
@@ -160,7 +159,7 @@ Status TexCodecBmp::encode(Tex* RESTRICT t, DynArray* RESTRICT da) const
 		1,					// biPlanes
 		static_cast<std::uint16_t>(t->m_Bpp),
 		BI_RGB,				// biCompression
-		(u32)img_size,		// biSizeImage
+		static_cast<std::uint32_t>(img_size),		// biSizeImage
 		0, 0, 0, 0			// unused (bi?PelsPerMeter, biClr*)
 	};
 	return tex_codec_write(t, transforms, &hdr, hdr_size, da);

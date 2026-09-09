@@ -20,7 +20,6 @@
 
 #include "lib/alignment.h"
 #include "lib/status.h"
-#include "lib/types.h"
 #include "ps/Future.h"
 
 #include <cstddef>
@@ -83,7 +82,7 @@ public:
 	 * (Callers are expected to have their own mechanism for receiving
 	 * requests and deciding what to respond with.)
 	 */
-	void StartResponse(u32 requestID, const std::string& data);
+	void StartResponse(std::uint32_t requestID, const std::string& data);
 
 	/**
 	 * Call frequently (e.g. once per frame) to trigger any necessary
@@ -101,7 +100,7 @@ private:
 	 */
 	struct CNetFileSendTask
 	{
-		u32 requestID;
+		std::uint32_t requestID;
 		std::string buffer;
 		size_t offset;
 		size_t maxWindowSize;
@@ -111,7 +110,7 @@ private:
 
 	std::function<bool(const CNetMessage* message)> m_SendMessage;
 
-	u32 m_NextRequestID{1};
+	std::uint32_t m_NextRequestID{1};
 
 
 	struct AsyncFileReceiveTask
@@ -128,10 +127,10 @@ private:
 		std::string buffer;
 	};
 
-	using FileReceiveTasksMap = std::unordered_map<u32, AsyncFileReceiveTask>;
+	using FileReceiveTasksMap = std::unordered_map<std::uint32_t, AsyncFileReceiveTask>;
 	FileReceiveTasksMap m_FileReceiveTasks;
 
-	using FileSendTasksMap = std::map<u32, CNetFileSendTask>;
+	using FileSendTasksMap = std::map<std::uint32_t, CNetFileSendTask>;
 	FileSendTasksMap m_FileSendTasks;
 
 	double m_LastProgressReportTime{0};

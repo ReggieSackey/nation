@@ -19,7 +19,6 @@
 #define INCLUDED_LOS
 
 #include "lib/posix/posix_types.h"
-#include "lib/types.h"
 // It doesn't seem worth moving the implementation to c++ and early-declaring Grid
 // since files must include "Los.h" explicitly, and that's only done in .cpp files.
 #include "simulation2/helpers/Grid.h"
@@ -51,7 +50,7 @@ private:
 	friend class CCmpRangeManager;
 	friend class TestLOSTexture;
 
-	CLosQuerier(u32 playerMask, const Grid<u32>& data, ssize_t verticesPerSide) :
+	CLosQuerier(std::uint32_t playerMask, const Grid<std::uint32_t>& data, ssize_t verticesPerSide) :
 	m_Data(data), m_PlayerMask(playerMask), m_VerticesPerSide(verticesPerSide)
 	{
 	}
@@ -122,8 +121,8 @@ public:
 	}
 
 private:
-	u32 m_PlayerMask;
-	const Grid<u32>& m_Data;
+	std::uint32_t m_PlayerMask;
+	const Grid<std::uint32_t>& m_Data;
 	ssize_t m_VerticesPerSide;
 };
 

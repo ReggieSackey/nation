@@ -29,7 +29,6 @@
 #include "lib/external_libraries/zlib.h"
 #include "lib/file/archive/codec.h"
 #include "lib/status.h"
-#include "lib/types.h"
 
 #include <algorithm>
 #include <cstring>
@@ -37,18 +36,18 @@
 class Codec_ZLib : public ICodec
 {
 public:
-	u32 UpdateChecksum([[maybe_unused]] u32 checksum, [[maybe_unused]] const std::uint8_t* in,
+	std::uint32_t UpdateChecksum([[maybe_unused]] std::uint32_t checksum, [[maybe_unused]] const std::uint8_t* in,
 		[[maybe_unused]] size_t inSize) const
 	{
 #if CODEC_COMPUTE_CHECKSUM
-		return (u32)crc32(checksum, in, (uInt)inSize);
+		return static_cast<std::uint32_t>(crc32(checksum, in, (uInt)inSize));
 #else
 		return 0;
 #endif
 	}
 
 protected:
-	u32 InitializeChecksum()
+	std::uint32_t InitializeChecksum()
 	{
 #if CODEC_COMPUTE_CHECKSUM
 		return crc32(0, 0, 0);
@@ -94,7 +93,7 @@ public:
 		return INFO::OK;
 	}
 
-	virtual Status Finish(u32& checksum, size_t& outProduced)
+	virtual Status Finish(std::uint32_t& checksum, size_t& outProduced)
 	{
 		outProduced = 0;
 		checksum = m_checksum;
@@ -102,7 +101,7 @@ public:
 	}
 
 private:
-	u32 m_checksum;
+	std::uint32_t m_checksum;
 };
 
 
@@ -174,7 +173,7 @@ protected:
 	// calculate a checksum ourselves.
 	// adler32 is somewhat weaker than CRC32, but a more important argument
 	// is that we should use the latter for compatibility with Zip archives.
-	mutable u32 m_checksum;
+	mutable std::uint32_t m_checksum;
 };
 
 
@@ -222,7 +221,7 @@ public:
 		return CodecZLibStream::CallStreamFunc(deflate, 0, in, inSize, out, outSize, inConsumed, outProduced);
 	}
 
-	virtual Status Finish(u32& checksum, size_t& outProduced)
+	virtual Status Finish(std::uint32_t& checksum, size_t& outProduced)
 	{
 		const uInt availOut = m_zs.avail_out;
 
@@ -283,7 +282,7 @@ public:
 		return ret;
 	}
 
-	virtual Status Finish(u32& checksum, size_t& outProduced)
+	virtual Status Finish(std::uint32_t& checksum, size_t& outProduced)
 	{
 		// no action needed - decompression always flushes immediately.
 		outProduced = 0;

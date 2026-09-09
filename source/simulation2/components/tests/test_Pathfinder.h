@@ -26,7 +26,6 @@
 #include "lib/path.h"
 #include "lib/posix/posix_types.h"
 #include "lib/timer.h"
-#include "lib/types.h"
 #include "maths/Fixed.h"
 #include "maths/FixedVector2D.h"
 #include "ps/Filesystem.h"
@@ -405,7 +404,7 @@ public:
 		WaypointPath path;
 		cmpPathfinder->ComputePathImmediate(x0, z0, goal, cmpPathfinder->GetPassabilityClass("default"), path);
 
-		u32 debugSteps;
+		std::uint32_t debugSteps;
 		double debugTime;
 		Grid<std::uint8_t> debugGrid;
 		cmpPathfinder->GetDebugData(debugSteps, debugTime, debugGrid);

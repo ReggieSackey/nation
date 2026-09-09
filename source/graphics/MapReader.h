@@ -23,7 +23,6 @@
 #include "graphics/LightEnv.h"
 #include "lib/file/vfs/vfs_path.h"
 #include "lib/posix/posix_types.h"
-#include "lib/types.h"
 #include "maths/Vector3D.h"
 #include "ps/CStr.h"
 #include "ps/Errors.h"
@@ -148,7 +147,7 @@ private:
 	bool m_SkipEntities;
 	VfsPath m_FilenameXml;
 	bool only_xml;
-	u32 file_format_version;
+	std::uint32_t file_format_version;
 	entity_id_t m_StartingCameraTarget;
 	CVector3D m_StartingCamera;
 

@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Wildfire Games.
+/* Copyright (C) 2026 Wildfire Games.
  * This file is part of 0 A.D.
  *
  * 0 A.D. is free software: you can redistribute it and/or modify
@@ -19,7 +19,6 @@
 
 #include "graphics/Color.h"
 #include "graphics/SColor.h"
-#include "lib/types.h"
 #include "ps/CLogger.h"
 #include "ps/CStr.h"
 
@@ -98,11 +97,11 @@ public:
 	}
 
 private:
-	void CheckColor(int r, int g, int b, u32 expected)
+	void CheckColor(int r, int g, int b, std::uint32_t expected)
 	{
 		SColor4ub colorStruct = ConvertRGBColorTo4ub(RGBColor(r,g,b));
-		u32 actual;
-		memcpy(&actual, &colorStruct, sizeof(u32));
+		std::uint32_t actual;
+		memcpy(&actual, &colorStruct, sizeof(std::uint32_t));
 		expected |= 0xff000000;	// ConvertRGBColorTo4ub sets alpha to opaque
 		TS_ASSERT_EQUALS(expected, actual);
 	}

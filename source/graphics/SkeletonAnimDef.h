@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Wildfire Games.
+/* Copyright (C) 2026 Wildfire Games.
  * This file is part of 0 A.D.
  *
  * 0 A.D. is free software: you can redistribute it and/or modify
@@ -23,7 +23,6 @@
 #define INCLUDED_SKELETONANIMDEF
 
 #include "lib/file/vfs/vfs_path.h"
-#include "lib/types.h"
 #include "maths/Quaternion.h"
 #include "maths/Vector3D.h"
 
@@ -98,8 +97,8 @@ public:
 	// animation data - m_NumKeys*m_NumFrames total keys
 	std::vector<Key> m_Keys;
 	// Unique identifier - used by CModelDef to cache bounds per-animDef.
-	// (hopefully we won't run into the u32 limit too soon).
-	u32 m_UID;
+	// (hopefully we won't run into the std::uint32_t limit too soon).
+	std::uint32_t m_UID;
 };
 
 #endif

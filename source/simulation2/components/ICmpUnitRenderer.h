@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Wildfire Games.
+/* Copyright (C) 2026 Wildfire Games.
  * This file is part of 0 A.D.
  *
  * 0 A.D. is free software: you can redistribute it and/or modify
@@ -18,7 +18,6 @@
 #ifndef INCLUDED_ICMPMODELRENDERER
 #define INCLUDED_ICMPMODELRENDERER
 
-#include "lib/types.h"
 #include "simulation2/system/Component.h"
 #include "simulation2/system/Interface.h"
 
@@ -36,15 +35,15 @@ class ICmpUnitRenderer : public IComponent
 public:
 	/**
 	 * External identifiers for models.
-	 * (This is a struct rather than a raw u32 for type-safety.)
+	 * (This is a struct rather than a raw std::uint32_t for type-safety.)
 	 */
 	struct tag_t
 	{
 		tag_t() : n(0) {}
-		explicit tag_t(u32 n) : n(n) {}
+		explicit tag_t(std::uint32_t n) : n(n) {}
 		bool valid() const { return n != 0; }
 
-		u32 n;
+		std::uint32_t n;
 	};
 
 	enum

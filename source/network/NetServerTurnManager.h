@@ -19,7 +19,6 @@
 #define INCLUDED_NETSERVERTURNMANAGER
 
 #include "lib/code_annotation.h"
-#include "lib/types.h"
 #include "ps/CStr.h"
 #include "simulation2/helpers/SimulationCommand.h"
 
@@ -60,7 +59,7 @@ public:
 	 */
 	void UninitialiseClient(int client);
 
-	void SetTurnLength(u32 msecs);
+	void SetTurnLength(std::uint32_t msecs);
 
 	/**
 	 * Returns the latest turn for which all clients are ready;
@@ -72,7 +71,7 @@ public:
 	 * Returns the turn length that was used for the given turn.
 	 * Requires turn <= GetReadyTurn().
 	 */
-	u32 GetSavedTurnLength(turn_id_t turn);
+	std::uint32_t GetSavedTurnLength(turn_id_t turn);
 
 private:
 	void CheckClientsReady();
@@ -100,10 +99,10 @@ private:
 	turn_id_t m_ReadyTurn;
 
 	// Current turn length
-	u32 m_TurnLength;
+	std::uint32_t m_TurnLength;
 
 	// Turn lengths for all previously executed turns
-	std::vector<u32> m_SavedTurnLengths;
+	std::vector<std::uint32_t> m_SavedTurnLengths;
 
 	CNetServerWorker& m_NetServer;
 };

@@ -538,7 +538,7 @@ void CComponentManager::ResetState()
 	m_NextLocalEntityId = FIRST_LOCAL_ENTITY;
 }
 
-void CComponentManager::SetRNGSeed(u32 seed)
+void CComponentManager::SetRNGSeed(std::uint32_t seed)
 {
 	m_RNG.seed(seed);
 }

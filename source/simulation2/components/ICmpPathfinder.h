@@ -18,7 +18,6 @@
 #ifndef INCLUDED_ICMPPATHFINDER
 #define INCLUDED_ICMPPATHFINDER
 
-#include "lib/types.h"
 #include "simulation2/components/ICmpObstruction.h"
 #include "simulation2/helpers/Pathfinding.h"
 #include "simulation2/helpers/Position.h"
@@ -40,9 +39,9 @@ template<typename T> class Grid;
 struct PathResult
 {
 	PathResult() = default;
-	PathResult(u32 t, entity_id_t n, WaypointPath p) : ticket(t), notify(n), path(p) {};
+	PathResult(std::uint32_t t, entity_id_t n, WaypointPath p) : ticket(t), notify(n), path(p) {};
 
-	u32 ticket;
+	std::uint32_t ticket;
 	entity_id_t notify;
 	WaypointPath path;
 };
@@ -109,7 +108,7 @@ public:
 	 * Returns a unique non-zero number, which will match the 'ticket' in the result,
 	 * so callers can recognise each individual request they make.
 	 */
-	virtual u32 ComputePathAsync(entity_pos_t x0, entity_pos_t z0, const PathGoal& goal, pass_class_t passClass, entity_id_t notify) = 0;
+	virtual std::uint32_t ComputePathAsync(entity_pos_t x0, entity_pos_t z0, const PathGoal& goal, pass_class_t passClass, entity_id_t notify) = 0;
 
 	/*
 	 * Request a long-path computation immediately
@@ -122,7 +121,7 @@ public:
 	 * Returns a unique non-zero number, which will match the 'ticket' in the result,
 	 * so callers can recognise each individual request they make.
 	 */
-	virtual u32 ComputeShortPathAsync(entity_pos_t x0, entity_pos_t z0, entity_pos_t clearance, entity_pos_t range, const PathGoal& goal, pass_class_t passClass, bool avoidMovingUnits, entity_id_t controller, entity_id_t notify) = 0;
+	virtual std::uint32_t ComputeShortPathAsync(entity_pos_t x0, entity_pos_t z0, entity_pos_t clearance, entity_pos_t range, const PathGoal& goal, pass_class_t passClass, bool avoidMovingUnits, entity_id_t controller, entity_id_t notify) = 0;
 
 	/*
 	 * Request a short-path computation immediately.
@@ -207,7 +206,7 @@ public:
 	/**
 	 * Returns some stats about the last ComputePath.
 	 */
-	virtual void GetDebugData(u32& steps, double& time, Grid<std::uint8_t>& grid) const = 0;
+	virtual void GetDebugData(std::uint32_t& steps, double& time, Grid<std::uint8_t>& grid) const = 0;
 
 	/**
 	 * Sets up the pathfinder passability overlay in Atlas.

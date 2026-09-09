@@ -18,7 +18,6 @@
 #ifndef INCLUDED_MESSAGETYPES
 #define INCLUDED_MESSAGETYPES
 
-#include "lib/types.h"
 #include "maths/Fixed.h"
 #include "maths/Vector3D.h"
 #include "ps/CStr.h"
@@ -432,7 +431,7 @@ public:
 
 
 
-	u32 tag;
+	std::uint32_t tag;
 	std::vector<entity_id_t> added;
 	std::vector<entity_id_t> removed;
 
@@ -444,10 +443,10 @@ public:
 	CMessageRangeUpdate()
 	{
 	}
-	CMessageRangeUpdate(u32 tag) : tag(tag)
+	CMessageRangeUpdate(std::uint32_t tag) : tag(tag)
 	{
 	}
-	CMessageRangeUpdate(u32 tag, const std::vector<entity_id_t>& added, const std::vector<entity_id_t>& removed)
+	CMessageRangeUpdate(std::uint32_t tag, const std::vector<entity_id_t>& added, const std::vector<entity_id_t>& removed)
 		: tag(tag), added(added), removed(removed)
 	{
 	}
@@ -472,12 +471,12 @@ class CMessagePathResult final : public CMessage
 public:
 	DEFAULT_MESSAGE_IMPL(PathResult)
 
-	CMessagePathResult(u32 ticket, const WaypointPath& path) :
+	CMessagePathResult(std::uint32_t ticket, const WaypointPath& path) :
 		ticket(ticket), path(path)
 	{
 	}
 
-	u32 ticket;
+	std::uint32_t ticket;
 	WaypointPath path;
 };
 

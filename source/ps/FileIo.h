@@ -33,7 +33,6 @@
 #include "lib/allocators/shared_ptr.h"
 #include "lib/file/io/write_buffer.h"
 #include "lib/file/vfs/vfs_path.h"
-#include "lib/types.h"
 #include "ps/Errors.h"
 
 #include <cstddef>
@@ -63,7 +62,7 @@ public:
 	 * this means Write() can write the entire buffer to file in one go,
 	 * which is simpler and more efficient than writing in pieces.
 	 **/
-	CFilePacker(u32 version, const char magic[4]);
+	CFilePacker(std::uint32_t version, const char magic[4]);
 
 	~CFilePacker();
 
@@ -81,7 +80,7 @@ public:
 
 	/**
 	 * convenience: convert a number (almost always a size type) to
-	 * little-endian u32 and pack that.
+	 * little-endian std::uint32_t and pack that.
 	 **/
 	void PackSize(size_t value);
 
@@ -118,7 +117,7 @@ public:
 	/**
 	 * @return version number that was stored in the file's header.
 	 **/
-	u32 GetVersion() const
+	std::uint32_t GetVersion() const
 	{
 		return m_version;
 	}
@@ -149,7 +148,7 @@ private:
 	size_t m_bufSize;
 
 	size_t m_unpackPos;	/// current unpack position in stream
-	u32 m_version;	/// version that was stored in the file header
+	std::uint32_t m_version;	/// version that was stored in the file header
 };
 
 #endif

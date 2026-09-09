@@ -77,7 +77,7 @@ template<> bool FromJSVal<std::int32_t>(const Request& rq,  JS::HandleValue v, s
 	return true;
 }
 
-template<> bool FromJSVal<u32>(const Request& rq,  JS::HandleValue v, u32& out)
+template<> bool FromJSVal<std::uint32_t>(const Request& rq,  JS::HandleValue v, std::uint32_t& out)
 {
 	FAIL_IF_NOT(v.isNumber(), v);
 	if (!JS::ToUint32(rq.cx, v, &out))
@@ -221,7 +221,8 @@ template<> void ToJSVal<std::uint8_t>(const Request&, JS::MutableHandleValue ret
 	ret.set(JS::NumberValue(val));
 }
 
-template<> void ToJSVal<u32>(const Request&, JS::MutableHandleValue ret, const u32& val)
+template<> void ToJSVal<std::uint32_t>(const Request&, JS::MutableHandleValue ret,
+	const std::uint32_t& val)
 {
 	ret.set(JS::NumberValue(val));
 }
@@ -277,7 +278,7 @@ template<> void ToJSVal<CStr8>(const Request& rq,  JS::MutableHandleValue ret, c
 // Instantiate various vector types:
 
 JSVAL_VECTOR(int)
-JSVAL_VECTOR(u32)
+JSVAL_VECTOR(std::uint32_t)
 JSVAL_VECTOR(std::uint16_t)
 JSVAL_VECTOR(std::string)
 JSVAL_VECTOR(std::wstring)

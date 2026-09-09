@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Wildfire Games.
+/* Copyright (C) 2026 Wildfire Games.
  * This file is part of 0 A.D.
  *
  * 0 A.D. is free software: you can redistribute it and/or modify
@@ -21,7 +21,6 @@
 #include "lib/file/vfs/vfs.h"
 #include "lib/file/vfs/vfs_path.h"
 #include "lib/status.h"
-#include "lib/types.h"
 
 #include <string>
 
@@ -53,7 +52,8 @@ public:
 	 * Returns INFO::SKIPPED and sets loadPath to the desire loose cache name if there isn't one.
 	 * Returns a value < 0 on error (e.g. the source file doesn't exist). No error is logged or thrown.
 	 */
-	Status TryLoadingCached(const VfsPath& sourcePath, const MD5& initialHash, u32 version, VfsPath& loadPath);
+	Status TryLoadingCached(const VfsPath& sourcePath, const MD5& initialHash,
+		std::uint32_t version, VfsPath& loadPath);
 
 	/**
 	 * Determines whether we can safely use the archived cache file, or need to
@@ -69,7 +69,7 @@ public:
 	/**
 	 * Return the path of the loose cache for the given source file.
 	 */
-	VfsPath LooseCachePath(const VfsPath& sourcePath, const MD5& initialHash, u32 version);
+	VfsPath LooseCachePath(const VfsPath& sourcePath, const MD5& initialHash, std::uint32_t version);
 
 private:
 	PIVFS m_VFS;

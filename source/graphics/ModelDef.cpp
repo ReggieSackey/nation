@@ -38,9 +38,9 @@
 
 void CModelDef::GetMaxBounds(CSkeletonAnimDef* anim, bool loop, CBoundingBoxAligned& result)
 {
-	const u32 animIndex = anim ? anim->m_UID : 0;
+	const std::uint32_t animIndex = anim ? anim->m_UID : 0;
 
-	std::unordered_map<u32, CBoundingBoxAligned>::const_iterator it = m_MaxBoundsPerAnimDef.find(animIndex);
+	std::unordered_map<std::uint32_t, CBoundingBoxAligned>::const_iterator it = m_MaxBoundsPerAnimDef.find(animIndex);
 	if (it != m_MaxBoundsPerAnimDef.end())
 	{
 		result = it->second;

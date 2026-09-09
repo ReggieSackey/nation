@@ -36,28 +36,28 @@
 // these avoid a common mistake in using >> (ANSI requires shift count be
 // less than the bit width of the type).
 
-u32 u64_hi(u64 x)
+std::uint32_t u64_hi(u64 x)
 {
-	return (u32)(x >> 32);
+	return static_cast<std::uint32_t>(x >> 32);
 }
 
-u32 u64_lo(u64 x)
+std::uint32_t u64_lo(u64 x)
 {
-	return (u32)(x & 0xFFFFFFFF);
+	return static_cast<std::uint32_t>(x & 0xFFFFFFFF);
 }
 
-std::uint16_t u32_hi(u32 x)
+std::uint16_t u32_hi(std::uint32_t x)
 {
 	return static_cast<std::uint16_t>(x >> 16);
 }
 
-std::uint16_t u32_lo(u32 x)
+std::uint16_t u32_lo(std::uint32_t x)
 {
 	return static_cast<std::uint16_t>(x & 0xFFFF);
 }
 
 
-u64 u64_from_u32(u32 hi, u32 lo)
+u64 u64_from_u32(std::uint32_t hi, std::uint32_t lo)
 {
 	u64 x = (u64)hi;
 	x <<= 32;
@@ -65,9 +65,9 @@ u64 u64_from_u32(u32 hi, u32 lo)
 	return x;
 }
 
-u32 u32_from_u16(std::uint16_t hi, std::uint16_t lo)
+std::uint32_t u32_from_u16(std::uint16_t hi, std::uint16_t lo)
 {
-	u32 x = (u32)hi;
+	std::uint32_t x = static_cast<std::uint32_t>(hi);
 	x <<= 16;
 	x |= lo;
 	return x;

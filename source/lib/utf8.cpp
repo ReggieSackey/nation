@@ -26,7 +26,6 @@
 
 #include "lib/code_annotation.h"
 #include "lib/debug.h"
-#include "lib/types.h"
 
 #include <cstddef>
 
@@ -76,7 +75,7 @@ STATUS_ADD_DEFINITIONS(utf8StatusDefinitions);
 
 // (must be unsigned to avoid sign extension)
 typedef std::uint8_t UTF8;
-typedef u32 UTF32;
+typedef std::uint32_t UTF32;
 
 
 // called from ReplaceIfInvalid and UTF8Codec::Decode

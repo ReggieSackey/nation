@@ -99,7 +99,7 @@ static const int HOST_SERVICE_TIMEOUT = 50;
  * Since commands are sent client -> server -> client, divide by 2.
  * (duplicated in NetServer.cpp to avoid having to fetch the constants in a header file)
  */
-constexpr u32 NETWORK_BAD_PING = DEFAULT_TURN_LENGTH * COMMAND_DELAY_MP / 2;
+constexpr std::uint32_t NETWORK_BAD_PING = DEFAULT_TURN_LENGTH * COMMAND_DELAY_MP / 2;
 
 CNetServer* g_NetServer = NULL;
 
@@ -419,7 +419,7 @@ bool CNetServerWorker::RunStep()
 
 	std::vector<bool> newStartGame;
 	std::vector<std::pair<CStr, CStr>> newLobbyAuths;
-	std::vector<u32> newTurnLength;
+	std::vector<std::uint32_t> newTurnLength;
 
 	{
 		std::lock_guard<std::mutex> lock(m_WorkerMutex);
@@ -561,8 +561,8 @@ void CNetServerWorker::CheckClientConnections()
 
 	for (size_t i = 0; i < m_Sessions.size(); ++i)
 	{
-		u32 lastReceived = m_Sessions[i]->GetLastReceivedTime();
-		u32 meanRTT = m_Sessions[i]->GetMeanRTT();
+		std::uint32_t lastReceived = m_Sessions[i]->GetLastReceivedTime();
+		std::uint32_t meanRTT = m_Sessions[i]->GetMeanRTT();
 
 		CNetMessage* message = nullptr;
 
@@ -797,7 +797,7 @@ void CNetServerWorker::KickPlayer(const CStrW& playerName, const bool ban)
 			m_BannedPlayers.push_back(m_LobbyAuth ? CStrW(playerName.substr(0, playerName.find(L" ("))) : playerName);
 
 		// Remember IP address
-		u32 ipAddress = (*it)->GetIPAddress();
+		std::uint32_t ipAddress = (*it)->GetIPAddress();
 		if (std::find(m_BannedIPs.begin(), m_BannedIPs.end(), ipAddress) == m_BannedIPs.end())
 			m_BannedIPs.push_back(ipAddress);
 	}
@@ -856,7 +856,7 @@ const Script::Interface& CNetServerWorker::GetScriptInterface()
 	return *m_ScriptInterface;
 }
 
-void CNetServerWorker::SetTurnLength(u32 msecs)
+void CNetServerWorker::SetTurnLength(std::uint32_t msecs)
 {
 	if (m_ServerTurnManager)
 		m_ServerTurnManager->SetTurnLength(msecs);
@@ -1077,7 +1077,7 @@ bool CNetServerWorker::OnAuthenticate(CNetServerSession* session, CFsmEvent<CNet
 		return true;
 	}
 
-	u32 newHostID = server.m_NextHostID++;
+	std::uint32_t newHostID = server.m_NextHostID++;
 
 	session->SetUserName(username);
 	session->SetHostID(newHostID);
@@ -1733,7 +1733,7 @@ void CNetServer::OnLobbyAuth(const CStr& name, const CStr& token)
 	m_Worker.m_LobbyAuthQueue.push_back(std::make_pair(name, token));
 }
 
-void CNetServer::SetTurnLength(u32 msecs)
+void CNetServer::SetTurnLength(std::uint32_t msecs)
 {
 	std::lock_guard<std::mutex> lock(m_Worker.m_WorkerMutex);
 	m_Worker.m_TurnLengthQueue.push_back(msecs);

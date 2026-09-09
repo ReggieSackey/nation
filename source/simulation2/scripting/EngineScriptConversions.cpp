@@ -19,7 +19,6 @@
 
 #include "graphics/Color.h"
 #include "lib/code_generation.h"
-#include "lib/types.h"
 #include "maths/Fixed.h"
 #include "maths/FixedVector2D.h"
 #include "maths/FixedVector3D.h"
@@ -238,8 +237,8 @@ template<> void Script::ToJSVal<std::optional<CFixedVector2D>>(const Script::Req
 template<> void Script::ToJSVal<Grid<std::uint8_t>>(const Script::Request& rq, JS::MutableHandleValue ret,
 	const Grid<std::uint8_t>& val)
 {
-	u32 length = (u32)(val.m_W * val.m_H);
-	u32 nbytes = (u32)(length * sizeof(std::uint8_t));
+	std::uint32_t length = static_cast<std::uint32_t>(val.m_W * val.m_H);
+	std::uint32_t nbytes = static_cast<std::uint32_t>(length * sizeof(std::uint8_t));
 	JS::RootedObject objArr(rq.cx, JS_NewUint8Array(rq.cx, length));
 	// Copy the array data and then remove the no-GC check to allow further changes to the JS data
 	{
@@ -260,8 +259,8 @@ template<> void Script::ToJSVal<Grid<std::uint8_t>>(const Script::Request& rq, J
 template<> void Script::ToJSVal<Grid<std::uint16_t>>(const Script::Request& rq, JS::MutableHandleValue ret,
 	const Grid<std::uint16_t>& val)
  {
-	u32 length = (u32)(val.m_W * val.m_H);
-	u32 nbytes = (u32)(length * sizeof(std::uint16_t));
+	std::uint32_t length = static_cast<std::uint32_t>(val.m_W * val.m_H);
+	std::uint32_t nbytes = static_cast<std::uint32_t>(length * sizeof(std::uint16_t));
 	JS::RootedObject objArr(rq.cx, JS_NewUint16Array(rq.cx, length));
 	// Copy the array data and then remove the no-GC check to allow further changes to the JS data
 	{
@@ -289,11 +288,11 @@ template<> bool Script::FromJSVal<TNSpline>(const Script::Request& rq,  JS::Hand
 	if (!JS::IsArrayObject(rq.cx, obj, &isArray) || !isArray)
 		FAIL("Argument must be an array");
 
-	u32 numberOfNodes = 0;
+	std::uint32_t numberOfNodes = 0;
 	if (!JS::GetArrayLength(rq.cx, obj, &numberOfNodes))
 		FAIL("Failed to get array length");
 
-	for (u32 i = 0; i < numberOfNodes; ++i)
+	for (std::uint32_t i = 0; i < numberOfNodes; ++i)
 	{
 		JS::RootedValue node(rq.cx);
 		if (!JS_GetElement(rq.cx, obj, i, &node))

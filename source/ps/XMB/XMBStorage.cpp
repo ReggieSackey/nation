@@ -46,7 +46,7 @@ const char* XMBStorage::HeaderMagicStr = "XMB0";
 const char* XMBStorage::UnfinishedHeaderMagicStr = "XMBu";
 // Arbitrary version number - change this if we update the code and
 // need to invalidate old users' caches
-const u32 XMBStorage::XMBVersion = 4;
+const std::uint32_t XMBStorage::XMBVersion = 4;
 
 namespace
 {
@@ -95,7 +95,7 @@ void WriteStringAndLineNumber(WriteBuffer& writeBuffer, const std::string& text,
 	else
 	{
 		// Write length and line number and null-terminated text
-		u32 nodeLen = u32(4 + text.length() + 1);
+		std::uint32_t nodeLen = static_cast<std::uint32_t>(4 + text.length() + 1);
 		writeBuffer.Append(&nodeLen, 4);
 		writeBuffer.Append(&lineNumber, 4);
 		writeBuffer.Append((void*)text.c_str(), nodeLen-4);
@@ -120,7 +120,7 @@ bool XMBStorageWriter::Load(WriteBuffer& writeBuffer, Args&&... args)
 	if (!OutputElements<Args&&...>(writeBuffer, std::forward<Args>(args)...))
 		return false;
 
-	u32 data = writeBuffer.Size();
+	std::uint32_t data = writeBuffer.Size();
 	writeBuffer.Overwrite(&data, 4, elementPtr);
 	data = m_ElementIDs.size();
 	writeBuffer.Overwrite(&data, 4, elementPtr + 4);
@@ -146,7 +146,7 @@ void XMBStorageWriter::OutputNames(WriteBuffer& writeBuffer, const std::unordere
 	std::sort(orderedElements.begin(), orderedElements.end(), [](const auto& a, const auto&b) { return a.second < b.second; });
 	for (const std::pair<std::string, int>& n : orderedElements)
 	{
-		u32 textLen = (u32)n.first.length() + 1;
+		std::uint32_t textLen = static_cast<std::uint32_t>(n.first.length()) + 1;
 		writeBuffer.Append(&textLen, 4);
 		writeBuffer.Append((void*)n.first.c_str(), textLen);
 	}
@@ -160,15 +160,16 @@ public:
 	bool Setup(XMBStorageWriter& xmb, JS::HandleValue value);
 	bool Output(WriteBuffer& writeBuffer, JS::HandleValue value) const;
 
-	std::vector<std::pair<u32, std::string>> m_Attributes;
-	std::vector<std::pair<u32, JS::Heap<JS::Value>>> m_Children;
+	std::vector<std::pair<std::uint32_t, std::string>> m_Attributes;
+	std::vector<std::pair<std::uint32_t, JS::Heap<JS::Value>>> m_Children;
 
 	const Script::Interface& scriptInterface;
 	const Script::Request rq;
 };
 
 template<>
-bool XMBStorageWriter::OutputElements<JSNodeData&, const u32&, JS::HandleValue&&>(WriteBuffer& writeBuffer, JSNodeData& data, const u32& nodeName, JS::HandleValue&& value)
+bool XMBStorageWriter::OutputElements<JSNodeData&, const std::uint32_t&, JS::HandleValue&&>(
+	WriteBuffer& writeBuffer, JSNodeData& data, const std::uint32_t& nodeName, JS::HandleValue&& value)
 {
 	// Set up variables.
 	if (!data.Setup(*this, value))
@@ -180,10 +181,10 @@ bool XMBStorageWriter::OutputElements<JSNodeData&, const u32&, JS::HandleValue&&
 
 	writeBuffer.Append(&nodeName, 4);
 
-	u32 attrCount = static_cast<u32>(data.m_Attributes.size());
+	std::uint32_t attrCount = static_cast<std::uint32_t>(data.m_Attributes.size());
 	writeBuffer.Append(&attrCount, 4);
 
-	u32 childCount = data.m_Children.size();
+	std::uint32_t childCount = data.m_Children.size();
 	writeBuffer.Append(&childCount, 4);
 
 	// Filled in later with the offset to the list of child elements
@@ -193,29 +194,29 @@ bool XMBStorageWriter::OutputElements<JSNodeData&, const u32&, JS::HandleValue&&
 	data.Output(writeBuffer, value);
 
 	// Output attributes
-	for (const std::pair<const u32, std::string> attr : data.m_Attributes)
+	for (const std::pair<const std::uint32_t, std::string> attr : data.m_Attributes)
 	{
 		writeBuffer.Append(&attr.first, 4);
-		u32 attrLen = u32(attr.second.size())+1;
+		std::uint32_t attrLen = static_cast<std::uint32_t>(attr.second.size()) + 1;
 		writeBuffer.Append(&attrLen, 4);
 		writeBuffer.Append((void*)attr.second.c_str(), attrLen);
 	}
 
 	// Go back and fill in the child-element offset
-	u32 childrenOffset = (u32)(writeBuffer.Size() - (posChildrenOffset+4));
+	std::uint32_t childrenOffset = static_cast<std::uint32_t>(writeBuffer.Size() - (posChildrenOffset+4));
 	writeBuffer.Overwrite(&childrenOffset, 4, posChildrenOffset);
 
 	// Output all child elements, making a copy since data will be overwritten.
-	std::vector<std::pair<u32, JS::Heap<JS::Value>>> children = data.m_Children;
-	for (const std::pair<u32, JS::Heap<JS::Value>>& child : children)
+	std::vector<std::pair<std::uint32_t, JS::Heap<JS::Value>>> children = data.m_Children;
+	for (const std::pair<std::uint32_t, JS::Heap<JS::Value>>& child : children)
 	{
 		JS::RootedValue val(data.rq.cx, child.second);
-		if (!OutputElements<JSNodeData&, const u32&, JS::HandleValue&&>(writeBuffer, data, child.first, val))
+		if (!OutputElements<JSNodeData&, const std::uint32_t&, JS::HandleValue&&>(writeBuffer, data, child.first, val))
 			return false;
 	}
 
 	// Go back and fill in the length
-	u32 length = (u32)(writeBuffer.Size() - posLength);
+	std::uint32_t length = static_cast<std::uint32_t>(writeBuffer.Size() - posLength);
 	writeBuffer.Overwrite(&length, 4, posLength);
 
 	return true;
@@ -287,7 +288,7 @@ bool JSNodeData::Setup(XMBStorageWriter& xmb, JS::HandleValue value)
 		// Parse each array object as a child.
 		JS::RootedObject obj(rq.cx);
 		JS_ValueToObject(rq.cx, child, &obj);
-		u32 length;
+		std::uint32_t length;
 		JS::GetArrayLength(rq.cx, obj, &length);
 		for (size_t i = 0; i < length; ++i)
 		{
@@ -353,15 +354,15 @@ bool XMBStorageWriter::OutputElements<xmlNodePtr&&>(WriteBuffer& writeBuffer, xm
 	size_t posLength = writeBuffer.Size();
 	writeBuffer.Append("????", 4);
 
-	u32 name = GetElementName((const char*)node->name);
+	std::uint32_t name = GetElementName((const char*)node->name);
 	writeBuffer.Append(&name, 4);
 
-	u32 attrCount = 0;
+	std::uint32_t attrCount = 0;
 	for (xmlAttrPtr attr = node->properties; attr; attr = attr->next)
 		++attrCount;
 	writeBuffer.Append(&attrCount, 4);
 
-	u32 childCount = 0;
+	std::uint32_t childCount = 0;
 	for (xmlNodePtr child = node->children; child; child = child->next)
 		if (child->type == XML_ELEMENT_NODE)
 			++childCount;
@@ -388,7 +389,7 @@ bool XMBStorageWriter::OutputElements<xmlNodePtr&&>(WriteBuffer& writeBuffer, xm
 		}
 	}
 
-	u32 linenum = xmlGetLineNo(node);
+	std::uint32_t linenum = xmlGetLineNo(node);
 
 	// Find the start of the non-whitespace section
 	size_t first = text.find_first_not_of(whitespace);
@@ -417,18 +418,19 @@ bool XMBStorageWriter::OutputElements<xmlNodePtr&&>(WriteBuffer& writeBuffer, xm
 	// Output attributes
 	for (xmlAttrPtr attr = node->properties; attr; attr = attr->next)
 	{
-		u32 attrName = GetAttributeName((const char*)attr->name);
+		std::uint32_t attrName = GetAttributeName((const char*)attr->name);
 		writeBuffer.Append(&attrName, 4);
 
 		xmlChar* value = xmlNodeGetContent(attr->children);
-		u32 attrLen = u32(xmlStrlen(value)+1);
+		std::uint32_t attrLen = static_cast<std::uint32_t>(xmlStrlen(value) + 1);
 		writeBuffer.Append(&attrLen, 4);
 		writeBuffer.Append((void*)value, attrLen);
 		xmlFree(value);
 	}
 
 	// Go back and fill in the child-element offset
-	u32 childrenOffset = (u32)(writeBuffer.Size() - (posChildrenOffset+4));
+	std::uint32_t childrenOffset =
+		static_cast<std::uint32_t>(writeBuffer.Size() - (posChildrenOffset + 4));
 	writeBuffer.Overwrite(&childrenOffset, 4, posChildrenOffset);
 
 	// Output all child elements
@@ -437,7 +439,7 @@ bool XMBStorageWriter::OutputElements<xmlNodePtr&&>(WriteBuffer& writeBuffer, xm
 			OutputElements<xmlNodePtr&&>(writeBuffer, std::move(child));
 
 	// Go back and fill in the length
-	u32 length = (u32)(writeBuffer.Size() - posLength);
+	std::uint32_t length = static_cast<std::uint32_t>(writeBuffer.Size() - posLength);
 	writeBuffer.Overwrite(&length, 4, posLength);
 
 	return true;
@@ -475,7 +477,7 @@ bool XMBStorage::LoadJSValue(const Script::Interface& scriptInterface, JS::Handl
 	WriteBuffer writeBuffer;
 
 	XMBStorageWriter writer;
-	const u32 name = writer.GetElementName(rootName);
+	const std::uint32_t name = writer.GetElementName(rootName);
 	JSNodeData data(scriptInterface);
 	if (!writer.Load(writeBuffer, data, name, std::move(value)))
 		return false;

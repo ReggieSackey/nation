@@ -73,3 +73,5 @@ danglingLifetime:source/renderer/backend/gl/Device.cpp
 uninitvar:source/gui/Scripting/JSInterface_GUISize.cpp
 nullPointer:source/ps/scripting/JSInterface_Debug.cpp
 unknownMacro:source/dapinterface/tests/test_DapInterface.h
+
+shiftTooManyBits:source/lib/bits.h

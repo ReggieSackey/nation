@@ -76,7 +76,7 @@ size_t os_cpu_NumProcessors()
 
 //-----------------------------------------------------------------------------
 
-Status wcpu_ReadFrequencyFromRegistry(u32& freqMhz)
+Status wcpu_ReadFrequencyFromRegistry(std::uint32_t& freqMhz)
 {
 	HKEY hKey;
 	if(RegOpenKeyExW(HKEY_LOCAL_MACHINE, L"HARDWARE\\DESCRIPTION\\System\\CentralProcessor\\0", 0, KEY_QUERY_VALUE, &hKey) != ERROR_SUCCESS)

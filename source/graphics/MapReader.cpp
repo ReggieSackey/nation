@@ -1154,7 +1154,7 @@ void CXMLReader::ReadEntities(XMBElement entity, CSimulation2& sim)
 	if (cmpVisual)
 	{
 		if (Seed != -1)
-			cmpVisual->SetActorSeed((u32)Seed);
+			cmpVisual->SetActorSeed(static_cast<std::uint32_t>(Seed));
 		// TODO: variation/selection strings
 	}
 
@@ -1382,7 +1382,7 @@ int CMapReader::ParseTerrain()
 			"Error parsing terrain data.\nCheck application log for details");
 	};
 
-	u32 size;
+	std::uint32_t size;
 	getTerrainProperty(m_MapData, "size", size);
 
 	m_PatchesPerSide = size / PATCH_SIZE;

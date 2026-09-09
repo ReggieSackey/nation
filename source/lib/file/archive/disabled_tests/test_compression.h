@@ -52,7 +52,7 @@ public:
 		TS_ASSERT_OK(comp_alloc_output(c, csizeBound));
 		const ssize_t cdata_produced = comp_feed(c, data, data_size);
 		TS_ASSERT(cdata_produced >= 0);
-		u32 checksum;
+		std::uint32_t checksum;
 		TS_ASSERT_OK(comp_finish(c, &cdata, &csize, &checksum));
 		TS_ASSERT(cdata_produced <= (ssize_t)csize);	// can't have produced more than total
 		}
@@ -64,7 +64,7 @@ public:
 		comp_set_output(d, udata, data_size);
 		const ssize_t udata_produced = comp_feed(d, cdata, csize);
 		TS_ASSERT(udata_produced >= 0);
-		std::uint8_t* udata_final; size_t usize_final; u32 checksum;
+		std::uint8_t* udata_final; size_t usize_final; std::uint32_t checksum;
 		TS_ASSERT_OK(comp_finish(d, &udata_final, &usize_final, &checksum));
 		TS_ASSERT(udata_produced <= (ssize_t)usize_final);	// can't have produced more than total
 		TS_ASSERT_EQUALS(udata_final, udata);	// output buffer address is same

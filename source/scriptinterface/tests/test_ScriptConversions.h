@@ -19,7 +19,6 @@
 
 #include "lib/file/vfs/vfs.h"
 #include "lib/path.h"
-#include "lib/types.h"
 #include "maths/Fixed.h"
 #include "maths/FixedVector2D.h"
 #include "maths/FixedVector3D.h"
@@ -134,12 +133,12 @@ public:
 		roundtrip<std::int32_t>(JSVAL_INT_MIN + 1, "-2147483647");
 		roundtrip<std::int32_t>(JSVAL_INT_MIN, "-2147483648");
 
-		roundtrip<u32>(0, "0");
-		roundtrip<u32>(123, "123");
-		roundtrip<u32>(JSVAL_INT_MAX - 1, "2147483646");
-		roundtrip<u32>(JSVAL_INT_MAX, "2147483647");
+		roundtrip<std::uint32_t>(0, "0");
+		roundtrip<std::uint32_t>(123, "123");
+		roundtrip<std::uint32_t>(JSVAL_INT_MAX - 1, "2147483646");
+		roundtrip<std::uint32_t>(JSVAL_INT_MAX, "2147483647");
 
-		roundtrip<u32>(static_cast<u32>(JSVAL_INT_MAX) + 1, "2147483648");
+		roundtrip<std::uint32_t>(static_cast<std::uint32_t>(JSVAL_INT_MAX) + 1, "2147483648");
 
 		std::string s1 = "test";
 		s1[1] = '\0';
@@ -192,10 +191,10 @@ public:
 		TS_ASSERT(val3.isInt32());
 		TS_ASSERT(val4.isInt32());
 
-		Script::ToJSVal<u32>(rq, &val5, 0);
-		Script::ToJSVal<u32>(rq, &val6, 2147483646u); // JSVAL_INT_MAX-1
-		Script::ToJSVal<u32>(rq, &val7, 2147483647u); // JSVAL_INT_MAX
-		Script::ToJSVal<u32>(rq, &val8, 2147483648u); // JSVAL_INT_MAX+1
+		Script::ToJSVal<std::uint32_t>(rq, &val5, 0);
+		Script::ToJSVal<std::uint32_t>(rq, &val6, 2147483646u); // JSVAL_INT_MAX-1
+		Script::ToJSVal<std::uint32_t>(rq, &val7, 2147483647u); // JSVAL_INT_MAX
+		Script::ToJSVal<std::uint32_t>(rq, &val8, 2147483648u); // JSVAL_INT_MAX+1
 		TS_ASSERT(val5.isInt32());
 		TS_ASSERT(val6.isInt32());
 		TS_ASSERT(val7.isInt32());

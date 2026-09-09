@@ -33,7 +33,7 @@ public:
 	void test_compress_decompress_compare()
 	{
 		size_t inConsumed, outProduced;
-		u32 checksum;
+		std::uint32_t checksum;
 
 		// generate random input udata
 		// (limit values to 0..7 so that the udata will actually be compressible)

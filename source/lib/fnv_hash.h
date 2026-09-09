@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Wildfire Games.
+/* Copyright (C) 2026 Wildfire Games.
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -46,7 +46,7 @@
  * @return hash result. note: results are distinct for buffers containing
  * differing amounts of zero bytes because the hash value is seeded.
  **/
-extern u32 fnv_hash(const void* buf, size_t len = 0);
+extern std::uint32_t fnv_hash(const void* buf, size_t len = 0);
 /// 64-bit version of fnv_hash.
 extern u64 fnv_hash64(const void* buf, size_t len = 0);
 

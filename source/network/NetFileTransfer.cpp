@@ -151,7 +151,7 @@ Status CNetFileTransferer::OnFileTransferAck(const CFileTransferAckMessage& mess
 
 void CNetFileTransferer::StartTask(RequestType requestType, std::function<void(std::string)> task)
 {
-	u32 requestID = m_NextRequestID++;
+	std::uint32_t requestID = m_NextRequestID++;
 
 	m_FileReceiveTasks.emplace(requestID, AsyncFileReceiveTask{std::move(task)});
 
@@ -161,7 +161,7 @@ void CNetFileTransferer::StartTask(RequestType requestType, std::function<void(s
 	m_SendMessage(&request);
 }
 
-void CNetFileTransferer::StartResponse(u32 requestID, const std::string& data)
+void CNetFileTransferer::StartResponse(std::uint32_t requestID, const std::string& data)
 {
 	CNetFileSendTask task;
 	task.requestID = requestID;
@@ -183,7 +183,7 @@ void CNetFileTransferer::Poll()
 {
 	// Find tasks which have fewer packets in flight than their window size,
 	// and send more packets
-	for (std::pair<const u32, CNetFileSendTask>& p : m_FileSendTasks)
+	for (std::pair<const std::uint32_t, CNetFileSendTask>& p : m_FileSendTasks)
 	{
 		CNetFileSendTask& task = p.second;
 

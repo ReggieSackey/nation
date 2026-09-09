@@ -92,7 +92,7 @@ public:
 		u64 d2 = t + zz;
 		CheckUnsignedAdditionOverflow(d2, t, L"Overflow in CFixedVector3D::Length() part 2")
 
-		u32 d = isqrt64(d2);
+		std::uint32_t d = isqrt64(d2);
 
 		CheckU32CastOverflow(d, std::int32_t, L"Overflow in CFixedVector3D::Length() part 3")
 		fixed r;

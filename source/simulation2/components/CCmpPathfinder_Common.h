@@ -29,7 +29,6 @@
 
 #include "graphics/Overlay.h"
 #include "graphics/SColor.h"
-#include "lib/types.h"
 #include "maths/Fixed.h"
 #include "ps/Future.h"
 #include "renderer/TerrainOverlay.h"
@@ -144,7 +143,7 @@ public:
 	PathRequests<LongPathRequest> m_LongPathRequests;
 	PathRequests<ShortPathRequest> m_ShortPathRequests;
 
-	u32 m_NextAsyncTicket; // Unique IDs for asynchronous path requests.
+	std::uint32_t m_NextAsyncTicket; // Unique IDs for asynchronous path requests.
 
 	pass_class_t m_OverlayPassClass;
 	TerrainTextureOverlay* m_AtlasOverlay;
@@ -212,11 +211,11 @@ public:
 
 	void ComputePathImmediate(entity_pos_t x0, entity_pos_t z0, const PathGoal& goal, pass_class_t passClass, WaypointPath& ret) const override;
 
-	u32 ComputePathAsync(entity_pos_t x0, entity_pos_t z0, const PathGoal& goal, pass_class_t passClass, entity_id_t notify) override;
+	std::uint32_t ComputePathAsync(entity_pos_t x0, entity_pos_t z0, const PathGoal& goal, pass_class_t passClass, entity_id_t notify) override;
 
 	WaypointPath ComputeShortPathImmediate(const ShortPathRequest& request) const override;
 
-	u32 ComputeShortPathAsync(entity_pos_t x0, entity_pos_t z0, entity_pos_t clearance, entity_pos_t range, const PathGoal& goal, pass_class_t passClass, bool avoidMovingUnits, entity_id_t controller, entity_id_t notify) override;
+	std::uint32_t ComputeShortPathAsync(entity_pos_t x0, entity_pos_t z0, entity_pos_t clearance, entity_pos_t range, const PathGoal& goal, pass_class_t passClass, bool avoidMovingUnits, entity_id_t controller, entity_id_t notify) override;
 
 	bool IsGoalReachable(entity_pos_t x0, entity_pos_t z0, const PathGoal& goal, pass_class_t passClass) override;
 
@@ -226,7 +225,7 @@ public:
 
 	void SetHierDebugOverlay(bool enabled) override;
 
-	void GetDebugData(u32& steps, double& time, Grid<std::uint8_t>& grid) const override;
+	void GetDebugData(std::uint32_t& steps, double& time, Grid<std::uint8_t>& grid) const override;
 
 	void SetAtlasOverlay(bool enable, pass_class_t passClass = 0) override;
 

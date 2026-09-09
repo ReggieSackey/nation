@@ -39,7 +39,6 @@
 #include "lib/status.h"
 #include "lib/sysdep/compiler.h"
 #include "lib/tex/tex.h"
-#include "lib/types.h"
 
 #include <csetjmp>
 #include <cstring>
@@ -185,7 +184,7 @@ static Status png_decode_impl(MemoryStream* stream, png_structp png_ptr, png_inf
 		WARN_RETURN(ERR::TEX_FMT_INVALID);
 
 	const size_t pitch = png_get_rowbytes(png_ptr, info_ptr);
-	const u32 bpp = (u32)(pitch / w * 8);
+	const std::uint32_t bpp = static_cast<std::uint32_t>(pitch / w * 8);
 
 	size_t flags = 0;
 	if (color_type == PNG_COLOR_TYPE_RGB_ALPHA)
@@ -255,7 +254,7 @@ bool TexCodecPng::is_hdr(const std::uint8_t* file) const
 {
 	// don't use png_sig_cmp, so we don't pull in libpng for
 	// this check alone (it might not actually be used).
-	return *(u32*)file == FOURCC('\x89','P','N','G');
+	return *reinterpret_cast<const std::uint32_t*>(file) == FOURCC('\x89','P','N','G');
 }
 
 

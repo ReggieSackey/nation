@@ -31,7 +31,6 @@
 #include "gui/SettingTypes/CGUIColor.h"
 #include "lib/code_annotation.h"
 #include "lib/file/vfs/vfs_path.h"
-#include "lib/types.h"
 #include "maths/Rect.h"
 #include "maths/Vector2D.h"
 #include "ps/CStr.h"
@@ -471,7 +470,7 @@ private:
 	 */
 	void Xeromyces_ReadObject(const XMBData& xmb, XMBElement element, IGUIObject& parent,
 		std::vector<std::pair<CStr, CStr> >& NameSubst, std::unordered_set<VfsPath>& Paths,
-		u32 nesting_depth);
+		std::uint32_t nesting_depth);
 
 	/**
 	 * Reads in the element \<repeat\>, which repeats its child \<object\>s
@@ -481,7 +480,7 @@ private:
 	 */
 	void Xeromyces_ReadRepeat(const XMBData& xmb, XMBElement element, IGUIObject& parent,
 		std::vector<std::pair<CStr, CStr> >& NameSubst, std::unordered_set<VfsPath>& Paths,
-		u32 nesting_depth);
+		std::uint32_t nesting_depth);
 
 	/**
 	 * Reads in the element \<script\> (the XMBElement) and executes

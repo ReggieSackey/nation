@@ -31,7 +31,6 @@
 #include "lib/posix/posix_types.h"
 #include "lib/status.h"
 #include "lib/tex/tex.h"
-#include "lib/types.h"
 #include "maths/Vector3D.h"
 #include "ps/CStr.h"
 #include "ps/Filesystem.h"
@@ -146,7 +145,7 @@ sTerrainTexturePreview GetPreview(CTerrainTextureEntry* tex, size_t width, size_
 	else
 	{
 		// Too small to preview. Just use a flat color instead.
-		const u32 baseColor = tex->GetBaseColor();
+		const std::uint32_t baseColor = tex->GetBaseColor();
 		for (size_t i = 0; i < width * height; ++i)
 		{
 			buffer[i * previewBPP + 0] = (baseColor >> 16) & 0xff;

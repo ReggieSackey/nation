@@ -58,8 +58,8 @@ CFixed_15_16 CFixed_15_16::FromString(const CStr8& s)
 		else if (*c == '.')
 		{
 			++c;
-			u32 frac = 0;
-			u32 div = 1;
+			std::uint32_t frac = 0;
+			std::uint32_t div = 1;
 			// Fractional part
 			while (*c >= '0' && *c <= '9')
 			{
@@ -99,7 +99,7 @@ CStr8 CFixed_15_16::ToString() const
 	char buffer[16];
 	PS::StringBuilder builder({std::begin(buffer), std::end(buffer)});
 
-	u32 posvalue = abs(value);
+	std::uint32_t posvalue = abs(value);
 	if (value < 0)
 		builder.Append('-');
 
@@ -110,8 +110,8 @@ CStr8 CFixed_15_16::ToString() const
 	{
 		builder.Append('.');
 
-		u32 frac = 0;
-		u32 div = 1;
+		std::uint32_t frac = 0;
+		std::uint32_t div = 1;
 
 		// Do the inverse of FromString: Keep adding digits until (frac<<16)/div == expected fraction
 		while (true)
@@ -120,7 +120,7 @@ CStr8 CFixed_15_16::ToString() const
 			div *= 10;
 
 			// Low estimate of d such that ((frac+d)<<16)/div == fraction
-			u32 digit = (((u64)fraction*div) >> 16) - frac;
+			std::uint32_t digit = (((u64)fraction*div) >> 16) - frac;
 			frac += digit;
 
 			// If this gives the exact target, then add the digit and stop

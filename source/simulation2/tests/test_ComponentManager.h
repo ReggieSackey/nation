@@ -20,7 +20,6 @@
 #include "lib/file/file_system.h"
 #include "lib/file/vfs/vfs.h"
 #include "lib/path.h"
-#include "lib/types.h"
 #include "maths/Fixed.h"
 #include "ps/CLogger.h"
 #include "ps/Errors.h"
@@ -88,22 +87,23 @@ public:
 		CSimContext context;
 		CComponentManager man(context, *g_ScriptContext);
 
-		TS_ASSERT_EQUALS(man.AllocateNewEntity(), (u32)2);
-		TS_ASSERT_EQUALS(man.AllocateNewEntity(), (u32)3);
-		TS_ASSERT_EQUALS(man.AllocateNewEntity(), (u32)4);
-		TS_ASSERT_EQUALS(man.AllocateNewEntity(100), (u32)100);
-		TS_ASSERT_EQUALS(man.AllocateNewEntity(), (u32)101);
+		TS_ASSERT_EQUALS(man.AllocateNewEntity(), static_cast<std::uint32_t>(2));
+		TS_ASSERT_EQUALS(man.AllocateNewEntity(), static_cast<std::uint32_t>(3));
+		TS_ASSERT_EQUALS(man.AllocateNewEntity(), static_cast<std::uint32_t>(4));
+		TS_ASSERT_EQUALS(man.AllocateNewEntity(100), static_cast<std::uint32_t>(100));
+		TS_ASSERT_EQUALS(man.AllocateNewEntity(), static_cast<std::uint32_t>(101));
 		// TODO:
-		// TS_ASSERT_EQUALS(man.AllocateNewEntity(3), (u32)102);
+		// TS_ASSERT_EQUALS(man.AllocateNewEntity(3), static_cast<std::uint32_t>(102));
 
-		TS_ASSERT_EQUALS(man.AllocateNewLocalEntity(), (u32)FIRST_LOCAL_ENTITY);
-		TS_ASSERT_EQUALS(man.AllocateNewLocalEntity(), (u32)FIRST_LOCAL_ENTITY+1);
+		TS_ASSERT_EQUALS(man.AllocateNewLocalEntity(), static_cast<std::uint32_t>(FIRST_LOCAL_ENTITY));
+		TS_ASSERT_EQUALS(man.AllocateNewLocalEntity(),
+			static_cast<std::uint32_t>(FIRST_LOCAL_ENTITY) + 1);
 
 		man.ResetState();
 
-		TS_ASSERT_EQUALS(man.AllocateNewEntity(), (u32)2);
-		TS_ASSERT_EQUALS(man.AllocateNewEntity(3), (u32)3);
-		TS_ASSERT_EQUALS(man.AllocateNewLocalEntity(), (u32)FIRST_LOCAL_ENTITY);
+		TS_ASSERT_EQUALS(man.AllocateNewEntity(), static_cast<std::uint32_t>(2));
+		TS_ASSERT_EQUALS(man.AllocateNewEntity(3), static_cast<std::uint32_t>(3));
+		TS_ASSERT_EQUALS(man.AllocateNewLocalEntity(), static_cast<std::uint32_t>(FIRST_LOCAL_ENTITY));
 	}
 
 	void test_rng()

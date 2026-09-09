@@ -94,7 +94,7 @@ const fixed PARABOLIC_RANGE_TOLERANCE = fixed::FromInt(1)/2;
  * Convert an owner ID (-1 = unowned, 0 = gaia, 1..30 = players)
  * into a 32-bit mask for quick set-membership tests.
  */
-u32 CalcOwnerMask(player_id_t owner)
+std::uint32_t CalcOwnerMask(player_id_t owner)
 {
 	if (owner >= -1 && owner < 31)
 		return 1 << (1+owner);
@@ -105,19 +105,19 @@ u32 CalcOwnerMask(player_id_t owner)
 /**
  * Returns LOS mask for given player.
  */
-u32 CalcPlayerLosMask(player_id_t player)
+std::uint32_t CalcPlayerLosMask(player_id_t player)
 {
 	if (player > 0 && player <= 16)
-		return (u32)LosState::MASK << (2*(player-1));
+		return static_cast<std::uint32_t>(LosState::MASK) << (2*(player-1));
 	return 0;
 }
 
 /**
  * Returns shared LOS mask for given list of players.
  */
-u32 CalcSharedLosMask(std::vector<player_id_t> players)
+std::uint32_t CalcSharedLosMask(std::vector<player_id_t> players)
 {
-	u32 playerMask = 0;
+	std::uint32_t playerMask = 0;
 	for (size_t i = 0; i < players.size(); i++)
 		playerMask |= CalcPlayerLosMask(players[i]);
 
@@ -146,7 +146,7 @@ bool SetPlayerSharedDirtyVisibilityBit(std::uint16_t& mask, player_id_t player, 
 /**
  * Computes the 2-bit visibility for one player, given the total 32-bit visibilities
  */
-LosVisibility GetPlayerVisibility(u32 visibilities, player_id_t player)
+LosVisibility GetPlayerVisibility(std::uint32_t visibilities, player_id_t player)
 {
 	if (player > 0 && player <= 16)
 		return static_cast<LosVisibility>( (visibilities >> (2 *(player-1))) & 0x3 );
@@ -190,7 +190,7 @@ struct Query
 	entity_pos_t maxRange;
 	entity_pos_t baseRange;  // Non-parabolic detection range
 	entity_pos_t yOrigin; // Used for parabolas only.
-	u32 ownersMask;
+	std::uint32_t ownersMask;
 	std::int32_t interface;
 	std::uint8_t flagsMask;
 	bool enabled;
@@ -262,8 +262,8 @@ struct EntityData
 		{ }
 	entity_pos_t x, z;
 	entity_pos_t visionRange;
-	u32 visibilities; // 2-bit visibility, per player
-	u32 size;
+	std::uint32_t visibilities; // 2-bit visibility, per player
+	std::uint32_t size;
 	std::uint16_t visionSharing; // 1-bit per player
 	std::int8_t owner;
 	std::uint8_t flags; // See the FlagMasks enum
@@ -486,20 +486,20 @@ public:
 	std::array<Grid<std::uint16_t>, MAX_LOS_PLAYER_ID> m_LosPlayerCounts;
 
 	// 2-bit LosState per player, starting with player 1 (not 0!) up to player MAX_LOS_PLAYER_ID (inclusive)
-	Grid<u32> m_LosState;
+	Grid<std::uint32_t> m_LosState;
 
 	// Special static visibility data for the "reveal whole map" mode
 	// (TODO: this is usually a waste of memory)
-	Grid<u32> m_LosStateRevealed;
+	Grid<std::uint32_t> m_LosStateRevealed;
 
 	// Shared LOS masks, one per player.
-	std::array<u32, MAX_LOS_PLAYER_ID+2> m_SharedLosMasks;
+	std::array<std::uint32_t, MAX_LOS_PLAYER_ID+2> m_SharedLosMasks;
 	// Shared dirty visibility masks, one per player.
 	std::array<std::uint16_t, MAX_LOS_PLAYER_ID+2> m_SharedDirtyVisibilityMasks;
 
 	// Cache explored vertices per player (not serialized)
-	u32 m_TotalInworldVertices;
-	std::vector<u32> m_ExploredVertices;
+	std::uint32_t m_TotalInworldVertices;
+	std::vector<std::uint32_t> m_ExploredVertices;
 
 	static std::string GetSchema()
 	{
@@ -877,7 +877,7 @@ public:
 		// does not affect the incrementally-computed state
 
 		std::array<Grid<std::uint16_t>, MAX_LOS_PLAYER_ID> oldPlayerCounts = m_LosPlayerCounts;
-		Grid<u32> oldStateRevealed = m_LosStateRevealed;
+		Grid<std::uint32_t> oldStateRevealed = m_LosStateRevealed;
 		FastSpatialSubdivision oldSubdivision = m_Subdivision;
 		Grid<std::set<entity_id_t> > oldLosRegions = m_LosRegions;
 
@@ -943,7 +943,11 @@ public:
 				for (std::int32_t i = 0; i < m_LosVerticesPerSide; i++)
 					if (!LosIsOffWorld(i, j))
 						for (std::uint8_t k = 1; k < MAX_LOS_PLAYER_ID+1; ++k)
-							m_ExploredVertices.at(k) += ((m_LosState.get(i, j) & ((u32)LosState::EXPLORED << (2*(k-1)))) > 0);
+						{
+							m_ExploredVertices.at(k) += ((m_LosState.get(i, j) &
+								(static_cast<std::uint32_t>(LosState::EXPLORED) <<
+								(2 * (k - 1)))) > 0);
+						}
 		} else
 			m_LosState.resize(m_LosVerticesPerSide, m_LosVerticesPerSide);
 
@@ -1153,7 +1157,7 @@ public:
 		return GetEntitiesByMask(~1u); // bit 0 for owner=-1
 	}
 
-	std::vector<entity_id_t> GetEntitiesByMask(u32 ownerMask) const
+	std::vector<entity_id_t> GetEntitiesByMask(std::uint32_t ownerMask) const
 	{
 		std::vector<entity_id_t> entities;
 
@@ -1635,7 +1639,7 @@ public:
 
 		if (q.accountForSize && q.source.GetId() != INVALID_ENTITY && q.maxRange != ALWAYS_IN_RANGE)
 		{
-			u32 size = 0;
+			std::uint32_t size = 0;
 			if (ENTITY_IS_LOCAL(q.source.GetId()))
 			{
 				CmpPtr<ICmpObstruction> cmpObstruction(GetSimContext(), q.source.GetId());
@@ -2194,7 +2198,7 @@ public:
 			m_GlobalPlayerVisibilityUpdate[player-1] = 1;
 	}
 
-	u32 GetSharedLosMask(player_id_t player) const override
+	std::uint32_t GetSharedLosMask(player_id_t player) const override
 	{
 		return m_SharedLosMasks[player];
 	}
@@ -2206,9 +2210,11 @@ public:
 			{
 				if (LosIsOffWorld(i,j))
 					continue;
-				u32 &explored = m_ExploredVertices.at(p);
-				explored += !(m_LosState.get(i, j) & ((u32)LosState::EXPLORED << (2*(p-1))));
-				m_LosState.get(i, j) |= ((u32)LosState::EXPLORED << (2*(p-1)));
+				std::uint32_t &explored = m_ExploredVertices.at(p);
+				explored += !(m_LosState.get(i, j) &
+					(static_cast<std::uint32_t>(LosState::EXPLORED) << (2*(p-1))));
+				m_LosState.get(i, j) |=
+					(static_cast<std::uint32_t>(LosState::EXPLORED) << (2*(p-1)));
 			}
 
 		SeeExploredEntities(p);
@@ -2238,16 +2244,18 @@ public:
 				std::uint8_t p = grid.get(scale(i, grid.width() - 1), scale(j, grid.height() - 1)) & ICmpTerritoryManager::TERRITORY_PLAYER_MASK;
 				if (p > 0 && p <= MAX_LOS_PLAYER_ID)
 				{
-					u32& explored = m_ExploredVertices.at(p);
+					std::uint32_t& explored = m_ExploredVertices.at(p);
 
 					if (LosIsOffWorld(i, j))
 						continue;
 
-					u32& losState = m_LosState.get(i, j);
-					if (!(losState & ((u32)LosState::EXPLORED << (2*(p-1)))))
+					std::uint32_t& losState = m_LosState.get(i, j);
+					if (!(losState &
+						(static_cast<std::uint32_t>(LosState::EXPLORED) << (2*(p-1)))))
 					{
 						++explored;
-						losState |= ((u32)LosState::EXPLORED << (2*(p-1)));
+						losState |=
+							(static_cast<std::uint32_t>(LosState::EXPLORED) << (2*(p-1)));
 					}
 				}
 			}
@@ -2280,8 +2288,8 @@ public:
 			return;
 
 		const TileCircle circle{WorldToTileCircle(worldX, worldZ, radius)};
-		const u32 exploredBitMask{static_cast<u32>(LosState::EXPLORED) << (2 * (playerId - 1))};
-		u32& exploredCount = m_ExploredVertices.at(playerId);
+		const std::uint32_t exploredBitMask{static_cast<std::uint32_t>(LosState::EXPLORED) << (2 * (playerId - 1))};
+		std::uint32_t& exploredCount = m_ExploredVertices.at(playerId);
 
 		ForEachTileInCircle(circle,
 			[&](std::int32_t tileX, std::int32_t tileZ)
@@ -2289,7 +2297,7 @@ public:
 				if (LosIsOffWorld(tileX, tileZ))
 					return;
 
-				u32& losState = m_LosState.get(tileX, tileZ);
+				std::uint32_t& losState = m_LosState.get(tileX, tileZ);
 				if (losState & exploredBitMask)
 					return;
 
@@ -2409,7 +2417,7 @@ public:
 		if (i1 < i0)
 			return;
 
-		u32 &explored = m_ExploredVertices.at(owner);
+		std::uint32_t &explored = m_ExploredVertices.at(owner);
 		for (std::int32_t i = i0; i <= i1; ++i)
 		{
 			// Increasing from zero to non-zero - move from unexplored/explored to visible+explored
@@ -2417,8 +2425,10 @@ public:
 			{
 				if (!LosIsOffWorld(i, j))
 				{
-					explored += !(m_LosState.get(i, j) & ((u32)LosState::EXPLORED << (2*(owner-1))));
-					m_LosState.get(i, j) |= (((int)LosState::VISIBLE | (u32)LosState::EXPLORED) << (2*(owner-1)));
+					explored += !(m_LosState.get(i, j) &
+						(static_cast<std::uint32_t>(LosState::EXPLORED) << (2*(owner-1))));
+					m_LosState.get(i, j) |= (((int)LosState::VISIBLE |
+						static_cast<std::uint32_t>(LosState::EXPLORED)) << (2*(owner-1)));
 				}
 
 				MarkVisibilityDirtyAroundTile(owner, i, j);
@@ -2764,7 +2774,7 @@ public:
 
 	std::uint8_t GetUnionPercentMapExplored(const std::vector<player_id_t>& players) const override
 	{
-		u32 exploredVertices = 0;
+		std::uint32_t exploredVertices = 0;
 		std::vector<player_id_t>::const_iterator playerIt;
 
 		for (std::int32_t j = 0; j < m_LosVerticesPerSide; j++)
@@ -2774,7 +2784,8 @@ public:
 					continue;
 
 				for (playerIt = players.begin(); playerIt != players.end(); ++playerIt)
-					if (m_LosState.get(i, j) & ((u32)LosState::EXPLORED << (2*((*playerIt)-1))))
+					if (m_LosState.get(i, j) & (static_cast<std::uint32_t>(LosState::EXPLORED) <<
+						(2*((*playerIt)-1))))
 					{
 						exploredVertices += 1;
 						break;

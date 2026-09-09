@@ -25,7 +25,6 @@
 #include "gui/ObjectBases/IGUIObject.h"
 #include "gui/SGUIIcon.h"
 #include "lib/debug.h"
-#include "lib/types.h"
 #include "lib/utf8.h"
 #include "maths/Rect.h"
 #include "ps/CLogger.h"
@@ -473,7 +472,7 @@ void CGUIString::SetValue(const CStrW& str)
 	m_Words.push_back(0);
 
 	// Add word boundaries in increasing order
-	for (u32 i = 0; i < m_RawString.length(); ++i)
+	for (std::uint32_t i = 0; i < m_RawString.length(); ++i)
 	{
 		wchar_t c = m_RawString[i];
 		if (c == '\n')

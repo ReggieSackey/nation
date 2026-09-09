@@ -147,14 +147,14 @@ int CGame::LoadVisualReplayData()
 
 	CReplayTurnManager* replayTurnMgr = static_cast<CReplayTurnManager*>(GetTurnManager());
 
-	u32 currentTurn = 0;
+	std::uint32_t currentTurn = 0;
 	std::string type;
 	while ((*m_ReplayStream >> type).good())
 	{
 		if (type == "turn")
 		{
-			u32 turn = 0;
-			u32 turnLength = 0;
+			std::uint32_t turn = 0;
+			std::uint32_t turnLength = 0;
 			*m_ReplayStream >> turn >> turnLength;
 			ENSURE(turn == currentTurn && "You tried to replay a commands.txt file of a rejoined client. Please use the host's file.");
 			replayTurnMgr->StoreReplayTurnLength(currentTurn, turnLength);

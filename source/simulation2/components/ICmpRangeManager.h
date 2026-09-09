@@ -18,7 +18,6 @@
 #ifndef INCLUDED_ICMPRANGEMANAGER
 #define INCLUDED_ICMPRANGEMANAGER
 
-#include "lib/types.h"
 #include "maths/FixedVector2D.h"
 #include "maths/FixedVector3D.h"
 #include "simulation2/helpers/Player.h"
@@ -111,7 +110,7 @@ public:
 	/**
 	 * External identifiers for active queries.
 	 */
-	typedef u32 tag_t;
+	typedef std::uint32_t tag_t;
 
 	/**
 	 * Access the spatial subdivision kept by the range manager.
@@ -411,7 +410,7 @@ public:
 	/**
 	 * Returns shared LOS mask for player.
 	 */
-	virtual u32 GetSharedLosMask(player_id_t player) const = 0;
+	virtual std::uint32_t GetSharedLosMask(player_id_t player) const = 0;
 
 	/**
 	 * Get percent map explored statistics for specified player.

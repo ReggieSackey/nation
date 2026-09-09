@@ -131,7 +131,7 @@ std::string EscapeString(const CStr& str)
 	}
 GETVAL(bool)
 GETVAL(int)
-GETVAL(u32)
+GETVAL(std::uint32_t)
 GETVAL(float)
 GETVAL(double)
 GETVAL(std::string)

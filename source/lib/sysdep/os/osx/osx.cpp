@@ -50,7 +50,7 @@ OsPath sys_ExecutablePathname()
 	else
 	{
 		char temp[PATH_MAX];
-		u32 size = PATH_MAX;
+		std::uint32_t size = PATH_MAX;
 		if (_NSGetExecutablePath(temp, &size) == 0)
 		{
 			char name[PATH_MAX];

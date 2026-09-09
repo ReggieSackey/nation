@@ -20,7 +20,6 @@
 
 #include "lib/code_generation.h"
 #include "lib/debug.h"
-#include "lib/types.h"
 #include "ps/CStr.h"
 #include "scriptinterface/Exceptions.h"
 #include "scriptinterface/Request.h"
@@ -140,8 +139,8 @@ template<typename T> inline void ToJSVal_vector(const Request& rq, JS::MutableHa
 		return;
 	}
 
-	ENSURE(val.size() <= std::numeric_limits<u32>::max());
-	for (u32 i = 0; i < val.size(); ++i)
+	ENSURE(val.size() <= std::numeric_limits<std::uint32_t>::max());
+	for (std::uint32_t i = 0; i < val.size(); ++i)
 	{
 		JS::RootedValue el(rq.cx);
 		ToJSVal<T>(rq, &el, val[i]);
@@ -163,13 +162,13 @@ template<typename T> inline bool FromJSVal_vector(const Request& rq, JS::HandleV
 	if ((!JS::IsArrayObject(rq.cx, obj, &isArray) || !isArray) && !JS_IsTypedArrayObject(obj))
 		FAIL("Argument must be an array");
 
-	u32 length;
+	std::uint32_t length;
 	if (!JS::GetArrayLength(rq.cx, obj, &length))
 		FAIL("Failed to get array length");
 
 	out.clear();
 	out.reserve(length);
-	for (u32 i = 0; i < length; ++i)
+	for (std::uint32_t i = 0; i < length; ++i)
 	{
 		JS::RootedValue el(rq.cx);
 		if (!JS_GetElement(rq.cx, obj, i, &el))

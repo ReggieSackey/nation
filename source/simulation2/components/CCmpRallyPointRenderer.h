@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Wildfire Games.
+/* Copyright (C) 2026 Wildfire Games.
 * This file is part of 0 A.D.
 *
 * 0 A.D. is free software: you can redistribute it and/or modify
@@ -21,7 +21,6 @@
 #include "graphics/Color.h"
 #include "graphics/Overlay.h"
 #include "graphics/Texture.h"
-#include "lib/types.h"
 #include "maths/FixedVector2D.h"
 #include "maths/Vector2D.h"
 #include "simulation2/components/ICmpRallyPointRenderer.h"
@@ -89,7 +88,7 @@ public:
 
 	void SetPosition(const CFixedVector2D& pos) override;
 
-	void UpdatePosition(u32 rallyPointId, const CFixedVector2D& pos) override;
+	void UpdatePosition(std::uint32_t rallyPointId, const CFixedVector2D& pos) override;
 
 	void SetDisplayed(bool displayed) override;
 

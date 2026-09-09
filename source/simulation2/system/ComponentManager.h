@@ -20,7 +20,6 @@
 
 #include "lib/code_annotation.h"
 #include "lib/debug.h"
-#include "lib/types.h"
 #include "scriptinterface/Interface.h"
 #include "simulation2/system/Component.h"
 #include "simulation2/system/DynamicSubscription.h"
@@ -287,7 +286,7 @@ public:
 	/**
 	 * Initializes the random number generator with a seed determined by the host.
 	 */
-	void SetRNGSeed(u32 seed);
+	void SetRNGSeed(std::uint32_t seed);
 
 	// Various state serialization functions:
 	bool ComputeStateHash(std::string& outHash, bool quick) const;

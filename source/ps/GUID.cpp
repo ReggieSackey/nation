@@ -19,7 +19,6 @@
 #include "lib/code_annotation.h"
 #include "lib/secure_crt.h"
 #include "lib/sysdep/sysdep.h"
-#include "lib/types.h"
 #include "ps/CStr.h"
 
 #include <cstddef>
@@ -36,7 +35,7 @@ CStr ps_generate_guid(void)
 	CStr guid;
 	for (size_t i = 0; i < 2; ++i)
 	{
-		u32 r = 0;
+		std::uint32_t r = 0;
 		sys_generate_random_bytes(reinterpret_cast<std::uint8_t*>(&r), sizeof(r));
 		char buf[32];
 		sprintf_s(buf, ARRAY_SIZE(buf), "%08X", r);

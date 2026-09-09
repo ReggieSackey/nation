@@ -266,11 +266,11 @@ CProfiler2::ThreadStorage::~ThreadStorage()
 	delete[] m_Buffer;
 }
 
-void CProfiler2::ThreadStorage::Write(EItem type, const void* item, u32 itemSize)
+void CProfiler2::ThreadStorage::Write(EItem type, const void* item, std::uint32_t itemSize)
 {
 	// See RingBufferSpan for comments on synchronisation
 
-	u32 size = 1 + itemSize;
+	std::uint32_t size = 1 + itemSize;
 	std::uint32_t start{m_ValidRange.begin.load()};
 	if (start + size > BUFFER_SIZE)
 	{
@@ -336,12 +336,12 @@ void CProfiler2::ThreadStorage::RecordAttribute(const char* fmt, va_list argp)
 }
 
 // this flattens the stack, use it sensibly
-void rewriteBuffer(std::uint8_t* buffer, u32& bufferSize)
+void rewriteBuffer(std::uint8_t* buffer, std::uint32_t& bufferSize)
 {
 	double startTime = timer_Time();
 
-	u32 size = bufferSize;
-	u32 readPos = 0;
+	std::uint32_t size = bufferSize;
+	std::uint32_t readPos = 0;
 
 	double initialTime = -1;
 	double total_time = -1;
@@ -462,7 +462,7 @@ void rewriteBuffer(std::uint8_t* buffer, u32& bufferSize)
 		case CProfiler2::ITEM_ATTRIBUTE:
 		{
 			// skip for now
-			u32 len;
+			std::uint32_t len;
 			memcpy(&len, buffer + readPos, sizeof(len));
 			ENSURE(len <= CProfiler2::MAX_ATTRIBUTE_LENGTH);
 			readPos += sizeof(len);
@@ -490,7 +490,7 @@ void rewriteBuffer(std::uint8_t* buffer, u32& bufferSize)
 
 	// rewrite the buffer
 	// what we rewrite will always be smaller than the current buffer's size
-	u32 writePos = 0;
+	std::uint32_t writePos = 0;
 	double curTime = initialTime;
 	// the region enter
 	{
@@ -519,7 +519,7 @@ void rewriteBuffer(std::uint8_t* buffer, u32& bufferSize)
 			if (time_attrib != time_per_attribute.end())
 				basic = fmt::format("{} {}us", basic, 1000000 * time_attrib->second);
 
-			u32 length = static_cast<u32>(basic.size());
+			std::uint32_t length = static_cast<std::uint32_t>(basic.size());
 			memcpy(buffer + writePos, &length, sizeof(length));
 			writePos += sizeof(length);
 			memcpy(buffer + writePos, basic.c_str(), length);
@@ -557,7 +557,7 @@ void rewriteBuffer(std::uint8_t* buffer, u32& bufferSize)
 
 			buffer[writePos] = static_cast<std::uint8_t>(CProfiler2::ITEM_ATTRIBUTE);
 			writePos++;
-			u32 length = sizeof("buffer overflow");
+			std::uint32_t length = sizeof("buffer overflow");
 			memcpy(buffer + writePos, &length, sizeof(length));
 			writePos += sizeof(length);
 			memcpy(buffer + writePos, "buffer overflow", length);
@@ -608,9 +608,10 @@ void RunBufferVisitor(const std::string& buffer, V& visitor)
 	// so scan forwards until we find a sync marker.
 	// (This is probably pretty inefficient.)
 
-	u32 realStart = (u32)-1; // the start point decided by the scan algorithm
+	std::uint32_t realStart = static_cast<std::uint32_t>(-1); // the start point decided by the scan algorithm
 
-	for (u32 start = 0; start + 1 + sizeof(CProfiler2::RESYNC_MAGIC) <= buffer.length(); ++start)
+	for (std::uint32_t start = 0; start + 1 + sizeof(CProfiler2::RESYNC_MAGIC) <= buffer.length();
+		++start)
 	{
 		if (buffer[start] == CProfiler2::ITEM_SYNC
 			&& memcmp(buffer.c_str() + start + 1, &CProfiler2::RESYNC_MAGIC, sizeof(CProfiler2::RESYNC_MAGIC)) == 0)
@@ -620,9 +621,9 @@ void RunBufferVisitor(const std::string& buffer, V& visitor)
 		}
 	}
 
-	ENSURE(realStart != (u32)-1); // we should have found a sync point somewhere in the buffer
+	ENSURE(realStart != static_cast<std::uint32_t>(-1)); // we should have found a sync point somewhere in the buffer
 
-	u32 pos = realStart; // the position as we step through the buffer
+	std::uint32_t pos = realStart; // the position as we step through the buffer
 
 	double lastTime = -1;
 		// set to non-negative by EVENT_SYNC; we ignore all items before that
@@ -688,7 +689,7 @@ void RunBufferVisitor(const std::string& buffer, V& visitor)
 		}
 		case CProfiler2::ITEM_ATTRIBUTE:
 		{
-			u32 len;
+			std::uint32_t len;
 			memcpy(&len, buffer.c_str()+pos, sizeof(len));
 			ENSURE(len <= CProfiler2::MAX_ATTRIBUTE_LENGTH);
 			pos += sizeof(len);

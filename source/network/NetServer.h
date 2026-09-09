@@ -20,7 +20,6 @@
 
 #include "lib/code_annotation.h"
 #include "lib/config2.h"
-#include "lib/types.h"
 #include "network/NetHost.h"
 #include "ps/CStr.h"
 
@@ -182,7 +181,7 @@ private:
 	 * Set the turn length to a fixed value.
 	 * TODO: we should replace this with some adaptive lag-dependent computation.
 	 */
-	void SetTurnLength(u32 msecs);
+	void SetTurnLength(std::uint32_t msecs);
 
 	void ProcessLobbyAuth(const CStr& name, const CStr& token);
 
@@ -272,7 +271,7 @@ private:
 
 	CStrW m_ServerName{L"Unnamed Server"};
 
-	std::vector<u32> m_BannedIPs;
+	std::vector<std::uint32_t> m_BannedIPs;
 	std::vector<CStrW> m_BannedPlayers;
 
 	CStr m_Password;
@@ -282,7 +281,7 @@ private:
 	 */
 	std::vector<CStr> m_PausingPlayers;
 
-	u32 m_NextHostID{1};
+	std::uint32_t m_NextHostID{1};
 
 	std::unique_ptr<CNetServerTurnManager> m_ServerTurnManager;
 
@@ -343,7 +342,7 @@ private:
 	// Queues for messages sent by the game thread (protected by m_WorkerMutex):
 	std::vector<bool> m_StartGameQueue;
 	std::vector<std::pair<CStr, CStr>> m_LobbyAuthQueue;
-	std::vector<u32> m_TurnLengthQueue;
+	std::vector<std::uint32_t> m_TurnLengthQueue;
 };
 
 /**
@@ -369,7 +368,7 @@ public:
 	 * Set the turn length to a fixed value.
 	 * TODO: we should replace this with some adapative lag-dependent computation.
 	 */
-	void SetTurnLength(u32 msecs);
+	void SetTurnLength(std::uint32_t msecs);
 
 	bool UseLobbyAuth() const;
 

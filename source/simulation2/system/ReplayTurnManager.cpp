@@ -58,7 +58,7 @@ void CReplayTurnManager::StoreReplayHash(turn_id_t turn, const std::string& hash
 	m_ReplayHash[turn] = std::make_pair(hash, quick);
 }
 
-void CReplayTurnManager::StoreReplayTurnLength(turn_id_t turn, u32 turnLength)
+void CReplayTurnManager::StoreReplayTurnLength(turn_id_t turn, std::uint32_t turnLength)
 {
 	m_ReplayTurnLengths[turn] = turnLength;
 

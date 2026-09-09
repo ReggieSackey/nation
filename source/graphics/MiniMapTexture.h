@@ -23,7 +23,6 @@
 #include "graphics/Texture.h"
 #include "lib/code_annotation.h"
 #include "lib/posix/posix_types.h"
-#include "lib/types.h"
 #include "maths/Vector2D.h"
 #include "renderer/VertexArray.h"
 
@@ -119,7 +118,7 @@ private:
 		m_FinalTextureFramebuffer;
 
 	// texture data
-	std::unique_ptr<u32[]> m_TerrainData;
+	std::unique_ptr<std::uint32_t[]> m_TerrainData;
 
 	// map size
 	ssize_t m_MapSize = 0;

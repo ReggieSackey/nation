@@ -61,12 +61,12 @@ class IReplayLogger;
  * Default turn length in SP & MP.
  * This value should be as low as possible, while not introducing un-necessary lag.
  */
-inline constexpr u32 DEFAULT_TURN_LENGTH = 200;
+inline constexpr std::uint32_t DEFAULT_TURN_LENGTH = 200;
 
 /**
  * In single-player, commands are directly scheduled for the next turn.
  */
-inline constexpr u32 COMMAND_DELAY_SP = 1;
+inline constexpr std::uint32_t COMMAND_DELAY_SP = 1;
 
 /**
  * In multi-player, clients can only compute turn N if all clients have finished sending commands for it,
@@ -80,7 +80,7 @@ inline constexpr u32 COMMAND_DELAY_SP = 1;
  *  - this command-delay could vary based on server-client pings
  *  - it ought be possible to send commands in a P2P fashion (with server verification), which would lower the ping.
  */
-inline constexpr u32 COMMAND_DELAY_MP = 4;
+inline constexpr std::uint32_t COMMAND_DELAY_MP = 4;
 
 /**
  * Common turn system (used by clients and offline games).
@@ -97,7 +97,8 @@ public:
 	/**
 	 * Construct for a given network session ID.
 	 */
-	CTurnManager(CSimulation2& simulation, u32 defaultTurnLength, u32 commandDelay, int clientId, IReplayLogger& replay);
+	CTurnManager(CSimulation2& simulation, std::uint32_t defaultTurnLength, std::uint32_t commandDelay,
+		int clientId, IReplayLogger& replay);
 
 	virtual ~CTurnManager() { }
 
@@ -146,7 +147,7 @@ public:
 	 * Called when all commands for a given turn have been received.
 	 * This allows Update to progress to that turn.
 	 */
-	void FinishedAllCommands(turn_id_t turn, u32 turnLength);
+	void FinishedAllCommands(turn_id_t turn, std::uint32_t turnLength);
 
 	/**
 	 * Enables the recording of state snapshots every @p numTurns,
@@ -199,13 +200,13 @@ protected:
 	turn_id_t m_CurrentTurn;
 
 	// Current command delay (commands are scheduled for m_CurrentTurn + m_CommandDelay)
-	u32 m_CommandDelay;
+	std::uint32_t m_CommandDelay;
 
 	/// The latest turn for which we have received all commands from all clients
 	turn_id_t m_ReadyTurn;
 
 	// Current turn length
-	u32 m_TurnLength;
+	std::uint32_t m_TurnLength;
 
 	/// Commands queued at each turn (index 0 is for m_CurrentTurn+1)
 	std::deque<std::map<turn_id_t, std::vector<SimulationCommand>>> m_QueuedCommands;

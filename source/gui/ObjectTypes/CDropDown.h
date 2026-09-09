@@ -33,7 +33,6 @@ GUI Object - Drop Down (list)
 #include "gui/ObjectBases/IGUIObject.h"
 #include "gui/ObjectTypes/CList.h"
 #include "gui/SettingTypes/CGUIColor.h"
-#include "lib/types.h"
 #include "maths/Rect.h"
 #include "maths/Vector2D.h"
 #include "ps/CStr.h"
@@ -141,7 +140,7 @@ protected:
 	CGUISimpleSetting<float> m_ButtonWidth;
 	CGUISimpleSetting<float> m_DropDownSize;
 	CGUISimpleSetting<float> m_DropDownBuffer;
-	CGUISimpleSetting<u32> m_MinimumVisibleItems;
+	CGUISimpleSetting<std::uint32_t> m_MinimumVisibleItems;
 	CGUISimpleSetting<CStrW> m_SoundClosed;
 	CGUISimpleSetting<CStrW> m_SoundEnter;
 	CGUISimpleSetting<CStrW> m_SoundLeave;

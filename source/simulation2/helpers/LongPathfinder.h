@@ -22,7 +22,6 @@
 
 #include "lib/code_generation.h"
 #include "lib/debug.h"
-#include "lib/types.h"
 #include "simulation2/helpers/Grid.h"
 #include "simulation2/helpers/PathGoal.h"
 #include "simulation2/helpers/Position.h"
@@ -35,7 +34,7 @@
 
 /**
  * Represents the 2D coordinates of a tile.
- * The i/j components are packed into a single u32, since we usually use these
+ * The i/j components are packed into a single std::uint32_t, since we usually use these
  * objects for equality comparisons and the VC2010 optimizer doesn't seem to automatically
  * compare two std::uint16_ts in a single operation.
  * TODO: maybe VC2012 will?
@@ -61,7 +60,7 @@ struct TileID
 	std::uint16_t j() const { return data & 0xFFFF; }
 
 private:
-	u32 data;
+	std::uint32_t data;
 };
 
 /**
@@ -92,7 +91,7 @@ public:
 
 private:
 	PathCost g; // cost to reach this tile
-	u32 data; // 2-bit status; 15-bit PredI; 15-bit PredJ; packed for storage efficiency
+	std::uint32_t data; // 2-bit status; 15-bit PredI; 15-bit PredJ; packed for storage efficiency
 
 public:
 	inline std::uint8_t GetStatus() const
@@ -125,7 +124,8 @@ public:
 		ASSERT(-16384 <= di && di < 16384);
 		ASSERT(-16384 <= dj && dj < 16384);
 		data &= 3;
-		data |= (((u32)di & 0x7FFF) << 17) | (((u32)dj & 0x7FFF) << 2);
+		data |= ((static_cast<std::uint32_t>(di) & 0x7FFF) << 17) |
+			((static_cast<std::uint32_t>(dj) & 0x7FFF) << 2);
 	}
 };
 
@@ -142,7 +142,7 @@ class JumpPointCache;
 
 struct PathfinderState
 {
-	u32 steps; // number of algorithm iterations
+	std::uint32_t steps; // number of algorithm iterations
 
 	PathGoal goal;
 
@@ -221,7 +221,7 @@ public:
 	void ComputePath(const HierarchicalPathfinder& hierPath, entity_pos_t x0, entity_pos_t z0, const PathGoal& origGoal,
 		pass_class_t passClass, std::vector<CircularRegion> excludedRegions, WaypointPath& path);
 
-	void GetDebugData(u32& steps, double& time, Grid<std::uint8_t>& grid) const
+	void GetDebugData(std::uint32_t& steps, double& time, Grid<std::uint8_t>& grid) const
 	{
 		GetDebugDataJPS(steps, time, grid);
 	}
@@ -242,7 +242,7 @@ public:
 		// Mutable - set by ComputeJPSPath (thus possibly from different threads).
 		// Synchronized via mutex if necessary.
 		mutable PathfindTileGrid* Grid = nullptr;
-		mutable u32 Steps;
+		mutable std::uint32_t Steps;
 		mutable double Time;
 		mutable PathGoal Goal;
 
@@ -269,7 +269,7 @@ private:
 	 * TODO: cleanup documentation
 	 */
 	void ComputeJPSPath(const HierarchicalPathfinder& hierPath, entity_pos_t x0, entity_pos_t z0, const PathGoal& origGoal, pass_class_t passClass, WaypointPath& path) const;
-	void GetDebugDataJPS(u32& steps, double& time, Grid<std::uint8_t>& grid) const;
+	void GetDebugDataJPS(std::uint32_t& steps, double& time, Grid<std::uint8_t>& grid) const;
 
 	// Helper functions for ComputePath
 
