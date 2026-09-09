@@ -265,7 +265,7 @@ struct EntityData
 	u32 visibilities; // 2-bit visibility, per player
 	u32 size;
 	u16 visionSharing; // 1-bit per player
-	i8 owner;
+	std::int8_t owner;
 	u8 flags; // See the FlagMasks enum
 
 	template<int mask>
@@ -730,7 +730,7 @@ public:
 			}
 
 			ENSURE(-128 <= msgData.to && msgData.to <= 127);
-			it->second.owner = (i8)msgData.to;
+			it->second.owner = static_cast<std::int8_t>(msgData.to);
 
 			break;
 		}
@@ -816,7 +816,7 @@ public:
 			if (!it->second.HasFlag<FlagMasks::SharedVision>())
 			{
 				// Activation of the Vision Sharing
-				ENSURE(it->second.owner == (i8)msgData.player);
+				ENSURE(it->second.owner == static_cast<std::int8_t>(msgData.player));
 				it->second.visionSharing = visionChanged;
 				it->second.SetFlag<FlagMasks::SharedVision>(true);
 				break;
