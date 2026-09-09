@@ -29,8 +29,6 @@
 
 #include <cstdint>
 
-typedef int64_t i64;
-
 typedef uint8_t u8;
 typedef uint16_t u16;
 typedef uint32_t u32;

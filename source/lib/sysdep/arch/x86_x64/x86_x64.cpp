@@ -458,7 +458,7 @@ double ClockFrequency()
 	for(size_t i = 0; i < numSamples; i++)
 	{
 		double dt;
-		i64 dc;	// (i64 instead of u64 for faster conversion to double)
+		std::int64_t dc;	// (std::int64_t instead of u64 for faster conversion to double)
 
 		// count # of clocks in max{1 tick, 1 ms}:
 		// .. wait for start of tick.
@@ -481,7 +481,7 @@ double ClockFrequency()
 		{
 			const double t2 = timer_Time();
 			const u64 c2 = rdtsc();
-			dc = (i64)(c2 - c1);
+			dc = static_cast<std::int64_t>(c2 - c1);
 			dt = t2 - t1;
 		}
 		while(dt < 1e-3);

@@ -1045,7 +1045,7 @@ static Status dump_sym_enum(DWORD type_id, const u8* p, DumpState& state)
 		WARN_RETURN(ERR::SYM_TYPE_INFO_UNAVAILABLE);
 	const size_t size = (size_t)size64;
 
-	const i64 enum_value = movsx_le64(p, size);
+	const std::int64_t enum_value = movsx_le64(p, size);
 
 	// get array of child symbols (enumerants).
 	DWORD numChildren;

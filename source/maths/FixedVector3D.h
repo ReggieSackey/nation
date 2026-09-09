@@ -135,22 +135,22 @@ public:
 	 */
 	CFixedVector3D Cross(const CFixedVector3D& v)
 	{
-		i64 y_vz = MUL_I64_I32_I32(Y.GetInternalValue(), v.Z.GetInternalValue());
-		i64 z_vy = MUL_I64_I32_I32(Z.GetInternalValue(), v.Y.GetInternalValue());
-		CheckSignedSubtractionOverflow(i64, y_vz, z_vy, L"Overflow in CFixedVector3D::Cross() part 1", L"Underflow in CFixedVector3D::Cross() part 1")
-		i64 x = y_vz - z_vy;
+		std::int64_t y_vz = MUL_I64_I32_I32(Y.GetInternalValue(), v.Z.GetInternalValue());
+		std::int64_t z_vy = MUL_I64_I32_I32(Z.GetInternalValue(), v.Y.GetInternalValue());
+		CheckSignedSubtractionOverflow(std::int64_t, y_vz, z_vy, L"Overflow in CFixedVector3D::Cross() part 1", L"Underflow in CFixedVector3D::Cross() part 1")
+		std::int64_t x = y_vz - z_vy;
 		x >>= fixed::fract_bits;
 
-		i64 z_vx = MUL_I64_I32_I32(Z.GetInternalValue(), v.X.GetInternalValue());
-		i64 x_vz = MUL_I64_I32_I32(X.GetInternalValue(), v.Z.GetInternalValue());
-		CheckSignedSubtractionOverflow(i64, z_vx, x_vz, L"Overflow in CFixedVector3D::Cross() part 2", L"Underflow in CFixedVector3D::Cross() part 2")
-		i64 y = z_vx - x_vz;
+		std::int64_t z_vx = MUL_I64_I32_I32(Z.GetInternalValue(), v.X.GetInternalValue());
+		std::int64_t x_vz = MUL_I64_I32_I32(X.GetInternalValue(), v.Z.GetInternalValue());
+		CheckSignedSubtractionOverflow(std::int64_t, z_vx, x_vz, L"Overflow in CFixedVector3D::Cross() part 2", L"Underflow in CFixedVector3D::Cross() part 2")
+		std::int64_t y = z_vx - x_vz;
 		y >>= fixed::fract_bits;
 
-		i64 x_vy = MUL_I64_I32_I32(X.GetInternalValue(), v.Y.GetInternalValue());
-		i64 y_vx = MUL_I64_I32_I32(Y.GetInternalValue(), v.X.GetInternalValue());
-		CheckSignedSubtractionOverflow(i64, x_vy, y_vx, L"Overflow in CFixedVector3D::Cross() part 3", L"Underflow in CFixedVector3D::Cross() part 3")
-		i64 z = x_vy - y_vx;
+		std::int64_t x_vy = MUL_I64_I32_I32(X.GetInternalValue(), v.Y.GetInternalValue());
+		std::int64_t y_vx = MUL_I64_I32_I32(Y.GetInternalValue(), v.X.GetInternalValue());
+		CheckSignedSubtractionOverflow(std::int64_t, x_vy, y_vx, L"Overflow in CFixedVector3D::Cross() part 3", L"Underflow in CFixedVector3D::Cross() part 3")
+		std::int64_t z = x_vy - y_vx;
 		z >>= fixed::fract_bits;
 
 		CheckCastOverflow(x, std::int32_t, L"Overflow in CFixedVector3D::Cross() part 4", L"Underflow in CFixedVector3D::Cross() part 4")
@@ -168,14 +168,14 @@ public:
 	 */
 	fixed Dot(const CFixedVector3D& v)
 	{
-		i64 x = MUL_I64_I32_I32(X.GetInternalValue(), v.X.GetInternalValue());
-		i64 y = MUL_I64_I32_I32(Y.GetInternalValue(), v.Y.GetInternalValue());
-		i64 z = MUL_I64_I32_I32(Z.GetInternalValue(), v.Z.GetInternalValue());
-		CheckSignedAdditionOverflow(i64, x, y, L"Overflow in CFixedVector3D::Dot() part 1", L"Underflow in CFixedVector3D::Dot() part 1")
-		i64 t = x + y;
+		std::int64_t x = MUL_I64_I32_I32(X.GetInternalValue(), v.X.GetInternalValue());
+		std::int64_t y = MUL_I64_I32_I32(Y.GetInternalValue(), v.Y.GetInternalValue());
+		std::int64_t z = MUL_I64_I32_I32(Z.GetInternalValue(), v.Z.GetInternalValue());
+		CheckSignedAdditionOverflow(std::int64_t, x, y, L"Overflow in CFixedVector3D::Dot() part 1", L"Underflow in CFixedVector3D::Dot() part 1")
+		std::int64_t t = x + y;
 
-		CheckSignedAdditionOverflow(i64, t, z, L"Overflow in CFixedVector3D::Dot() part 2", L"Underflow in CFixedVector3D::Dot() part 2")
-		i64 sum = t + z;
+		CheckSignedAdditionOverflow(std::int64_t, t, z, L"Overflow in CFixedVector3D::Dot() part 2", L"Underflow in CFixedVector3D::Dot() part 2")
+		std::int64_t sum = t + z;
 		sum >>= fixed::fract_bits;
 		CheckCastOverflow(sum, std::int32_t, L"Overflow in CFixedVector3D::Dot() part 3", L"Underflow in CFixedVector3D::Dot() part 3")
 

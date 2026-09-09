@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Wildfire Games.
+/* Copyright (C) 2026 Wildfire Games.
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -123,11 +123,11 @@ u64 movzx_le64(const u8* p, size_t size);
 u64 movzx_be64(const u8* p, size_t size);
 
 /**
- * sign-extend \<size\> (truncated to 8) bytes of little-endian data to i64,
- * starting at address \<p\> (need not be aligned).
+ * sign-extend \<size\> (truncated to 8) bytes of little-endian data to
+ * std::int64_t, starting at address \<p\> (need not be aligned).
  **/
-i64 movsx_le64(const u8* p, size_t size);
-i64 movsx_be64(const u8* p, size_t size);
+std::int64_t movsx_le64(const u8* p, size_t size);
+std::int64_t movsx_be64(const u8* p, size_t size);
 
 
 #if MSC_VERSION

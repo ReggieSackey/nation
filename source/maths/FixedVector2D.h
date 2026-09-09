@@ -209,10 +209,10 @@ public:
 	 */
 	fixed Dot(const CFixedVector2D& v) const
 	{
-		i64 x = MUL_I64_I32_I32(X.GetInternalValue(), v.X.GetInternalValue());
-		i64 y = MUL_I64_I32_I32(Y.GetInternalValue(), v.Y.GetInternalValue());
-		CheckSignedAdditionOverflow(i64, x, y, L"Overflow in CFixedVector2D::Dot() part 1", L"Underflow in CFixedVector2D::Dot() part 1")
-		i64 sum = x + y;
+		std::int64_t x = MUL_I64_I32_I32(X.GetInternalValue(), v.X.GetInternalValue());
+		std::int64_t y = MUL_I64_I32_I32(Y.GetInternalValue(), v.Y.GetInternalValue());
+		CheckSignedAdditionOverflow(std::int64_t, x, y, L"Overflow in CFixedVector2D::Dot() part 1", L"Underflow in CFixedVector2D::Dot() part 1")
+		std::int64_t sum = x + y;
 		sum >>= fixed::fract_bits;
 
 		CheckCastOverflow(sum, std::int32_t, L"Overflow in CFixedVector2D::Dot() part 2", L"Underflow in CFixedVector2D::Dot() part 2")
@@ -226,8 +226,8 @@ public:
 	 */
 	int RelativeOrientation(const CFixedVector2D& v) const
 	{
-		i64 x = MUL_I64_I32_I32(X.GetInternalValue(), v.X.GetInternalValue());
-		i64 y = MUL_I64_I32_I32(Y.GetInternalValue(), v.Y.GetInternalValue());
+		std::int64_t x = MUL_I64_I32_I32(X.GetInternalValue(), v.X.GetInternalValue());
+		std::int64_t y = MUL_I64_I32_I32(Y.GetInternalValue(), v.Y.GetInternalValue());
 		return x > -y ? 1 : x < -y ? -1 : 0;
 	}
 

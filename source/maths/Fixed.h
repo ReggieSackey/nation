@@ -35,8 +35,8 @@ class CStrW;
 #endif
 
 #if MSC_VERSION
-// std::int32_t * std::int32_t -> i64 multiply: MSVC x86 doesn't optimise i64 multiplies automatically, so
-// use the intrinsic
+// std::int32_t * std::int32_t -> std::int64_t multiply: MSVC x86 doesn't optimise std::int64_t multiplies
+// automatically, so use the intrinsic
 #include <intrin.h>
 #define MUL_I64_I32_I32(a, b)\
 	(__emul((a), (b)))
@@ -44,9 +44,9 @@ class CStrW;
 	static_cast<u64>(__emul((a).GetInternalValue(), (a).GetInternalValue()))
 #else
 #define MUL_I64_I32_I32(a, b)\
-	static_cast<i64>(a) * static_cast<i64>(b)
+	static_cast<std::int64_t>(a) * static_cast<std::int64_t>(b)
 #define SQUARE_U64_FIXED(a)\
-	static_cast<u64>(static_cast<i64>((a).GetInternalValue()) * static_cast<i64>((a).GetInternalValue()))
+	static_cast<u64>(static_cast<std::int64_t>((a).GetInternalValue()) * static_cast<std::int64_t>((a).GetInternalValue()))
 #endif
 
 //define overflow macros
@@ -99,7 +99,7 @@ class CStrW;
 		debug_warn(overflowWarning);
 
 #define CheckMultiplicationOverflow(type, left, right, overflowWarning, underflowWarning) \
-	i64 res##left = (i64)left * (i64)right; \
+	std::int64_t res##left = static_cast<std::int64_t>(left) * static_cast<std::int64_t>(right); \
 	CheckCastOverflow(res##left, type, overflowWarning, underflowWarning)
 
 #define CheckDivisionOverflow(type, left, right, overflowWarning) \
@@ -280,8 +280,8 @@ public:
 	/// Divide by a CFixed. Must not have n.IsZero(). Might overflow.
 	CFixed operator/(CFixed n) const
 	{
-		i64 t = (i64)value << fract_bits;
-		i64 result = t / (i64)n.value;
+		std::int64_t t = static_cast<std::int64_t>(value) << fract_bits;
+		std::int64_t result = t / static_cast<std::int64_t>(n.value);
 
 		CheckCastOverflow(result, T, L"Overflow in CFixed::operator/(CFixed n)", L"Underflow in CFixed::operator/(CFixed n)")
 		return CFixed((T)result);
@@ -297,8 +297,9 @@ public:
 	/// Multiply by an integer. Avoids overflow by clamping to min/max representable value.
 	constexpr CFixed MultiplyClamp(int n) const
 	{
-		i64 t = (i64)value * n;
-		t = std::max((i64)std::numeric_limits<T>::min(), std::min((i64)std::numeric_limits<T>::max(), t));
+		std::int64_t t = static_cast<std::int64_t>(value) * n;
+		t = std::max(static_cast<std::int64_t>(std::numeric_limits<T>::min()),
+			std::min(static_cast<std::int64_t>(std::numeric_limits<T>::max()), t));
 		return CFixed(static_cast<std::int32_t>(t));
 	}
 
@@ -329,7 +330,7 @@ public:
 	 */
 	CFixed Multiply(CFixed n) const
 	{
-		i64 t = MUL_I64_I32_I32(value, n.value);
+		std::int64_t t = MUL_I64_I32_I32(value, n.value);
 		t >>= fract_bits;
 
 		CheckCastOverflow(t, T, L"Overflow in CFixed::Multiply(CFixed n)", L"Underflow in CFixed::Multiply(CFixed n)")
@@ -349,7 +350,7 @@ public:
 	 */
 	CFixed MulDiv(CFixed m, CFixed d) const
 	{
-		i64 t = MUL_I64_I32_I32(value, m.value) / static_cast<i64>(d.value);
+		std::int64_t t = MUL_I64_I32_I32(value, m.value) / static_cast<std::int64_t>(d.value);
 		CheckCastOverflow(t, T, L"Overflow in CFixed::Multiply(CFixed n)", L"Underflow in CFixed::Multiply(CFixed n)")
 		return CFixed((T)t);
 	}

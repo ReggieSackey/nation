@@ -212,13 +212,13 @@ static bool InParabolicRange(CFixedVector3D v, fixed range)
 {
 	u64 xx = SQUARE_U64_FIXED(v.X); // xx <= 2^62
 	u64 zz = SQUARE_U64_FIXED(v.Z);
-	i64 d2 = (xx + zz) >> 1; // d2 <= 2^62 (no overflow)
+	std::int64_t d2 = (xx + zz) >> 1; // d2 <= 2^62 (no overflow)
 
 	std::int32_t y = v.Y.GetInternalValue();
 	std::int32_t c = range.GetInternalValue();
 	std::int32_t c_2 = c >> 1;
 
-	i64 c2 = MUL_I64_I32_I32(c_2 - y, c);
+	std::int64_t c2 = MUL_I64_I32_I32(c_2 - y, c);
 
 	return d2 <= c2;
 }
@@ -1454,7 +1454,8 @@ public:
 		entity_pos_t effectiveRange;
 		effectiveRange.SetInternalValue(static_cast<std::int32_t>(isqrt64(
 			SQUARE_U64_FIXED(range) +
-			static_cast<i64>(heightDiff.GetInternalValue()) * static_cast<i64>(range.GetInternalValue()) * 2
+			static_cast<std::int64_t>(heightDiff.GetInternalValue()) *
+			static_cast<std::int64_t>(range.GetInternalValue()) * 2
 		)));
 		return effectiveRange;
 	}
@@ -1496,13 +1497,13 @@ public:
 		// If horizDistance > range, the result is less than yOrigin (can be negative),
 		// meaning the source must be above the target to compensate for the extra horizontal distance.
 		// The caller can decide if that's acceptable.
-		i64 rangeSq = SQUARE_U64_FIXED(range);
-		i64 distSq = SQUARE_U64_FIXED(horizDistance);
-		i64 numerator = rangeSq - distSq;
+		std::int64_t rangeSq = SQUARE_U64_FIXED(range);
+		std::int64_t distSq = SQUARE_U64_FIXED(horizDistance);
+		std::int64_t numerator = rangeSq - distSq;
 
 		entity_pos_t result;
 		result.SetInternalValue(static_cast<std::int32_t>(numerator /
-			(static_cast<i64>(range.GetInternalValue()) * 2)));
+			(static_cast<std::int64_t>(range.GetInternalValue()) * 2)));
 		return yOrigin + result;
 	}
 

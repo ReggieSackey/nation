@@ -162,7 +162,6 @@ To summarize: +/-1SHHCC (S=subsystem, HH=header, CC=code number)
 #define INCLUDED_STATUS
 
 #include "lib/code_annotation.h"
-#include "lib/types.h"
 
 #include <cstddef>
 #include <system_error>
@@ -170,9 +169,9 @@ To summarize: +/-1SHHCC (S=subsystem, HH=header, CC=code number)
 // an integral type allows defining error codes in separate headers,
 // but is not as type-safe as an enum. use Lint's 'strong type' checking
 // to catch errors such as Status Func() { return 1; }.
-// this must be i64 because some functions may multiplex Status with
+// this must be std::int64_t because some functions may multiplex Status with
 // file offsets/sizes in their return value.
-typedef i64 Status;
+typedef std::int64_t Status;
 
 // associates a status code with a description [and errno_equivalent].
 struct StatusDefinition	// POD

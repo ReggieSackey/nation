@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Wildfire Games.
+/* Copyright (C) 2026 Wildfire Games.
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -171,7 +171,7 @@ u64 movzx_be64(const u8* p, size_t size_bytes)
 }
 
 
-static inline i64 SignExtend(u64 bits, size_t size_bytes)
+static inline std::int64_t SignExtend(u64 bits, size_t size_bytes)
 {
 	// no point in sign-extending if >= 8 bytes were requested
 	if(size_bytes < 8)
@@ -187,17 +187,17 @@ static inline i64 SignExtend(u64 bits, size_t size_bytes)
 		}
 	}
 
-	const i64 number = static_cast<i64>(bits);
+	const std::int64_t number = static_cast<std::int64_t>(bits);
 	return number;
 }
 
-i64 movsx_le64(const u8* p, size_t size_bytes)
+std::int64_t movsx_le64(const u8* p, size_t size_bytes)
 {
 	const u64 number = movzx_le64(p, size_bytes);
 	return SignExtend(number, size_bytes);
 }
 
-i64 movsx_be64(const u8* p, size_t size_bytes)
+std::int64_t movsx_be64(const u8* p, size_t size_bytes)
 {
 	const u64 number = movzx_be64(p, size_bytes);
 	return SignExtend(number, size_bytes);

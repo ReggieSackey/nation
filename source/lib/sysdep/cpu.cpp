@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Wildfire Games.
+/* Copyright (C) 2026 Wildfire Games.
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -29,7 +29,6 @@
 #include "cpu.h"
 
 #include "lib/code_annotation.h"
-#include "lib/types.h"
 
 #include <cstdint>
 
@@ -48,6 +47,6 @@ STATUS_ADD_DEFINITIONS(cpuStatusDefinitions);
 cassert(sizeof(void*) == 4);
 #elif ARCH_AMD64
 cassert(sizeof(void*) == 8);
-cassert(sizeof(i64) == sizeof(intptr_t));
+cassert(sizeof(std::int64_t) == sizeof(intptr_t));
 #endif
 cassert(sizeof(void*) == sizeof(intptr_t));

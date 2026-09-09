@@ -185,7 +185,7 @@ public:
 		Script::ToJSVal<std::int32_t>(rq, &val1, JSVAL_INT_MAX - 1);
 		Script::ToJSVal<std::int32_t>(rq, &val2, JSVAL_INT_MAX);
 		Script::ToJSVal<std::int32_t>(rq, &val3, JSVAL_INT_MIN + 1);
-		Script::ToJSVal<std::int32_t>(rq, &val4, -(i64)2147483648u); // JSVAL_INT_MIN
+		Script::ToJSVal<std::int32_t>(rq, &val4, -static_cast<std::int64_t>(2147483648u)); // JSVAL_INT_MIN
 		TS_ASSERT(val0.isInt32());
 		TS_ASSERT(val1.isInt32());
 		TS_ASSERT(val2.isInt32());
