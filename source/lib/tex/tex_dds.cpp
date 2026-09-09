@@ -64,25 +64,25 @@
 class S3tcBlock
 {
 public:
-	S3tcBlock(size_t dxt, const u8* RESTRICT block)
+	S3tcBlock(size_t dxt, const std::uint8_t* RESTRICT block)
 		: m_Dxt(dxt)
 	{
 		// (careful, 'dxt != 1' doesn't work - there's also DXT1a)
-		const u8* a_block = block;
-		const u8* c_block = (dxt == 3 || dxt == 5)? block+8 : block;
+		const std::uint8_t* a_block = block;
+		const std::uint8_t* c_block = (dxt == 3 || dxt == 5)? block+8 : block;
 
 		PrecalculateAlpha(dxt, a_block);
 		PrecalculateColor(dxt, c_block);
 	}
 
-	void WritePixel(size_t pixel_idx, u8* RESTRICT out) const
+	void WritePixel(size_t pixel_idx, std::uint8_t* RESTRICT out) const
 	{
 		ENSURE(pixel_idx < 16);
 
 		// pixel index -> color selector (2 bit) -> color
 		const size_t c_selector = access_bit_tbl(c_selectors, pixel_idx, 2);
 		for(int i = 0; i < 3; i++)
-			out[i] = (u8)c[c_selector][i];
+			out[i] = static_cast<std::uint8_t>(c[c_selector][i]);
 
 		// if no alpha, done
 		if(m_Dxt == 1)
@@ -104,13 +104,14 @@ public:
 		// (m_Dxt == DXT1A)
 		else
 			a = c[c_selector][A];
-		out[A] = (u8)(a & 0xFF);
+		out[A] = static_cast<std::uint8_t>(a & 0xFF);
 	}
 
 private:
-	// pixel colors are stored as size_t[4]. size_t rather than u8 protects from
-	// overflow during calculations, and padding to an even size is a bit
-	// more efficient (even though we don't need the alpha component).
+	// pixel colors are stored as size_t[4]. size_t rather than std::uint8_t
+	// protects from overflow during calculations, and padding to an even
+	// size is a bit more efficient (even though we don't need the alpha
+	// component).
 	enum RGBA {	R, G, B, A };
 
 	static inline void mix_2_3(size_t dst[4], size_t c0[4], size_t c1[4])
@@ -142,10 +143,10 @@ private:
 		return (field << num_filler_bits) | filler;
 	}
 
-	void PrecalculateAlpha(size_t dxt, const u8* RESTRICT a_block)
+	void PrecalculateAlpha(size_t dxt, const std::uint8_t* RESTRICT a_block)
 	{
 		// read block contents
-		const u8 a0 = a_block[0], a1 = a_block[1];
+		const std::uint8_t a0 = a_block[0], a1 = a_block[1];
 		a_bits = read_le64(a_block);	// see below
 
 		if(dxt == 5)
@@ -154,7 +155,7 @@ private:
 			a_bits >>= 16;
 
 			const bool is_dxt5_special_combination = (a0 <= a1);
-			u8* a = dxt5_a_tbl;	// shorthand
+			std::uint8_t* a = dxt5_a_tbl;	// shorthand
 			if(is_dxt5_special_combination)
 			{
 				a[0] = a0;
@@ -181,7 +182,7 @@ private:
 	}
 
 
-	void PrecalculateColor(size_t dxt, const u8* RESTRICT c_block)
+	void PrecalculateColor(size_t dxt, const std::uint8_t* RESTRICT c_block)
 	{
 		// read block contents
 		// .. S3TC reference colors (565 format). the color table is generated
@@ -220,7 +221,7 @@ private:
 	size_t c[4][4];	// c[i][RGBA_component]
 
 	// (DXT5 only) the 8 alpha choices
-	u8 dxt5_a_tbl[8];
+	std::uint8_t dxt5_a_tbl[8];
 
 	// alpha block; interpretation depends on dxt.
 	u64 a_bits;
@@ -237,11 +238,11 @@ struct S3tcDecompressInfo
 	size_t dxt;
 	size_t s3tc_block_size;
 	size_t out_Bpp;
-	u8* out;
+	std::uint8_t* out;
 };
 
 static void s3tc_decompress_level(size_t /*level*/, size_t level_w, size_t level_h,
-	const u8* RESTRICT level_data, size_t level_data_size, void* RESTRICT cbData)
+	const std::uint8_t* RESTRICT level_data, size_t level_data_size, void* RESTRICT cbData)
 {
 	S3tcDecompressInfo* di = (S3tcDecompressInfo*)cbData;
 	const size_t dxt             = di->dxt;
@@ -252,7 +253,7 @@ static void s3tc_decompress_level(size_t /*level*/, size_t level_w, size_t level
 	// 4x4 pixel block boundaries.
 	const size_t blocks_w = DivideRoundUp(level_w, size_t(4));
 	const size_t blocks_h = DivideRoundUp(level_h, size_t(4));
-	const u8* s3tc_data = level_data;
+	const std::uint8_t* s3tc_data = level_data;
 	ENSURE(level_data_size % s3tc_block_size == 0);
 
 	for(size_t block_y = 0; block_y < blocks_h; block_y++)
@@ -267,7 +268,7 @@ static void s3tc_decompress_level(size_t /*level*/, size_t level_w, size_t level
 			{
 				// this is ugly, but advancing after x, y and block_y loops
 				// is no better.
-				u8* out = (u8*)di->out + ((block_y*4+y)*blocks_w*4 + block_x*4) * di->out_Bpp;
+				std::uint8_t* out = static_cast<std::uint8_t*>(di->out) + ((block_y*4+y)*blocks_w*4 + block_x*4) * di->out_Bpp;
 				for(int x = 0; x < 4; x++)
 				{
 					block.WritePixel(pixel_idx, out);
@@ -296,12 +297,12 @@ static Status s3tc_decompress(Tex* t)
 	const size_t dxt = t->m_Flags & TEX_DXT;
 	const size_t out_bpp = (dxt != 1)? 32 : 24;
 	const size_t out_size = t->img_size() * out_bpp / t->m_Bpp;
-	std::shared_ptr<u8> decompressedData;
+	std::shared_ptr<std::uint8_t> decompressedData;
 	AllocateAligned(decompressedData, out_size, g_PageSize);
 
 	const size_t s3tc_block_size = (dxt == 3 || dxt == 5)? 16 : 8;
 	S3tcDecompressInfo di = { dxt, s3tc_block_size, out_bpp/8, decompressedData.get() };
-	const u8* s3tc_data = t->get_data();
+	const std::uint8_t* s3tc_data = t->get_data();
 	const int levels_to_skip = (t->m_Flags & TEX_MIPMAPS)? 0 : TEX_BASE_LEVEL_ONLY;
 	tex_util_foreach_mipmap(t->m_Width, t->m_Height, t->m_Bpp, s3tc_data, levels_to_skip, 4, s3tc_decompress_level, &di);
 	t->m_Data = decompressedData;
@@ -606,7 +607,7 @@ static Status decode_sd(const DDS_HEADER* sd, size_t& w, size_t& h, size_t& bpp,
 
 //-----------------------------------------------------------------------------
 
-bool TexCodecDds::is_hdr(const u8* file) const
+bool TexCodecDds::is_hdr(const std::uint8_t* file) const
 {
 	return *(u32*)file == FOURCC('D','D','S',' ');
 }
@@ -618,13 +619,13 @@ bool TexCodecDds::is_ext(const OsPath& extension) const
 }
 
 
-size_t TexCodecDds::hdr_size(const u8* /*file*/) const
+size_t TexCodecDds::hdr_size(const std::uint8_t* /*file*/) const
 {
 	return 4+sizeof(DDS_HEADER);
 }
 
 
-Status TexCodecDds::decode(u8* RESTRICT data, size_t /*size*/, Tex* RESTRICT t) const
+Status TexCodecDds::decode(std::uint8_t* RESTRICT data, size_t /*size*/, Tex* RESTRICT t) const
 {
 	const DDS_HEADER* sd = (const DDS_HEADER*)(data+4);
 	RETURN_STATUS_IF_ERR(decode_sd(sd, t->m_Width, t->m_Height, t->m_Bpp, t->m_Flags));

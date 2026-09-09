@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Wildfire Games.
+/* Copyright (C) 2026 Wildfire Games.
  * This file is part of 0 A.D.
  *
  * 0 A.D. is free software: you can redistribute it and/or modify
@@ -22,7 +22,6 @@
 #if CONFIG2_AUDIO
 
 #include "lib/status.h"
-#include "lib/types.h"
 #include "ps/CLogger.h"
 #include "ps/Filesystem.h"
 #include "soundmanager/SoundManager.h"
@@ -122,13 +121,13 @@ bool COggData::IsOneShot()
 
 int COggData::FetchDataIntoBuffer(int count, ALuint* buffers)
 {
-	std::vector<u8> PCMOut(OGG_DEFAULT_BUFFER_SIZE);
+	std::vector<std::uint8_t> PCMOut(OGG_DEFAULT_BUFFER_SIZE);
 	int buffersWritten{0};
 
 	for (int i{0}; i < count && !m_FileFinished; ++i)
 	{
 		std::fill(PCMOut.begin(), PCMOut.end(), 0);
-		const size_t totalRet{m_Stream->GetNextChunk(std::span<u8>(PCMOut))};
+		const size_t totalRet{m_Stream->GetNextChunk(std::span<std::uint8_t>(PCMOut))};
 		m_FileFinished = m_Stream->AtFileEOF();
 		if (totalRet == 0)
 			continue;

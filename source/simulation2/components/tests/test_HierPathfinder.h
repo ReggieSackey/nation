@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Wildfire Games.
+/* Copyright (C) 2026 Wildfire Games.
  * This file is part of 0 A.D.
  *
  * 0 A.D. is free software: you can redistribute it and/or modify
@@ -125,7 +125,7 @@ public:
 
 		HierarchicalPathfinder hierPath;
 		Grid<NavcellData> grid(mapSize, mapSize);
-		Grid<u8> dirtyGrid(mapSize, mapSize);
+		Grid<std::uint8_t> dirtyGrid(mapSize, mapSize);
 
 		// Entirely passable for PASS_1, not for others;
 		for (size_t i = 0; i < mapSize; ++i)
@@ -356,7 +356,7 @@ public:
 
 		HierarchicalPathfinder hierPath;
 		Grid<NavcellData> grid(40*scale, 40*scale);
-		Grid<u8> dirtyGrid(40*scale, 40*scale);
+		Grid<std::uint8_t> dirtyGrid(40*scale, 40*scale);
 
 		for (size_t i = 0; i < 40; ++i)
 			for (size_t j = 0; j < 40; ++j)
@@ -522,7 +522,7 @@ public:
 #undef X
 		HierarchicalPathfinder hierPath;
 		Grid<NavcellData> grid(5, 5);
-		Grid<u8> dirtyGrid(5, 5);
+		Grid<std::uint8_t> dirtyGrid(5, 5);
 		for (size_t i = 0; i < 5; ++i)
 			for (size_t j = 0; j < 5; ++j)
 					grid.set(i, j, gridDef[i][j]);

@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Wildfire Games.
+/* Copyright (C) 2026 Wildfire Games.
  * This file is part of 0 A.D.
  *
  * 0 A.D. is free software: you can redistribute it and/or modify
@@ -17,7 +17,6 @@
 
 #include "lib/code_annotation.h"
 #include "lib/posix/posix_types.h"
-#include "lib/types.h"
 #include "maths/Matrix3D.h"
 
 #include <cstddef>
@@ -77,7 +76,8 @@ private:
 	void ConstructTexture(Renderer::Backend::IDeviceCommandContext* deviceCommandContext);
 	void RecomputeTexture(Renderer::Backend::IDeviceCommandContext* deviceCommandContext);
 
-	void GenerateBitmap(const Grid<u8>& territories, u8* bitmap, ssize_t w, ssize_t h);
+	void GenerateBitmap(const Grid<std::uint8_t>& territories, std::uint8_t* bitmap, ssize_t w,
+		ssize_t h);
 
 	CSimulation2& m_Simulation;
 

@@ -78,7 +78,7 @@ class DirWatchRequest
 	NONCOPYABLE(DirWatchRequest);
 public:
 	DirWatchRequest(const OsPath& path)
-		: m_path(path), m_dirHandle(path), m_data(new u8[dataSize])
+		: m_path(path), m_dirHandle(path), m_data(new std::uint8_t[dataSize])
 	{
 		m_ovl = (OVERLAPPED*)calloc(1, sizeof(OVERLAPPED));	// rationale for dynamic alloc: see decl
 		ENSURE(m_ovl);
@@ -208,7 +208,7 @@ private:
 	//   copy because the watches are independent and may be triggered
 	//   'simultaneously' before the next poll.)
 	// - lifetime must be managed manually (see dtor)
-	u8* m_data;
+	std::uint8_t* m_data;
 
 	// rationale:
 	// - ReadDirectoryChangesW's asynchronous mode is triggered by passing

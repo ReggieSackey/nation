@@ -22,7 +22,6 @@
 #include "lib/file/vfs/vfs.h"
 #include "lib/file/vfs/vfs_path.h"
 #include "lib/status.h"
-#include "lib/types.h"
 #include "ps/Errors.h"
 
 #include <cstddef>
@@ -84,7 +83,7 @@ public:
 	 * Returns buffer of this file as a stream of bytes
 	 * @note file must have been successfully loaded
 	 */
-	const u8* GetBuffer() const;
+	const std::uint8_t* GetBuffer() const;
 	size_t GetBufferSize() const;
 
 	/**
@@ -100,7 +99,7 @@ public:
 	CStr8 DecodeUTF8() const;
 
 private:
-	std::unique_ptr<u8[], AlignedDeleter> m_Buffer;
+	std::unique_ptr<std::uint8_t[], AlignedDeleter> m_Buffer;
 	size_t m_BufferSize;
 };
 

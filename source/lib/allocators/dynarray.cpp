@@ -41,7 +41,7 @@ static Status validate_da(DynArray* da)
 {
 	if(!da)
 		WARN_RETURN(ERR::INVALID_POINTER);
-//	u8* const base           = da->base;
+//	std::uint8_t* const base = da->base;
 	const size_t max_size_pa = da->max_size_pa;
 	const size_t cur_size    = da->cur_size;
 	const size_t pos         = da->pos;
@@ -69,7 +69,7 @@ Status da_alloc(DynArray* da, size_t max_size)
 	ENSURE(max_size != 0);
 	const size_t max_size_pa = Align<g_PageSize>(max_size);
 
-	u8* p = (u8*)vm::ReserveAddressSpace(max_size_pa);
+	std::uint8_t* p = static_cast<std::uint8_t*>(vm::ReserveAddressSpace(max_size_pa));
 	if(!p)
 		return ERR::NO_MEM;	// NOWARN (already done in vm)
 
@@ -111,7 +111,7 @@ Status da_set_size(DynArray* da, size_t new_size)
 	if(new_size_pa > da->max_size_pa)
 		return ERR::LIMIT;	// NOWARN
 
-	u8* end = da->base + cur_size_pa;
+	std::uint8_t* end = da->base + cur_size_pa;
 	bool ok = true;
 	// expanding
 	if(size_delta_pa > 0)

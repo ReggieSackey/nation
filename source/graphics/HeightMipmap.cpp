@@ -237,7 +237,7 @@ void CHeightMipmap::DumpToDisk(const VfsPath& filename) const
 
 	const size_t img_size = w * h * bpp/8;
 	const size_t hdr_size = tex_hdr_size(filename);
-	std::shared_ptr<u8> buf;
+	std::shared_ptr<std::uint8_t> buf;
 	AllocateAligned(buf, hdr_size+img_size, maxSectorSize);
 	void* img = buf.get() + hdr_size;
 	Tex t;
@@ -255,7 +255,7 @@ void CHeightMipmap::DumpToDisk(const VfsPath& filename) const
 			for (size_t x = 0; x < size; ++x)
 			{
 				u16 val = heightmap[x + y*size];
-				((u8*)img)[x + (y+yoff)*w] = val >> 8;
+				static_cast<std::uint8_t*>(img)[x + (y+yoff)*w] = val >> 8;
 			}
 		}
 		yoff += size;

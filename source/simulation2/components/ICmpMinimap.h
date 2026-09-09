@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Wildfire Games.
+/* Copyright (C) 2026 Wildfire Games.
  * This file is part of 0 A.D.
  *
  * 0 A.D. is free software: you can redistribute it and/or modify
@@ -18,7 +18,6 @@
 #ifndef INCLUDED_ICMPMINIMAP
 #define INCLUDED_ICMPMINIMAP
 
-#include "lib/types.h"
 #include "simulation2/helpers/Position.h"
 #include "simulation2/system/Component.h"
 #include "simulation2/system/Interface.h"
@@ -37,7 +36,8 @@ public:
 	 * If it should not be drawn, returns false; otherwise the arguments are set
 	 * to the color and world position.
 	 */
-	virtual bool GetRenderData(u8& r, u8& g, u8& b, entity_pos_t& x, entity_pos_t& z) const = 0;
+	virtual bool GetRenderData(std::uint8_t& r, std::uint8_t& g, std::uint8_t& b, entity_pos_t& x,
+		entity_pos_t& z) const = 0;
 
 	/**
 	 * Returns true if the entity is actively pinging based on the current time.

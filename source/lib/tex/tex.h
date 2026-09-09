@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Wildfire Games.
+/* Copyright (C) 2026 Wildfire Games.
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -217,7 +217,7 @@ public:
 	struct MIPLevel
 	{
 		// A pointer to the mip level image data (pixels).
-		u8* data;
+		std::uint8_t* data;
 		u32 dataSize;
 		u32 width;
 		u32 height;
@@ -228,7 +228,7 @@ public:
 	 * (which may occur when being loaded), this may be replaced with
 	 * a new buffer (e.g. if decompressing file contents).
 	 **/
-	std::shared_ptr<u8> m_Data;
+	std::shared_ptr<std::uint8_t> m_Data;
 
 	size_t m_DataSize;
 
@@ -277,7 +277,7 @@ public:
 	 * @param data_size Its size [bytes].
 	 * @return Status.
 	 **/
-	Status decode(const std::shared_ptr<u8>& data, size_t data_size);
+	Status decode(const std::shared_ptr<std::uint8_t>& data, size_t data_size);
 
 	/**
 	 * encode a texture into a memory buffer in the desired file format.
@@ -312,7 +312,7 @@ public:
 	 * @param ofs
 	 * @return Status
 	 **/
-	Status wrap(size_t w, size_t h, size_t bpp, size_t flags, const std::shared_ptr<u8>& data, size_t ofs);
+	Status wrap(size_t w, size_t h, size_t bpp, size_t flags, const std::shared_ptr<std::uint8_t>& data, size_t ofs);
 
 	//
 	// modify image
@@ -345,7 +345,7 @@ public:
 	 *
 	 * @return pointer to the data.
 	 **/
-	u8* get_data();
+	std::uint8_t* get_data();
 
 	const std::vector<MIPLevel>& GetMIPLevels() const { return m_MIPLevels; }
 
@@ -397,7 +397,8 @@ const int TEX_BASE_LEVEL_ONLY = -1;
  * @param level_data_size [bytes]
  * @param cbData passed through from tex_util_foreach_mipmap.
  **/
-typedef void (*MipmapCB)(size_t level, size_t level_w, size_t level_h, const u8* RESTRICT level_data, size_t level_data_size, void* RESTRICT cbData);
+typedef void (*MipmapCB)(size_t level, size_t level_w, size_t level_h,
+	const std::uint8_t* RESTRICT level_data, size_t level_data_size, void* RESTRICT cbData);
 
 /**
  * for a series of mipmaps stored from base to highest, call back for
@@ -416,7 +417,7 @@ typedef void (*MipmapCB)(size_t level, size_t level_w, size_t level_h, const u8*
  * @param cb MipmapCB to call.
  * @param cbData Extra data to pass to cb.
  **/
-extern void tex_util_foreach_mipmap(size_t w, size_t h, size_t bpp, const u8* data, int levels_to_skip, size_t data_padding, MipmapCB cb, void* RESTRICT cbData);
+extern void tex_util_foreach_mipmap(size_t w, size_t h, size_t bpp, const std::uint8_t* data, int levels_to_skip, size_t data_padding, MipmapCB cb, void* RESTRICT cbData);
 
 
 //

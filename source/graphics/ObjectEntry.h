@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Wildfire Games.
+/* Copyright (C) 2026 Wildfire Games.
  * This file is part of 0 A.D.
  *
  * 0 A.D. is free software: you can redistribute it and/or modify
@@ -22,7 +22,6 @@
 #include "graphics/ObjectBase.h"
 #include "lib/code_annotation.h"
 #include "lib/file/vfs/vfs_path.h"
-#include "lib/types.h"
 #include "ps/CStr.h"
 
 #include <map>
@@ -46,7 +45,7 @@ public:
 
 	// Construct this actor, using the specified variation selections
 	bool BuildVariation(const std::vector<const std::set<CStr>*>& completeSelections,
-		const std::vector<u8>& variationKey, CObjectManager& objectManager);
+		const std::vector<std::uint8_t>& variationKey, CObjectManager& objectManager);
 
 	// Base actor. Contains all the things that don't change between
 	// different variations of the actor.

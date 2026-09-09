@@ -23,7 +23,6 @@
 #include "graphics/ShaderDefines.h"
 #include "lib/config2.h"
 #include "lib/path.h"
-#include "lib/types.h"
 #include "lib/utf8.h"
 #include "ps/CLogger.h"
 #include "ps/Errors.h"
@@ -852,7 +851,8 @@ void CShaderProgram::VertexAttribPointer(
 	const GLenum type = GLTypeFromFormat(format);
 	const GLboolean normalized = NormalizedFromFormat(format);
 	glVertexAttribPointer(
-		attributeLocation, size, type, normalized, stride, static_cast<const u8*>(data) + offset);
+		attributeLocation, size, type, normalized, stride,
+		static_cast<const std::uint8_t*>(data) + offset);
 #if CONFIG2_GLES
 	ENSURE(!m_Device->GetCapabilities().instancing);
 #else

@@ -66,7 +66,7 @@
  * have several classes with the same value of _tp in the same executable
  */
 #define START_NMT_CLASS_DERIVED(_base, _nm, _tp) \
-CNetMessage *Deserialize##_nm(const u8 *, size_t); \
+CNetMessage *Deserialize##_nm(const std::uint8_t *, size_t); \
 class _nm: public _base \
 { \
 protected: \
@@ -78,8 +78,8 @@ protected: \
 public: \
 	_nm(): _base(_tp) {} \
 	virtual size_t GetSerializedLength() const; \
-	virtual u8 *Serialize(u8 *buffer) const; \
-	virtual const u8 *Deserialize(const u8 *pos, const u8 *end); \
+	virtual std::uint8_t *Serialize(std::uint8_t *buffer) const; \
+	virtual const std::uint8_t *Deserialize(const std::uint8_t *pos, const std::uint8_t *end); \
 	virtual CStr ToString() const; \
 	inline operator CStr () const \
 	{ return ToString(); }
@@ -185,10 +185,10 @@ size_t _nm::GetSerializedLength() const \
 #define START_NMT_CLASS(_nm, _tp) \
 	START_NMT_CLASS_DERIVED(CNetMessage, _nm, _tp)
 #define START_NMT_CLASS_DERIVED(_base, _nm, _tp) \
-u8 *_nm::Serialize(u8 *buffer) const \
+std::uint8_t* _nm::Serialize(std::uint8_t *buffer) const \
 { \
 	/*printf("In " #_nm "::Serialize()\n");*/ \
-	u8 *pos=_base::Serialize(buffer); \
+	std::uint8_t *pos=_base::Serialize(buffer); \
 	[[maybe_unused]] const _nm *thiz=this;
 
 #define NMT_START_ARRAY(_nm) \
@@ -231,7 +231,7 @@ u8 *_nm::Serialize(u8 *buffer) const \
 #define START_NMT_CLASS(_nm, _tp) \
 	START_NMT_CLASS_DERIVED(CNetMessage, _nm, _tp)
 #define START_NMT_CLASS_DERIVED(_base, _nm, _tp) \
-const u8 *_nm::Deserialize(const u8 *pos, const u8 *end) \
+const std::uint8_t* _nm::Deserialize(const std::uint8_t *pos, const std::uint8_t *end) \
 { \
 	pos=_base::Deserialize(pos, end); \
 	if (pos == NULL) BAIL_DESERIALIZER;\

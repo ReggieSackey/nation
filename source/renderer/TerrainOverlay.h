@@ -27,7 +27,6 @@
 #include "graphics/ShaderTechniquePtr.h"
 #include "lib/code_annotation.h"
 #include "lib/posix/posix_types.h"
-#include "lib/types.h"
 
 #include <cstddef>
 #include <functional>

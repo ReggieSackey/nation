@@ -65,7 +65,7 @@
 class MemoryStream
 {
 public:
-	MemoryStream(u8* RESTRICT data, size_t size)
+	MemoryStream(std::uint8_t* RESTRICT data, size_t size)
 		: data(data), size(size), pos(0)
 	{
 	}
@@ -76,21 +76,21 @@ public:
 		return size-pos;
 	}
 
-	void CopyTo(u8* RESTRICT dst, size_t dstSize)
+	void CopyTo(std::uint8_t* RESTRICT dst, size_t dstSize)
 	{
 		memcpy(dst, data+pos, dstSize);
 		pos += dstSize;
 	}
 
 private:
-	u8* RESTRICT data;
+	std::uint8_t* RESTRICT data;
 	size_t size;
 	size_t pos;
 };
 
 
 // pass data from PNG file in memory to libpng
-static void io_read(png_struct* png_ptr, u8* RESTRICT data, png_size_t size)
+static void io_read(png_struct* png_ptr, std::uint8_t* RESTRICT data, png_size_t size)
 {
 	MemoryStream* stream = (MemoryStream*)png_get_io_ptr(png_ptr);
 	if(stream->RemainingSize() < size)
@@ -104,7 +104,7 @@ static void io_read(png_struct* png_ptr, u8* RESTRICT data, png_size_t size)
 
 
 // write libpng output to PNG file
-static void io_write(png_struct* png_ptr, u8* data, png_size_t length)
+static void io_write(png_struct* png_ptr, std::uint8_t* data, png_size_t length)
 {
 	DynArray* da = (DynArray*)png_get_io_ptr(png_ptr);
 	if(da_append(da, data, length) != 0)
@@ -194,7 +194,7 @@ static Status png_decode_impl(MemoryStream* stream, png_structp png_ptr, png_inf
 		flags |= TEX_GREY;
 
 	const size_t img_size = pitch * h;
-	std::shared_ptr<u8> data;
+	std::shared_ptr<std::uint8_t> data;
 	AllocateAligned(data, img_size, g_PageSize);
 
 	std::vector<RowPtr> rows = tex_codec_alloc_rows(data.get(), h, pitch, TEX_TOP_DOWN, 0);
@@ -237,7 +237,7 @@ static Status png_encode_impl(Tex* t, png_structp png_ptr, png_infop info_ptr, D
 	png_set_IHDR(png_ptr, info_ptr, w, h, 8, color_type,
 		PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT);
 
-	u8* data = t->get_data();
+	std::uint8_t* data = t->get_data();
 	std::vector<RowPtr> rows = tex_codec_alloc_rows(data, h, pitch, t->m_Flags, TEX_TOP_DOWN);
 
 	// PNG is native RGB.
@@ -251,7 +251,7 @@ static Status png_encode_impl(Tex* t, png_structp png_ptr, png_infop info_ptr, D
 
 
 
-bool TexCodecPng::is_hdr(const u8* file) const
+bool TexCodecPng::is_hdr(const std::uint8_t* file) const
 {
 	// don't use png_sig_cmp, so we don't pull in libpng for
 	// this check alone (it might not actually be used).
@@ -265,7 +265,7 @@ bool TexCodecPng::is_ext(const OsPath& extension) const
 }
 
 
-size_t TexCodecPng::hdr_size(const u8* /*file*/) const
+size_t TexCodecPng::hdr_size(const std::uint8_t* /*file*/) const
 {
 	return 0;	// libpng returns decoded image data; no header
 }
@@ -280,7 +280,7 @@ static void user_warning_fn(png_structp, png_const_charp warning_msg)
 }
 
 // limitation: palette images aren't supported
-Status TexCodecPng::decode(u8* RESTRICT data, size_t size, Tex* RESTRICT t) const
+Status TexCodecPng::decode(std::uint8_t* RESTRICT data, size_t size, Tex* RESTRICT t) const
 {
 	png_infop info_ptr = 0;
 

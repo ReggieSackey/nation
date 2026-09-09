@@ -41,7 +41,7 @@ CNetMessage::~CNetMessage()
 {
 }
 
-u8* CNetMessage::Serialize(u8* pBuffer) const
+std::uint8_t* CNetMessage::Serialize(std::uint8_t* pBuffer) const
 {
 	size_t size = GetSerializedLength();
 	Serialize_int_1(pBuffer, m_Type);
@@ -50,7 +50,7 @@ u8* CNetMessage::Serialize(u8* pBuffer) const
 	return pBuffer;
 }
 
-const u8* CNetMessage::Deserialize(const u8* pStart, const u8* pEnd)
+const std::uint8_t* CNetMessage::Deserialize(const std::uint8_t* pStart, const std::uint8_t* pEnd)
 {
 	if (pStart + 3 > pEnd)
 	{
@@ -58,7 +58,7 @@ const u8* CNetMessage::Deserialize(const u8* pStart, const u8* pEnd)
 		return NULL;
 	}
 
-	const u8* pBuffer = pStart;
+	const std::uint8_t* pBuffer = pStart;
 
 	int type;
 	size_t size;
@@ -99,7 +99,8 @@ CNetMessage* CNetMessageFactory::CreateMessage(const void* pData,
 	CNetMessage header;
 
 	// Figure out message type
-	header.Deserialize((const u8*)pData, (const u8*)pData + dataSize);
+	header.Deserialize(static_cast<const std::uint8_t*>(pData),
+		static_cast<const std::uint8_t*>(pData) + dataSize);
 
 	switch (header.GetType())
 	{
@@ -230,7 +231,10 @@ CNetMessage* CNetMessageFactory::CreateMessage(const void* pData,
 	}
 
 	if (pNewMessage)
-		pNewMessage->Deserialize((const u8*)pData, (const u8*)pData + dataSize);
+	{
+		pNewMessage->Deserialize(static_cast<const std::uint8_t*>(pData),
+			static_cast<const std::uint8_t*>(pData) + dataSize);
+	}
 
 	return pNewMessage;
 }

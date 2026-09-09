@@ -73,7 +73,7 @@ namespace
 	}
 
 	template<typename StrBase>
-	u8* SerializeImpl(const StrBase& str, u8* buffer)
+	std::uint8_t* SerializeImpl(const StrBase& str, std::uint8_t* buffer)
 	{
 		using Char = typename StrBase::value_type;
 		ENSURE(buffer);
@@ -106,7 +106,8 @@ namespace
 	}
 
 	template<typename StrBase>
-	const u8* DeserializeImpl(const u8* buffer, const u8* bufferend, StrBase& str)
+	const std::uint8_t* DeserializeImpl(const std::uint8_t* buffer, const std::uint8_t* bufferend,
+		StrBase& str)
 	{
 		using Char = typename StrBase::value_type;
 		ENSURE(buffer);
@@ -123,9 +124,9 @@ namespace
 		else if constexpr (std::is_same_v<Char, wchar_t>)
 		{
 			const u16 *strend = (const u16 *)buffer;
-			while ((const u8 *)strend < bufferend && *strend)
+			while (reinterpret_cast<const std::uint8_t*>(strend) < bufferend && *strend)
 				strend++;
-			if ((const u8 *)strend >= bufferend)
+			if (reinterpret_cast<const std::uint8_t*>(strend) >= bufferend)
 				return nullptr;
 
 			str.resize(strend - (const u16 *)buffer);
@@ -138,7 +139,7 @@ namespace
 				*(it++) = (Char)native;
 			}
 
-			return (const u8 *)(strend + 1);
+			return reinterpret_cast<const std::uint8_t*>(strend + 1);
 		}
 		else
 			static_assert(AlwaysFalse<Char>::value, "Not implemented.");
@@ -431,12 +432,12 @@ size_t CStr::GetHashCode() const
 		// the result was truncated down to 32 anyway.
 }
 
-u8* CStr::Serialize(u8* buffer) const
+std::uint8_t* CStr::Serialize(std::uint8_t* buffer) const
 {
 	return SerializeImpl(*this, buffer);
 }
 
-const u8* CStr::Deserialize(const u8* buffer, const u8* bufferend)
+const std::uint8_t* CStr::Deserialize(const std::uint8_t* buffer, const std::uint8_t* bufferend)
 {
 	return DeserializeImpl(buffer, bufferend, *this);
 }

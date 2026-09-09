@@ -59,7 +59,7 @@ const size_t CProfiler2::MAX_ATTRIBUTE_LENGTH = 256;
 const size_t CProfiler2::BUFFER_SIZE = 4 * 1024 * 1024;
 
 // A human-recognisable pattern (for debugging) followed by random bytes (for uniqueness)
-const u8 CProfiler2::RESYNC_MAGIC[8] = {0x11, 0x22, 0x33, 0x44, 0xf4, 0x93, 0xbe, 0x15};
+const std::uint8_t CProfiler2::RESYNC_MAGIC[8] = {0x11, 0x22, 0x33, 0x44, 0xf4, 0x93, 0xbe, 0x15};
 
 thread_local CProfiler2::ThreadStorage* CProfiler2::m_CurrentStorage = nullptr;
 
@@ -257,7 +257,7 @@ void CProfiler2::RemoveThreadStorage(ThreadStorage* storage)
 CProfiler2::ThreadStorage::ThreadStorage(CProfiler2& profiler, const std::string& name) :
 	m_Profiler(profiler), m_Name(name), m_LastTime(timer_Time())
 {
-	m_Buffer = new u8[BUFFER_SIZE];
+	m_Buffer = new std::uint8_t[BUFFER_SIZE];
 	memset(m_Buffer, ITEM_NOP, BUFFER_SIZE);
 }
 
@@ -288,7 +288,7 @@ void CProfiler2::ThreadStorage::Write(EItem type, const void* item, u32 itemSize
 		m_ValidRange.begin.store(start + size);
 	}
 
-	m_Buffer[start] = (u8)type;
+	m_Buffer[start] = static_cast<std::uint8_t>(type);
 	memcpy(&m_Buffer[start + 1], item, itemSize);
 
 	m_ValidRange.end.store(start + size);
@@ -300,7 +300,7 @@ std::string CProfiler2::ThreadStorage::GetBuffer()
 	//
 	// See comments on RingBufferSpan.
 
-	std::unique_ptr<u8[]> buffer{std::make_unique<u8[]>(BUFFER_SIZE)};
+	std::unique_ptr<std::uint8_t[]> buffer{std::make_unique<std::uint8_t[]>(BUFFER_SIZE)};
 
 	const std::uint32_t pos1{m_ValidRange.end.load()};
 
@@ -336,7 +336,7 @@ void CProfiler2::ThreadStorage::RecordAttribute(const char* fmt, va_list argp)
 }
 
 // this flattens the stack, use it sensibly
-void rewriteBuffer(u8* buffer, u32& bufferSize)
+void rewriteBuffer(std::uint8_t* buffer, u32& bufferSize)
 {
 	double startTime = timer_Time();
 
@@ -361,7 +361,7 @@ void rewriteBuffer(u8* buffer, u32& bufferSize)
 
 	// Let's read the first event
 	{
-		u8 type = buffer[readPos];
+		std::uint8_t type = buffer[readPos];
 		++readPos;
 		if (type != CProfiler2::ITEM_ENTER)
 		{
@@ -381,7 +381,7 @@ void rewriteBuffer(u8* buffer, u32& bufferSize)
 	// To make sure time doesn't bloat, subtract time from nested events
 	while (readPos < size)
 	{
-		u8 type = buffer[readPos];
+		std::uint8_t type = buffer[readPos];
 		++readPos;
 
 		switch (type)
@@ -495,7 +495,7 @@ void rewriteBuffer(u8* buffer, u32& bufferSize)
 	// the region enter
 	{
 		CProfiler2::SItem_dt_id item = { (float)curTime, regionName };
-		buffer[writePos] = (u8)CProfiler2::ITEM_ENTER;
+		buffer[writePos] = static_cast<std::uint8_t>(CProfiler2::ITEM_ENTER);
 		memcpy(buffer + writePos + 1, &item, sizeof(item));
 		writePos += sizeof(item) + 1;
 		// add a nanosecond for sanity
@@ -505,14 +505,14 @@ void rewriteBuffer(u8* buffer, u32& bufferSize)
 	for (const std::pair<const std::string, infoPerType>& type : timeByType)
 	{
 		CProfiler2::SItem_dt_id item = { (float)curTime, std::get<0>(type.second) };
-		buffer[writePos] = (u8)CProfiler2::ITEM_ENTER;
+		buffer[writePos] = static_cast<std::uint8_t>(CProfiler2::ITEM_ENTER);
 		memcpy(buffer + writePos + 1, &item, sizeof(item));
 		writePos += sizeof(item) + 1;
 
 		// write relevant attributes if present
 		for (const std::string& attrib : std::get<2>(type.second))
 		{
-			buffer[writePos] = (u8)CProfiler2::ITEM_ATTRIBUTE;
+			buffer[writePos] = static_cast<std::uint8_t>(CProfiler2::ITEM_ATTRIBUTE);
 			writePos++;
 			std::string basic = attrib;
 			std::map<std::string, double>::iterator time_attrib = time_per_attribute.find(attrib);
@@ -529,20 +529,20 @@ void rewriteBuffer(u8* buffer, u32& bufferSize)
 		curTime += std::get<1>(type.second);
 
 		float leave_time = (float)curTime;
-		buffer[writePos] = (u8)CProfiler2::ITEM_LEAVE;
+		buffer[writePos] = static_cast<std::uint8_t>(CProfiler2::ITEM_LEAVE);
 		memcpy(buffer + writePos + 1, &leave_time, sizeof(float));
 		writePos += sizeof(float) + 1;
 	}
 	// Time of computation
 	{
 		CProfiler2::SItem_dt_id item = { (float)curTime, "CondenseBuffer" };
-		buffer[writePos] = (u8)CProfiler2::ITEM_ENTER;
+		buffer[writePos] = static_cast<std::uint8_t>(CProfiler2::ITEM_ENTER);
 		memcpy(buffer + writePos + 1, &item, sizeof(item));
 		writePos += sizeof(item) + 1;
 	}
 	{
 		float time_out = (float)(curTime + timer_Time() - startTime);
-		buffer[writePos] = (u8)CProfiler2::ITEM_LEAVE;
+		buffer[writePos] = static_cast<std::uint8_t>(CProfiler2::ITEM_LEAVE);
 		memcpy(buffer + writePos + 1, &time_out, sizeof(float));
 		writePos += sizeof(float) + 1;
 		// add a nanosecond for sanity
@@ -555,7 +555,7 @@ void rewriteBuffer(u8* buffer, u32& bufferSize)
 		{
 			total_time = curTime + 0.000001;
 
-			buffer[writePos] = (u8)CProfiler2::ITEM_ATTRIBUTE;
+			buffer[writePos] = static_cast<std::uint8_t>(CProfiler2::ITEM_ATTRIBUTE);
 			writePos++;
 			u32 length = sizeof("buffer overflow");
 			memcpy(buffer + writePos, &length, sizeof(length));
@@ -569,7 +569,7 @@ void rewriteBuffer(u8* buffer, u32& bufferSize)
 			curTime = total_time;
 		}
 		float leave_time = (float)total_time;
-		buffer[writePos] = (u8)CProfiler2::ITEM_LEAVE;
+		buffer[writePos] = static_cast<std::uint8_t>(CProfiler2::ITEM_LEAVE);
 		memcpy(buffer + writePos + 1, &leave_time, sizeof(float));
 		writePos += sizeof(float) + 1;
 	}
@@ -630,7 +630,7 @@ void RunBufferVisitor(const std::string& buffer, V& visitor)
 
 	while (pos < buffer.length())
 	{
-		u8 type = buffer[pos];
+		std::uint8_t type = buffer[pos];
 		++pos;
 
 		switch (type)
@@ -642,7 +642,7 @@ void RunBufferVisitor(const std::string& buffer, V& visitor)
 		}
 		case CProfiler2::ITEM_SYNC:
 		{
-			u8 magic[sizeof(CProfiler2::RESYNC_MAGIC)];
+			std::uint8_t magic[sizeof(CProfiler2::RESYNC_MAGIC)];
 			double t;
 			memcpy(magic, buffer.c_str()+pos, ARRAY_SIZE(magic));
 			ENSURE(memcmp(magic, &CProfiler2::RESYNC_MAGIC, sizeof(CProfiler2::RESYNC_MAGIC)) == 0);

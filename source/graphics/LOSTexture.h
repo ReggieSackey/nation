@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Wildfire Games.
+/* Copyright (C) 2026 Wildfire Games.
  * This file is part of 0 A.D.
  *
  * 0 A.D. is free software: you can redistribute it and/or modify
@@ -20,7 +20,6 @@
 
 #include "graphics/ShaderTechniquePtr.h"
 #include "lib/code_annotation.h"
-#include "lib/types.h"
 #include "maths/Matrix3D.h"
 #include "renderer/backend/Format.h"
 #include <cstddef>
@@ -84,7 +83,7 @@ private:
 	void RecomputeTexture(Renderer::Backend::IDeviceCommandContext* deviceCommandContext);
 
 	size_t GetBitmapSize(size_t w, size_t h, size_t* pitch);
-	void GenerateBitmap(const CLosQuerier& los, u8* losData, size_t w, size_t h, size_t pitch);
+	void GenerateBitmap(const CLosQuerier& los, std::uint8_t* losData, size_t w, size_t h, size_t pitch);
 
 	CSimulation2& m_Simulation;
 

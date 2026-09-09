@@ -79,7 +79,7 @@ void CStdDeserializer::TraceMember(JSTracer *trc)
 		JS::TraceEdge(trc, &backref, "StdDeserializer::m_ScriptBackrefs");
 }
 
-void CStdDeserializer::Get([[maybe_unused]] const char* name, u8* data, size_t len)
+void CStdDeserializer::Get([[maybe_unused]] const char* name, std::uint8_t* data, size_t len)
 {
 #if DEBUG_SERIALIZER_ANNOTATE
 	std::string strName;
@@ -345,7 +345,7 @@ JS::Value CStdDeserializer::ReadScriptVal(const char* /*name*/, JS::HandleObject
 	}
 	case SCRIPT_TYPE_TYPED_ARRAY:
 	{
-		u8 arrayType;
+		std::uint8_t arrayType;
 		u32 byteOffset, length;
 		NumberU8_Unbounded("array type", arrayType);
 		NumberU32_Unbounded("byte offset", byteOffset);
@@ -412,7 +412,7 @@ JS::Value CStdDeserializer::ReadScriptVal(const char* /*name*/, JS::HandleObject
 #endif
 		void* bufferData = js_malloc(length);
 		ENSURE(bufferData);
-		RawBytes("buffer data", (u8*)bufferData, length);
+		RawBytes("buffer data", reinterpret_cast<std::uint8_t*>(bufferData), length);
 
 		mozilla::UniquePtr<void, JS::FreePolicy> contents{ bufferData };
 		JS::RootedObject bufferObj(rq.cx, JS::NewArrayBufferWithContents(rq.cx, length, std::move(contents)));
@@ -464,7 +464,7 @@ void CStdDeserializer::ReadStringLatin1(const char* name, std::vector<JS::Latin1
 	NumberU32_Unbounded("string length", len);
 	RequireBytesInStream(len);
 	str.resize(len);
-	Get(name, (u8*)str.data(), len);
+	Get(name, reinterpret_cast<std::uint8_t*>(str.data()), len);
 }
 
 void CStdDeserializer::ReadStringUTF16(const char* name, std::u16string& str)
@@ -473,7 +473,7 @@ void CStdDeserializer::ReadStringUTF16(const char* name, std::u16string& str)
 	NumberU32_Unbounded("string length", len);
 	RequireBytesInStream(len*2);
 	str.resize(len);
-	Get(name, (u8*)str.data(), len*2);
+	Get(name, reinterpret_cast<std::uint8_t*>(str.data()), len*2);
 }
 
 void CStdDeserializer::ScriptString(const char* name, JS::MutableHandleString out)

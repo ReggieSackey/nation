@@ -61,7 +61,7 @@ public:
 		float x0, y0, x1, y1;
 		float xadvance;
 		float yadvance;
-		u8 defined{0};
+		std::uint8_t defined{0};
 		FT_Face face;
 	};
 
@@ -143,8 +143,10 @@ private:
 		Renderer::Backend::IDevice* device, const std::string& fontName,
 		float size, float strokeWidth, float scale);
 
-	void BlendGlyphBitmapToTexture(const FT_Bitmap& bitmap, int targetX, int targetY, u8 r, u8 g, u8 b);
-	void BlendGlyphBitmapToTextureRGBA(const FT_Bitmap& bitmap, int targetX, int targetY, u8 r, u8 g, u8 b);
+	void BlendGlyphBitmapToTexture(const FT_Bitmap& bitmap, int targetX, int targetY, std::uint8_t r,
+		std::uint8_t g, std::uint8_t b);
+	void BlendGlyphBitmapToTextureRGBA(const FT_Bitmap& bitmap, int targetX, int targetY, std::uint8_t r,
+		std::uint8_t g, std::uint8_t b);
 	void BlendGlyphBitmapToTextureR8(const FT_Bitmap& bitmap, int targetX, int targetY);
 
 	std::optional<CVector2D> GenerateStrokeGlyphBitmap(const FT_Glyph& glyph, u16 codepoint, FT_Render_Mode renderMode, const float baselineInAtlas);
@@ -181,7 +183,7 @@ private:
 	float m_StrokeWidth{0.0f};
 	float m_Scale{1.0f};
 
-	std::unique_ptr<u8[]> m_TexData;
+	std::unique_ptr<std::uint8_t[]> m_TexData;
 	Renderer::Backend::Format m_TextureFormat{Renderer::Backend::Format::R8G8B8A8_UNORM};
 	int m_TextureFormatStride{4};
 	int m_AtlasSize{0};
@@ -191,7 +193,7 @@ private:
 	std::reference_wrapper<const std::array<float, 256>> m_GammaCorrectionLUT;
 
 	FT_Library m_FreeType;
-	std::vector<std::unique_ptr<u8[], AlignedDeleter>> m_FontsData;
+	std::vector<std::unique_ptr<std::uint8_t[], AlignedDeleter>> m_FontsData;
 	std::vector<UniqueFTFace> m_Faces;
 	UniqueFTStroker m_Stroker{nullptr, &ftStrokerDeleter};
 

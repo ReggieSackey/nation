@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Wildfire Games.
+/* Copyright (C) 2026 Wildfire Games.
  * This file is part of 0 A.D.
  *
  * 0 A.D. is free software: you can redistribute it and/or modify
@@ -23,7 +23,6 @@
 #include "lib/file/vfs/vfs.h"
 #include "lib/path.h"
 #include "lib/tex/tex.h"
-#include "lib/types.h"
 #include "ps/CLogger.h"
 #include "ps/XMB/XMBStorage.h"
 
@@ -77,7 +76,7 @@ public:
 			SDL_Delay(10);
 		}
 
-		std::shared_ptr<u8> file;
+		std::shared_ptr<std::uint8_t> file;
 		size_t fileSize = 0;
 		TS_ASSERT_OK(m_VFS->LoadFile(dest, file, fileSize));
 
@@ -86,7 +85,7 @@ public:
 
 		TS_ASSERT_OK(tex.transform_to((tex.m_Flags | TEX_BGR | TEX_ALPHA) & ~(TEX_DXT | TEX_MIPMAPS)));
 
-		u8* texdata = tex.get_data();
+		std::uint8_t* texdata = tex.get_data();
 
 		// The source texture is repeated after 4 pixels, so the compressed texture
 		// should be identical after 4 pixels

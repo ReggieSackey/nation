@@ -1,4 +1,4 @@
-/* Copyright (c) 2025 Wildfire Games.
+/* Copyright (c) 2026 Wildfire Games.
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -31,7 +31,6 @@
 #include "lib/sysdep/os.h"
 #include "lib/sysdep/os/unix/udbg.h"
 #include "lib/sysdep/sysdep.h"
-#include "lib/types.h"
 #include "lib/utf8.h"
 
 #include <boost/algorithm/string/replace.hpp>
@@ -323,7 +322,7 @@ std::wstring sys_get_user_name()
 	return L"";
 }
 
-Status sys_generate_random_bytes(u8* buf, size_t count)
+Status sys_generate_random_bytes(std::uint8_t* buf, size_t count)
 {
 	FILE* f = fopen("/dev/urandom", "rb");
 	if (!f)

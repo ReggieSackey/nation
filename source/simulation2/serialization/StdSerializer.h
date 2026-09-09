@@ -19,7 +19,6 @@
 #define INCLUDED_STDSERIALIZER
 
 #include "lib/code_annotation.h"
-#include "lib/types.h"
 #include "simulation2/serialization/BinarySerializer.h"
 
 #include <cstring>
@@ -40,7 +39,7 @@ public:
 		m_Stream.flush();
 	}
 
-	void Put([[maybe_unused]] const char* name, const u8* data, size_t len)
+	void Put([[maybe_unused]] const char* name, const std::uint8_t* data, size_t len)
 	{
 #if DEBUG_SERIALIZER_ANNOTATE
 		m_Stream.put('<');

@@ -24,7 +24,6 @@
 
 #include "lib/allocators/shared_ptr.h"
 #include "lib/tex/tex.h"
-#include "lib/types.h"
 
 #include <cstring>
 #include <memory>
@@ -35,14 +34,14 @@ public:
 	// have mipmaps be created for a test image; check resulting size and pixels
 	void test_mipmap_create()
 	{
-		static u8 imgData[] = { 0x10,0x20,0x30, 0x40,0x60,0x80, 0xA0,0xA4,0xA8, 0xC0,0xC1,0xC2 };
-		std::shared_ptr<u8> img = DummySharedPtr(imgData);
+		static std::uint8_t imgData[] = { 0x10,0x20,0x30, 0x40,0x60,0x80, 0xA0,0xA4,0xA8, 0xC0,0xC1,0xC2 };
+		std::shared_ptr<std::uint8_t> img = DummySharedPtr(imgData);
 		// assumes 2x2 box filter algorithm with rounding
-		static const u8 mipmap[] = { 0x6C,0x79,0x87 };
+		static const std::uint8_t mipmap[] = { 0x6C,0x79,0x87 };
 		Tex t;
 		TS_ASSERT_OK(t.wrap(2, 2, 24, 0, img, 0));
 		TS_ASSERT_OK(t.transform_to(TEX_MIPMAPS));
-		const u8* const out_img = t.get_data();
+		const std::uint8_t* const out_img = t.get_data();
 		TS_ASSERT_EQUALS((int)t.img_size(), 12+3);
 		TS_ASSERT_SAME_DATA(out_img, imgData, 12);
 		TS_ASSERT_SAME_DATA(out_img+12, mipmap, 3);
@@ -50,7 +49,7 @@ public:
 
 	void test_img_size()
 	{
-		std::shared_ptr<u8> img;
+		std::shared_ptr<std::uint8_t> img;
 		TS_ASSERT_OK(AllocateAligned(img, 100 * 100 * 4));
 
 		Tex t;
@@ -67,10 +66,10 @@ public:
 	{
 		const size_t w = 4, h = 4, bpp = 4;
 		const size_t size = w*h/2;
-		std::shared_ptr<u8> img;
+		std::shared_ptr<std::uint8_t> img;
 		TS_ASSERT_OK(AllocateAligned(img, size));
 		memcpy(img.get(), "\xFF\xFF\x00\x00\x00\xAA\xFF\x55", 8); // gradient from white to black
-		const u8 expected[] =
+		const std::uint8_t expected[] =
 			"\xFF\xFF\xFF" "\xFF\xFF\xFF" "\xFF\xFF\xFF" "\xFF\xFF\xFF"
 			"\xAA\xAA\xAA" "\xAA\xAA\xAA" "\xAA\xAA\xAA" "\xAA\xAA\xAA"
 			"\x55\x55\x55" "\x55\x55\x55" "\x55\x55\x55" "\x55\x55\x55"

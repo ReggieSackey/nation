@@ -60,7 +60,7 @@ int GetQuality(const CStr& value)
 }
 } // anonymous namespace
 
-CObjectBase::CObjectBase(CObjectManager& objectManager, CActorDef& actorDef, u8 qualityLevel)
+CObjectBase::CObjectBase(CObjectManager& objectManager, CActorDef& actorDef, std::uint8_t qualityLevel)
 : m_ObjectManager(objectManager), m_ActorDef(actorDef)
 {
 	m_QualityLevel = qualityLevel;
@@ -72,7 +72,7 @@ CObjectBase::CObjectBase(CObjectManager& objectManager, CActorDef& actorDef, u8 
 	m_Identifier = fmt::format("{}{}", m_ActorDef.m_Pathname.string8().substr(11), m_QualityLevel);
 }
 
-std::unique_ptr<CObjectBase> CObjectBase::CopyWithQuality(u8 newQualityLevel) const
+std::unique_ptr<CObjectBase> CObjectBase::CopyWithQuality(std::uint8_t newQualityLevel) const
 {
 	std::unique_ptr<CObjectBase> ret = std::make_unique<CObjectBase>(m_ObjectManager, m_ActorDef, newQualityLevel);
 	// No need to actually change any quality-related stuff here, we assume that this is a copy for props.
@@ -353,7 +353,8 @@ bool CObjectBase::LoadVariant(const CXeromyces& XeroFile, const XMBElement& vari
 	return true;
 }
 
-std::vector<u8> CObjectBase::CalculateVariationKey(const std::vector<const std::set<CStr>*>& selections) const
+std::vector<std::uint8_t> CObjectBase::CalculateVariationKey(
+	const std::vector<const std::set<CStr>*>& selections) const
 {
 	// (TODO: see CObjectManager::FindObjectVariation for an opportunity to
 	// call this function a bit less frequently)
@@ -366,7 +367,7 @@ std::vector<u8> CObjectBase::CalculateVariationKey(const std::vector<const std::
 	// Otherwise, try with the next (lower priority) selections set, and repeat.
 	// Otherwise, choose the first variant (arbitrarily).
 
-	std::vector<u8> choices;
+	std::vector<std::uint8_t> choices;
 
 	std::multimap<CStr, CStrW> chosenProps;
 
@@ -399,7 +400,7 @@ std::vector<u8> CObjectBase::CalculateVariationKey(const std::vector<const std::
 				{
 					if (selset->count((*grp)[i].m_VariantName))
 					{
-						match = (u8)i;
+						match = static_cast<std::uint8_t>(i);
 						break;
 					}
 				}
@@ -433,7 +434,8 @@ std::vector<u8> CObjectBase::CalculateVariationKey(const std::vector<const std::
 	{
 		if (auto [success, prop] = m_ObjectManager.FindActorDef(it->second); success)
 		{
-			std::vector<u8> propChoices = prop.GetBase(m_QualityLevel)->CalculateVariationKey(selections);
+			std::vector<std::uint8_t> propChoices =
+				prop.GetBase(m_QualityLevel)->CalculateVariationKey(selections);
 			choices.insert(choices.end(), propChoices.begin(), propChoices.end());
 		}
 	}
@@ -441,7 +443,8 @@ std::vector<u8> CObjectBase::CalculateVariationKey(const std::vector<const std::
 	return choices;
 }
 
-const CObjectBase::Variation CObjectBase::BuildVariation(const std::vector<u8>& variationKey) const
+const CObjectBase::Variation CObjectBase::BuildVariation(
+	const std::vector<std::uint8_t>& variationKey) const
 {
 	Variation variation;
 
@@ -450,7 +453,7 @@ const CObjectBase::Variation CObjectBase::BuildVariation(const std::vector<u8>& 
 	// on the end for props, but we don't care about those in here.)
 
 	std::vector<std::vector<CObjectBase::Variant> >::const_iterator grp = m_VariantGroups.begin();
-	std::vector<u8>::const_iterator match = variationKey.begin();
+	std::vector<std::uint8_t>::const_iterator match = variationKey.begin();
 	for ( ;
 		grp != m_VariantGroups.end() && match != variationKey.end();
 		++grp, ++match)
@@ -730,9 +733,10 @@ std::vector<std::vector<CStr> > CObjectBase::GetVariantGroups() const
 	return groups;
 }
 
-void CObjectBase::GetQualitySplits(std::vector<u8>& splits) const
+void CObjectBase::GetQualitySplits(std::vector<std::uint8_t>& splits) const
 {
-	std::vector<u8>::iterator it = std::find_if(splits.begin(), splits.end(), [this](u8 qualityLevel) { return qualityLevel >= m_QualityLevel; });
+	std::vector<std::uint8_t>::iterator it = std::find_if(splits.begin(), splits.end(),
+		[this](std::uint8_t qualityLevel) { return qualityLevel >= m_QualityLevel; });
 	if (it == splits.end() ||  *it != m_QualityLevel)
 		splits.emplace(it, m_QualityLevel);
 
@@ -748,14 +752,14 @@ void CObjectBase::GetQualitySplits(std::vector<u8>& splits) const
 				if (!success)
 					continue;
 
-				std::vector<u8> newSplits = propActor.QualityLevels();
+				std::vector<std::uint8_t> newSplits = propActor.QualityLevels();
 				if (newSplits.size() <= 1)
 					continue;
 
 				// This is not entirely optimal since we might loop though redundant quality levels, but that shouldn't matter.
 				// Custom implementation because this is inplace, std::set_union needs a 3rd vector.
-				std::vector<u8>::iterator v1 = splits.begin();
-				std::vector<u8>::iterator v2 = newSplits.begin();
+				std::vector<std::uint8_t>::iterator v1 = splits.begin();
+				std::vector<std::uint8_t>::iterator v2 = newSplits.begin();
 				while (v2 != newSplits.end())
 				{
 					if (v1 == splits.end() || *v1 > *v2)
@@ -797,23 +801,23 @@ std::set<CStr> CActorDef::PickSelectionsAtRandom(uint32_t seed) const
 	return GetBase(255)->CalculateRandomRemainingSelections(seed, noSelections);
 }
 
-std::vector<u8> CActorDef::QualityLevels() const
+std::vector<std::uint8_t> CActorDef::QualityLevels() const
 {
-	std::vector<u8> splits;
+	std::vector<std::uint8_t> splits;
 	splits.reserve(m_ObjectBases.size());
 	for (const std::shared_ptr<CObjectBase>& base : m_ObjectBases)
 		splits.emplace_back(base->m_QualityLevel);
 	return splits;
 }
 
-const std::shared_ptr<CObjectBase>& CActorDef::GetBase(u8 QualityLevel) const
+const std::shared_ptr<CObjectBase>& CActorDef::GetBase(std::uint8_t QualityLevel) const
 {
 	for (const std::shared_ptr<CObjectBase>& base : m_ObjectBases)
 		if (base->m_QualityLevel >= QualityLevel)
 			return base;
 	// This code path ought to be impossible to take,
 	// because by construction we must have at least one valid CObjectBase of quality MAX_QUALITY
-	// (which necessarily fits the u8 comparison above).
+	// (which necessarily fits the std::uint8_t comparison above).
 	// However compilers will warn that we return a reference to a local temporary if I return nullptr,
 	// so just return something sane instead.
 	ENSURE(false);
@@ -876,7 +880,7 @@ bool CActorDef::Load(const VfsPath& pathname)
 				return false;
 			}
 		}
-		u8 quality = 0;
+		std::uint8_t quality = 0;
 		XMBElement inlineActor;
 		for (XMBElement child : root.GetChildNodes())
 		{
@@ -981,7 +985,7 @@ bool CActorDef::Load(const VfsPath& pathname)
 	}
 
 	// For each quality level, check if we need to further split (because of props).
-	std::vector<u8> splits = QualityLevels();
+	std::vector<std::uint8_t> splits = QualityLevels();
 	for (const std::shared_ptr<CObjectBase>& base : m_ObjectBases)
 		base->GetQualitySplits(splits);
 	ENSURE(splits.size() >= 1);
@@ -992,7 +996,7 @@ bool CActorDef::Load(const VfsPath& pathname)
 	}
 
 	std::vector<std::shared_ptr<CObjectBase>>::iterator it = m_ObjectBases.begin();
-	std::vector<u8>::const_iterator qualityLevels = splits.begin();
+	std::vector<std::uint8_t>::const_iterator qualityLevels = splits.begin();
 	while (it != m_ObjectBases.end())
 		if ((*it)->m_QualityLevel > *qualityLevels)
 		{

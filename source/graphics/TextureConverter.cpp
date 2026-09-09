@@ -26,7 +26,6 @@
 #include "lib/regex.h"
 #include "lib/status.h"
 #include "lib/tex/tex.h"
-#include "lib/types.h"
 #include "maths/MD5.h"
 #include "ps/CLogger.h"
 #include "ps/CStr.h"
@@ -72,7 +71,7 @@ constexpr size_t MAX_QUEUE_SIZE_FOR_OPTIMAL_UTILIZATION{12};
  */
 struct BufferOutputHandler : public nvtt::OutputHandler
 {
-	std::vector<u8> buffer;
+	std::vector<std::uint8_t> buffer;
 
 	virtual void beginImage(int /*size*/, int /*width*/, int /*height*/, int /*depth*/, int /*face*/,
 		int /*miplevel*/)
@@ -121,14 +120,14 @@ struct CTextureConverter::ConversionResult
 
 void CTextureConverter::Settings::Hash(MD5& hash)
 {
-	hash.Update((const u8*)&format, sizeof(format));
-	hash.Update((const u8*)&mipmap, sizeof(mipmap));
-	hash.Update((const u8*)&normal, sizeof(normal));
-	hash.Update((const u8*)&alpha, sizeof(alpha));
-	hash.Update((const u8*)&filter, sizeof(filter));
-	hash.Update((const u8*)&kaiserWidth, sizeof(kaiserWidth));
-	hash.Update((const u8*)&kaiserAlpha, sizeof(kaiserAlpha));
-	hash.Update((const u8*)&kaiserStretch, sizeof(kaiserStretch));
+	hash.Update(reinterpret_cast<const std::uint8_t*>(&format), sizeof(format));
+	hash.Update(reinterpret_cast<const std::uint8_t*>(&mipmap), sizeof(mipmap));
+	hash.Update(reinterpret_cast<const std::uint8_t*>(&normal), sizeof(normal));
+	hash.Update(reinterpret_cast<const std::uint8_t*>(&alpha), sizeof(alpha));
+	hash.Update(reinterpret_cast<const std::uint8_t*>(&filter), sizeof(filter));
+	hash.Update(reinterpret_cast<const std::uint8_t*>(&kaiserWidth), sizeof(kaiserWidth));
+	hash.Update(reinterpret_cast<const std::uint8_t*>(&kaiserAlpha), sizeof(kaiserAlpha));
+	hash.Update(reinterpret_cast<const std::uint8_t*>(&kaiserStretch), sizeof(kaiserStretch));
 }
 
 CTextureConverter::SettingsFile* CTextureConverter::LoadSettings(const VfsPath& path) const
@@ -327,7 +326,7 @@ CTextureConverter::~CTextureConverter() = default;
 
 bool CTextureConverter::ConvertTexture(const CTexturePtr& texture, const VfsPath& src, const VfsPath& dest, const Settings& settings)
 {
-	std::shared_ptr<u8> file;
+	std::shared_ptr<std::uint8_t> file;
 	size_t fileSize;
 	if (m_VFS->LoadFile(src, file, fileSize) < 0)
 	{
@@ -377,7 +376,7 @@ bool CTextureConverter::ConvertTexture(const CTexturePtr& texture, const VfsPath
 	if (hasAlpha)
 	{
 		hasAlpha = false;
-		u8* data = tex.get_data();
+		std::uint8_t* data = tex.get_data();
 		for (size_t i = 0; i < tex.m_Width * tex.m_Height; ++i)
 		{
 			if (data[i*4+3] != 0xFF)
@@ -459,9 +458,9 @@ bool CTextureConverter::ConvertTexture(const CTexturePtr& texture, const VfsPath
 	else // bpp == 8
 	{
 		// NVTT requires 32-bit input data, so convert
-		const u8* input = tex.get_data();
-		u8* rgba = new u8[tex.m_Width * tex.m_Height * 4];
-		u8* p = rgba;
+		const std::uint8_t* input = tex.get_data();
+		std::uint8_t* rgba = new std::uint8_t[tex.m_Width * tex.m_Height * 4];
+		std::uint8_t* p = rgba;
 		for (size_t i = 0; i < tex.m_Width * tex.m_Height; i++)
 		{
 			p[0] = p[1] = p[2] = p[3] = *input++;
@@ -518,7 +517,7 @@ bool CTextureConverter::Poll(CTexturePtr& texture, VfsPath& dest, bool& ok)
 
 	// Move output into a correctly-aligned buffer
 	size_t size = result->output.buffer.size();
-	std::shared_ptr<u8> file;
+	std::shared_ptr<std::uint8_t> file;
 	AllocateAligned(file, size, maxSectorSize);
 	memcpy(file.get(), &result->output.buffer[0], size);
 	if (m_VFS->CreateFile(result->dest, {file.get(), size}) < 0)

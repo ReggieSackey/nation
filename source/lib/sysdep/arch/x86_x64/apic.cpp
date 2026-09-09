@@ -43,7 +43,7 @@ ApicId GetApicId()
 	// an xAPIC (e.g. P4/Athlon XP) will return a nonzero ID.
 	[[maybe_unused]] bool ok = x86_x64::cpuid(&regs);
 	ASSERT(ok);
-	const u8 apicId = (u8)bits(regs.ebx, 24, 31);
+	const std::uint8_t apicId = static_cast<std::uint8_t>(bits(regs.ebx, 24, 31));
 	return apicId;
 }
 

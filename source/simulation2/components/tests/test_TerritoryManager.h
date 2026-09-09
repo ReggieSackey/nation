@@ -91,7 +91,7 @@ public:
 	void SendRequestedPaths() override {}
 	void StartProcessingMoves(bool) override {}
 	void UpdateGrid() override {}
-	void GetDebugData(u32&, double&, Grid<u8>&) const override {}
+	void GetDebugData(u32&, double&, Grid<std::uint8_t>&) const override {}
 	void SetAtlasOverlay(bool, pass_class_t = 0) override {}
 };
 
@@ -232,7 +232,7 @@ public:
 
 	void test_boundaries()
 	{
-		Grid<u8> grid = GetGrid("--------"
+		Grid<std::uint8_t> grid = GetGrid("--------"
 		                        "777777--"
 								"777777--"
 								"777777--"
@@ -256,7 +256,7 @@ public:
 	void test_nested_boundaries1()
 	{
 		// test case from ticket #918; contains single-tile territories with double borders
-		Grid<u8> grid1 = GetGrid("--------"
+		Grid<std::uint8_t> grid1 = GetGrid("--------"
 		                         "-111111-"
 								 "-1-1213-"
 								 "-111111-"
@@ -352,7 +352,7 @@ public:
 
 	void test_nested_boundaries2()
 	{
-		Grid<u8> grid1 = GetGrid("-22222-"
+		Grid<std::uint8_t> grid1 = GetGrid("-22222-"
 								 "-2---2-"
 								 "-2-1123"
 								 "-2-1123"
@@ -445,9 +445,9 @@ private:
 	/// Parses a string representation of a grid into an actual Grid structure, such that the (i,j) axes are located in the bottom
 	/// left hand side of the map. Note: leaves all custom bits in the grid values at zero (anything outside
 	/// ICmpTerritoryManager::TERRITORY_PLAYER_MASK).
-	Grid<u8> GetGrid(const std::string& def, u16 w, u16 h)
+	Grid<std::uint8_t> GetGrid(const std::string& def, u16 w, u16 h)
 	{
-		Grid<u8> grid(w, h);
+		Grid<std::uint8_t> grid(w, h);
 		const char* chars = def.c_str();
 
 		for (u16 y=0; y<h; y++)
@@ -459,7 +459,7 @@ private:
 					continue;
 
 				ENSURE('0' <= gridDefChar && gridDefChar <= '9');
-				u8 playerId = gridDefChar - '0';
+				std::uint8_t playerId = gridDefChar - '0';
 				grid.set(x, h-1-y, playerId);
 			}
 		}

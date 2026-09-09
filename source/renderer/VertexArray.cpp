@@ -40,9 +40,9 @@ uint32_t GetAttributeSize(const Renderer::Backend::Format format)
 	{
 	case Renderer::Backend::Format::R8G8B8A8_UNORM:
 	case Renderer::Backend::Format::R8G8B8A8_UINT:
-		return sizeof(u8) * 4;
+		return sizeof(std::uint8_t) * 4;
 	case Renderer::Backend::Format::A8_UNORM:
-		return sizeof(u8);
+		return sizeof(std::uint8_t);
 	case Renderer::Backend::Format::R16_UNORM:
 	case Renderer::Backend::Format::R16_UINT:
 	case Renderer::Backend::Format::R16_SINT:
@@ -187,23 +187,23 @@ VertexArrayIterator<u16[2]> VertexArray::Attribute::GetIterator<u16[2]>() const
 }
 
 template<>
-VertexArrayIterator<u8> VertexArray::Attribute::GetIterator<u8>() const
+VertexArrayIterator<std::uint8_t> VertexArray::Attribute::GetIterator<std::uint8_t>() const
 {
 	ENSURE(vertexArray);
 	ENSURE(format == Renderer::Backend::Format::A8_UNORM);
 
-	return vertexArray->MakeIterator<u8>(this);
+	return vertexArray->MakeIterator<std::uint8_t>(this);
 }
 
 template<>
-VertexArrayIterator<u8[4]> VertexArray::Attribute::GetIterator<u8[4]>() const
+VertexArrayIterator<std::uint8_t[4]> VertexArray::Attribute::GetIterator<std::uint8_t[4]>() const
 {
 	ENSURE(vertexArray);
 	ENSURE(
 		format == Renderer::Backend::Format::R8G8B8A8_UNORM ||
 		format == Renderer::Backend::Format::R8G8B8A8_UINT);
 
-	return vertexArray->MakeIterator<u8[4]>(this);
+	return vertexArray->MakeIterator<std::uint8_t[4]>(this);
 }
 
 template<>

@@ -149,7 +149,7 @@ void write_be64(void* p, u64 x)
 }
 
 
-u64 movzx_le64(const u8* p, size_t size_bytes)
+u64 movzx_le64(const std::uint8_t* p, size_t size_bytes)
 {
 	u64 number = 0;
 	for(size_t i = 0; i < std::min(size_bytes, (size_t)8u); i++)
@@ -158,7 +158,7 @@ u64 movzx_le64(const u8* p, size_t size_bytes)
 	return number;
 }
 
-u64 movzx_be64(const u8* p, size_t size_bytes)
+u64 movzx_be64(const std::uint8_t* p, size_t size_bytes)
 {
 	u64 number = 0;
 	for(size_t i = 0; i < std::min(size_bytes, (size_t)8u); i++)
@@ -191,13 +191,13 @@ static inline std::int64_t SignExtend(u64 bits, size_t size_bytes)
 	return number;
 }
 
-std::int64_t movsx_le64(const u8* p, size_t size_bytes)
+std::int64_t movsx_le64(const std::uint8_t* p, size_t size_bytes)
 {
 	const u64 number = movzx_le64(p, size_bytes);
 	return SignExtend(number, size_bytes);
 }
 
-std::int64_t movsx_be64(const u8* p, size_t size_bytes)
+std::int64_t movsx_be64(const std::uint8_t* p, size_t size_bytes)
 {
 	const u64 number = movzx_be64(p, size_bytes);
 	return SignExtend(number, size_bytes);

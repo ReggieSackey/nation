@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Wildfire Games.
+/* Copyright (C) 2026 Wildfire Games.
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -27,7 +27,6 @@
 #include "lib/file/file.h"
 #include "lib/posix/posix_types.h"
 #include "lib/status.h"
-#include "lib/types.h"
 
 #include <cstddef>
 #include <memory>
@@ -41,7 +40,7 @@ public:
 	void Reserve(size_t size);
 	void Overwrite(const void* data, size_t size, size_t offset);
 
-	std::shared_ptr<u8> Data() const
+	std::shared_ptr<std::uint8_t> Data() const
 	{
 		return m_data;
 	}
@@ -56,7 +55,7 @@ private:
 
 	size_t m_capacity;	// must come first (init order)
 
-	std::shared_ptr<u8> m_data;
+	std::shared_ptr<std::uint8_t> m_data;
 	size_t m_size;
 };
 
@@ -71,7 +70,7 @@ public:
 	/**
 	 * add data to the align buffer, writing it out to disk if full.
 	 **/
-	Status Append(const u8* data, size_t size) const;
+	Status Append(const std::uint8_t* data, size_t size) const;
 
 	/**
 	 * zero-initialize any remaining space in the align buffer and write
@@ -83,7 +82,7 @@ private:
 	Status WriteBlock() const;
 
 	PFile m_file;
-	std::shared_ptr<u8> m_alignedBuf;
+	std::shared_ptr<std::uint8_t> m_alignedBuf;
 	mutable off_t m_alignedOfs;
 	mutable size_t m_bytesUsed;
 };

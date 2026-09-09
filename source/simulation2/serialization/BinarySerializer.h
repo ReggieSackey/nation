@@ -79,14 +79,14 @@ protected:
 		if (n != 0)
 		{
 			pbump(-n);
-			m_SerializerImpl.Put("stream", reinterpret_cast<const u8*> (pbase()), n);
+			m_SerializerImpl.Put("stream", reinterpret_cast<const std::uint8_t*>(pbase()), n);
 		}
 		return 0;
 	}
 
 	std::streamsize xsputn(const char* s, std::streamsize n)
 	{
-		m_SerializerImpl.Put("stream", reinterpret_cast<const u8*> (s), n);
+		m_SerializerImpl.Put("stream", reinterpret_cast<const std::uint8_t*>(s), n);
 		return n;
 	}
 };
@@ -159,52 +159,52 @@ protected:
 
 	virtual void PutNumber(const char* name, uint8_t value)
 	{
-		m_Impl.Put(name, (const u8*)&value, sizeof(uint8_t));
+		m_Impl.Put(name, reinterpret_cast<const std::uint8_t*>(&value), sizeof(uint8_t));
 	}
 
 	virtual void PutNumber(const char* name, int8_t value)
 	{
-		m_Impl.Put(name, (const u8*)&value, sizeof(int8_t));
+		m_Impl.Put(name, reinterpret_cast<const std::uint8_t*>(&value), sizeof(int8_t));
 	}
 
 	virtual void PutNumber(const char* name, uint16_t value)
 	{
 		uint16_t v = to_le16(value);
-		m_Impl.Put(name, (const u8*)&v, sizeof(uint16_t));
+		m_Impl.Put(name, reinterpret_cast<const std::uint8_t*>(&v), sizeof(uint16_t));
 	}
 
 	virtual void PutNumber(const char* name, int16_t value)
 	{
 		int16_t v = static_cast<std::int16_t>(to_le16((u16)value));
-		m_Impl.Put(name, (const u8*)&v, sizeof(int16_t));
+		m_Impl.Put(name, reinterpret_cast<const std::uint8_t*>(&v), sizeof(int16_t));
 	}
 
 	virtual void PutNumber(const char* name, uint32_t value)
 	{
 		uint32_t v = to_le32(value);
-		m_Impl.Put(name, (const u8*)&v, sizeof(uint32_t));
+		m_Impl.Put(name, reinterpret_cast<const std::uint8_t*>(&v), sizeof(uint32_t));
 	}
 
 	virtual void PutNumber(const char* name, int32_t value)
 	{
 		int32_t v = static_cast<std::int32_t>(to_le32((u32)value));
-		m_Impl.Put(name, (const u8*)&v, sizeof(int32_t));
+		m_Impl.Put(name, reinterpret_cast<const std::uint8_t*>(&v), sizeof(int32_t));
 	}
 
 	virtual void PutNumber(const char* name, float value)
 	{
-		m_Impl.Put(name, (const u8*)&value, sizeof(float));
+		m_Impl.Put(name, reinterpret_cast<const std::uint8_t*>(&value), sizeof(float));
 	}
 
 	virtual void PutNumber(const char* name, double value)
 	{
-		m_Impl.Put(name, (const u8*)&value, sizeof(double));
+		m_Impl.Put(name, reinterpret_cast<const std::uint8_t*>(&value), sizeof(double));
 	}
 
 	virtual void PutNumber(const char* name, fixed value)
 	{
 		int32_t v = static_cast<std::int32_t>(to_le32((u32)value.GetInternalValue()));
-		m_Impl.Put(name, (const u8*)&v, sizeof(int32_t));
+		m_Impl.Put(name, reinterpret_cast<const std::uint8_t*>(&v), sizeof(int32_t));
 	}
 
 	virtual void PutBool(const char* name, bool value)
@@ -216,7 +216,7 @@ protected:
 	{
 		// TODO: maybe should intern strings, particularly to save space with script property names
 		PutNumber("string length", (uint32_t)value.length());
-		m_Impl.Put(name, (u8*)value.data(), value.length());
+		m_Impl.Put(name, reinterpret_cast<const std::uint8_t*>(value.data()), value.length());
 	}
 
 	virtual void PutScriptVal(const char* /*name*/, JS::MutableHandleValue value)
@@ -224,7 +224,7 @@ protected:
 		m_ScriptImpl->PutScriptVal(value);
 	}
 
-	virtual void PutRaw(const char* name, const u8* data, size_t len)
+	virtual void PutRaw(const char* name, const std::uint8_t* data, size_t len)
 	{
 		m_Impl.Put(name, data, len);
 	}

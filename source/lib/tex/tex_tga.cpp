@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Wildfire Games.
+/* Copyright (C) 2026 Wildfire Games.
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -54,19 +54,19 @@ enum TgaImgDesc
 
 typedef struct
 {
-	u8 img_id_len;			// 0 - no image identifier present
-	u8 color_map_type;		// 0 - no color map present
-	u8 img_type;			// see TgaImgType
-	u8 color_map[5];		// unused
+	std::uint8_t img_id_len;			// 0 - no image identifier present
+	std::uint8_t color_map_type;		// 0 - no color map present
+	std::uint8_t img_type;			// see TgaImgType
+	std::uint8_t color_map[5];		// unused
 
 	u16 x_origin;			// unused
 	u16 y_origin;			// unused
 
 	u16 w;
 	u16 h;
-	u8 bpp;					// bits per pixel
+	std::uint8_t bpp;					// bits per pixel
 
-	u8 img_desc;
+	std::uint8_t img_desc;
 }
 TgaHeader;
 
@@ -81,7 +81,7 @@ Status TexCodecTga::transform(Tex*, size_t /*transforms*/) const
 }
 
 
-bool TexCodecTga::is_hdr(const u8* file) const
+bool TexCodecTga::is_hdr(const std::uint8_t* file) const
 {
 	TgaHeader* hdr = (TgaHeader*)file;
 
@@ -107,7 +107,7 @@ bool TexCodecTga::is_ext(const OsPath& extension) const
 }
 
 
-size_t TexCodecTga::hdr_size(const u8* file) const
+size_t TexCodecTga::hdr_size(const std::uint8_t* file) const
 {
 	size_t hdr_size = sizeof(TgaHeader);
 	if(file)
@@ -120,14 +120,14 @@ size_t TexCodecTga::hdr_size(const u8* file) const
 
 
 // requirements: uncompressed, direct color, bottom up
-Status TexCodecTga::decode(u8* RESTRICT data, size_t /*size*/, Tex* RESTRICT t) const
+Status TexCodecTga::decode(std::uint8_t* RESTRICT data, size_t /*size*/, Tex* RESTRICT t) const
 {
 	const TgaHeader* hdr = (const TgaHeader*)data;
-	const u8 type  = hdr->img_type;
+	const std::uint8_t type  = hdr->img_type;
 	const size_t w   = read_le16(&hdr->w);
 	const size_t h   = read_le16(&hdr->h);
 	const size_t bpp = hdr->bpp;
-	const u8 desc  = hdr->img_desc;
+	const std::uint8_t desc  = hdr->img_desc;
 
 	size_t flags = 0;
 	flags |= (desc & TGA_TOP_DOWN)? TEX_TOP_DOWN : TEX_BOTTOM_UP;
@@ -154,7 +154,7 @@ Status TexCodecTga::decode(u8* RESTRICT data, size_t /*size*/, Tex* RESTRICT t) 
 
 Status TexCodecTga::encode(Tex* RESTRICT t, DynArray* RESTRICT da) const
 {
-	u8 img_desc = 0;
+	std::uint8_t img_desc = 0;
 	if(t->m_Flags & TEX_TOP_DOWN)
 		img_desc |= TGA_TOP_DOWN;
 	if(t->m_Bpp == 32)
@@ -169,12 +169,12 @@ Status TexCodecTga::encode(Tex* RESTRICT t, DynArray* RESTRICT da) const
 	{
 		0,				// no image identifier present
 		0,				// no color map present
-		(u8)img_type,
+		static_cast<std::uint8_t>(img_type),
 		{0,0,0,0,0},	// unused (color map)
 		0, 0,			// unused (origin)
 		(u16)t->m_Width,
 		(u16)t->m_Height,
-		(u8)t->m_Bpp,
+		static_cast<std::uint8_t>(t->m_Bpp),
 		img_desc
 	};
 	const size_t hdr_size = sizeof(hdr);

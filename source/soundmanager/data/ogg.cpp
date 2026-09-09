@@ -77,7 +77,7 @@ static Status LibErrorFromVorbis(int err)
 class VorbisBufferAdapter
 {
 public:
-	VorbisBufferAdapter(const std::shared_ptr<u8>& buffer, size_t size)
+	VorbisBufferAdapter(const std::shared_ptr<std::uint8_t>& buffer, size_t size)
 		: m_Buffer(buffer)
 		, m_Size(size)
 	{
@@ -94,7 +94,7 @@ public:
 		std::copy_n(
 			adapter->m_Buffer.get() + adapter->m_Offset,
 			sizeToRead,
-			static_cast<u8*>(bufferToFill)
+			static_cast<std::uint8_t*>(bufferToFill)
 		);
 
 		adapter->m_Offset += sizeToRead;
@@ -138,7 +138,7 @@ public:
 	}
 
 private:
-	std::shared_ptr<u8> m_Buffer;
+	std::shared_ptr<std::uint8_t> m_Buffer;
 	ogg_int64_t m_Size;
 	ogg_int64_t m_Offset{0};
 };
@@ -184,7 +184,7 @@ public:
 		return INFO::OK;
 	}
 
-	virtual size_t GetNextChunk(std::span<u8> buffer)
+	virtual size_t GetNextChunk(std::span<std::uint8_t> buffer)
 	{
 		// We may have to call ov_read multiple times because it
 		// treats the buffer size "as a limit and not a request".
@@ -258,7 +258,7 @@ private:
 
 Status OpenOggNonstream(const PIVFS& vfs, const VfsPath& pathname, OggStreamPtr& stream)
 {
-	std::shared_ptr<u8> contents;
+	std::shared_ptr<std::uint8_t> contents;
 	size_t size;
 	RETURN_STATUS_IF_ERR(vfs->LoadFile(pathname, contents, size));
 

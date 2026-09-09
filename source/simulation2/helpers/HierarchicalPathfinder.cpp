@@ -408,7 +408,9 @@ void HierarchicalPathfinder::Recompute(Grid<NavcellData>* grid,
 	m_W = grid->m_W;
 	m_H = grid->m_H;
 
-	ENSURE((grid->m_W + CHUNK_SIZE - 1) / CHUNK_SIZE < 256 && (grid->m_H + CHUNK_SIZE - 1) / CHUNK_SIZE < 256); // else the u8 Chunk::m_ChunkI will overflow
+	// else the std::uint8_t Chunk::m_ChunkI will overflow
+	ENSURE((grid->m_W + CHUNK_SIZE - 1) / CHUNK_SIZE < 256 &&
+		(grid->m_H + CHUNK_SIZE - 1) / CHUNK_SIZE < 256);
 
 	// Divide grid into chunks with round-to-positive-infinity
 	m_ChunksW = (grid->m_W + CHUNK_SIZE - 1) / CHUNK_SIZE;
@@ -441,8 +443,8 @@ void HierarchicalPathfinder::Recompute(Grid<NavcellData>* grid,
 		// Spread global regions.
 		std::map<RegionID, GlobalRegionID>& globalRegion = m_GlobalRegions[passClass];
 		globalRegion.clear();
-		for (u8 cj = 0; cj < m_ChunksH; ++cj)
-			for (u8 ci = 0; ci < m_ChunksW; ++ci)
+		for (std::uint8_t cj = 0; cj < m_ChunksH; ++cj)
+			for (std::uint8_t ci = 0; ci < m_ChunksW; ++ci)
 				for (u16 rid : GetChunk(ci, cj, passClass).m_RegionsID)
 				{
 					RegionID reg{ci,cj,rid};
@@ -470,7 +472,7 @@ void HierarchicalPathfinder::Recompute(Grid<NavcellData>* grid,
 	}
 }
 
-void HierarchicalPathfinder::Update(Grid<NavcellData>* grid, const Grid<u8>& dirtinessGrid)
+void HierarchicalPathfinder::Update(Grid<NavcellData>* grid, const Grid<std::uint8_t>& dirtinessGrid)
 {
 	PROFILE3("Hierarchical Update");
 
@@ -490,11 +492,11 @@ void HierarchicalPathfinder::Update(Grid<NavcellData>* grid, const Grid<u8>& dir
 	// That's quite annoying, but I can't think of an easy way around it.
 	// If we could be sure that a region's topology hasn't changed, we could skip removing its global region
 	// but that's non trivial as we have no easy way to determine said topology (regions could "switch" IDs on update for now).
-	for (u8 cj = 0; cj <  m_ChunksH; ++cj)
+	for (std::uint8_t cj = 0; cj <  m_ChunksH; ++cj)
 	{
 		int j0 = cj * CHUNK_SIZE;
 		int j1 = std::min(j0 + CHUNK_SIZE, (int)dirtinessGrid.m_H);
-		for (u8 ci = 0; ci < m_ChunksW; ++ci)
+		for (std::uint8_t ci = 0; ci < m_ChunksW; ++ci)
 		{
 			// Skip chunks where no navcells are dirty.
 			int i0 = ci * CHUNK_SIZE;
@@ -555,8 +557,8 @@ void HierarchicalPathfinder::ComputeNeighbors(EdgesMap& edges, Chunk& a, Chunk& 
 	RegionID rbPrev(0,0,0);
 	for (int k = 0; k < CHUNK_SIZE; ++k)
 	{
-		u8 aSide = opposite ? CHUNK_SIZE - 1 : 0;
-		u8 bSide = CHUNK_SIZE - 1 - aSide;
+		std::uint8_t aSide = opposite ? CHUNK_SIZE - 1 : 0;
+		std::uint8_t bSide = CHUNK_SIZE - 1 - aSide;
 		RegionID ra = transpose ? a.Get(k, aSide) : a.Get(aSide, k);
 		RegionID rb = transpose ? b.Get(k, bSide) : b.Get(bSide, k);
 		if (ra.r && rb.r)
@@ -574,7 +576,8 @@ void HierarchicalPathfinder::ComputeNeighbors(EdgesMap& edges, Chunk& a, Chunk& 
 /**
  * Connect a chunk's regions to their neighbors. Not optimised for global recomputing.
  */
-void HierarchicalPathfinder::UpdateEdges(u8 ci, u8 cj, pass_class_t passClass, EdgesMap& edges)
+void HierarchicalPathfinder::UpdateEdges(std::uint8_t ci, std::uint8_t cj, pass_class_t passClass,
+	EdgesMap& edges)
 {
 	std::vector<Chunk>& chunks = m_Chunks[passClass];
 
@@ -830,14 +833,18 @@ void HierarchicalPathfinder::FindGoalRegionsAndBestNavcells(u16 i0, u16 j0, u16 
 	u16 bestI, bestJ;
 	u32 c; // Unused.
 
-	for (u8 sz = std::max(0,(gj - size) / CHUNK_SIZE); sz <= std::min(m_ChunksH-1, (gj + size + 1) / CHUNK_SIZE); ++sz)
-		for (u8 sx = std::max(0,(gi - size) / CHUNK_SIZE); sx <= std::min(m_ChunksW-1, (gi + size + 1) / CHUNK_SIZE); ++sx)
+	for (std::uint8_t sz = std::max(0,(gj - size) / CHUNK_SIZE);
+		sz <= std::min(m_ChunksH-1, (gj + size + 1) / CHUNK_SIZE); ++sz)
+	{
+		for (std::uint8_t sx = std::max(0,(gi - size) / CHUNK_SIZE);
+			sx <= std::min(m_ChunksW-1, (gi + size + 1) / CHUNK_SIZE); ++sx)
 		{
 			const Chunk& chunk = GetChunk(sx, sz, passClass);
 			for (u16 i : chunk.m_RegionsID)
 				if (chunk.RegionNearestNavcellInGoal(i, i0, j0, goal, bestI, bestJ, c))
 					regions.insert({RegionID{sx, sz, i}, bestI, bestJ});
 		}
+	}
 }
 
 void HierarchicalPathfinder::FillRegionOnGrid(const RegionID& region, pass_class_t passClass, u16 value, Grid<u16>& grid) const

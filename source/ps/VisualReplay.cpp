@@ -59,7 +59,7 @@
 /**
  * Filter too short replays (value in seconds).
  */
-const u8 minimumReplayDuration = 3;
+const std::uint8_t minimumReplayDuration = 3;
 
 OsPath VisualReplay::GetDirectoryPath()
 {

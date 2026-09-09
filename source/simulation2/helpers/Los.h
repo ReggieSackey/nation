@@ -31,7 +31,7 @@
  */
 static constexpr std::int32_t LOS_TILE_SIZE = 4;
 
-enum class LosState : u8
+enum class LosState : std::uint8_t
 {
 	UNEXPLORED = 0,
 	EXPLORED = 1,

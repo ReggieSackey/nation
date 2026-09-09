@@ -128,12 +128,13 @@ Status tex_validate_plain_format(size_t bpp, size_t flags)
 // mipmaps
 //-----------------------------------------------------------------------------
 
-void tex_util_foreach_mipmap(size_t w, size_t h, size_t bpp, const u8* pixels, int levels_to_skip, size_t data_padding, MipmapCB cb, void* RESTRICT cbData)
+void tex_util_foreach_mipmap(size_t w, size_t h, size_t bpp, const std::uint8_t* pixels,
+	int levels_to_skip, size_t data_padding, MipmapCB cb, void* RESTRICT cbData)
 {
 	ENSURE(levels_to_skip >= 0 || levels_to_skip == TEX_BASE_LEVEL_ONLY);
 
 	size_t level_w = w, level_h = h;
-	const u8* level_data = pixels;
+	const std::uint8_t* level_data = pixels;
 
 	// we iterate through the loop (necessary to skip over image data),
 	// but do not actually call back until the requisite number of
@@ -177,18 +178,19 @@ struct CreateLevelData
 
 	size_t prev_level_w;
 	size_t prev_level_h;
-	const u8* prev_level_data;
+	const std::uint8_t* prev_level_data;
 	size_t prev_level_dataSize;
 };
 
 // uses 2x2 box filter
-static void create_level(size_t level, size_t level_w, size_t level_h, const u8* RESTRICT level_data, size_t level_dataSize, void* RESTRICT cbData)
+static void create_level(size_t level, size_t level_w, size_t level_h,
+	const std::uint8_t* RESTRICT level_data, size_t level_dataSize, void* RESTRICT cbData)
 {
 	CreateLevelData* cld = (CreateLevelData*)cbData;
 	const size_t src_w = cld->prev_level_w;
 	const size_t src_h = cld->prev_level_h;
-	const u8* src = cld->prev_level_data;
-	u8* dst = (u8*)level_data;
+	const std::uint8_t* src = cld->prev_level_data;
+	std::uint8_t* dst = const_cast<std::uint8_t*>(level_data);
 
 	// base level - must be copied over from source buffer
 	if(level == 0)
@@ -258,9 +260,9 @@ static Status add_mipmaps(Tex* t, size_t w, size_t h, size_t bpp, void* newData,
 		WARN_RETURN(ERR::TEX_INVALID_SIZE);
 	t->m_Flags |= TEX_MIPMAPS;	// must come before tex_img_size!
 	const size_t mipmap_size = t->img_size();
-	std::shared_ptr<u8> mipmapData;
+	std::shared_ptr<std::uint8_t> mipmapData;
 	AllocateAligned(mipmapData, mipmap_size);
-	CreateLevelData cld = { bpp/8, w, h, (const u8*)newData, dataSize };
+	CreateLevelData cld = { bpp/8, w, h, static_cast<const std::uint8_t*>(newData), dataSize };
 	tex_util_foreach_mipmap(w, h, bpp, mipmapData.get(), 0, 1, create_level, &cld);
 	t->m_Data = mipmapData;
 	t->m_DataSize = mipmap_size;
@@ -288,7 +290,7 @@ static Status plain_transform(Tex* t, size_t transforms)
 	// extract texture info
 	const size_t w = t->m_Width, h = t->m_Height, bpp = t->m_Bpp;
 	const size_t flags = t->m_Flags;
-	u8* const srcStorage = t->get_data();
+	std::uint8_t* const srcStorage = t->get_data();
 
 	// sanity checks (not errors, we just can't handle these cases)
 	// .. unknown transform
@@ -330,12 +332,12 @@ static Status plain_transform(Tex* t, size_t transforms)
 	//
 	// this is necessary even when not flipping because the initial data
 	// is read-only.
-	std::shared_ptr<u8> dstStorage;
+	std::shared_ptr<std::uint8_t> dstStorage;
 	AllocateAligned(dstStorage, dstSize);
 
 	// setup row source/destination pointers (simplifies outer loop)
-	u8* dst = (u8*)dstStorage.get();
-	const u8* src;
+	std::uint8_t* dst = static_cast<std::uint8_t*>(dstStorage.get());
+	const std::uint8_t* src;
 	const size_t pitch = w * bpp/8;	// source bpp (not necessarily dest bpp)
 	// .. avoid y*pitch multiply in row loop; instead, add row_ofs.
 	ssize_t row_ofs = (ssize_t)pitch;
@@ -343,18 +345,18 @@ static Status plain_transform(Tex* t, size_t transforms)
 	// flipping rows (0,1,2 -> 2,1,0)
 	if(transforms & TEX_ORIENTATION)
 	{
-		src = (const u8*)srcStorage+srcSize-pitch;	// last row
+		src = static_cast<const std::uint8_t*>(srcStorage) + srcSize - pitch;	// last row
 		row_ofs = -(ssize_t)pitch;
 	}
 	// adding/removing alpha channel (can't convert in-place)
 	else if(transforms & TEX_ALPHA)
 	{
-		src = (const u8*)srcStorage;
+		src = static_cast<const std::uint8_t*>(srcStorage);
 	}
 	// do other transforms in-place
 	else
 	{
-		src = (const u8*)dstStorage.get();
+		src = static_cast<const std::uint8_t*>(dstStorage.get());
 		memcpy(dstStorage.get(), srcStorage, srcSize);
 	}
 
@@ -379,7 +381,7 @@ static Status plain_transform(Tex* t, size_t transforms)
 			for(size_t x = 0; x < w; x++)
 			{
 				// need temporaries in case src == dst (i.e. not flipping)
-				const u8 b = src[0], g = src[1], r = src[2];
+				const std::uint8_t b = src[0], g = src[1], r = src[2];
 				dst[0] = r; dst[1] = g; dst[2] = b; dst[3] = 0xFF;
 				dst += 4;
 				src += 3;
@@ -395,7 +397,7 @@ static Status plain_transform(Tex* t, size_t transforms)
 			for(size_t x = 0; x < w; x++)
 			{
 				// need temporaries in case src == dst (i.e. not flipping)
-				const u8 r = src[0], g = src[1], b = src[2];
+				const std::uint8_t r = src[0], g = src[1], b = src[2];
 				dst[0] = r; dst[1] = g; dst[2] = b; dst[3] = 0xFF;
 				dst += 4;
 				src += 3;
@@ -411,7 +413,7 @@ static Status plain_transform(Tex* t, size_t transforms)
 			for(size_t x = 0; x < w; x++)
 			{
 				// need temporaries in case src == dst (i.e. not flipping)
-				const u8 b = src[0], g = src[1], r = src[2];
+				const std::uint8_t b = src[0], g = src[1], r = src[2];
 				dst[0] = r; dst[1] = g; dst[2] = b;
 				dst += 3;
 				src += 3;
@@ -427,7 +429,7 @@ static Status plain_transform(Tex* t, size_t transforms)
 			for(size_t x = 0; x < w; x++)
 			{
 				// need temporaries in case src == dst (i.e. not flipping)
-				const u8 b = src[0], g = src[1], r = src[2], a = src[3];
+				const std::uint8_t b = src[0], g = src[1], r = src[2], a = src[3];
 				dst[0] = r; dst[1] = g; dst[2] = b; dst[3] = a;
 				dst += 4;
 				src += 4;
@@ -581,7 +583,8 @@ bool tex_is_known_extension(const VfsPath& pathname)
 //
 // we need only add bookkeeping information and "wrap" it in
 // our Tex struct, hence the name.
-Status Tex::wrap(size_t w, size_t h, size_t bpp, size_t flags, const std::shared_ptr<u8>& data, size_t ofs)
+Status Tex::wrap(size_t w, size_t h, size_t bpp, size_t flags, const std::shared_ptr<std::uint8_t>& data,
+	size_t ofs)
 {
 	m_Width    = w;
 	m_Height   = h;
@@ -618,12 +621,12 @@ void Tex::free()
 
 // returns a pointer to the image data (pixels), taking into account any
 // header(s) that may come before it.
-u8* Tex::get_data()
+std::uint8_t* Tex::get_data()
 {
-	// (can't use normal CHECK_TEX due to u8* return value)
+	// (can't use normal CHECK_TEX due to std::uint8_t* return value)
 	WARN_IF_ERR(validate());
 
-	u8* p = m_Data.get();
+	std::uint8_t* p = m_Data.get();
 	if(!p)
 		return nullptr;
 	return p + m_Ofs;
@@ -657,16 +660,16 @@ u32 Tex::get_average_color() const
 
 	// extract components into u32
 	ENSURE(basetex.m_DataSize >= basetex.m_Ofs+4);
-	u8 b = basetex.m_Data.get()[basetex.m_Ofs];
-	u8 g = basetex.m_Data.get()[basetex.m_Ofs+1];
-	u8 r = basetex.m_Data.get()[basetex.m_Ofs+2];
-	u8 a = basetex.m_Data.get()[basetex.m_Ofs+3];
+	std::uint8_t b = basetex.m_Data.get()[basetex.m_Ofs];
+	std::uint8_t g = basetex.m_Data.get()[basetex.m_Ofs+1];
+	std::uint8_t r = basetex.m_Data.get()[basetex.m_Ofs+2];
+	std::uint8_t a = basetex.m_Data.get()[basetex.m_Ofs+3];
 	return b + (g << 8) + (r << 16) + (a << 24);
 }
 
 
 static void add_level_size(size_t /*level*/, size_t /*level_w*/, size_t /*level_h*/,
-	const u8* RESTRICT /*level_data*/, size_t level_dataSize, void* RESTRICT cbData)
+	const std::uint8_t* RESTRICT /*level_data*/, size_t level_dataSize, void* RESTRICT cbData)
 {
 	size_t* ptotal_size = (size_t*)cbData;
 	*ptotal_size += level_dataSize;
@@ -709,7 +712,7 @@ size_t tex_hdr_size(const VfsPath& filename)
 // read/write from memory and disk
 //-----------------------------------------------------------------------------
 
-Status Tex::decode(const std::shared_ptr<u8>& Data, size_t DataSize)
+Status Tex::decode(const std::shared_ptr<std::uint8_t>& Data, size_t DataSize)
 {
 	const ITexCodec* c;
 	RETURN_STATUS_IF_ERR(tex_codec_for_header(Data.get(), DataSize, &c));
@@ -782,7 +785,7 @@ void Tex::UpdateMIPLevels()
 		m_MIPLevels.reserve(std::bit_width(maxSide) + !std::has_single_bit(maxSide));
 	}
 
-	u8* levelData = m_Data.get();
+	std::uint8_t* levelData = m_Data.get();
 	levelData += m_Ofs;
 
 	const u32 dataPadding = (m_Flags & TEX_DXT) != 0 ? 4 : 1;

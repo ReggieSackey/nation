@@ -29,7 +29,6 @@
 #include "lib/file/vfs/vfs_util.h"
 #include "lib/os_path.h"
 #include "lib/path.h"
-#include "lib/types.h"
 
 #include <memory>
 
@@ -77,7 +76,7 @@ public:
 
 	void test_getPathnames()
 	{
-		std::shared_ptr<u8> nodata;
+		std::shared_ptr<std::uint8_t> nodata;
 		TS_ASSERT_OK(AllocateAligned(nodata, 1, maxSectorSize));
 
 		g_VFS->CreateFile("test_file.txt", {nodata.get(), 0});

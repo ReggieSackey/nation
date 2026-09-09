@@ -44,7 +44,7 @@ void OutputBufferManager::Reset()
 	m_capacity = 0;
 }
 
-void OutputBufferManager::SetBuffer(u8* buffer, size_t size)
+void OutputBufferManager::SetBuffer(std::uint8_t* buffer, size_t size)
 {
 	ENSURE(IsAllowableBuffer(buffer, size));
 
@@ -72,7 +72,7 @@ void OutputBufferManager::AllocateBuffer(size_t size)
 	SetBuffer(m_mem.get(), size);
 }
 
-bool OutputBufferManager::IsAllowableBuffer(u8* buffer, size_t size)
+bool OutputBufferManager::IsAllowableBuffer(std::uint8_t* buffer, size_t size)
 {
 	// none yet established
 	if(m_buffer == 0 && m_size == 0)
@@ -108,19 +108,19 @@ void Stream::AllocateOutputBuffer(size_t outSizeMax)
 }
 
 
-void Stream::SetOutputBuffer(u8* out, size_t outSize)
+void Stream::SetOutputBuffer(std::uint8_t* out, size_t outSize)
 {
 	m_outputBufferManager.SetBuffer(out, outSize);
 }
 
 
-Status Stream::Feed(const u8* in, size_t inSize)
+Status Stream::Feed(const std::uint8_t* in, size_t inSize)
 {
 	if(m_outProduced == m_outputBufferManager.Size())	// output buffer full; must not call Process
 		return INFO::ALL_COMPLETE;
 
 	size_t inConsumed, outProduced;
-	u8* const out = m_outputBufferManager.Buffer() + m_outProduced;
+	std::uint8_t* const out = m_outputBufferManager.Buffer() + m_outProduced;
 	const size_t outSize = m_outputBufferManager.Size() - m_outProduced;
 	RETURN_STATUS_IF_ERR(m_codec->Process(in, inSize, out, outSize, inConsumed, outProduced));
 

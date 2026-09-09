@@ -121,7 +121,7 @@ public:
 	static const size_t MAX_ATTRIBUTE_LENGTH; // includes null terminator, which isn't stored
 
 	/// An arbitrary number to help resyncing with the item stream when parsing.
-	static const u8 RESYNC_MAGIC[8];
+	static const std::uint8_t RESYNC_MAGIC[8];
 
 	/**
 	 * An item with a relative time and an ID string pointer.
@@ -152,7 +152,7 @@ private:
 			// Store the magic string followed by the absolute time
 			// (to correct for drift caused by the precision of relative
 			// times stored in other items)
-			u8 buffer[sizeof(RESYNC_MAGIC) + sizeof(t)];
+			std::uint8_t buffer[sizeof(RESYNC_MAGIC) + sizeof(t)];
 			memcpy(buffer, &RESYNC_MAGIC, sizeof(RESYNC_MAGIC));
 			memcpy(buffer + sizeof(RESYNC_MAGIC), &t, sizeof(t));
 			Write(ITEM_SYNC, buffer, ARRAY_SIZE(buffer));
@@ -219,7 +219,7 @@ private:
 
 		double m_LastTime; // used for computing relative times
 
-		u8* m_Buffer;
+		std::uint8_t* m_Buffer;
 
 		// To allow hopefully-safe reading of the buffer from a separate thread,
 		// without any expensive synchronisation in the recording thread,

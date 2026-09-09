@@ -31,7 +31,6 @@
 #include "lib/status.h"
 #include "lib/sysdep/os.h"
 #include "lib/tex/tex.h"
-#include "lib/types.h"
 #include "ps/CConsole.h"
 #include "ps/CLogger.h"
 #include "ps/CStr.h"
@@ -198,7 +197,7 @@ void CVideoMode::CCursor::SetCursor(const CStrW& name)
 	int hotspotX = 0, hotspotY = 0;
 	{
 		const VfsPath pathHotspotName = pathBaseName.ChangeExtension(L".txt");
-		std::unique_ptr<u8[], AlignedDeleter> buffer;
+		std::unique_ptr<std::uint8_t[], AlignedDeleter> buffer;
 		size_t size;
 		if (g_VFS->LoadFile(pathHotspotName, buffer, size) != INFO::OK)
 		{
@@ -211,7 +210,7 @@ void CVideoMode::CCursor::SetCursor(const CStrW& name)
 
 	const VfsPath pathImageName = pathBaseName.ChangeExtension(L".png");
 
-	std::shared_ptr<u8> file;
+	std::shared_ptr<std::uint8_t> file;
 	size_t fileSize;
 	if (g_VFS->LoadFile(pathImageName, file, fileSize) != INFO::OK)
 	{
@@ -975,7 +974,7 @@ void CVideoMode::SetWindowIcon()
 	// The window icon should be kept outside of art/textures/, or else it will be converted
 	// to DDS by the archive builder and will become unusable here. Using DDS makes BGRA
 	// conversion needlessly complicated.
-	std::shared_ptr<u8> iconFile;
+	std::shared_ptr<std::uint8_t> iconFile;
 	size_t iconFileSize;
 	if (g_VFS->LoadFile("art/icons/window.png", iconFile, iconFileSize) != INFO::OK)
 	{

@@ -39,7 +39,7 @@ void MD5::InitState()
 	memset(m_Buf, 0xcc, sizeof(m_Buf));
 }
 
-void MD5::UpdateRest(const u8* data, size_t len)
+void MD5::UpdateRest(const std::uint8_t* data, size_t len)
 {
 	const size_t CHUNK_SIZE = sizeof(m_Buf);
 
@@ -72,24 +72,24 @@ void MD5::UpdateRest(const u8* data, size_t len)
 	m_BufLen = len;
 }
 
-void MD5::Final(u8* digest)
+void MD5::Final(std::uint8_t* digest)
 {
 	// Compute the message length in bits (before padding)
 	u64 len = m_InputLen * 8;
 
 	// Pad with 1-bit
-	const u8 pad = 0x80;
+	const std::uint8_t pad = 0x80;
 	Update(&pad, 1);
 
 	// Fill with zeros until length % 64 = 56 (bytes)
 	while (m_BufLen % 64 != 56)
 	{
-		const u8 zero = 0;
+		const std::uint8_t zero = 0;
 		Update(&zero, 1);
 	}
 
 	// Append the length (assumes little-endian)
-	Update((const u8*)&len, 8);
+	Update(reinterpret_cast<const std::uint8_t*>(&len), 8);
 
 	// Return the digest (assumes little-endian)
 	memcpy(digest, m_Digest, DIGESTSIZE);

@@ -22,7 +22,6 @@
 
 #include "simulation2/system/Component.h"
 #include "lib/code_annotation.h"
-#include "lib/types.h"
 #include "maths/Fixed.h"
 
 #include <js/TypeDecls.h>
@@ -68,7 +67,7 @@ protected:
 	virtual void PutBool(const char* name, bool value);
 	virtual void PutString(const char* name, const std::string& value);
 	virtual void PutScriptVal(const char* name, JS::MutableHandleValue value);
-	virtual void PutRaw(const char* name, const u8* data, size_t len);
+	virtual void PutRaw(const char* name, const std::uint8_t* data, size_t len);
 
 private:
 	const Script::Interface& m_ScriptInterface;

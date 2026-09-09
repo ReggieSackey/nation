@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Wildfire Games.
+/* Copyright (C) 2026 Wildfire Games.
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -28,7 +28,6 @@
 #define INCLUDED_ALLOCATORS_DYNARRAY
 
 #include "lib/status.h"
-#include "lib/types.h"
 
 #include <cstddef>
 
@@ -41,7 +40,7 @@
  **/
 struct DynArray
 {
-	u8* base;
+	std::uint8_t* base;
 	size_t max_size_pa;	 /// reserved
 	size_t cur_size;	 /// committed
 	size_t cur_size_pa;

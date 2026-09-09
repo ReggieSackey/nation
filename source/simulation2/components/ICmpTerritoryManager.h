@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Wildfire Games.
+/* Copyright (C) 2026 Wildfire Games.
  * This file is part of 0 A.D.
  *
  * 0 A.D. is free software: you can redistribute it and/or modify
@@ -61,7 +61,7 @@ public:
 	 * TERRITORY_CONNECTED_MASK is set if the tile is connected to a root object
 	 * (civ center etc).
 	 */
-	virtual const Grid<u8>& GetTerritoryGrid() = 0;
+	virtual const Grid<std::uint8_t>& GetTerritoryGrid() = 0;
 
 	/**
 	 * Get owner of territory at given position.
@@ -95,7 +95,7 @@ public:
 	 * Returns the percentage of the world controlled by a given player as defined by
 	 * the number of territory cells the given player owns
 	 */
-	 virtual u8 GetTerritoryPercentage(player_id_t player) = 0;
+	 virtual std::uint8_t GetTerritoryPercentage(player_id_t player) = 0;
 
 	/**
 	 * Enables or disables rendering of an territory borders.

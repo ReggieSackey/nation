@@ -136,13 +136,13 @@ void DrawTexture(
 struct MinimapUnitVertex
 {
 	// This struct is copyable for convenience and because to move is to copy for primitives.
-	u8 r, g, b, a;
+	std::uint8_t r, g, b, a;
 	CVector2D position;
 };
 
 // Adds a vertex to the passed VertexArray
 inline void AddEntity(const MinimapUnitVertex& v,
-	VertexArrayIterator<u8[4]>& attrColor,
+	VertexArrayIterator<std::uint8_t[4]>& attrColor,
 	VertexArrayIterator<float[2]>& attrPos,
 	const float entityRadius,
 	const bool useInstancing)
@@ -238,7 +238,7 @@ CMiniMapTexture::CMiniMapTexture(Renderer::Backend::IDevice* device, CSimulation
 	m_IndexArray.Upload();
 
 	VertexArrayIterator<float[2]> attrPos = m_AttributePos.GetIterator<float[2]>();
-	VertexArrayIterator<u8[4]> attrColor = m_AttributeColor.GetIterator<u8[4]>();
+	VertexArrayIterator<std::uint8_t[4]> attrColor = m_AttributeColor.GetIterator<std::uint8_t[4]>();
 	for (size_t i = 0; i < m_VertexArray.GetNumberOfVertices(); ++i)
 	{
 		(*attrColor)[0] = 0;
@@ -655,7 +655,7 @@ void CMiniMapTexture::UpdateAndUploadEntities(
 	CSimulation2::InterfaceList ents = m_Simulation.GetEntitiesWithInterface(IID_Minimap);
 
 	VertexArrayIterator<float[2]> attrPos = m_AttributePos.GetIterator<float[2]>();
-	VertexArrayIterator<u8[4]> attrColor = m_AttributeColor.GetIterator<u8[4]>();
+	VertexArrayIterator<std::uint8_t[4]> attrColor = m_AttributeColor.GetIterator<std::uint8_t[4]>();
 
 	m_EntitiesDrawn = 0;
 	MinimapUnitVertex v;

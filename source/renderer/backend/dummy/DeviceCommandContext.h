@@ -18,7 +18,6 @@
 #ifndef INCLUDED_RENDERER_BACKEND_DUMMY_DEVICECOMMANDCONTEXT
 #define INCLUDED_RENDERER_BACKEND_DUMMY_DEVICECOMMANDCONTEXT
 
-#include "lib/types.h"
 #include "renderer/backend/IDeviceCommandContext.h"
 
 #include <cstddef>
@@ -72,7 +71,7 @@ public:
 		const uint32_t width, const uint32_t height,
 		const uint32_t level = 0, const uint32_t layer = 0) override;
 
-	using UploadBufferFunction = std::function<void(u8*)>;
+	using UploadBufferFunction = std::function<void(std::uint8_t*)>;
 	void UploadBuffer(IBuffer* buffer, const void* data, const uint32_t dataSize) override;
 	void UploadBuffer(IBuffer* buffer, const UploadBufferFunction& uploadFunction) override;
 	void UploadBufferRegion(

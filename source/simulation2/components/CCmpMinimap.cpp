@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Wildfire Games.
+/* Copyright (C) 2026 Wildfire Games.
  * This file is part of 0 A.D.
  *
  * 0 A.D. is free software: you can redistribute it and/or modify
@@ -20,7 +20,6 @@
 #include "ICmpMinimap.h"
 
 #include "graphics/Color.h"
-#include "lib/types.h"
 #include "simulation2/MessageTypes.h"
 #include "simulation2/components/ICmpOwnership.h"
 #include "simulation2/components/ICmpPlayer.h"
@@ -50,7 +49,7 @@ public:
 
 	bool m_UsePlayerColor;
 
-	u8 m_R, m_G, m_B; // static template state if m_UsePlayerColor false; dynamic state if true
+	std::uint8_t m_R, m_G, m_B; // static template state if m_UsePlayerColor false; dynamic state if true
 
 	// Dynamic state:
 
@@ -103,9 +102,9 @@ public:
 		if (color.IsOk())
 		{
 			m_UsePlayerColor = false;
-			m_R = (u8)color.GetChild("@r").ToInt();
-			m_G = (u8)color.GetChild("@g").ToInt();
-			m_B = (u8)color.GetChild("@b").ToInt();
+			m_R = static_cast<std::uint8_t>(color.GetChild("@r").ToInt());
+			m_G = static_cast<std::uint8_t>(color.GetChild("@g").ToInt());
+			m_B = static_cast<std::uint8_t>(color.GetChild("@b").ToInt());
 		}
 		else
 		{
@@ -200,7 +199,7 @@ public:
 		}
 	}
 
-	bool GetRenderData(u8& r, u8& g, u8& b, entity_pos_t& x, entity_pos_t& z) const override
+	bool GetRenderData(std::uint8_t& r, std::uint8_t& g, std::uint8_t& b, entity_pos_t& x, entity_pos_t& z) const override
 	{
 		if (!m_Active)
 			return false;
@@ -252,9 +251,9 @@ public:
 			return;
 
 		CColor color = cmpPlayer->GetDisplayedColor();
-		m_R = (u8) (color.r * 255);
-		m_G = (u8) (color.g * 255);
-		m_B = (u8) (color.b * 255);
+		m_R = static_cast<std::uint8_t>(color.r * 255);
+		m_G = static_cast<std::uint8_t>(color.g * 255);
+		m_B = static_cast<std::uint8_t>(color.b * 255);
 	}
 
 	bool HasIcon() override

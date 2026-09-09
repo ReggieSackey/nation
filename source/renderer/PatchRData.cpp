@@ -273,7 +273,7 @@ struct STileBlend
  */
 struct STileBlendStack
 {
-	u8 i, j;
+	std::uint8_t i, j;
 	std::vector<STileBlend> blends; // back of vector is lowest-priority texture
 };
 
@@ -284,8 +284,8 @@ struct SBlendLayer
 {
 	struct Tile
 	{
-		u8 i, j;
-		u8 shape;
+		std::uint8_t i, j;
+		std::uint8_t shape;
 	};
 
 	CTerrainTextureEntry* m_Texture;
@@ -383,7 +383,8 @@ void CPatchRData::BuildBlends()
 			{
 				if (!blendStacks[k].blends.empty() && blendStacks[k].blends.back().m_Texture == tex)
 				{
-					SBlendLayer::Tile t = { blendStacks[k].i, blendStacks[k].j, (u8)blendStacks[k].blends.back().m_TileMask };
+					SBlendLayer::Tile t = { blendStacks[k].i, blendStacks[k].j,
+						static_cast<std::uint8_t>(blendStacks[k].blends.back().m_TileMask) };
 					blendLayers.back().m_Tiles.push_back(t);
 					blendStacks[k].blends.pop_back();
 				}
@@ -465,7 +466,7 @@ void CPatchRData::BuildBlends()
 }
 
 void CPatchRData::AddBlend(std::vector<SBlendVertex>& blendVertices, std::vector<u16>& blendIndices,
-			   u16 i, u16 j, u8 shape, CTerrainTextureEntry* texture)
+			   u16 i, u16 j, std::uint8_t shape, CTerrainTextureEntry* texture)
 {
 	CTerrain* terrain = m_Patch->m_Parent;
 

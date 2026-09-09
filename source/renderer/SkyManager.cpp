@@ -32,7 +32,6 @@
 #include "lib/path.h"
 #include "lib/status.h"
 #include "lib/tex/tex.h"
-#include "lib/types.h"
 #include "maths/Matrix3D.h"
 #include "maths/Vector3D.h"
 #include "ps/CLogger.h"
@@ -111,7 +110,7 @@ void SkyManager::LoadAndUploadSkyTexturesIfNeeded(
 	{
 		VfsPath path = VfsPath("art/textures/skies") / m_SkySet / (Path::String(images[i]) + L".dds");
 
-		std::shared_ptr<u8> file;
+		std::shared_ptr<std::uint8_t> file;
 		size_t fileSize;
 		if (g_VFS->LoadFile(path, file, fileSize) != INFO::OK)
 		{
@@ -153,10 +152,10 @@ void SkyManager::LoadAndUploadSkyTexturesIfNeeded(
 				Renderer::Backend::Sampler::Filter::LINEAR,
 				Renderer::Backend::Sampler::AddressMode::CLAMP_TO_EDGE), 1, 1);
 
-	std::vector<u8> rotated;
+	std::vector<std::uint8_t> rotated;
 	for (size_t i = 0; i < NUMBER_OF_TEXTURES + 1; ++i)
 	{
-		u8* data = textures[i].get_data();
+		std::uint8_t* data = textures[i].get_data();
 
 		// We need to rotate the side if it's looking up or down.
 		// TODO: maybe it should be done during texture conversion.

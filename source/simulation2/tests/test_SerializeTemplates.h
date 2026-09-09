@@ -82,8 +82,8 @@ public:
 		Grid<u16> value;
 		value.resize(3,2);
 		// Checkerboard pattern.
-		for (u8 j = 0; j < value.height(); ++j)
-			for (u8 i = 0; i < value.width(); ++i)
+		for (std::uint8_t j = 0; j < value.height(); ++j)
+			for (std::uint8_t i = 0; i < value.width(); ++i)
 				value.set(i, j, ((i % 2) + (j % 2)) % 2);
 
 		Serializer(serialize, "E", value);

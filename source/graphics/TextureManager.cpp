@@ -184,7 +184,7 @@ public:
 
 		const SColor4ub color32 = m_Color.AsSColor4ub();
 		// Construct 1x1 32-bit texture
-		const u8 data[4] =
+		const std::uint8_t data[4] =
 		{
 			color32.R,
 			color32.G,
@@ -232,7 +232,7 @@ public:
 
 		const SColor4ub color32 = m_Color.AsSColor4ub();
 		// Construct 1x1 32-bit texture
-		const u8 data[4] =
+		const std::uint8_t data[4] =
 		{
 			color32.R,
 			color32.G,
@@ -293,7 +293,7 @@ public:
 		if (!GetTexture() || !GetTexture()->GetBackendTexture())
 			return;
 
-		std::array<std::array<u8, 4>, WIDTH> data;
+		std::array<std::array<std::uint8_t, 4>, WIDTH> data;
 		for (uint32_t x = 0; x < WIDTH; ++x)
 		{
 			const float t = static_cast<float>(x) / (WIDTH - 1);
@@ -472,7 +472,7 @@ public:
 		PROFILE2("load texture");
 		PROFILE2_ATTR("name: %ls", path.string().c_str());
 
-		std::shared_ptr<u8> fileData;
+		std::shared_ptr<std::uint8_t> fileData;
 		size_t fileSize;
 		const Status loadStatus = m_VFS->LoadFile(path, fileData, fileSize);
 		if (loadStatus != INFO::OK)

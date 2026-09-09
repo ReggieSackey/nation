@@ -33,7 +33,6 @@
 #include "lib/file/vfs/vfs_path.h"
 #include "lib/os_path.h"
 #include "lib/status.h"
-#include "lib/types.h"
 
 #include <cstddef>
 #include <limits>
@@ -149,7 +148,7 @@ struct IVFS
 	 * @param fileContents the pointer must be aligned to maxSectorSize
 	 * @return Status.
 	 **/
-	virtual Status CreateFile(const VfsPath& pathname, std::span<const u8> fileContents) = 0;
+	virtual Status CreateFile(const VfsPath& pathname, std::span<const std::uint8_t> fileContents) = 0;
 
 	/**
 	 * Read an entire file into memory.
@@ -159,7 +158,8 @@ struct IVFS
 	 * @param size receives the size [bytes] of the file contents.
 	 * @return Status.
 	 **/
-	virtual Status LoadFile(const VfsPath& pathname, std::shared_ptr<u8>& fileContents, size_t& size) = 0;
+	virtual Status LoadFile(const VfsPath& pathname, std::shared_ptr<std::uint8_t>& fileContents,
+		size_t& size) = 0;
 
 	/**
 	 * Read an entire file into memory.
@@ -169,7 +169,8 @@ struct IVFS
 	 * @param size receives the size [bytes] of the file contents.
 	 * @return Status.
 	 **/
-	virtual Status LoadFile(const VfsPath& pathname, std::unique_ptr<u8[], AlignedDeleter>& fileContents, size_t& size) = 0;
+	virtual Status LoadFile(const VfsPath& pathname,
+		std::unique_ptr<std::uint8_t[], AlignedDeleter>& fileContents, size_t& size) = 0;
 
 	/**
 	 * @return a string representation of all files and directories.

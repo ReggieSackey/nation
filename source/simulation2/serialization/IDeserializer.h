@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Wildfire Games.
+/* Copyright (C) 2026 Wildfire Games.
  * This file is part of 0 A.D.
  *
  * 0 A.D. is free software: you can redistribute it and/or modify
@@ -18,7 +18,6 @@
 #ifndef INCLUDED_IDESERIALIZER
 #define INCLUDED_IDESERIALIZER
 
-#include "lib/types.h"
 #include "maths/Fixed.h"
 #include "ps/Errors.h"
 
@@ -73,7 +72,7 @@ public:
 	/// Deserialize a JSString
 	virtual void ScriptString(const char* name, JS::MutableHandleString out) = 0;
 
-	virtual void RawBytes(const char* name, u8* data, size_t len);
+	virtual void RawBytes(const char* name, std::uint8_t* data, size_t len);
 
 	// Features for simulation-state serialisation:
 	virtual int GetVersion() const;
@@ -97,7 +96,8 @@ public:
 	virtual void RequireBytesInStream(size_t numBytes) = 0;
 
 protected:
-	virtual void Get(const char* name, u8* data, size_t len) = 0;
+	virtual void Get(const char* name, std::uint8_t* data, size_t len) = 0;
 };
 
 #endif // INCLUDED_IDESERIALIZER
+

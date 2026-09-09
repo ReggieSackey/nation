@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Wildfire Games.
+/* Copyright (C) 2026 Wildfire Games.
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -37,7 +37,7 @@
 class Codec_ZLib : public ICodec
 {
 public:
-	u32 UpdateChecksum([[maybe_unused]] u32 checksum, [[maybe_unused]] const u8* in,
+	u32 UpdateChecksum([[maybe_unused]] u32 checksum, [[maybe_unused]] const std::uint8_t* in,
 		[[maybe_unused]] size_t inSize) const
 	{
 #if CODEC_COMPUTE_CHECKSUM
@@ -84,7 +84,8 @@ public:
 		return INFO::OK;
 	}
 
-	virtual Status Process(const u8* in, size_t inSize, u8* out, size_t outSize, size_t& inConsumed, size_t& outProduced)
+	virtual Status Process(const std::uint8_t* in, size_t inSize, std::uint8_t* out, size_t outSize,
+		size_t& inConsumed, size_t& outProduced)
 	{
 		const size_t transferSize = std::min(inSize, outSize);
 		memcpy(out, in, transferSize);
@@ -142,7 +143,8 @@ protected:
 
 	typedef int ZEXPORT (*ZLibFunc)(z_streamp strm, int flush);
 
-	Status CallStreamFunc(ZLibFunc func, int flush, const u8* in, const size_t inSize, u8* out, const size_t outSize, size_t& inConsumed, size_t& outProduced)
+	Status CallStreamFunc(ZLibFunc func, int flush, const std::uint8_t* in, const size_t inSize,
+		std::uint8_t* out, const size_t outSize, size_t& inConsumed, size_t& outProduced)
 	{
 		m_zs.next_in  = (Byte*)in;
 		m_zs.avail_in = (uInt)inSize;
@@ -213,7 +215,8 @@ public:
 		return LibError_from_zlib(ret);
 	}
 
-	virtual Status Process(const u8* in, size_t inSize, u8* out, size_t outSize, size_t& inConsumed, size_t& outProduced)
+	virtual Status Process(const std::uint8_t* in, size_t inSize, std::uint8_t* out, size_t outSize,
+		size_t& inConsumed, size_t& outProduced)
 	{
 		m_checksum = UpdateChecksum(m_checksum, in, inSize);
 		return CodecZLibStream::CallStreamFunc(deflate, 0, in, inSize, out, outSize, inConsumed, outProduced);
@@ -272,7 +275,8 @@ public:
 		return LibError_from_zlib(ret);
 	}
 
-	virtual Status Process(const u8* in, size_t inSize, u8* out, size_t outSize, size_t& inConsumed, size_t& outProduced)
+	virtual Status Process(const std::uint8_t* in, size_t inSize, std::uint8_t* out, size_t outSize,
+		size_t& inConsumed, size_t& outProduced)
 	{
 		const Status ret = CodecZLibStream::CallStreamFunc(inflate, Z_SYNC_FLUSH, in, inSize, out, outSize, inConsumed, outProduced);
 		m_checksum = UpdateChecksum(m_checksum, out, outProduced);

@@ -79,10 +79,10 @@ public:
 
 	struct RegionID
 	{
-		u8 ci, cj; // chunk ID
+		std::uint8_t ci, cj; // chunk ID
 		u16 r; // unique-per-chunk local region ID
 
-		RegionID(u8 ci, u8 cj, u16 r) : ci(ci), cj(cj), r(r) { }
+		RegionID(std::uint8_t ci, std::uint8_t cj, u16 r) : ci(ci), cj(cj), r(r) { }
 
 		bool operator<(const RegionID& b) const
 		{
@@ -122,7 +122,7 @@ public:
 		const std::map<std::string, pass_class_t>& nonPathfindingPassClassMasks,
 		const std::map<std::string, pass_class_t>& pathfindingPassClassMasks);
 
-	void Update(Grid<NavcellData>* grid, const Grid<u8>& dirtinessGrid);
+	void Update(Grid<NavcellData>* grid, const Grid<std::uint8_t>& dirtinessGrid);
 
 	RegionID Get(u16 i, u16 j, pass_class_t passClass) const;
 
@@ -173,12 +173,12 @@ public:
 	void RenderSubmit(SceneCollector& collector);
 
 private:
-	static const u8 CHUNK_SIZE = 96; // number of navcells per side
+	static const std::uint8_t CHUNK_SIZE = 96; // number of navcells per side
 									 // TODO: figure out best number. Probably 64 < n < 128
 
 	struct Chunk
 	{
-		u8 m_ChunkI, m_ChunkJ; // chunk ID
+		std::uint8_t m_ChunkI, m_ChunkJ; // chunk ID
 		std::vector<u16> m_RegionsID; // IDs of local regions, 0 (impassable) excluded
 		u16 m_Regions[CHUNK_SIZE][CHUNK_SIZE]; // local region ID per navcell
 
@@ -202,7 +202,7 @@ private:
 #endif
 	};
 
-	const Chunk& GetChunk(u8 ci, u8 cj, pass_class_t passClass) const
+	const Chunk& GetChunk(std::uint8_t ci, std::uint8_t cj, pass_class_t passClass) const
 	{
 		return m_Chunks.at(passClass).at(cj * m_ChunksW + ci);
 	}
@@ -211,7 +211,7 @@ private:
 
 	void ComputeNeighbors(EdgesMap& edges, Chunk& a, Chunk& b, bool transpose, bool opposite) const;
 	void RecomputeAllEdges(pass_class_t passClass, EdgesMap& edges);
-	void UpdateEdges(u8 ci, u8 cj, pass_class_t passClass, EdgesMap& edges);
+	void UpdateEdges(std::uint8_t ci, std::uint8_t cj, pass_class_t passClass, EdgesMap& edges);
 
 	void UpdateGlobalRegions(const std::map<pass_class_t, std::vector<RegionID> >& needNewGlobalRegionMap);
 
@@ -289,7 +289,7 @@ private:
 	void FillRegionOnGrid(const RegionID& region, pass_class_t passClass, u16 value, Grid<u16>& grid) const;
 
 	u16 m_W, m_H;
-	u8 m_ChunksW, m_ChunksH;
+	std::uint8_t m_ChunksW, m_ChunksH;
 	std::map<pass_class_t, std::vector<Chunk> > m_Chunks;
 
 	std::map<pass_class_t, EdgesMap> m_Edges;

@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Wildfire Games.
+/* Copyright (C) 2026 Wildfire Games.
  * This file is part of 0 A.D.
  *
  * 0 A.D. is free software: you can redistribute it and/or modify
@@ -21,7 +21,6 @@
 #include "lib/code_annotation.h"
 #include "lib/file/vfs/vfs_path.h"
 #include "lib/status.h"
-#include "lib/types.h"
 #include "ps/CStr.h"
 
 #include <cstdint>
@@ -50,14 +49,14 @@ public:
 	// Unique identifier of an actor variation
 	struct ObjectKey
 	{
-		ObjectKey(const CStr& identifier, const std::vector<u8>& var)
+		ObjectKey(const CStr& identifier, const std::vector<std::uint8_t>& var)
 			: ObjectBaseIdentifier(identifier), ActorVariation(var) {}
 
 		bool operator< (const CObjectManager::ObjectKey& a) const;
 
 	private:
 		CStr ObjectBaseIdentifier;
-		std::vector<u8> ActorVariation;
+		std::vector<std::uint8_t> ActorVariation;
 	};
 
 	/**
@@ -134,7 +133,7 @@ public:
 	CSkeletonAnimManager& m_SkeletonAnimManager;
 	CSimulation2& m_Simulation;
 
-	u8 m_QualityLevel = 100;
+	std::uint8_t m_QualityLevel = 100;
 	std::unique_ptr<CConfigDBHook> m_QualityHook;
 
 	VariantDiversity m_VariantDiversity = VariantDiversity::FULL;

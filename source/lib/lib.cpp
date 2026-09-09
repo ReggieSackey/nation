@@ -74,8 +74,8 @@ u32 u32_from_u16(u16 hi, u16 lo)
 }
 
 
-// input in [0, 1); convert to u8 range
-u8 u8_from_double(double in)
+// input in [0, 1); convert to std::uint8_t range
+std::uint8_t u8_from_double(double in)
 {
 	if(!(0.0 <= in && in < 1.0))
 	{
@@ -85,7 +85,7 @@ u8 u8_from_double(double in)
 
 	int l = (int)(in * 255.0);
 	ENSURE((unsigned)l <= 255u);
-	return (u8)l;
+	return static_cast<std::uint8_t>(l);
 }
 
 // input in [0, 1); convert to u16 range

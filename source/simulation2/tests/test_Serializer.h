@@ -25,7 +25,6 @@
 #include "lib/file/vfs/vfs.h"
 #include "lib/path.h"
 #include "lib/timer.h"
-#include "lib/types.h"
 #include "maths/Fixed.h"
 #include "ps/CLogger.h"
 #include "ps/Filesystem.h"
@@ -89,7 +88,7 @@ public:
 		wchar_t testw[] = { 't', 0xEA, 's', 't', 0 };
 		serialize.String("string 4", testw, 0, 255);
 
-		serialize.RawBytes("raw bytes", (const u8*)"\0\1\2\3\x0f\x10", 6);
+		serialize.RawBytes("raw bytes", reinterpret_cast<const std::uint8_t*>("\0\1\2\3\x0f\x10"), 6);
 	}
 
 	void test_Debug_basic()
@@ -213,7 +212,7 @@ public:
 		bool bl;
 		std::string str;
 		std::wstring wstr;
-		u8 cbuf[256];
+		std::uint8_t cbuf[256];
 
 		deserialize.NumberI8_Unbounded("i8", i8v);
 		TS_ASSERT_EQUALS(i8v, -123);
@@ -252,7 +251,7 @@ public:
 
 		cbuf[6] = 0x42; // sentinel
 		deserialize.RawBytes("raw bytes", cbuf, 6);
-		TS_ASSERT_SAME_DATA(cbuf, (const u8*)"\0\1\2\3\x0f\x10\x42", 7);
+		TS_ASSERT_SAME_DATA(cbuf, reinterpret_cast<const std::uint8_t*>("\0\1\2\3\x0f\x10\x42"), 7);
 
 		// NOTE: Don't use good() here - it fails due to a bug in older libc++ versions
 		TS_ASSERT(!stream.bad() && !stream.fail());
@@ -933,7 +932,7 @@ public:
 			debug_printf("# size = %d\n", (int)str.str().length());
 			debug_printf("# hash = ");
 			for (const char byte : hash)
-				debug_printf("%02x", static_cast<unsigned int>(static_cast<u8>(byte)));
+				debug_printf("%02x", static_cast<unsigned int>(static_cast<std::uint8_t>(byte)));
 			debug_printf("\n");
 		}
 

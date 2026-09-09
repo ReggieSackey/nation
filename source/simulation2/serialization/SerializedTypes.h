@@ -150,14 +150,14 @@ struct SerializeHelper<std::unordered_map<K, V>>
 };
 
 template<>
-struct SerializeHelper<u8>
+struct SerializeHelper<std::uint8_t>
 {
-	void operator()(ISerializer& serialize, const char* name, u8 value)
+	void operator()(ISerializer& serialize, const char* name, std::uint8_t value)
 	{
 		serialize.NumberU8_Unbounded(name, value);
 	}
 
-	void operator()(IDeserializer& deserialize, const char* name, u8& value)
+	void operator()(IDeserializer& deserialize, const char* name, std::uint8_t& value)
 	{
 		deserialize.NumberU8_Unbounded(name, value);
 	}
@@ -169,13 +169,13 @@ struct SerializeHelper<Enum, std::enable_if_t<std::is_enum_v<Enum>>>
 {
 	void operator()(ISerializer& serialize, const char* name, Enum value, Enum&& max)
 	{
-		serialize.NumberU8(name, static_cast<u8>(value), 0, static_cast<u8>(max));
+		serialize.NumberU8(name, static_cast<std::uint8_t>(value), 0, static_cast<std::uint8_t>(max));
 	}
 
 	void operator()(IDeserializer& deserialize, const char* name, Enum& value, Enum&& max)
 	{
-		u8 val;
-		deserialize.NumberU8(name, val, 0, static_cast<u8>(max));
+		std::uint8_t val;
+		deserialize.NumberU8(name, val, 0, static_cast<std::uint8_t>(max));
 		value = static_cast<Enum>(val);
 	}
 };

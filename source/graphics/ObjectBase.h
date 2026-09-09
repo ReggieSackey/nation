@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Wildfire Games.
+/* Copyright (C) 2026 Wildfire Games.
  * This file is part of 0 A.D.
  *
  * 0 A.D. is free software: you can redistribute it and/or modify
@@ -21,7 +21,6 @@
 #include "lib/code_annotation.h"
 #include "lib/file/vfs/vfs_path.h"
 #include "lib/path.h"
-#include "lib/types.h"
 #include "ps/CStr.h"
 #include "ps/CStrIntern.h"
 
@@ -133,7 +132,7 @@ public:
 		std::multimap<CStr, Samp> samplers;
 	};
 
-	CObjectBase(CObjectManager& objectManager, CActorDef& actorDef, u8 QualityLevel);
+	CObjectBase(CObjectManager& objectManager, CActorDef& actorDef, std::uint8_t QualityLevel);
 
 	// Returns a set of selection such that, added to initialSelections, CalculateVariationKey can proceed.
 	std::set<CStr> CalculateRandomRemainingSelections(uint32_t seed, const std::vector<std::set<CStr>>& initialSelections) const;
@@ -141,10 +140,10 @@ public:
 	// Get the variation key (indices of chosen variants from each group)
 	// based on the selection strings.
 	// Should not have to make a random choice: the selections should be complete.
-	std::vector<u8> CalculateVariationKey(const std::vector<const std::set<CStr>*>& selections) const;
+	std::vector<std::uint8_t> CalculateVariationKey(const std::vector<const std::set<CStr>*>& selections) const;
 
 	// Get the final actor data, combining all selected variants
-	const Variation BuildVariation(const std::vector<u8>& variationKey) const;
+	const Variation BuildVariation(const std::vector<std::uint8_t>& variationKey) const;
 
 	// Get a list of variant groups for this object, plus for all possible
 	// props. Duplicated groups are removed, if several props share the same
@@ -174,7 +173,7 @@ public:
 	VfsPath m_Material;
 
 	// Quality level - part of the data resource path.
-	u8 m_QualityLevel;
+	std::uint8_t m_QualityLevel;
 
 private:
 	// Private interface for CActorDef/ObjectEntry
@@ -183,7 +182,7 @@ private:
 	 * Acts as an explicit copy constructor, for a new quality level.
 	 * Note that this does not reload the actor, so this setting will only change props.
 	 */
-	std::unique_ptr<CObjectBase> CopyWithQuality(u8 newQualityLevel) const;
+	std::unique_ptr<CObjectBase> CopyWithQuality(std::uint8_t newQualityLevel) const;
 
 	// A low-quality RNG like rand48 causes visible non-random patterns (particularly
 	// in large grids of the same actor with consecutive seeds, e.g. forests),
@@ -196,7 +195,7 @@ private:
 	 * Intended to be called by CActorFef.
 	 * @param splits - a sorted vector of unique quality splits.
 	 */
-	void GetQualitySplits(std::vector<u8>& splits) const;
+	void GetQualitySplits(std::vector<std::uint8_t>& splits) const;
 
 	[[nodiscard]] bool Load(const CXeromyces& XeroFile, const XMBElement& base);
 	[[nodiscard]] bool LoadVariant(const CXeromyces& XeroFile, const XMBElement& variant, Variant& currentVariant);
@@ -228,7 +227,7 @@ public:
 
 	CActorDef(CObjectManager& objectManager);
 
-	std::vector<u8> QualityLevels() const;
+	std::vector<std::uint8_t> QualityLevels() const;
 
 	VfsPath GetPathname() const { return m_Pathname; }
 
@@ -242,7 +241,7 @@ protected:
 	/**
 	 * Return the Object base matching the given quality level.
 	 */
-	const std::shared_ptr<CObjectBase>& GetBase(u8 QualityLevel) const;
+	const std::shared_ptr<CObjectBase>& GetBase(std::uint8_t QualityLevel) const;
 
 	/**
 	 * Initialise this object by loading from the given file.

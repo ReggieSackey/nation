@@ -25,7 +25,6 @@
 
 #include "lib/os_path.h"
 #include "lib/status.h"
-#include "lib/types.h"
 
 #include <cstddef>
 #include <memory>
@@ -39,7 +38,7 @@ struct IFileLoader
 	virtual wchar_t LocationCode() const = 0;
 	virtual const OsPath& Path() const = 0;
 
-	virtual Status Load(const OsPath& name, const std::span<u8> buffer) const = 0;
+	virtual Status Load(const OsPath& name, const std::span<std::uint8_t> buffer) const = 0;
 };
 
 typedef std::shared_ptr<IFileLoader> PIFileLoader;

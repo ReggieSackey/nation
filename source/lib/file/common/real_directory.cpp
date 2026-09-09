@@ -48,13 +48,13 @@ RealDirectory::RealDirectory(const OsPath& path, size_t priority, size_t flags)
 }
 
 
-/*virtual*/ Status RealDirectory::Load(const OsPath& name, const std::span<u8> buffer) const
+/*virtual*/ Status RealDirectory::Load(const OsPath& name, const std::span<std::uint8_t> buffer) const
 {
 	return io::Load(m_path / name, buffer.data(), buffer.size());
 }
 
 
-Status RealDirectory::Store(const OsPath& name, std::span<const u8> fileContents)
+Status RealDirectory::Store(const OsPath& name, std::span<const std::uint8_t> fileContents)
 {
 	return io::Store(m_path / name, fileContents.data(), fileContents.size());
 }

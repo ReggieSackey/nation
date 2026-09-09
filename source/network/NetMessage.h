@@ -66,7 +66,7 @@ public:
 	 * @return						The position in the buffer right after the
 	 *								serialized message
 	 */
-	virtual u8* Serialize(u8* pBuffer) const;
+	virtual std::uint8_t* Serialize(std::uint8_t* pBuffer) const;
 
 	/**
 	 * Deserializes the message from the specified buffer.
@@ -76,7 +76,7 @@ public:
 	 * @return						The position in the buffer right after the
 	 *								message or NULL if an error occurred
 	 */
-	virtual const u8* Deserialize(const u8* pStart, const u8* pEnd);
+	virtual const std::uint8_t* Deserialize(const std::uint8_t* pStart, const std::uint8_t* pEnd);
 
 	/**
 	 * Retrieves the size in bytes of the serialized message. Before calling
@@ -133,8 +133,8 @@ public:
 	 */
 	CSimulationMessage(const CSimulationMessage& orig);
 
-	virtual u8* Serialize(u8* pBuffer) const;
-	virtual const u8* Deserialize(const u8* pStart, const u8* pEnd);
+	virtual std::uint8_t* Serialize(std::uint8_t* pBuffer) const;
+	virtual const std::uint8_t* Deserialize(const std::uint8_t* pStart, const std::uint8_t* pEnd);
 	virtual size_t GetSerializedLength() const;
 	virtual CStr ToString() const;
 
@@ -155,8 +155,8 @@ class CGameSetupMessage : public CNetMessage
 public:
 	CGameSetupMessage(const Script::Interface& scriptInterface);
 	CGameSetupMessage(const Script::Interface& scriptInterface, JS::HandleValue data);
-	virtual u8* Serialize(u8* pBuffer) const;
-	virtual const u8* Deserialize(const u8* pStart, const u8* pEnd);
+	virtual std::uint8_t* Serialize(std::uint8_t* pBuffer) const;
+	virtual const std::uint8_t* Deserialize(const std::uint8_t* pStart, const std::uint8_t* pEnd);
 	virtual size_t GetSerializedLength() const;
 	virtual CStr ToString() const;
 

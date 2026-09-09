@@ -116,7 +116,7 @@ private:
 		CVector3D m_Position;
 		CVector3D m_Normal;
 		// pad to a power of two
-		u8 m_Padding[8];
+		std::uint8_t m_Padding[8];
 	};
 	cassert(sizeof(SBaseVertex) == 32);
 
@@ -125,7 +125,7 @@ private:
 		// vertex position
 		CVector3D m_Position;
 		// pad to a power of two
-		u8 m_Padding[4];
+		std::uint8_t m_Padding[4];
 	};
 	cassert(sizeof(SSideVertex) == 16);
 
@@ -146,7 +146,7 @@ private:
 		CVector3D m_Position;
 		CVector2D m_WaterData;
 		// pad to a power of two
-		u8 m_Padding[12];
+		std::uint8_t m_Padding[12];
 	};
 	cassert(sizeof(SWaterVertex) == 32);
 
@@ -154,7 +154,7 @@ private:
 	void Build();
 
 	void AddBlend(std::vector<SBlendVertex>& blendVertices, std::vector<u16>& blendIndices,
-			   u16 i, u16 j, u8 shape, CTerrainTextureEntry* texture);
+		u16 i, u16 j, std::uint8_t shape, CTerrainTextureEntry* texture);
 
 	void BuildBlends();
 	void BuildIndices();

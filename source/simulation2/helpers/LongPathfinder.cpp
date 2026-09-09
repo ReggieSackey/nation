@@ -44,7 +44,7 @@ void BuildTextureRGBA(LongPathfinder& pathfinder, std::uint8_t* data, std::size_
 	// Grab the debug data for the most recently generated path
 	u32 steps;
 	double time;
-	Grid<u8> debugGrid;
+	Grid<std::uint8_t> debugGrid;
 	pathfinder.GetDebugData(steps, time, debugGrid);
 
 	// Render navcell passability
@@ -55,7 +55,7 @@ void BuildTextureRGBA(LongPathfinder& pathfinder, std::uint8_t* data, std::size_
 			if (pathfinder.m_Debug.Goal.NavcellContainsGoal(i, j))
 				return SColor4ub(0, 0, 255, 127);
 
-			const u8 n{debugGrid.get(i, j)};
+			const std::uint8_t n{debugGrid.get(i, j)};
 			if (n == 1)
 				return SColor4ub(255, 255, 0, 127);
 			if (n == 2)
@@ -1060,7 +1060,7 @@ void LongPathfinder::ImprovePathWaypoints(WaypointPath& path, pass_class_t passC
 	path.m_Waypoints.swap(newWaypoints);
 }
 
-void LongPathfinder::GetDebugDataJPS(u32& steps, double& time, Grid<u8>& grid) const
+void LongPathfinder::GetDebugDataJPS(u32& steps, double& time, Grid<std::uint8_t>& grid) const
 {
 	steps = m_Debug.Steps;
 	time = m_Debug.Time;
@@ -1073,7 +1073,7 @@ void LongPathfinder::GetDebugDataJPS(u32& steps, double& time, Grid<u8>& grid) c
 	u16 iGoal, jGoal;
 	Pathfinding::NearestNavcell(m_Debug.Goal.x, m_Debug.Goal.z, iGoal, jGoal, m_GridSize, m_GridSize);
 
-	grid = Grid<u8>(m_Debug.Grid->m_W, m_Debug.Grid->m_H);
+	grid = Grid<std::uint8_t>(m_Debug.Grid->m_W, m_Debug.Grid->m_H);
 	for (u16 j = 0; j < grid.m_H; ++j)
 	{
 		for (u16 i = 0; i < grid.m_W; ++i)

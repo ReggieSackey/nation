@@ -198,7 +198,7 @@ CTerrainTextureManager::LoadAlphaMap(const VfsPath& alphaMapType)
 	{
 		// note: these individual textures can be discarded afterwards;
 		// we cache the composite.
-		std::shared_ptr<u8> fileData;
+		std::shared_ptr<std::uint8_t> fileData;
 		size_t fileSize;
 		if (g_VFS->LoadFile(path / fnames[i], fileData, fileSize) != INFO::OK ||
 			textures[i].decode(fileData, fileSize) != INFO::OK)
@@ -233,19 +233,19 @@ CTerrainTextureManager::LoadAlphaMap(const VfsPath& alphaMapType)
 	const size_t tileWidth = 2 + base + 2;	// 2 pixel border (avoids bilinear filtering artifacts)
 	const size_t totalWidth = std::bit_ceil(tileWidth * NUM_ALPHA_MAPS);
 	const size_t totalHeight = base; ENSURE(std::has_single_bit(totalHeight));
-	std::shared_ptr<u8> data;
+	std::shared_ptr<std::uint8_t> data;
 	AllocateAligned(data, totalWidth * totalHeight, maxSectorSize);
 	// for each tile on row
 	for (size_t i = 0; i < NUM_ALPHA_MAPS; ++i)
 	{
 		// get src of copy
-		u8* src = textures[i].get_data();
+		std::uint8_t* src = textures[i].get_data();
 		ENSURE(src);
 
 		const size_t srcStep = bpp / 8;
 
 		// get destination of copy
-		u8* dst = data.get() + (i * tileWidth);
+		std::uint8_t* dst = data.get() + (i * tileWidth);
 
 		// for each row of image
 		for (size_t j = 0; j < base; ++j)
@@ -292,7 +292,7 @@ CTerrainTextureManager::LoadAlphaMap(const VfsPath& alphaMapType)
 	// write to disk
 	//Status ret = INFO::OK;
 	{
-		std::shared_ptr<u8> file = DummySharedPtr(da.base);
+		std::shared_ptr<std::uint8_t> file = DummySharedPtr(da.base);
 		const ssize_t bytes_written = g_VFS->CreateFile(filename, file, da.pos);
 		if (bytes_written > 0)
 			ENSURE(bytes_written == (ssize_t)da.pos);

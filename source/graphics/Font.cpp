@@ -202,7 +202,7 @@ bool CFont::AddFontFromPath(const OsPath& fontPath)
 		return false;
 	}
 
-	std::unique_ptr<u8[], AlignedDeleter> fontData;
+	std::unique_ptr<std::uint8_t[], AlignedDeleter> fontData;
 	size_t fontDataSize;
 	if (g_VFS->LoadFile(fontPath, fontData, fontDataSize) != 0)
 	{
@@ -305,7 +305,7 @@ bool CFont::ConstructAtlasTexture(Renderer::Backend::IDevice* device)
 
 	// Initialise texture with transparency, for the areas we don't
 	// overwrite with uploading later.
-	m_TexData = std::make_unique<u8[]>(m_AtlasSize);
+	m_TexData = std::make_unique<std::uint8_t[]>(m_AtlasSize);
 	std::fill_n(m_TexData.get(), m_AtlasSize, 0x00);
 
 	m_IsTextureInitialized = false;
@@ -521,7 +521,8 @@ void CFont::UploadAtlasTextureToGPU(Renderer::Backend::IDeviceCommandContext* de
 	m_IsDirty = false;
 }
 
-void CFont::BlendGlyphBitmapToTexture(const FT_Bitmap& bitmap, int targetX, int targetY, u8 r, u8 g, u8 b)
+void CFont::BlendGlyphBitmapToTexture(const FT_Bitmap& bitmap, int targetX, int targetY, std::uint8_t r,
+	std::uint8_t g, std::uint8_t b)
 {
 	PROFILE2("BlendGlyphBitmapToTexture font texture generate");
 	if (m_TextureFormat == Renderer::Backend::Format::R8G8B8A8_UNORM)
@@ -530,17 +531,18 @@ void CFont::BlendGlyphBitmapToTexture(const FT_Bitmap& bitmap, int targetX, int 
 		BlendGlyphBitmapToTextureR8(bitmap, targetX, targetY);
 }
 
-void CFont::BlendGlyphBitmapToTextureRGBA(const FT_Bitmap& bitmap, int targetX, int targetY, u8 r, u8 g, u8 b)
+void CFont::BlendGlyphBitmapToTextureRGBA(const FT_Bitmap& bitmap, int targetX, int targetY,
+	std::uint8_t r, std::uint8_t g, std::uint8_t b)
 {
 	for (uint y{0}; y != bitmap.rows; ++y)
 	{
-		const u8* srcRow{bitmap.buffer + y * bitmap.pitch};
-		u8* dstRow{m_TexData.get() + ((targetY + y) * m_AtlasWidth + targetX) * m_TextureFormatStride};
+		const std::uint8_t* srcRow{bitmap.buffer + y * bitmap.pitch};
+		std::uint8_t* dstRow{m_TexData.get() + ((targetY + y) * m_AtlasWidth + targetX) * m_TextureFormatStride};
 
 		for (uint x{0}; x != bitmap.width; ++x)
 		{
-			u8* tempDstRow{dstRow + x * m_TextureFormatStride};
-			u8 alpha{srcRow[x]};
+			std::uint8_t* tempDstRow{dstRow + x * m_TextureFormatStride};
+			std::uint8_t alpha{srcRow[x]};
 
 			const float srcAlpha{m_StrokeWidth > 0 ? m_GammaCorrectionLUT.get()[alpha] : alpha / 255.0f};
 			const float dstAlpha{tempDstRow[3] / 255.0f};
@@ -549,10 +551,13 @@ void CFont::BlendGlyphBitmapToTextureRGBA(const FT_Bitmap& bitmap, int targetX, 
 			if (outAlpha == 0.0f)
 				continue;
 
-			tempDstRow[0] = static_cast<u8>(std::round(((r * srcAlpha + tempDstRow[0] * dstAlpha * (1.0f - srcAlpha)) / outAlpha)));
-			tempDstRow[1] = static_cast<u8>(std::round(((g * srcAlpha + tempDstRow[1] * dstAlpha * (1.0f - srcAlpha)) / outAlpha)));
-			tempDstRow[2] = static_cast<u8>(std::round(((b * srcAlpha + tempDstRow[2] * dstAlpha * (1.0f - srcAlpha)) / outAlpha)));
-			tempDstRow[3] = static_cast<u8>(std::round(outAlpha * 255.0f));
+			tempDstRow[0] = static_cast<std::uint8_t>(std::round(((r * srcAlpha + tempDstRow[0] *
+				dstAlpha * (1.0f - srcAlpha)) / outAlpha)));
+			tempDstRow[1] = static_cast<std::uint8_t>(std::round(((g * srcAlpha + tempDstRow[1] *
+				dstAlpha * (1.0f - srcAlpha)) / outAlpha)));
+			tempDstRow[2] = static_cast<std::uint8_t>(std::round(((b * srcAlpha + tempDstRow[2] *
+				dstAlpha * (1.0f - srcAlpha)) / outAlpha)));
+			tempDstRow[3] = static_cast<std::uint8_t>(std::round(outAlpha * 255.0f));
 		}
 	}
 }
@@ -561,8 +566,8 @@ void  CFont::BlendGlyphBitmapToTextureR8(const FT_Bitmap& bitmap, int targetX, i
 {
 	for (uint y{0}; y != bitmap.rows; ++y)
 	{
-		const u8* srcRow{bitmap.buffer + y * bitmap.pitch};
-		u8* dstRow{m_TexData.get() + ((targetY + y) * m_AtlasWidth + targetX)};
+		const std::uint8_t* srcRow{bitmap.buffer + y * bitmap.pitch};
+		std::uint8_t* dstRow{m_TexData.get() + ((targetY + y) * m_AtlasWidth + targetX)};
 
 		std::memcpy(dstRow, srcRow, bitmap.width);
 	}

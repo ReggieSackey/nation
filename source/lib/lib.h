@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Wildfire Games.
+/* Copyright (C) 2026 Wildfire Games.
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -131,12 +131,12 @@ extern u32 u32_from_u16(u16 hi, u16 lo);	/// assemble u32 from u16
 // - separate compilation of templates via export isn't supported by
 //   most compilers.
 
-template<typename T> u8 u8_from_larger(T x)
+template<typename T> std::uint8_t u8_from_larger(T x)
 {
-	const u8 max = std::numeric_limits<u8>::max();
+	const std::uint8_t max = std::numeric_limits<std::uint8_t>::max();
 	if((u64)x > (u64)max)
 		throw std::out_of_range("u8_from_larger");
-	return (u8)(x & max);
+	return static_cast<std::uint8_t>(x & max);
 }
 
 template<typename T> u16 u16_from_larger(T x)
@@ -155,8 +155,8 @@ template<typename T> u32 u32_from_larger(T x)
 	return (u32)(x & max);
 }
 
-/// convert double to u8; verifies number is in range.
-extern u8 u8_from_double(double in);
+/// convert double to std::uint8_t; verifies number is in range.
+extern std::uint8_t u8_from_double(double in);
 /// convert double to u16; verifies number is in range.
 extern u16 u16_from_double(double in);
 

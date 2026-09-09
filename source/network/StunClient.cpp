@@ -63,7 +63,7 @@ const u16 m_IETFReview = 0x1 << 14;
 /**
  * These constants are defined in Section 15.1 of RFC 5389.
  */
-const u8 m_IPAddressFamilyIPv4 = 0x01;
+const std::uint8_t m_IPAddressFamilyIPv4 = 0x01;
 
 /**
  * These constants are defined in Section 18.2 of RFC 5389.
@@ -74,7 +74,7 @@ const u16 m_AttrTypeXORMappedAddress = 0x0020;
 /**
  * Described in section 3 of RFC 5389.
  */
-u8 m_TransactionID[12];
+std::uint8_t m_TransactionID[12];
 
 ENetAddress m_StunServer;
 
@@ -87,7 +87,7 @@ ENetAddress m_PublicAddress;
  * Push integral type to a network-byte-order buffer.
  */
 template<std::integral T, size_t n = sizeof(T)>
-void AddToBuffer(std::vector<u8>& buffer, const T value)
+void AddToBuffer(std::vector<std::uint8_t>& buffer, const T value)
 {
 	buffer.reserve(buffer.size() + n);
 	// std::byte* can alias anything so this is legal.
@@ -95,9 +95,9 @@ void AddToBuffer(std::vector<u8>& buffer, const T value)
 	for (size_t a = 0; a < n; ++a)
 	{
 		if constexpr (std::endian::native == std::endian::little)
-			buffer.push_back(static_cast<u8>(*(ptr + n - 1 - a)));
+			buffer.push_back(static_cast<std::uint8_t>(*(ptr + n - 1 - a)));
 		else
-			buffer.push_back(static_cast<u8>(*(ptr + a)));
+			buffer.push_back(static_cast<std::uint8_t>(*(ptr + a)));
 	}
 }
 
@@ -105,7 +105,7 @@ void AddToBuffer(std::vector<u8>& buffer, const T value)
  * Read integral type from a network-byte-order buffer.
  */
 template<std::integral T, size_t n = sizeof(T)>
-bool GetFromBuffer(const std::vector<u8>& buffer, u32& offset, T& result)
+bool GetFromBuffer(const std::vector<std::uint8_t>& buffer, u32& offset, T& result)
 {
 	if (offset + n > buffer.size())
 		return false;
@@ -126,14 +126,14 @@ bool GetFromBuffer(const std::vector<u8>& buffer, u32& offset, T& result)
 
 void SendStunRequest(ENetHost& transactionHost, ENetAddress addr)
 {
-	std::vector<u8> buffer;
+	std::vector<std::uint8_t> buffer;
 	AddToBuffer<u16>(buffer, m_MethodTypeBinding);
 	AddToBuffer<u16>(buffer, 0); // length
 	AddToBuffer<u32>(buffer, m_MagicCookie);
 
 	for (std::size_t i = 0; i < sizeof(m_TransactionID); ++i)
 	{
-		u8 random_byte = rand() % 256;
+		std::uint8_t random_byte = rand() % 256;
 		buffer.push_back(random_byte);
 		m_TransactionID[i] = random_byte;
 	}
@@ -171,7 +171,7 @@ bool CreateStunRequest(ENetHost& transactionHost)
 /**
  * Gets the response from the STUN server and checks it for its validity.
  */
-bool ReceiveStunResponse(ENetHost& transactionHost, std::vector<u8>& buffer)
+bool ReceiveStunResponse(ENetHost& transactionHost, std::vector<std::uint8_t>& buffer)
 {
 	// TransportAddress sender;
 	const int LEN = 2048;
@@ -213,12 +213,12 @@ bool ReceiveStunResponse(ENetHost& transactionHost, std::vector<u8>& buffer)
 
 	// Convert to network string.
 	buffer.resize(len);
-	memcpy(buffer.data(), reinterpret_cast<u8*>(input_buffer), len);
+	memcpy(buffer.data(), reinterpret_cast<std::uint8_t*>(input_buffer), len);
 
 	return true;
 }
 
-bool ParseStunResponse(const std::vector<u8>& buffer)
+bool ParseStunResponse(const std::vector<std::uint8_t>& buffer)
 {
 	u32 offset = 0;
 
@@ -241,7 +241,7 @@ bool ParseStunResponse(const std::vector<u8>& buffer)
 
 	for (std::size_t i = 0; i < sizeof(m_TransactionID); ++i)
 	{
-		u8 transactionChar = 0;
+		std::uint8_t transactionChar = 0;
 		if (!GetFromBuffer(buffer, offset, transactionChar) || transactionChar != m_TransactionID[i])
 		{
 			LOGERROR("STUN response doesn't contain the transaction ID");
@@ -277,7 +277,7 @@ bool ParseStunResponse(const std::vector<u8>& buffer)
 			// Ignore the first byte as mentioned in Section 15.1 of RFC 5389.
 			++offset;
 
-			u8 ipFamily = 0;
+			std::uint8_t ipFamily = 0;
 			if (!GetFromBuffer(buffer, offset, ipFamily) || ipFamily != m_IPAddressFamilyIPv4)
 			{
 				LOGERROR("Unsupported address family, IPv4 is expected");
@@ -331,7 +331,7 @@ bool STUNRequestAndResponse(ENetHost& transactionHost)
 	if (!CreateStunRequest(transactionHost))
 		return false;
 
-	std::vector<u8> buffer;
+	std::vector<std::uint8_t> buffer;
 	return ReceiveStunResponse(transactionHost, buffer) &&
 	       ParseStunResponse(buffer);
 }

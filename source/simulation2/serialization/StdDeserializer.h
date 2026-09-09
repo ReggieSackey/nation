@@ -19,7 +19,6 @@
 #define INCLUDED_STDDESERIALIZER
 
 #include "lib/code_annotation.h"
-#include "lib/types.h"
 #include "simulation2/system/Component.h"
 
 #include <cstddef>
@@ -54,7 +53,7 @@ public:
 	void TraceMember(JSTracer *trc);
 
 protected:
-	virtual void Get(const char* name, u8* data, size_t len);
+	virtual void Get(const char* name, std::uint8_t* data, size_t len);
 
 private:
 	JS::Value ReadScriptVal(const char* name, JS::HandleObject preexistingObject);

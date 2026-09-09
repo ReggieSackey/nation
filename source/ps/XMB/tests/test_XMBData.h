@@ -17,7 +17,6 @@
 
 #include "lib/self_test.h"
 
-#include "lib/types.h"
 #include "ps/CStr.h"
 #include "ps/XMB/XMBData.h"
 #include "ps/XMB/XMBStorage.h"
@@ -36,7 +35,7 @@
 class TestXMBData : public CxxTest::TestSuite
 {
 private:
-	std::shared_ptr<u8> m_Buffer;
+	std::shared_ptr<std::uint8_t> m_Buffer;
 
 	std::unique_ptr<Script::Interface> m_ScriptInterface;
 

@@ -134,7 +134,7 @@ public:
 		return INFO::OK;
 	}
 
-	Status CreateFile(const VfsPath& pathname, std::span<const u8> fileContents) final
+	Status CreateFile(const VfsPath& pathname, std::span<const std::uint8_t> fileContents) final
 	{
 		std::lock_guard<std::mutex> lock(vfs_mutex);
 		VfsDirectory* directory;
@@ -158,7 +158,8 @@ public:
 		return INFO::OK;
 	}
 
-	Status LoadFile(const VfsPath& pathname, std::shared_ptr<u8>& fileContents, size_t& size) final
+	Status LoadFile(const VfsPath& pathname, std::shared_ptr<std::uint8_t>& fileContents,
+		size_t& size) final
 	{
 		std::lock_guard<std::mutex> lock(vfs_mutex);
 
@@ -168,7 +169,7 @@ public:
 		// instead, callers should log the error, including pathname.
 		RETURN_STATUS_IF_ERR(vfs_Lookup(pathname, &m_rootDirectory, directory, &file));
 
-		fileContents = DummySharedPtr((u8*)0);
+		fileContents = DummySharedPtr(static_cast<std::uint8_t*>(0));
 		size = file->Size();
 
 		RETURN_STATUS_IF_ERR(AllocateAligned(fileContents, size, maxSectorSize));
@@ -180,7 +181,8 @@ public:
 		return INFO::OK;
 	}
 
-	Status LoadFile(const VfsPath& pathname, std::unique_ptr<u8[], AlignedDeleter>& fileContents, size_t& size) final
+	Status LoadFile(const VfsPath& pathname,
+		std::unique_ptr<std::uint8_t[], AlignedDeleter>& fileContents, size_t& size) final
 	{
 		std::lock_guard<std::mutex> lock(vfs_mutex);
 
@@ -191,7 +193,7 @@ public:
 		RETURN_STATUS_IF_ERR(vfs_Lookup(pathname, &m_rootDirectory, directory, &file));
 
 		size = file->Size();
-		fileContents.reset(reinterpret_cast<u8*>(rtl_AllocateAligned(size, maxSectorSize)));
+		fileContents.reset(reinterpret_cast<std::uint8_t*>(rtl_AllocateAligned(size, maxSectorSize)));
 		if (!fileContents)
 			WARN_RETURN(ERR::NO_MEM);
 

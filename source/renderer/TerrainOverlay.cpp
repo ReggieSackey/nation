@@ -375,7 +375,7 @@ void TerrainTextureOverlay::RenderAfterWater(
 				Renderer::Backend::Sampler::AddressMode::CLAMP_TO_EDGE));
 	}
 
-	u8* data = (u8*)calloc(w * h, 4);
+	std::uint8_t* data = static_cast<std::uint8_t*>(calloc(w * h, 4));
 	m_BuildTextureRGBA(data, w, h);
 
 	deviceCommandContext->UploadTextureRegion(
@@ -392,7 +392,7 @@ void TerrainTextureOverlay::RenderAfterWater(
 
 SColor4ub TerrainTextureOverlay::GetColor(std::size_t idx, std::uint8_t alpha)
 {
-	static u8 colors[][3] =
+	static std::uint8_t colors[][3] =
 	{
 		{ 255, 0, 0 },
 		{ 0, 255, 0 },

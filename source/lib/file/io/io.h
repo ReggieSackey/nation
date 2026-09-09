@@ -41,7 +41,6 @@
 #include "lib/sysdep/filesystem.h"
 #include "lib/sysdep/os.h"
 #include "lib/sysdep/rtl.h"
-#include "lib/types.h"
 
 #include <algorithm>
 #include <bit>
@@ -64,7 +63,7 @@ struct FreeAligned
 	void operator()(void* pointer) { rtl_FreeAligned(pointer); }
 };
 
-using BufferPtr = std::unique_ptr<u8, FreeAligned>;
+using BufferPtr = std::unique_ptr<std::uint8_t, FreeAligned>;
 
 // @return memory suitable for use as an I/O buffer (address is a
 // multiple of alignment, size is rounded up to a multiple of alignment)
@@ -77,7 +76,8 @@ static inline io::BufferPtr Allocate(size_t size, size_t alignment = maxSectorSi
 	ENSURE(std::has_single_bit(alignment));
 	alignment = std::max(alignment, allocationAlignment);
 
-	u8* p = static_cast<u8*>(rtl_AllocateAligned(round_up(size, alignment), alignment));
+	std::uint8_t* p = static_cast<std::uint8_t*>(rtl_AllocateAligned(round_up(size, alignment),
+		alignment));
 
 	return {p, FreeAligned{}};
 }
@@ -180,7 +180,7 @@ struct DefaultCompletedHook
 	 * allows progress notification and processing data while waiting for
 	 * previous I/Os to complete.
 	 **/
-	Status operator()(const u8* /*block*/, size_t /*blockSize*/) const
+	Status operator()(const std::uint8_t* /*block*/, size_t /*blockSize*/) const
 	{
 		return INFO::OK;
 	}
@@ -287,7 +287,8 @@ static inline Status Run(const Operation& op, const Parameters& p = Parameters()
 		aiocb& cb = controlBlockRingBuffer[blocksCompleted];
 		RETURN_STATUS_IF_ERR(WaitUntilComplete(cb, p.queueDepth));
 
-		RETURN_STATUS_FROM_CALLBACK(completedHook((u8*)cb.aio_buf, cb.aio_nbytes));
+		RETURN_STATUS_FROM_CALLBACK(completedHook(const_cast<const std::uint8_t*>(
+			reinterpret_cast<volatile std::uint8_t*>(cb.aio_buf)), cb.aio_nbytes));
 	}
 
 #if ENABLE_IO_STATS

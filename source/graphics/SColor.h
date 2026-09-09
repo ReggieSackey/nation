@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Wildfire Games.
+/* Copyright (C) 2026 Wildfire Games.
  * This file is part of 0 A.D.
  *
  * 0 A.D. is free software: you can redistribute it and/or modify
@@ -18,26 +18,25 @@
 #ifndef INCLUDED_SCOLOR
 #define INCLUDED_SCOLOR
 
-#include "lib/types.h"
-
 // SColor3ub: structure for packed RGB colors
 struct SColor3ub
 {
-	u8 R;
-	u8 G;
-	u8 B;
+	std::uint8_t R;
+	std::uint8_t G;
+	std::uint8_t B;
 };
 
 // SColor4ub: structure for packed RGBA colors
 struct SColor4ub
 {
-	u8 R;
-	u8 G;
-	u8 B;
-	u8 A;
+	std::uint8_t R;
+	std::uint8_t G;
+	std::uint8_t B;
+	std::uint8_t A;
 
 	SColor4ub() { }
-	SColor4ub(u8 _r, u8 _g, u8 _b, u8 _a) : R(_r), G(_g), B(_b), A(_a) { }
+	SColor4ub(std::uint8_t _r, std::uint8_t _g, std::uint8_t _b, std::uint8_t _a) :
+		R(_r), G(_g), B(_b), A(_a) { }
 };
 
 #endif

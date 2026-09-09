@@ -235,10 +235,11 @@ template<> void Script::ToJSVal<std::optional<CFixedVector2D>>(const Script::Req
         ToJSVal(rq, ret, val.value());
 }
 
-template<> void Script::ToJSVal<Grid<u8> >(const Script::Request& rq,  JS::MutableHandleValue ret, const Grid<u8>& val)
+template<> void Script::ToJSVal<Grid<std::uint8_t>>(const Script::Request& rq, JS::MutableHandleValue ret,
+	const Grid<std::uint8_t>& val)
 {
 	u32 length = (u32)(val.m_W * val.m_H);
-	u32 nbytes = (u32)(length * sizeof(u8));
+	u32 nbytes = (u32)(length * sizeof(std::uint8_t));
 	JS::RootedObject objArr(rq.cx, JS_NewUint8Array(rq.cx, length));
 	// Copy the array data and then remove the no-GC check to allow further changes to the JS data
 	{

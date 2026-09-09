@@ -75,7 +75,7 @@ Status TexCodecBmp::transform(Tex*, size_t /*transforms*/) const
 }
 
 
-bool TexCodecBmp::is_hdr(const u8* file) const
+bool TexCodecBmp::is_hdr(const std::uint8_t* file) const
 {
 	// check header signature (bfType == "BM"?).
 	// we compare single bytes to be endian-safe.
@@ -89,7 +89,7 @@ bool TexCodecBmp::is_ext(const OsPath& extension) const
 }
 
 
-size_t TexCodecBmp::hdr_size(const u8* file) const
+size_t TexCodecBmp::hdr_size(const std::uint8_t* file) const
 {
 	const size_t hdr_size = sizeof(BmpHeader);
 	if(file)
@@ -104,7 +104,7 @@ size_t TexCodecBmp::hdr_size(const u8* file) const
 
 
 // requirements: uncompressed, direct color, bottom up
-Status TexCodecBmp::decode(u8* RESTRICT data, size_t /*size*/, Tex* RESTRICT t) const
+Status TexCodecBmp::decode(std::uint8_t* RESTRICT data, size_t /*size*/, Tex* RESTRICT t) const
 {
 	const BmpHeader* hdr = (const BmpHeader*)data;
 	const long w       = (long)read_le32(&hdr->biWidth);

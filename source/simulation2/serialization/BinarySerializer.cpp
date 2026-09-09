@@ -49,7 +49,7 @@
 
 class JSObject;
 
-static u8 GetArrayType(js::Scalar::Type arrayType)
+static std::uint8_t GetArrayType(js::Scalar::Type arrayType)
 {
 	switch(arrayType)
 	{
@@ -169,7 +169,8 @@ void CBinarySerializerScriptImpl::HandleScriptVal(const Script::Request& rq, JS:
 			m_Serializer.NumberU32_Unbounded("buffer length", length);
 			JS::AutoCheckCannotGC nogc;
 			bool sharedMemory;
-			m_Serializer.RawBytes("buffer data", (const u8*)JS::GetArrayBufferData(obj, &sharedMemory, nogc), length);
+			m_Serializer.RawBytes("buffer data", static_cast<const std::uint8_t*>(
+				JS::GetArrayBufferData(obj, &sharedMemory, nogc)), length);
 			break;
 		}
 
@@ -459,7 +460,7 @@ void CBinarySerializerScriptImpl::ScriptString(const Script::Request& rq, const 
 	size_t length;
 	JS::AutoCheckCannotGC nogc;
 	// Serialize strings directly as UTF-16 or Latin1, to avoid expensive encoding conversions
-	u8 isLatin1 = JS::StringHasLatin1Chars(string);
+	std::uint8_t isLatin1 = JS::StringHasLatin1Chars(string);
 	m_Serializer.NumberU8_Unbounded("isLatin1", isLatin1);
 	if (isLatin1)
 	{
@@ -467,7 +468,7 @@ void CBinarySerializerScriptImpl::ScriptString(const Script::Request& rq, const 
 		if (!chars)
 			throw PSERROR_Serialize_ScriptError("JS_GetLatin1StringCharsAndLength failed");
 		m_Serializer.NumberU32_Unbounded("string length", (u32)length);
-		m_Serializer.RawBytes(name, (const u8*)chars, length);
+		m_Serializer.RawBytes(name, static_cast<const std::uint8_t*>(chars), length);
 	}
 	else
 	{
@@ -476,7 +477,7 @@ void CBinarySerializerScriptImpl::ScriptString(const Script::Request& rq, const 
 		if (!chars)
 			throw PSERROR_Serialize_ScriptError("JS_GetTwoByteStringCharsAndLength failed");
 		m_Serializer.NumberU32_Unbounded("string length", (u32)length);
-		m_Serializer.RawBytes(name, (const u8*)chars, length*2);
+		m_Serializer.RawBytes(name, reinterpret_cast<const std::uint8_t*>(chars), length*2);
 	}
 }
 

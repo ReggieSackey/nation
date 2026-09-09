@@ -270,7 +270,7 @@ void CCmpPathfinder::SetHierDebugOverlay(bool enabled)
 	m_PathfinderHier->SetDebugOverlay(enabled, &GetSimContext());
 }
 
-void CCmpPathfinder::GetDebugData(u32& steps, double& time, Grid<u8>& grid) const
+void CCmpPathfinder::GetDebugData(u32& steps, double& time, Grid<std::uint8_t>& grid) const
 {
 	m_LongPathfinder->GetDebugData(steps, time, grid);
 }
@@ -357,7 +357,7 @@ static void ExpandImpassableCells(Grid<NavcellData>& grid, u16 clearance, pass_c
 	u16 h = grid.m_H;
 
 	// First expand impassable cells horizontally into a temporary 1-bit grid
-	Grid<u8> tempGrid(w, h);
+	Grid<std::uint8_t> tempGrid(w, h);
 	for (u16 j = 0; j < h; ++j)
 	{
 		// New cell (i,j) is blocked if (i',j) blocked for any i-clearance <= i' <= i+clearance
@@ -425,7 +425,7 @@ Grid<u16> CCmpPathfinder::ComputeShoreGrid(bool expandOnWater)
 	u16 shoreGridSize = terrain.GetTilesPerSide();
 
 	// First pass - find underwater tiles
-	Grid<u8> waterGrid(shoreGridSize, shoreGridSize);
+	Grid<std::uint8_t> waterGrid(shoreGridSize, shoreGridSize);
 	for (u16 j = 0; j < shoreGridSize; ++j)
 	{
 		for (u16 i = 0; i < shoreGridSize; ++i)
@@ -554,7 +554,7 @@ void CCmpPathfinder::UpdateGrid()
 		SAFE_DELETE(m_TerrainOnlyGrid);
 		m_TerrainOnlyGrid = new Grid<NavcellData>(m_GridSize, m_GridSize);
 
-		m_DirtinessInformation = { true, true, Grid<u8>(m_GridSize, m_GridSize) };
+		m_DirtinessInformation = { true, true, Grid<std::uint8_t>(m_GridSize, m_GridSize) };
 		m_AIPathfinderDirtinessInformation = m_DirtinessInformation;
 
 		m_TerrainDirty = true;
@@ -564,7 +564,7 @@ void CCmpPathfinder::UpdateGrid()
 #ifdef NDEBUG
 	ENSURE(m_DirtinessInformation.dirtinessGrid.compare_sizes(m_Grid));
 #else
-	ENSURE(m_DirtinessInformation.dirtinessGrid == Grid<u8>(m_GridSize, m_GridSize));
+	ENSURE(m_DirtinessInformation.dirtinessGrid == Grid<std::uint8_t>(m_GridSize, m_GridSize));
 #endif
 
 	CmpPtr<ICmpObstructionManager> cmpObstructionManager(GetSimContext(), SYSTEM_ENTITY);
@@ -655,7 +655,7 @@ void CCmpPathfinder::TerrainUpdateHelper(bool expandPassability, int itile0, int
 			SAFE_DELETE(m_Grid);
 			m_Grid = new Grid<NavcellData>(m_GridSize, m_GridSize);
 
-			m_DirtinessInformation = { true, true, Grid<u8>(m_GridSize, m_GridSize) };
+			m_DirtinessInformation = { true, true, Grid<std::uint8_t>(m_GridSize, m_GridSize) };
 			m_AIPathfinderDirtinessInformation = m_DirtinessInformation;
 		}
 	}

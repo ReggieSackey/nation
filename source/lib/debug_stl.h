@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Wildfire Games.
+/* Copyright (C) 2026 Wildfire Games.
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -28,7 +28,6 @@
 #define INCLUDED_DEBUG_STL
 
 #include "lib/status.h"
-#include "lib/types.h"
 
 #include <cstddef>
 
@@ -59,7 +58,7 @@ extern wchar_t* debug_stl_simplify_name(wchar_t* name);
 /**
  * abstraction of all STL iterators used by debug_stl.
  **/
-typedef const u8* (*DebugStlIterator)(void* internal, size_t el_size);
+typedef const std::uint8_t* (*DebugStlIterator)(void* internal, size_t el_size);
 
 /**
  * no STL iterator is larger than this; see below.
@@ -84,7 +83,7 @@ const size_t DEBUG_STL_MAX_ITERATOR_SIZE = 64;
  * at least DEBUG_STL_MAX_ITERATOR_SIZE bytes.
  * @return Status (ERR::STL_*)
  **/
-extern Status debug_stl_get_container_info(const wchar_t* type_name, const u8* p, size_t size,
+extern Status debug_stl_get_container_info(const wchar_t* type_name, const std::uint8_t* p, size_t size,
 	size_t el_size, size_t* el_count, DebugStlIterator* el_iterator, void* it_mem);
 
 #endif	// #ifndef INCLUDED_DEBUG_STL

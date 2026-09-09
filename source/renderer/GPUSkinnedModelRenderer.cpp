@@ -196,8 +196,8 @@ ModelDefRData::ModelDefRData(const CModelDefPtr& modelDef)
 	VertexArrayIterator<CVector3D> normalIt{m_Normal.GetIterator<CVector3D>()};
 	VertexArrayIterator<CVector4D> tangentIt{m_Tangent.GetIterator<CVector4D>()};
 
-	VertexArrayIterator<u8[4]> blendJointsIt{m_BlendJoints.GetIterator<u8[4]>()};
-	VertexArrayIterator<u8[4]> blendWeightsIt{m_BlendWeights.GetIterator<u8[4]>()};
+	VertexArrayIterator<std::uint8_t[4]> blendJointsIt{m_BlendJoints.GetIterator<std::uint8_t[4]>()};
+	VertexArrayIterator<std::uint8_t[4]> blendWeightsIt{m_BlendWeights.GetIterator<std::uint8_t[4]>()};
 
 	// Copy everything into the vertex array.
 	for (int index{0}; index < finalNumberOfVertices; ++index)
@@ -225,8 +225,10 @@ ModelDefRData::ModelDefRData(const CModelDefPtr& modelDef)
 
 		for (uint32_t j{0}; j < 4; ++j)
 		{
-			blendJointsIt[index][j] = static_cast<u8>(vertexDataOut[inputDataOffset + 0 + 2 * j]);
-			blendWeightsIt[index][j] = static_cast<u8>(vertexDataOut[inputDataOffset + 1 + 2 * j]);
+			blendJointsIt[index][j] = static_cast<std::uint8_t>(
+				vertexDataOut[inputDataOffset + 0 + 2 * j]);
+			blendWeightsIt[index][j] = static_cast<std::uint8_t>(
+				vertexDataOut[inputDataOffset + 1 + 2 * j]);
 		}
 		inputDataOffset += 8;
 

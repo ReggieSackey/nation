@@ -35,14 +35,14 @@ public:
 		// generate random input data
 		// (limit values to 0..7 so that the data will actually be compressible)
 		std::mt19937 engine(42);
-		std::uniform_int_distribution<u8> distribution(0x00, 0x07);
+		std::uniform_int_distribution<std::uint8_t> distribution(0x00, 0x07);
 		const size_t data_size = 10000;
-		u8 data[data_size];
+		std::uint8_t data[data_size];
 		for(size_t i = 0; i < data_size; i++)
 			data[i] = distribution(engine);
 
-		u8* cdata; size_t csize;
-		u8 udata[data_size];
+		std::uint8_t* cdata; size_t csize;
+		std::uint8_t udata[data_size];
 
 		// compress
 		uintptr_t c = comp_alloc(CT_COMPRESSION, CM_DEFLATE);
@@ -64,7 +64,7 @@ public:
 		comp_set_output(d, udata, data_size);
 		const ssize_t udata_produced = comp_feed(d, cdata, csize);
 		TS_ASSERT(udata_produced >= 0);
-		u8* udata_final; size_t usize_final; u32 checksum;
+		std::uint8_t* udata_final; size_t usize_final; u32 checksum;
 		TS_ASSERT_OK(comp_finish(d, &udata_final, &usize_final, &checksum));
 		TS_ASSERT(udata_produced <= (ssize_t)usize_final);	// can't have produced more than total
 		TS_ASSERT_EQUALS(udata_final, udata);	// output buffer address is same

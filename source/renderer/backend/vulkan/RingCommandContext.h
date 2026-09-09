@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Wildfire Games.
+/* Copyright (C) 2026 Wildfire Games.
  * This file is part of 0 A.D.
  *
  * 0 A.D. is free software: you can redistribute it and/or modify
@@ -18,7 +18,6 @@
 #ifndef INCLUDED_RENDERER_BACKEND_VULKAN_RINGCOMMANDCONTEXT
 #define INCLUDED_RENDERER_BACKEND_VULKAN_RINGCOMMANDCONTEXT
 
-#include "lib/types.h"
 #include "renderer/backend/vulkan/SubmitScheduler.h"
 
 #include <cstddef>
@@ -95,7 +94,7 @@ public:
 	void ScheduleUpload(
 		CBuffer* buffer, const void* data, const uint32_t dataOffset,
 		const uint32_t dataSize);
-	using UploadBufferFunction = std::function<void(u8*)>;
+	using UploadBufferFunction = std::function<void(std::uint8_t*)>;
 	void ScheduleUpload(
 		CBuffer* buffer,
 		const uint32_t dataOffset, const uint32_t dataSize,

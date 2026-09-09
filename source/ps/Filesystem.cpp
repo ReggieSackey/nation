@@ -139,7 +139,7 @@ PSRETURN CVFSFile::Load(const PIVFS& vfs, const VfsPath& filename, bool log /* =
 	return PSRETURN_OK;
 }
 
-const u8* CVFSFile::GetBuffer() const
+const std::uint8_t* CVFSFile::GetBuffer() const
 {
 	return m_Buffer.get();
 }
@@ -156,7 +156,7 @@ CStr CVFSFile::GetAsString() const
 
 CStr CVFSFile::DecodeUTF8() const
 {
-	const u8* buffer = GetBuffer();
+	const std::uint8_t* buffer = GetBuffer();
 
 	// Detect if there's a UTF-8 BOM and strip it
 	if (GetBufferSize() >= 3 && buffer[0] == 0xEF && buffer[1] == 0xBB && buffer[2] == 0xBF)

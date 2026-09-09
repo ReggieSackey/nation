@@ -101,7 +101,7 @@ void ISerializer::ScriptVal(const char* name, JS::MutableHandleValue value)
 	PutScriptVal(name, value);
 }
 
-void ISerializer::RawBytes(const char* name, const u8* data, size_t len)
+void ISerializer::RawBytes(const char* name, const std::uint8_t* data, size_t len)
 {
 	PutRaw(name, data, len);
 }

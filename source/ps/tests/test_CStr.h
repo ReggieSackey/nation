@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Wildfire Games.
+/* Copyright (C) 2026 Wildfire Games.
  * This file is part of 0 A.D.
  *
  * 0 A.D. is free software: you can redistribute it and/or modify
@@ -18,7 +18,6 @@
 #include "lib/self_test.h"
 
 #include "lib/code_annotation.h"
-#include "lib/types.h"
 #include "ps/CStr.h"
 
 #include <clocale>
@@ -84,7 +83,7 @@ public:
 	void roundtrip(const T& str)
 	{
 		size_t len = str.GetSerializedLength();
-		u8* buf = new u8[len+1];
+		std::uint8_t* buf = new std::uint8_t[len+1];
 		buf[len] = '!';
 		TS_ASSERT_EQUALS(str.Serialize(buf) - (buf+len), 0);
 		TS_ASSERT_EQUALS(buf[len], '!');

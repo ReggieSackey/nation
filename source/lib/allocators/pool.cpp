@@ -30,7 +30,6 @@
 
 #include "lib/alignment.h"
 #include "lib/allocators/freelist.h"
-#include "lib/types.h"
 
 #include <algorithm>
 
@@ -110,7 +109,7 @@ bool pool_contains(const Pool* p, void* el)
 		return false;
 	// sanity check: it should be aligned (if pool has fixed-size elements)
 	if(p->el_size)
-		ENSURE((uintptr_t)((u8*)el - p->da.base) % p->el_size == 0);
+		ENSURE(static_cast<uintptr_t>(static_cast<std::uint8_t*>(el) - p->da.base) % p->el_size == 0);
 	return true;
 }
 

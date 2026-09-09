@@ -38,8 +38,10 @@
 static const size_t BLOCK_SIZE = 512*KiB;
 
 
-WriteBuffer::WriteBuffer()
-	: m_capacity(g_PageSize), m_data((u8*)rtl_AllocateAligned(m_capacity, maxSectorSize), AlignedDeleter()), m_size(0)
+WriteBuffer::WriteBuffer() :
+	m_capacity{g_PageSize},
+	m_data{static_cast<std::uint8_t*>(rtl_AllocateAligned(m_capacity, maxSectorSize)), AlignedDeleter()},
+	m_size{0}
 {
 }
 
@@ -49,7 +51,7 @@ void WriteBuffer::EnsureSufficientCapacity(size_t size)
 	if(m_size + size > m_capacity)
 	{
 		m_capacity = std::bit_ceil(m_size + size);
-		std::shared_ptr<u8> newData;
+		std::shared_ptr<std::uint8_t> newData;
 		AllocateAligned(newData, m_capacity, maxSectorSize);
 		memcpy(newData.get(), m_data.get(), m_size);
 		m_data = newData;
@@ -84,8 +86,10 @@ void WriteBuffer::Overwrite(const void* data, size_t size, size_t offset)
 // UnalignedWriter
 //-----------------------------------------------------------------------------
 
-UnalignedWriter::UnalignedWriter(const PFile& file, off_t ofs)
-	: m_file(file), m_alignedBuf((u8*)rtl_AllocateAligned(BLOCK_SIZE, maxSectorSize), AlignedDeleter())
+UnalignedWriter::UnalignedWriter(const PFile& file, off_t ofs) :
+	m_file{file},
+	m_alignedBuf{static_cast<std::uint8_t*>(rtl_AllocateAligned(BLOCK_SIZE, maxSectorSize)),
+		AlignedDeleter()}
 {
 	m_alignedOfs = round_down(ofs, (off_t)BLOCK_SIZE);
 	const size_t misalignment = (size_t)(ofs - m_alignedOfs);
@@ -104,7 +108,7 @@ UnalignedWriter::~UnalignedWriter()
 }
 
 
-Status UnalignedWriter::Append(const u8* data, size_t size) const
+Status UnalignedWriter::Append(const std::uint8_t* data, size_t size) const
 {
 	while(size != 0)
 	{

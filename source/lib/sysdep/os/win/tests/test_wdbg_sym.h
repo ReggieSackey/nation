@@ -112,7 +112,7 @@ class TestWdbgSym : public CxxTest::TestSuite
 		// this test now always runs. therefore, just make sure a decent
 		// amount of text (not just "(failed)" error messages) was produced.
 
-		CACHE_ALIGNED(u8) context[DEBUG_CONTEXT_SIZE];
+		CACHE_ALIGNED(std::uint8_t) context[DEBUG_CONTEXT_SIZE];
 		TS_ASSERT_EQUALS(debug_CaptureContext(context), INFO::OK);
 		const wchar_t* text = debug_BuildErrorMessage(L"dummy", 0, 0, 0, context, L"m_test_array");
 		TS_ASSERT(wcslen(text) > 500);
@@ -133,8 +133,8 @@ class TestWdbgSym : public CxxTest::TestSuite
 
 		typedef struct
 		{
-			u8 s1;
-			u8 s2;
+			std::uint8_t s1;
+			std::uint8_t s2;
 			char s3;
 		}
 		Small;
@@ -142,7 +142,7 @@ class TestWdbgSym : public CxxTest::TestSuite
 
 		struct Large
 		{
-			u8 large_member_u8;
+			std::uint8_t large_member_u8;
 			std::string large_member_string;
 			double large_member_double;
 		};
@@ -204,10 +204,10 @@ class TestWdbgSym : public CxxTest::TestSuite
 		s_uintptr.insert(0x123); s_uintptr.insert(0x456);
 
 		// empty
-		std::deque<u8> d_u8_empty;
+		std::deque<std::uint8_t> d_u8_empty;
 		std::list<Nested> l_nested_empty;
 		std::map<double,double> m_double_empty;
-		std::multimap<int,u8> mm_int_empty;
+		std::multimap<int, std::uint8_t> mm_int_empty;
 		std::set<size_t> s_uint_empty;
 		std::multiset<char> ms_char_empty;
 		std::vector<double> v_double_empty;
@@ -219,10 +219,10 @@ class TestWdbgSym : public CxxTest::TestSuite
 		m_test_udt();
 
 		// uninitialized
-		std::deque<u8> d_u8_uninit;
+		std::deque<std::uint8_t> d_u8_uninit;
 		std::list<Nested> l_nested_uninit;
 		std::map<double,double> m_double_uninit;
-		std::multimap<int,u8> mm_int_uninit;
+		std::multimap<int,std::uint8_t> mm_int_uninit;
 		std::set<size_t> s_uint_uninit;
 		std::multiset<char> ms_char_uninit;
 		std::vector<double> v_double_uninit;
@@ -242,7 +242,7 @@ class TestWdbgSym : public CxxTest::TestSuite
 		[[maybe_unused]] bool l_bool = true;
 		[[maybe_unused]] wchar_t l_wchars[] = L"wchar string";
 		[[maybe_unused]] enum TestEnum { VAL1=1, VAL2=2 } l_enum = VAL1;
-		[[maybe_unused]] u8 l_u8s[] = { 1,2,3,4 };
+		[[maybe_unused]] std::uint8_t l_u8s[] = { 1,2,3,4 };
 		[[maybe_unused]] void (*l_funcptr)(void) = m_test_stl;
 
 		static double s_double = -2.718;

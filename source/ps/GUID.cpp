@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Wildfire Games.
+/* Copyright (C) 2026 Wildfire Games.
  * This file is part of 0 A.D.
  *
  * 0 A.D. is free software: you can redistribute it and/or modify
@@ -37,7 +37,7 @@ CStr ps_generate_guid(void)
 	for (size_t i = 0; i < 2; ++i)
 	{
 		u32 r = 0;
-		sys_generate_random_bytes((u8*)&r, sizeof(r));
+		sys_generate_random_bytes(reinterpret_cast<std::uint8_t*>(&r), sizeof(r));
 		char buf[32];
 		sprintf_s(buf, ARRAY_SIZE(buf), "%08X", r);
 		guid += buf;

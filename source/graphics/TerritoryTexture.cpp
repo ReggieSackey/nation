@@ -105,7 +105,8 @@ void CTerritoryTexture::ConstructTexture(Renderer::Backend::IDeviceCommandContex
 
 	// Initialise texture with transparency, for the areas we don't
 	// overwrite with uploading later.
-	std::unique_ptr<u8[]> texData = std::make_unique<u8[]>(textureSize * textureSize * 4);
+	std::unique_ptr<std::uint8_t[]> texData = std::make_unique<std::uint8_t[]>(textureSize *
+		textureSize * 4);
 	memset(texData.get(), 0x00, textureSize * textureSize * 4);
 	deviceCommandContext->UploadTexture(
 		m_Texture.get(), Renderer::Backend::Format::R8G8B8A8_UNORM,
@@ -159,7 +160,7 @@ void CTerritoryTexture::RecomputeTexture(Renderer::Backend::IDeviceCommandContex
 	if (!cmpTerritoryManager || !cmpTerritoryManager->IsVisible())
 		return;
 
-	std::unique_ptr<u8[]> bitmap = std::make_unique<u8[]>(m_MapSize * m_MapSize * 4);
+	std::unique_ptr<std::uint8_t[]> bitmap = std::make_unique<std::uint8_t[]>(m_MapSize * m_MapSize * 4);
 	GenerateBitmap(cmpTerritoryManager->GetTerritoryGrid(), bitmap.get(), m_MapSize, m_MapSize);
 
 	deviceCommandContext->UploadTextureRegion(
@@ -167,7 +168,8 @@ void CTerritoryTexture::RecomputeTexture(Renderer::Backend::IDeviceCommandContex
 		0, 0, m_MapSize, m_MapSize);
 }
 
-void CTerritoryTexture::GenerateBitmap(const Grid<u8>& territories, u8* bitmap, ssize_t w, ssize_t h)
+void CTerritoryTexture::GenerateBitmap(const Grid<std::uint8_t>& territories, std::uint8_t* bitmap,
+	ssize_t w, ssize_t h)
 {
 	int alphaMax = 0xC0;
 	int alphaFalloff = 0x20;
@@ -185,11 +187,11 @@ void CTerritoryTexture::GenerateBitmap(const Grid<u8>& territories, u8* bitmap, 
 		colors.push_back(color);
 	}
 
-	u8* p = bitmap;
+	std::uint8_t* p = bitmap;
 	for (ssize_t j = 0; j < h; ++j)
 		for (ssize_t i = 0; i < w; ++i)
 		{
-			u8 val = territories.get(i, j) & ICmpTerritoryManager::TERRITORY_PLAYER_MASK;
+			std::uint8_t val = territories.get(i, j) & ICmpTerritoryManager::TERRITORY_PLAYER_MASK;
 
 			CColor color(1, 0, 1, 1);
 			if (val < colors.size())

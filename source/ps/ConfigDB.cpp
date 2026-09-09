@@ -311,7 +311,7 @@ bool CConfigDB::Reload(EConfigNamespace ns)
 
 	std::lock_guard<std::recursive_mutex> s(m_Mutex);
 
-	std::unique_ptr<u8[], AlignedDeleter> buffer;
+	std::unique_ptr<std::uint8_t[], AlignedDeleter> buffer;
 	size_t buflen;
 	{
 		// Handle missing files quietly
@@ -485,7 +485,7 @@ bool CConfigDB::WriteFile(EConfigNamespace ns, const VfsPath& path) const
 	CHECK_NS(false);
 
 	std::lock_guard<std::recursive_mutex> s(m_Mutex);
-	std::shared_ptr<u8> buf;
+	std::shared_ptr<std::uint8_t> buf;
 
 	const size_t buffersize = 1*MiB;
 	AllocateAligned(buf, buffersize, maxSectorSize);

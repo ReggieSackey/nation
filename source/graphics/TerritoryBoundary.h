@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Wildfire Games.
+/* Copyright (C) 2026 Wildfire Games.
  * This file is part of 0 A.D.
  *
  * 0 A.D. is free software: you can redistribute it and/or modify
@@ -18,7 +18,6 @@
 #ifndef INCLUDED_TERRITORYBOUNDARY
 #define INCLUDED_TERRITORYBOUNDARY
 
-#include "lib/types.h"
 #include "maths/Vector2D.h"
 #include "simulation2/helpers/Player.h"
 
@@ -62,7 +61,7 @@ public:
 	 * boundaries have them in CW order (because this matches the winding orders needed by the renderer to offset them
 	 * inwards/outwards appropriately).
 	 */
-	static std::vector<STerritoryBoundary> ComputeBoundaries(const Grid<u8>* territories);
+	static std::vector<STerritoryBoundary> ComputeBoundaries(const Grid<std::uint8_t>* territories);
 };
 
 #endif // INCLUDED_TERRITORYBOUNDARY

@@ -93,14 +93,14 @@ VertexPathfinderDebugOverlay g_VertexPathfinderDebugOverlay;
  * (For non-axis-aligned rectangles it's harder to do this computation, so we'll
  * not bother doing any discarding for those.)
  */
-static const u8 QUADRANT_NONE = 0;
-static const u8 QUADRANT_BL = 1;
-static const u8 QUADRANT_TR = 2;
-static const u8 QUADRANT_TL = 4;
-static const u8 QUADRANT_BR = 8;
-static const u8 QUADRANT_BLTR = QUADRANT_BL|QUADRANT_TR;
-static const u8 QUADRANT_TLBR = QUADRANT_TL|QUADRANT_BR;
-static const u8 QUADRANT_ALL = QUADRANT_BLTR|QUADRANT_TLBR;
+static const std::uint8_t QUADRANT_NONE = 0;
+static const std::uint8_t QUADRANT_BL = 1;
+static const std::uint8_t QUADRANT_TR = 2;
+static const std::uint8_t QUADRANT_TL = 4;
+static const std::uint8_t QUADRANT_BR = 8;
+static const std::uint8_t QUADRANT_BLTR = QUADRANT_BL|QUADRANT_TR;
+static const std::uint8_t QUADRANT_TLBR = QUADRANT_TL|QUADRANT_BR;
+static const std::uint8_t QUADRANT_ALL = QUADRANT_BLTR|QUADRANT_TLBR;
 
 // When computing vertexes to insert into the search graph,
 // add a small delta so that the vertexes of an edge don't get interpreted
@@ -822,7 +822,7 @@ WaypointPath VertexPathfinder::ComputeShortPath(const ShortPathRequest& request,
 				npos = m_Vertexes[n].p;
 
 			// Work out which quadrant(s) we're approaching the new vertex from
-			u8 quad = 0;
+			std::uint8_t quad = 0;
 			if (m_Vertexes[curr.id].p.X <= npos.X && m_Vertexes[curr.id].p.Y <= npos.Y) quad |= QUADRANT_BL;
 			if (m_Vertexes[curr.id].p.X >= npos.X && m_Vertexes[curr.id].p.Y >= npos.Y) quad |= QUADRANT_TR;
 			if (m_Vertexes[curr.id].p.X <= npos.X && m_Vertexes[curr.id].p.Y >= npos.Y) quad |= QUADRANT_TL;

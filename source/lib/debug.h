@@ -40,7 +40,6 @@
 #include "lib/code_annotation.h"
 #include "lib/status.h"
 #include "lib/sysdep/compiler.h"
-#include "lib/types.h"
 
 #include <atomic>
 #include <cstddef>
@@ -184,7 +183,7 @@ ErrorReaction debug_DisplayError(const wchar_t* description, size_t flags, void*
 #define DEBUG_DISPLAY_ERROR_IMPL(description, flags)\
 	do\
 	{\
-		CACHE_ALIGNED(u8) context[DEBUG_CONTEXT_SIZE];\
+		CACHE_ALIGNED(std::uint8_t) context[DEBUG_CONTEXT_SIZE];\
 		(void)debug_CaptureContext(context);\
 		(void)debug_DisplayError(description, flags, context, L"debug_DisplayError", WIDEN(__FILE__), __LINE__, __func__, 0);\
 	}\

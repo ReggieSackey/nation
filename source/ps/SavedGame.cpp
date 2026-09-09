@@ -33,7 +33,6 @@
 #include "lib/file/vfs/vfs_util.h"
 #include "lib/path.h"
 #include "lib/sysdep/filesystem.h"
-#include "lib/types.h"
 #include "maths/Vector3D.h"
 #include "ps/CLogger.h"
 #include "ps/CStr.h"
@@ -152,8 +151,10 @@ Status SavedGames::Save(const CStrW& name, const CStrW& description, CSimulation
 	if (!archiveWriter)
 		WARN_RETURN(ERR::FAIL);
 
-	WARN_RETURN_STATUS_IF_ERR(archiveWriter->AddMemory((const u8*)metadataString.c_str(), metadataString.length(), now, "metadata.json"));
-	WARN_RETURN_STATUS_IF_ERR(archiveWriter->AddMemory((const u8*)simStateStream.str().c_str(), simStateStream.str().length(), now, "simulation.dat"));
+	WARN_RETURN_STATUS_IF_ERR(archiveWriter->AddMemory(reinterpret_cast<const std::uint8_t*>(
+		metadataString.c_str()), metadataString.length(), now, "metadata.json"));
+	WARN_RETURN_STATUS_IF_ERR(archiveWriter->AddMemory(reinterpret_cast<const std::uint8_t*>(
+		simStateStream.str().c_str()), simStateStream.str().length(), now, "simulation.dat"));
 	archiveWriter.reset(); // close the file
 
 	WriteBuffer buffer;
@@ -208,13 +209,15 @@ public:
 		{
 			std::string buffer;
 			buffer.resize(fileInfo.Size());
-			WARN_IF_ERR(archiveFile->Load("", {reinterpret_cast<u8*>(buffer.data()), buffer.size()}));
+			WARN_IF_ERR(archiveFile->Load("",
+				{reinterpret_cast<std::uint8_t*>(buffer.data()), buffer.size()}));
 			Script::ParseJSON(Script::Request(m_ScriptInterface), buffer, &m_Metadata);
 		}
 		else if (pathname == L"simulation.dat" && m_SavedState)
 		{
 			m_SavedState->resize(fileInfo.Size());
-			WARN_IF_ERR(archiveFile->Load("", {reinterpret_cast<u8*>(m_SavedState->data()), m_SavedState->size()}));
+			WARN_IF_ERR(archiveFile->Load("",
+				{reinterpret_cast<std::uint8_t*>(m_SavedState->data()), m_SavedState->size()}));
 		}
 	}
 

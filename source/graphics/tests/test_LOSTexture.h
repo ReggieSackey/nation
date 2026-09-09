@@ -52,8 +52,8 @@ public:
 		};
 		Grid<u32> inputDataVec(size, size);
 
-		for (u8 i = 0; i < size; ++i)
-			for (u8 j = 0; j < size; ++j)
+		for (std::uint8_t i = 0; i < size; ++i)
+			for (std::uint8_t j = 0; j < size; ++j)
 				inputDataVec.set(i, j, inputData[i + j * size]);
 
 		// LosState::MASK should be cmpRanageManager->GetSharedLosMask(1),
@@ -61,7 +61,7 @@ public:
 		// should always be LosState::MASK for player 1 (as the other players are bit-shifted).
 		CLosQuerier los((u32)LosState::MASK, inputDataVec, size);
 
-		std::vector<u8> losData;
+		std::vector<std::uint8_t> losData;
 		size_t pitch;
 		losData.resize(tex.GetBitmapSize(size, size, &pitch));
 
@@ -90,7 +90,7 @@ public:
 		double t = timer_Time();
 		for (size_t i = 0; i < reps; ++i)
 		{
-			std::vector<u8> losData;
+			std::vector<std::uint8_t> losData;
 			size_t pitch;
 			losData.resize(tex.GetBitmapSize(size, size, &pitch));
 

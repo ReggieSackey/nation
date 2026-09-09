@@ -33,7 +33,7 @@
 
 #pragma pack(1)
 
-typedef const volatile u8* PCV_u8;
+typedef const volatile std::uint8_t* PCV_u8;
 typedef const volatile AcpiTable* PCV_AcpiTable;
 
 
@@ -55,12 +55,12 @@ static void DeallocateTable(const T* table)
 
 
 // return 8-bit checksum of a buffer (should be 0)
-static u8 ComputeChecksum(PCV_u8 buf, size_t numBytes)
+static std::uint8_t ComputeChecksum(PCV_u8 buf, size_t numBytes)
 {
 	// (can't use std::accumulate - we need 8-bit wraparound)
-	u8 sum = 0;
+	std::uint8_t sum = 0;
 	for(PCV_u8 p = buf; p < buf+numBytes; p++)
-		sum = u8((sum + *p) & 0xFF);
+		sum = static_cast<std::uint8_t>((sum + *p) & 0xFF);
 	return sum;
 }
 

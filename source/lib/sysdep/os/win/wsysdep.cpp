@@ -504,7 +504,7 @@ Status sys_open_url(const std::string& url)
 }
 
 
-Status sys_generate_random_bytes(u8* buffer, size_t size)
+Status sys_generate_random_bytes(std::uint8_t* buffer, size_t size)
 {
 	HCRYPTPROV hCryptProv = 0;
 	if(!CryptAcquireContext(&hCryptProv, 0, 0, PROV_RSA_FULL, CRYPT_VERIFYCONTEXT))

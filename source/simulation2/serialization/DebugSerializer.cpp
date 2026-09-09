@@ -172,7 +172,7 @@ void CDebugSerializer::PutScriptVal(const char* name, JS::MutableHandleValue val
 	}
 }
 
-void CDebugSerializer::PutRaw(const char* name, const u8* data, size_t len)
+void CDebugSerializer::PutRaw(const char* name, const std::uint8_t* data, size_t len)
 {
 	m_Stream << INDENT << name << ": (" << len << " bytes)";
 

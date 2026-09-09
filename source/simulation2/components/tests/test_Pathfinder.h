@@ -407,7 +407,7 @@ public:
 
 		u32 debugSteps;
 		double debugTime;
-		Grid<u8> debugGrid;
+		Grid<std::uint8_t> debugGrid;
 		cmpPathfinder->GetDebugData(debugSteps, debugTime, debugGrid);
 // 		stream << " <g style='visibility:hidden'>\n";
 

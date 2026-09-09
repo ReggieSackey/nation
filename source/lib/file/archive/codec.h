@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Wildfire Games.
+/* Copyright (C) 2026 Wildfire Games.
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -72,7 +72,8 @@ public:
 	 *		  output buffers were used. either or both of these can be zero if
 	 *		  the input size is small or there's not enough output space.
 	 **/
-	virtual Status Process(const u8* in, size_t inSize, u8* out, size_t outSize, size_t& inConsumed, size_t& outProduced) = 0;
+	virtual Status Process(const std::uint8_t* in, size_t inSize, std::uint8_t* out, size_t outSize,
+		size_t& inConsumed, size_t& outProduced) = 0;
 
 	/**
 	 * Flush buffers and make sure all output has been produced.
@@ -92,7 +93,7 @@ public:
 	 * @return the new checksum. note: after all data has been seen, this is
 	 * identical to the what Finish would return.
 	 **/
-	virtual u32 UpdateChecksum(u32 checksum, const u8* in, size_t inSize) const = 0;
+	virtual u32 UpdateChecksum(u32 checksum, const std::uint8_t* in, size_t inSize) const = 0;
 };
 
 typedef std::shared_ptr<ICodec> PICodec;

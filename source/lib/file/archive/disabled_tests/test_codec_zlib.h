@@ -38,23 +38,23 @@ public:
 		// generate random input udata
 		// (limit values to 0..7 so that the udata will actually be compressible)
 		std::mt19937 engine(42);
-		std::uniform_int_distribution<u8> distribution(0x00, 0x07);
+		std::uniform_int_distribution<std::uint8_t> distribution(0x00, 0x07);
 		const size_t usize = 10000;
-		u8 udata[usize];
+		std::uint8_t udata[usize];
 		for(size_t i = 0; i < usize; i++)
 			udata[i] = distribution(engine);
 
 		// compress
-		u8* cdata; size_t csize;
+		std::uint8_t* cdata; size_t csize;
 		{
 			boost::shared_ptr<ICodec> compressor_zlib = CreateCompressor_ZLib();
 			ICodec* c = compressor_zlib.get();
 			const size_t csizeMax = c->MaxOutputSize(usize);
-			cdata = new u8[csizeMax];
+			cdata = new std::uint8_t[csizeMax];
 			TS_ASSERT_OK(c->Process(udata, usize, cdata, csizeMax, inConsumed, outProduced));
 			TS_ASSERT_EQUALS(inConsumed, usize);
 			TS_ASSERT_LESS_THAN_EQUALS(outProduced, csizeMax);
-			u8* cdata2;
+			std::uint8_t* cdata2;
 			TS_ASSERT_OK(c->Finish(cdata2, csize, checksum));
 			TS_ASSERT_EQUALS(cdata, cdata2);
 			TS_ASSERT_EQUALS(csize, outProduced);
@@ -64,14 +64,14 @@ public:
 		TS_ASSERT(csize != usize || memcmp(udata, cdata, std::min(usize, csize)) != 0);
 
 		// decompress
-		u8 ddata[usize];
+		std::uint8_t ddata[usize];
 		{
 			boost::shared_ptr<ICodec> decompressor_zlib = CreateDecompressor_ZLib();
 			ICodec* d = decompressor_zlib.get();
 			TS_ASSERT_OK(decompressor_zlib->Process(cdata, csize, ddata, usize, inConsumed, outProduced));
 			TS_ASSERT_EQUALS(inConsumed, csize);	// ZLib always outputs as much data as possible
 			TS_ASSERT_EQUALS(outProduced, usize);	// .. so these figures are correct before Finish()
-			u8* ddata2; size_t dsize;
+			std::uint8_t* ddata2; size_t dsize;
 			TS_ASSERT_OK(d->Finish(&ddata2, &dsize, &checksum));
 			TS_ASSERT_EQUALS(ddata, ddata2);
 			TS_ASSERT_EQUALS(dsize, outProduced);

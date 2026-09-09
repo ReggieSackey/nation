@@ -228,9 +228,10 @@ struct ContainerBase : public Container
 		return this->size();
 	}
 
-	static const u8* DereferenceAndAdvance(typename Container::iterator& it, size_t /*el_size*/)
+	static const std::uint8_t* DereferenceAndAdvance(typename Container::iterator& it,
+		size_t /*el_size*/)
 	{
-		const u8* p = (const u8*)&*it;
+		const std::uint8_t* p = reinterpret_cast<const std::uint8_t*>(&*it);
 		++it;
 		return p;
 	}
@@ -254,7 +255,7 @@ struct Any_deque : public ContainerBase<std::deque<int> >
 		return true;
 	}
 
-	static const u8* DereferenceAndAdvance(iterator& stl_it, size_t el_size)
+	static const std::uint8_t* DereferenceAndAdvance(iterator& stl_it, size_t el_size)
 	{
 		struct Iterator : public iterator
 		{
@@ -272,7 +273,7 @@ struct Any_deque : public ContainerBase<std::deque<int> >
 		Iterator& it = *(Iterator*)&stl_it;
 		Any_deque& container = it.Container();
 		const size_t currentIndex = it.CurrentIndex();
-		const u8* p = container.GetNthElement(currentIndex, el_size);
+		const std::uint8_t* p = container.GetNthElement(currentIndex, el_size);
 		++it;
 		return p;
 	}
@@ -283,16 +284,16 @@ private:
 		return std::max(16u / el_size, (size_t)1u);	// see _DEQUESIZ
 	}
 
-	const u8* GetNthElement(size_t i, size_t el_size) const
+	const std::uint8_t* GetNthElement(size_t i, size_t el_size) const
 	{
 		const size_t el_per_bucket = ElementsPerBucket(el_size);
 		const size_t bucket_idx = i / el_per_bucket;
 		ENSURE(bucket_idx < _Mapsize);
 		const size_t idx_in_bucket = i - bucket_idx * el_per_bucket;
 		ENSURE(idx_in_bucket < el_per_bucket);
-		const u8** map = (const u8**)_Map;
-		const u8* bucket = map[bucket_idx];
-		const u8* p = bucket + idx_in_bucket*el_size;
+		const std::uint8_t** map = static_cast<const std::uint8_t**>(_Map);
+		const std::uint8_t* bucket = map[bucket_idx];
+		const std::uint8_t* p = bucket + idx_in_bucket*el_size;
 		return p;
 	}
 
@@ -324,7 +325,7 @@ struct Any_tree : public std::_Tree<_Traits>
 		return size();
 	}
 
-	static const u8* DereferenceAndAdvance(iterator& stl_it, size_t el_size)
+	static const std::uint8_t* DereferenceAndAdvance(iterator& stl_it, size_t el_size)
 	{
 		struct Iterator : public const_iterator
 		{
@@ -341,7 +342,7 @@ struct Any_tree : public std::_Tree<_Traits>
 
 		Iterator& it = *(Iterator*)&stl_it;
 		_Nodeptr node = it.Node();
-		const u8* p = (const u8*)&*it;
+		const std::uint8_t* p = static_cast<const std::uint8_t*>(&*it);
 
 		// end() shouldn't be incremented, don't move
 		if(_Isnil(node, el_size))
@@ -370,7 +371,7 @@ private:
 	// dependent on el_size.
 	static _Charref _Isnil(_Nodeptr _Pnode, size_t el_size)
 	{
-		const u8* p = (const u8*)&_Pnode->_Isnil;	// correct for int specialization
+		const std::uint8_t* p = static_cast<const std::uint8_t*>(&_Pnode->_Isnil);	// correct for int specialization
 		p += el_size - sizeof(value_type);	// adjust for difference in el_size
 		assert(*p <= 1);	// bool value
 		return (_Charref)*p;
@@ -421,21 +422,21 @@ struct Any_vector: public ContainerBase<std::vector<int> >
 		// element count as the difference between them. since we are
 		// derived from a template specialization, the pointer arithmetic
 		// is incorrect. we fix it by taking el_size into account.
-		return ((u8*)_Mylast - (u8*)_Myfirst) * el_size;
+		return (static_cast<std::uint8_t*>(_Mylast) - static_cast<std::uint8_t*>(_Myfirst)) * el_size;
 	}
 
-	static const u8* DereferenceAndAdvance(iterator& stl_it, size_t el_size)
+	static const std::uint8_t* DereferenceAndAdvance(iterator& stl_it, size_t el_size)
 	{
 		struct Iterator : public const_iterator
 		{
 			void Advance(size_t numBytes)
 			{
-				(u8*&)_Myptr += numBytes;
+				static_cast<std::uint8_t*&>(_Myptr) += numBytes;
 			}
 		};
 
 		Iterator& it = *(Iterator*)&stl_it;
-		const u8* p = (const u8*)&*it;
+		const std::uint8_t* p = static_cast<const std::uint8_t*>(&*it);
 		it.Advance(el_size);
 		return p;
 	}
@@ -485,7 +486,7 @@ struct Any_stack : public Any_deque
 
 // generic iterator - returns next element. dereferences and increments the
 // specific container iterator stored in it_mem.
-template<class T> const u8* stl_iterator(void* it_mem, size_t el_size)
+template<class T> const std::uint8_t* stl_iterator(void* it_mem, size_t el_size)
 {
 	typedef typename T::iterator iterator;
 	iterator& stl_it = *(iterator*)it_mem;
@@ -507,7 +508,7 @@ static bool IsContainerValid(const T& t, size_t el_count)
 	if(el_count != 0)
 	{
 		// valid pointer
-		const u8* front = (const u8*)&*t.begin();	// (note: map doesn't have front)
+		const std::uint8_t* front = reinterpret_cast<const std::uint8_t*>(&*t.begin());	// (note: map doesn't have front)
 		if(debug_IsPointerBogus(front))
 			return false;
 
@@ -552,8 +553,9 @@ template<class T> bool get_container_info(const T& t, size_t size, size_t el_siz
 // return number of elements and an iterator (any data it needs is stored in
 // it_mem, which must hold DEBUG_STL_MAX_ITERATOR_SIZE bytes).
 // returns 0 on success or an StlContainerError.
-Status debug_stl_get_container_info([[maybe_unused]] const wchar_t* type_name, [[maybe_unused]] const u8* p,
-	[[maybe_unused]] size_t size, [[maybe_unused]] size_t el_size, [[maybe_unused]] size_t* el_count,
+Status debug_stl_get_container_info([[maybe_unused]] const wchar_t* type_name,
+	[[maybe_unused]] const std::uint8_t* p, [[maybe_unused]] size_t size,
+	[[maybe_unused]] size_t el_size, [[maybe_unused]] size_t* el_count,
 	[[maybe_unused]] DebugStlIterator* el_iterator, [[maybe_unused]] void* it_mem)
 {
 #if MSC_VERSION

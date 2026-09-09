@@ -43,7 +43,6 @@
 #include "lib/secure_crt.h"
 #include "lib/status.h"
 #include "lib/tex/tex.h"
-#include "lib/types.h"
 #include "maths/Matrix3D.h"
 #include "ps/CConsole.h"
 #include "ps/CLogger.h"
@@ -807,7 +806,7 @@ void CRenderer::RenderScreenShot(const bool needsPresent)
 
 	const size_t img_size = width * height * bpp / 8;
 	const size_t hdr_size = tex_hdr_size(filename);
-	std::shared_ptr<u8> buf;
+	std::shared_ptr<std::uint8_t> buf;
 	AllocateAligned(buf, hdr_size + img_size, maxSectorSize);
 	void* img = buf.get() + hdr_size;
 	Tex t;
@@ -888,7 +887,7 @@ void CRenderer::RenderBigScreenShot(const bool needsPresent)
 		WARN_IF_ERR(ERR::NO_MEM);
 		return;
 	}
-	std::shared_ptr<u8> imageBuffer;
+	std::shared_ptr<std::uint8_t> imageBuffer;
 	AllocateAligned(imageBuffer, headerSize + imageSize, maxSectorSize);
 
 	Tex t;

@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Wildfire Games.
+/* Copyright (C) 2026 Wildfire Games.
  * This file is part of 0 A.D.
  *
  * 0 A.D. is free software: you can redistribute it and/or modify
@@ -20,7 +20,6 @@
 #include "MikktspaceWrap.h"
 
 #include "graphics/ModelDef.h"
-#include "lib/types.h"
 #include "maths/Vector2D.h"
 #include "maths/Vector3D.h"
 
@@ -122,7 +121,7 @@ void MikkTSpace::SetTSpace(const SMikkTSpaceContext* pContext, const float* fvTa
 
 	if (userData->m_GpuSkinning)
 	{
-		for (u8 j = 0; j < 4; ++j)
+		for (std::uint8_t j = 0; j < 4; ++j)
 		{
 			userData->m_NewVertices.push_back(vertex.m_Blend.m_Bone[j]);
 			userData->m_NewVertices.push_back(255.f * vertex.m_Blend.m_Weight[j]);

@@ -500,7 +500,7 @@ struct sEnvironmentSettings
 
 	// emulate 'HDR' by allowing overly bright suncolor. this is
 	// multiplied on to suncolor after converting to float
-	// (struct Color stores as normal u8, 0..255)
+	// (struct Color stores as normal std::uint8_t, 0..255)
 	Shareable<float> sunoverbrightness; // range 1..3
 
 	// support different lighting models ("old" for the version compatible with old scenarios,

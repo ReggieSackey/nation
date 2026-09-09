@@ -75,7 +75,7 @@ Status tex_write(Tex* t, const VfsPath& filename)
 	// write to disk
 	Status ret = INFO::OK;
 	{
-		std::shared_ptr<u8> file = DummySharedPtr(da.base);
+		std::shared_ptr<std::uint8_t> file = DummySharedPtr(da.base);
 		const ssize_t bytes_written = g_VFS->CreateFile(filename, {file.get(), da.pos});
 		if(bytes_written > 0)
 			ENSURE(bytes_written == (ssize_t)da.pos);
@@ -128,7 +128,7 @@ std::string Hexify(const std::string& s)
 	return str.str();
 }
 
-std::string Hexify(const u8* s, size_t length)
+std::string Hexify(const std::uint8_t* s, size_t length)
 {
 	std::stringstream str;
 	str << std::hex;

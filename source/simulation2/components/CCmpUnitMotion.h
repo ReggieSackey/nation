@@ -74,7 +74,7 @@ namespace
 constexpr entity_pos_t SHORT_PATH_MIN_SEARCH_RANGE = entity_pos_t::FromInt(12 * Pathfinding::NAVCELL_SIZE_INT);
 constexpr entity_pos_t SHORT_PATH_MAX_SEARCH_RANGE = entity_pos_t::FromInt(56 * Pathfinding::NAVCELL_SIZE_INT);
 constexpr entity_pos_t SHORT_PATH_SEARCH_RANGE_INCREMENT = entity_pos_t::FromInt(4 * Pathfinding::NAVCELL_SIZE_INT);
-constexpr u8 SHORT_PATH_SEARCH_RANGE_INCREASE_DELAY = 1;
+constexpr std::uint8_t SHORT_PATH_SEARCH_RANGE_INCREASE_DELAY = 1;
 
 /**
  * When using the short-pathfinder to rejoin a long-path waypoint, aim for a circle of this radius around the waypoint.
@@ -106,7 +106,7 @@ constexpr entity_pos_t TARGET_UNCERTAINTY_MULTIPLIER = entity_pos_t::FromInt(8 *
  * This is rather arbitrary and mostly for simplicity & optimisation (a better recomputing algorithm
  * would not need this).
  */
-constexpr u8 KNOWN_IMPERFECT_PATH_RESET_COUNTDOWN = 12;
+constexpr std::uint8_t KNOWN_IMPERFECT_PATH_RESET_COUNTDOWN = 12;
 
 /**
  * When we fail to move this many turns in a row, inform other components that the move will fail.
@@ -115,14 +115,14 @@ constexpr u8 KNOWN_IMPERFECT_PATH_RESET_COUNTDOWN = 12;
  * TODO: if UnitMotion could send differentiated "unreachable" and "currently stuck" failing messages,
  * this could probably be lowered.
  */
-constexpr u8 MAX_FAILED_MOVEMENTS = 35;
+constexpr std::uint8_t MAX_FAILED_MOVEMENTS = 35;
 
 /**
  * When computing paths but failing to move, we want to occasionally alternate pathfinder systems
  * to avoid getting stuck (the short pathfinder can unstuck the long-range one and vice-versa, depending).
  */
-constexpr u8 ALTERNATE_PATH_TYPE_DELAY = 3;
-constexpr u8 ALTERNATE_PATH_TYPE_EVERY = 6;
+constexpr std::uint8_t ALTERNATE_PATH_TYPE_DELAY = 3;
+constexpr std::uint8_t ALTERNATE_PATH_TYPE_EVERY = 6;
 
 /**
  * Units can occasionally get stuck near corners. The cause is a mismatch between CheckMovement and the short pathfinder.
@@ -130,13 +130,13 @@ constexpr u8 ALTERNATE_PATH_TYPE_EVERY = 6;
  * Fixing this math mismatch is perhaps possible, but fixing it in UM is rather easy: just try backing up a bit
  * and that will probably un-stuck the unit. This is the 'failed movement' turn on which to try that.
  */
-constexpr u8 BACKUP_HACK_DELAY = 10;
+constexpr std::uint8_t BACKUP_HACK_DELAY = 10;
 
 /**
  * After this many failed computations, start sending "VERY_OBSTRUCTED" messages instead.
  * Should probably be larger than ALTERNATE_PATH_TYPE_DELAY.
  */
-constexpr u8 VERY_OBSTRUCTED_THRESHOLD = 10;
+constexpr std::uint8_t VERY_OBSTRUCTED_THRESHOLD = 10;
 
 struct PathColorPalette
 {
@@ -196,7 +196,7 @@ public:
 	// Internal counter used when recovering from obstructed movement.
 	// Most notably, increases the search range of the vertex pathfinder.
 	// See HandleObstructedMove() for more details.
-	u8 m_FailedMovements = 0;
+	std::uint8_t m_FailedMovements = 0;
 
 	// If > 0, PathingUpdateNeeded returns false always.
 	// This exists because the goal may be unreachable to the short/long pathfinder.
@@ -205,7 +205,7 @@ public:
 	// To avoid that, when we know the new path is imperfect, treat it as OK and follow it anyways.
 	// When reaching the end, we'll go through HandleObstructedMove and reset regardless.
 	// To still recompute now and then (the target may be moving), this is a countdown decremented on each frame.
-	u8 m_FollowKnownImperfectPathCountdown = 0;
+	std::uint8_t m_FollowKnownImperfectPathCountdown = 0;
 
 	struct Ticket {
 		u32 m_Ticket = 0; // asynchronous request ID we're waiting for, or 0 if none
@@ -757,7 +757,8 @@ private:
 
 	entity_pos_t ShortPathSearchRange() const
 	{
-		u8 multiple = m_FailedMovements < SHORT_PATH_SEARCH_RANGE_INCREASE_DELAY ? 0 : m_FailedMovements - SHORT_PATH_SEARCH_RANGE_INCREASE_DELAY;
+		std::uint8_t multiple = m_FailedMovements < SHORT_PATH_SEARCH_RANGE_INCREASE_DELAY ? 0 :
+			m_FailedMovements - SHORT_PATH_SEARCH_RANGE_INCREASE_DELAY;
 		fixed searchRange = SHORT_PATH_MIN_SEARCH_RANGE + SHORT_PATH_SEARCH_RANGE_INCREMENT * multiple;
 		if (searchRange > SHORT_PATH_MAX_SEARCH_RANGE)
 			searchRange = SHORT_PATH_MAX_SEARCH_RANGE;

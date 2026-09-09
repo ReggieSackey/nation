@@ -75,7 +75,7 @@ STATUS_ADD_DEFINITIONS(utf8StatusDefinitions);
 // this implementation survives http://www.cl.cam.ac.uk/~mgk25/ucs/examples/UTF-8-test.txt
 
 // (must be unsigned to avoid sign extension)
-typedef u8 UTF8;
+typedef std::uint8_t UTF8;
 typedef u32 UTF32;
 
 

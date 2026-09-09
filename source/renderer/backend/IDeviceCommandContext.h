@@ -18,8 +18,6 @@
 #ifndef INCLUDED_RENDERER_BACKEND_IDEVICECOMMANDCONTEXT
 #define INCLUDED_RENDERER_BACKEND_IDEVICECOMMANDCONTEXT
 
-#include "lib/types.h"
-
 #include "renderer/backend/IDeviceObject.h"
 
 #include <cstddef>
@@ -126,7 +124,7 @@ public:
 		const uint32_t width, const uint32_t height,
 		const uint32_t level = 0, const uint32_t layer = 0) = 0;
 
-	using UploadBufferFunction = std::function<void(u8*)>;
+	using UploadBufferFunction = std::function<void(std::uint8_t*)>;
 	virtual void UploadBuffer(IBuffer* buffer, const void* data, const uint32_t dataSize) = 0;
 	virtual void UploadBuffer(IBuffer* buffer, const UploadBufferFunction& uploadFunction) = 0;
 	virtual void UploadBufferRegion(

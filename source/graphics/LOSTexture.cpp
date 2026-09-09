@@ -284,7 +284,7 @@ void CLOSTexture::ConstructTexture(Renderer::Backend::IDeviceCommandContext* dev
 	// Initialise texture with SoD color, for the areas we don't
 	// overwrite with uploading later.
 	const size_t textureDataSize = textureSize * textureSize * m_TextureFormatStride;
-	std::unique_ptr<u8[]> texData = std::make_unique<u8[]>(textureDataSize);
+	std::unique_ptr<std::uint8_t[]> texData = std::make_unique<std::uint8_t[]>(textureDataSize);
 	memset(texData.get(), 0x00, textureDataSize);
 
 	if (CRenderer::IsInitialised() && g_RenderingOptions.GetSmoothLOS())
@@ -379,7 +379,7 @@ void CLOSTexture::RecomputeTexture(Renderer::Backend::IDeviceCommandContext* dev
 	size_t pitch;
 	const size_t dataSize = GetBitmapSize(m_MapSize, m_MapSize, &pitch);
 	ENSURE(pitch * m_MapSize <= dataSize);
-	std::unique_ptr<u8[]> losData = std::make_unique<u8[]>(
+	std::unique_ptr<std::uint8_t[]> losData = std::make_unique<std::uint8_t[]>(
 		dataSize * m_TextureFormatStride);
 
 	CLosQuerier los(cmpRangeManager->GetLosQuerier(m_Simulation.GetSimContext().GetCurrentDisplayedPlayer()));
@@ -423,9 +423,10 @@ size_t CLOSTexture::GetBitmapSize(size_t w, size_t h, size_t* pitch)
 	return *pitch * (h + g_BlurSize - 1);
 }
 
-void CLOSTexture::GenerateBitmap(const CLosQuerier& los, u8* losData, size_t w, size_t h, size_t pitch)
+void CLOSTexture::GenerateBitmap(const CLosQuerier& los, std::uint8_t* losData, size_t w, size_t h,
+	size_t pitch)
 {
-	u8 *dataPtr = losData;
+	std::uint8_t *dataPtr = losData;
 
 	// Initialise the top padding
 	for (size_t j = 0; j < g_BlurSize/2; ++j)
@@ -465,7 +466,7 @@ void CLOSTexture::GenerateBitmap(const CLosQuerier& los, u8* losData, size_t w, 
 	{
 		for (size_t i = 0; i < w; ++i)
 		{
-			u8* d = &losData[i+j*pitch];
+			std::uint8_t* d = &losData[i+j*pitch];
 			*d = (
 				1*d[0] +
 				6*d[1] +
@@ -484,7 +485,7 @@ void CLOSTexture::GenerateBitmap(const CLosQuerier& los, u8* losData, size_t w, 
 	{
 		for (size_t i = 0; i < w; ++i)
 		{
-			u8* d = &losData[i+j*pitch];
+			std::uint8_t* d = &losData[i+j*pitch];
 			*d = (
 				1*d[0*pitch] +
 				6*d[1*pitch] +

@@ -33,7 +33,7 @@ public:
 	void test_conversion()
 	{
 		const u32 x = 0x01234567u;
-		u8 LS_byte;
+		std::uint8_t LS_byte;
 		memcpy(&LS_byte, &x, 1);
 		// little endian
 		if(LS_byte == 0x67)
@@ -66,8 +66,8 @@ public:
 
 	void test_movzx()
 	{
-		const u8 d1[] = { 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08 };
-		const u8 d2[] = { 0x43, 0x12, 0x23, 0xA4 };
+		const std::uint8_t d1[] = { 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08 };
+		const std::uint8_t d2[] = { 0x43, 0x12, 0x23, 0xA4 };
 
 		TS_ASSERT_EQUALS(movzx_le64(d1, 1), 0x01ull);
 		TS_ASSERT_EQUALS(movzx_le64(d1, 2), 0x0201ull);
@@ -84,9 +84,9 @@ public:
 
 	void test_movsx()
 	{
-		const u8 d1[] = { 0x09, 0xFE };
-		const u8 d2[] = { 0xD9, 0x2C, 0xDD, 0x8F };
-		const u8 d3[] = { 0x92, 0x26, 0x88, 0xF1, 0x35, 0xAC, 0x01, 0x83 };
+		const std::uint8_t d1[] = { 0x09, 0xFE };
+		const std::uint8_t d2[] = { 0xD9, 0x2C, 0xDD, 0x8F };
+		const std::uint8_t d3[] = { 0x92, 0x26, 0x88, 0xF1, 0x35, 0xAC, 0x01, 0x83 };
 
 		TS_ASSERT_EQUALS(movsx_le64(d1, 1), static_cast<std::int64_t>(0x09ull));
 		TS_ASSERT_EQUALS(movsx_le64(d1, 2), static_cast<std::int64_t>(0xFFFFFFFFFFFFFE09ull));

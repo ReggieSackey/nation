@@ -24,7 +24,6 @@
 #define NETHOST_H
 
 #include "lib/external_libraries/enet.h"
-#include "lib/types.h"
 #include "ps/CStr.h"
 
 #include <map>
@@ -51,7 +50,7 @@ struct PlayerAssignment
 	std::int32_t m_PlayerID;
 
 	/// Status - Ready or not: 0 for not ready, 1 for ready, 2 to stay ready
-	u8 m_Status;
+	std::uint8_t m_Status;
 };
 
 typedef std::map<CStr, PlayerAssignment> PlayerAssignmentMap; // map from GUID -> assignment

@@ -147,20 +147,20 @@ static void PopulateNodes()
 // fields common to Affinity* structures
 struct AffinityHeader
 {
-	u8 type;
-	u8 length;	// size [bytes], including this header
+	std::uint8_t type;
+	std::uint8_t length;	// size [bytes], including this header
 };
 
 struct AffinityAPIC
 {
-	static const u8 type = 0;
+	static const std::uint8_t type = 0;
 
 	AffinityHeader header;
-	u8 proximityDomainNumber0;
-	u8 apicId;
+	std::uint8_t proximityDomainNumber0;
+	std::uint8_t apicId;
 	u32 flags;
-	u8 sapicId;
-	u8 proximityDomainNumber123[3];
+	std::uint8_t sapicId;
+	std::uint8_t proximityDomainNumber123[3];
 	u32 clockDomain;
 
 	u32 ProximityDomainNumber() const
@@ -176,7 +176,7 @@ struct AffinityAPIC
 
 struct AffinityMemory
 {
-	static const u8 type = 1;
+	static const std::uint8_t type = 1;
 
 	AffinityHeader header;
 	u32 proximityDomainNumber;
@@ -195,7 +195,7 @@ struct SRAT
 {
 	AcpiTable header;
 	u32 reserved1;
-	u8 reserved2[8];
+	std::uint8_t reserved2[8];
 	AffinityHeader affinities[1];
 };
 
@@ -364,7 +364,7 @@ struct SLIT
 {
 	AcpiTable header;
 	u64 numSystemLocalities;
-	u8 entries[1];		// numSystemLocalities*numSystemLocalities entries
+	std::uint8_t entries[1];		// numSystemLocalities*numSystemLocalities entries
 };
 
 #pragma pack(pop)
@@ -491,7 +491,7 @@ static bool VerifyPages([[maybe_unused]] void* mem, [[maybe_unused]] size_t size
 	const size_t numPages = (size + pageSize-1) / pageSize;
 	PSAPI_WORKING_SET_EX_INFORMATION* wsi = new PSAPI_WORKING_SET_EX_INFORMATION[numPages];
 	for(size_t i = 0; i < numPages; i++)
-		wsi[i].VirtualAddress = (u8*)mem + i*pageSize;
+		wsi[i].VirtualAddress = static_cast<std::uint8_t*>(mem) + i*pageSize;
 	pQueryWorkingSetEx(GetCurrentProcess(), wsi, DWORD(sizeof(PSAPI_WORKING_SET_EX_INFORMATION)*numPages));
 
 	// ensure each is valid and allocated on the correct node

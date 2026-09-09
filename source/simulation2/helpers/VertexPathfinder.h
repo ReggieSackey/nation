@@ -47,9 +47,9 @@ struct Vertex
 	CFixedVector2D p;
 	fixed g, h;
 	u16 pred = 0;
-	u8 status;
-	u8 quadInward : 4; // the quadrant which is inside the shape (or NONE)
-	u8 quadOutward : 4; // the quadrants of the next point on the path which this vertex must be in, given 'pred'
+	std::uint8_t status;
+	std::uint8_t quadInward : 4; // the quadrant which is inside the shape (or NONE)
+	std::uint8_t quadOutward : 4; // the quadrants of the next point on the path which this vertex must be in, given 'pred'
 };
 
 // Obstruction edges (paths will not cross any of these).

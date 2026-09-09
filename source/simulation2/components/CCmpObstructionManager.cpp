@@ -22,7 +22,6 @@
 #include "graphics/Color.h"
 #include "graphics/Overlay.h"
 #include "lib/debug.h"
-#include "lib/types.h"
 #include "maths/Fixed.h"
 #include "maths/FixedVector2D.h"
 #include "maths/MathUtil.h"
@@ -238,7 +237,7 @@ public:
 		SerializeCommon(deserialize);
 
 		std::int32_t size = ((m_WorldX1-m_WorldX0)/Pathfinding::NAVCELL_SIZE_INT).ToInt_RoundToInfinity();
-		m_UpdateInformations.dirtinessGrid = Grid<u8>(size, size);
+		m_UpdateInformations.dirtinessGrid = Grid<std::uint8_t>(size, size);
 	}
 
 	void HandleMessage(const CMessage& msg, bool /*global*/) override
@@ -269,7 +268,7 @@ public:
 		ResetSubdivisions(x1, z1);
 
 		std::int32_t size = ((m_WorldX1-m_WorldX0)/Pathfinding::NAVCELL_SIZE_INT).ToInt_RoundToInfinity();
-		m_UpdateInformations.dirtinessGrid = Grid<u8>(size, size);
+		m_UpdateInformations.dirtinessGrid = Grid<std::uint8_t>(size, size);
 
 		CmpPtr<ICmpPathfinder> cmpPathfinder(GetSystemEntity());
 		if (cmpPathfinder)

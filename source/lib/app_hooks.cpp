@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Wildfire Games.
+/* Copyright (C) 2026 Wildfire Games.
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -25,7 +25,6 @@
 #include "app_hooks.h"
 
 #include "lib/sysdep/sysdep.h"
-#include "lib/types.h"
 
 #include <cstdio>
 
@@ -87,8 +86,8 @@ void app_hooks_update(const AppHooks& new_ah)
 
 bool app_hook_was_redefined(size_t offset_in_struct)
 {
-	const u8* ah_bytes = (const u8*)&ah;
-	const u8* default_ah_bytes = (const u8*)&default_ah;
+	const std::uint8_t* ah_bytes = reinterpret_cast<const std::uint8_t*>(&ah);
+	const std::uint8_t* default_ah_bytes = reinterpret_cast<const std::uint8_t*>(&default_ah);
 	typedef void(*FP)();	// a bit safer than comparing void* pointers
 	if(*(FP)(ah_bytes+offset_in_struct) != *(FP)(default_ah_bytes+offset_in_struct))
 		return true;

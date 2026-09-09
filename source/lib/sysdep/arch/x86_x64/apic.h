@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Wildfire Games.
+/* Copyright (C) 2026 Wildfire Games.
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -23,11 +23,9 @@
 #ifndef INCLUDED_X86_X64_APIC
 #define INCLUDED_X86_X64_APIC
 
-#include "lib/types.h"
-
 #include <cstddef>
 
-typedef u8 ApicId;	// not necessarily contiguous values
+typedef std::uint8_t ApicId;	// not necessarily contiguous values
 
 /**
  * @return APIC ID of the currently executing processor or zero if the

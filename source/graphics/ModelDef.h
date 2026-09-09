@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Wildfire Games.
+/* Copyright (C) 2026 Wildfire Games.
  * This file is part of 0 A.D.
  *
  * 0 A.D. is free software: you can redistribute it and/or modify
@@ -84,7 +84,7 @@ struct SPropPoint
 	 * Index of parent bone to which this prop point is relative, if any. The value 0xFF specifies that either the parent
 	 * model is unboned, or that this prop point is relative to the parent model's origin rather than one if its bones.
 	 */
-	u8 m_BoneIndex;
+	std::uint8_t m_BoneIndex;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -94,7 +94,7 @@ struct SVertexBlend
 {
 	enum { SIZE = 4 };
 	// index of the influencing bone, or 0xff if none
-	u8 m_Bone[SIZE];
+	std::uint8_t m_Bone[SIZE];
 	// weight of the influence; all weights sum to 1
 	float m_Weight[SIZE];
 

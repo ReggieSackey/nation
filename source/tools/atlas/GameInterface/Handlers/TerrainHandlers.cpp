@@ -89,7 +89,7 @@ sTerrainTexturePreview GetPreview(CTerrainTextureEntry* tex, size_t width, size_
 	preview.name = tex->GetTag().FromUTF8();
 
 	const size_t previewBPP = 3;
-	std::vector<u8> buffer(width * height * previewBPP);
+	std::vector<std::uint8_t> buffer(width * height * previewBPP);
 
 	// It's not good to shrink the entire texture to fit the small preview
 	// window, since it's the fine details in the texture that are
@@ -107,7 +107,7 @@ sTerrainTexturePreview GetPreview(CTerrainTextureEntry* tex, size_t width, size_
 			texturePath = tex->GetDiffuseTexturePath();
 	}
 
-	std::shared_ptr<u8> fileData;
+	std::shared_ptr<std::uint8_t> fileData;
 	size_t fileSize;
 	Tex texture;
 	const bool canUsePreview =
@@ -126,7 +126,7 @@ sTerrainTexturePreview GetPreview(CTerrainTextureEntry* tex, size_t width, size_
 			++level;
 		// Extract the middle section (as a representative preview),
 		// and copy into buffer.
-		u8* data = texture.GetMIPLevels()[level].data;
+		std::uint8_t* data = texture.GetMIPLevels()[level].data;
 		ENSURE(data);
 		const size_t levelWidth = texture.m_Width >> level;
 		const size_t levelHeight = texture.m_Height >> level;

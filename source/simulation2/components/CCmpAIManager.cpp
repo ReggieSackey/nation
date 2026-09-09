@@ -121,7 +121,8 @@ private:
 	{
 		NONCOPYABLE(CAIPlayer);
 	public:
-		CAIPlayer(CAIWorker& worker, const std::wstring& aiName, player_id_t player, u8 difficulty, const std::wstring& behavior,
+		CAIPlayer(CAIWorker& worker, const std::wstring& aiName, player_id_t player,
+			std::uint8_t difficulty, const std::wstring& behavior,
 			std::shared_ptr<Script::Interface> scriptInterface) :
 			m_Worker(worker), m_AIName(aiName), m_Player(player), m_Difficulty(difficulty), m_Behavior(behavior),
 			m_ScriptInterface(scriptInterface), m_Obj(scriptInterface->GetGeneralJSContext())
@@ -227,7 +228,7 @@ private:
 		CAIWorker& m_Worker;
 		std::wstring m_AIName;
 		player_id_t m_Player;
-		u8 m_Difficulty;
+		std::uint8_t m_Difficulty;
 		std::wstring m_Behavior;
 		bool m_UseSharedComponent;
 
@@ -389,15 +390,15 @@ public:
 
 		const size_t img_size = w * h * bpp/8;
 		const size_t hdr_size = tex_hdr_size(filename);
-		std::shared_ptr<u8> buf;
+		std::shared_ptr<std::uint8_t> buf;
 		AllocateAligned(buf, hdr_size+img_size, maxSectorSize);
 		Tex t;
 		if (t.wrap(w, h, bpp, flags, buf, hdr_size) < 0)
 			return;
 
-		u8* img = buf.get() + hdr_size;
+		std::uint8_t* img = buf.get() + hdr_size;
 		for (size_t i = 0; i < data.size(); ++i)
-			img[i] = (u8)((data[i] * 255) / max);
+			img[i] = static_cast<std::uint8_t>((data[i] * 255) / max);
 
 		tex_write(&t, filename);
 	}
@@ -468,7 +469,8 @@ public:
 		return true;
 	}
 
-	bool AddPlayer(const std::wstring& aiName, player_id_t player, u8 difficulty, const std::wstring& behavior)
+	bool AddPlayer(const std::wstring& aiName, player_id_t player, std::uint8_t difficulty,
+		const std::wstring& behavior)
 	{
 		std::shared_ptr<CAIPlayer> ai = std::make_shared<CAIPlayer>(*this, aiName, player, difficulty, behavior, m_ScriptInterface);
 		if (!ai->Initialise())
@@ -483,8 +485,10 @@ public:
 		return true;
 	}
 
-	bool RunGamestateInit(const Script::StructuredClone& gameState, const Grid<NavcellData>& passabilityMap, const Grid<u8>& territoryMap,
-		const std::map<std::string, pass_class_t>& nonPathfindingPassClassMasks, const std::map<std::string, pass_class_t>& pathfindingPassClassMasks)
+	bool RunGamestateInit(const Script::StructuredClone& gameState,
+		const Grid<NavcellData>& passabilityMap, const Grid<std::uint8_t>& territoryMap,
+		const std::map<std::string, pass_class_t>& nonPathfindingPassClassMasks,
+		const std::map<std::string, pass_class_t>& pathfindingPassClassMasks)
 	{
 		// this will be run last by InitGame.js, passing the full game representation.
 		// For now it will run for the shared Component.
@@ -526,8 +530,10 @@ public:
 		m_GameState.init(Script::Request(m_ScriptInterface).cx, gameState);
 	}
 
-	void UpdatePathfinder(const Grid<NavcellData>& passabilityMap, bool globallyDirty, const Grid<u8>& dirtinessGrid, bool justDeserialized,
-		const std::map<std::string, pass_class_t>& nonPathfindingPassClassMasks, const std::map<std::string, pass_class_t>& pathfindingPassClassMasks)
+	void UpdatePathfinder(const Grid<NavcellData>& passabilityMap, bool globallyDirty,
+		const Grid<std::uint8_t>& dirtinessGrid, bool justDeserialized,
+		const std::map<std::string, pass_class_t>& nonPathfindingPassClassMasks,
+		const std::map<std::string, pass_class_t>& pathfindingPassClassMasks)
 	{
 		ENSURE(m_CommandsComputed);
 		bool dimensionChange = m_PassabilityMap.m_W != passabilityMap.m_W || m_PassabilityMap.m_H != passabilityMap.m_H;
@@ -565,7 +571,7 @@ public:
 		}
 	}
 
-	void UpdateTerritoryMap(const Grid<u8>& territoryMap)
+	void UpdateTerritoryMap(const Grid<std::uint8_t>& territoryMap)
 	{
 		ENSURE(m_CommandsComputed);
 		bool dimensionChange = m_TerritoryMap.m_W != territoryMap.m_W || m_TerritoryMap.m_H != territoryMap.m_H;
@@ -585,7 +591,7 @@ public:
 
 			u32 length = 0;
 			ENSURE(JS::GetArrayLength(rq.cx, dataObj, &length));
-			u32 nbytes = (u32)(length * sizeof(u8));
+			u32 nbytes = (u32)(length * sizeof(std::uint8_t));
 
 			bool sharedMemory;
 			JS::AutoCheckCannotGC nogc;
@@ -692,7 +698,8 @@ public:
 		Serializer(serializer, "pathfinding pass classes", m_PathfindingPassClasses);
 		serializer.NumberU16_Unbounded("pathfinder grid w", m_PassabilityMap.m_W);
 		serializer.NumberU16_Unbounded("pathfinder grid h", m_PassabilityMap.m_H);
-		serializer.RawBytes("pathfinder grid data", (const u8*)m_PassabilityMap.m_Data,
+		serializer.RawBytes("pathfinder grid data",
+			reinterpret_cast<const std::uint8_t*>(m_PassabilityMap.m_Data),
 			m_PassabilityMap.m_W*m_PassabilityMap.m_H*sizeof(NavcellData));
 	}
 
@@ -729,7 +736,7 @@ public:
 		{
 			std::wstring name;
 			player_id_t player;
-			u8 difficulty;
+			std::uint8_t difficulty;
 			std::wstring behavior;
 			deserializer.String("name", name, 1, 256);
 			deserializer.NumberI32_Unbounded("player", player);
@@ -758,7 +765,8 @@ public:
 		deserializer.NumberU16_Unbounded("pathfinder grid w", mapW);
 		deserializer.NumberU16_Unbounded("pathfinder grid h", mapH);
 		m_PassabilityMap = Grid<NavcellData>(mapW, mapH);
-		deserializer.RawBytes("pathfinder grid data", (u8*)m_PassabilityMap.m_Data, mapW*mapH*sizeof(NavcellData));
+		deserializer.RawBytes("pathfinder grid data",
+			reinterpret_cast<std::uint8_t*>(m_PassabilityMap.m_Data), mapW * mapH * sizeof(NavcellData));
 		m_LongPathfinder.Reload(&m_PassabilityMap);
 		m_HierarchicalPathfinder.Recompute(&m_PassabilityMap, m_NonPathfindingPassClasses, m_PathfindingPassClasses);
 	}
@@ -847,7 +855,7 @@ private:
 	JS::PersistentRootedValue m_GameState;
 	Grid<NavcellData> m_PassabilityMap;
 	JS::PersistentRootedValue m_PassabilityMapVal;
-	Grid<u8> m_TerritoryMap;
+	Grid<std::uint8_t> m_TerritoryMap;
 	JS::PersistentRootedValue m_TerritoryMapVal;
 
 	std::map<std::string, pass_class_t> m_NonPathfindingPassClasses;
@@ -917,7 +925,8 @@ public:
 		m_JustDeserialized = true;
 	}
 
-	void AddPlayer(const std::wstring& id, player_id_t player, u8 difficulty, const std::wstring& behavior) override
+	void AddPlayer(const std::wstring& id, player_id_t player, std::uint8_t difficulty,
+		const std::wstring& behavior) override
 	{
 		LoadUsedEntityTemplates();
 
@@ -963,8 +972,8 @@ public:
 
 		// Get the territory data
 		// Since getting the territory grid can trigger a recalculation, we check NeedUpdateAI first
-		Grid<u8> dummyGrid2;
-		const Grid<u8>* territoryMap = &dummyGrid2;
+		Grid<std::uint8_t> dummyGrid2;
+		const Grid<std::uint8_t>* territoryMap = &dummyGrid2;
 		CmpPtr<ICmpTerritoryManager> cmpTerritoryManager(GetSystemEntity());
 		if (cmpTerritoryManager && cmpTerritoryManager->NeedUpdateAI(&m_TerritoriesDirtyID, &m_TerritoriesDirtyBlinkingID))
 			territoryMap = &cmpTerritoryManager->GetTerritoryGrid();
@@ -1028,7 +1037,7 @@ public:
 		CmpPtr<ICmpTerritoryManager> cmpTerritoryManager(GetSystemEntity());
 		if (cmpTerritoryManager && (cmpTerritoryManager->NeedUpdateAI(&m_TerritoriesDirtyID, &m_TerritoriesDirtyBlinkingID) || m_JustDeserialized))
 		{
-			const Grid<u8>& territoryMap = cmpTerritoryManager->GetTerritoryGrid();
+			const Grid<std::uint8_t>& territoryMap = cmpTerritoryManager->GetTerritoryGrid();
 			m_Worker.UpdateTerritoryMap(territoryMap);
 		}
 

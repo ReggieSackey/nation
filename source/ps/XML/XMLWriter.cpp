@@ -24,7 +24,6 @@
 #include "lib/debug.h"
 #include "lib/path.h"
 #include "lib/status.h"
-#include "lib/types.h"
 #include "lib/utf8.h"
 #include "maths/Fixed.h"
 #include "ps/CLogger.h"
@@ -105,7 +104,7 @@ bool XMLWriter_File::StoreVFS(const PIVFS& vfs, const VfsPath& pathname)
 	if (m_LastElement) debug_warn(L"ERROR: Saving XML while an element is still open");
 
 	const size_t size = m_Data.length();
-	std::shared_ptr<u8> data;
+	std::shared_ptr<std::uint8_t> data;
 	AllocateAligned(data, size, maxSectorSize);
 	memcpy(data.get(), m_Data.data(), size);
 	Status ret = vfs->CreateFile(pathname, {data.get(), size});

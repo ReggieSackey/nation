@@ -145,7 +145,7 @@ public:
 
 private:
 	// the data read from file and used during unpack operations
-	std::unique_ptr<u8[], AlignedDeleter> m_buf;
+	std::unique_ptr<std::uint8_t[], AlignedDeleter> m_buf;
 	size_t m_bufSize;
 
 	size_t m_unpackPos;	/// current unpack position in stream

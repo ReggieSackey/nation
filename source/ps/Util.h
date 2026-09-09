@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Wildfire Games.
+/* Copyright (C) 2026 Wildfire Games.
  * This file is part of 0 A.D.
  *
  * 0 A.D. is free software: you can redistribute it and/or modify
@@ -21,7 +21,6 @@
 #include "lib/file/vfs/vfs_path.h"
 #include "lib/os_path.h"
 #include "lib/status.h"
-#include "lib/types.h"
 #include "ps/CStr.h"
 
 #include <cstddef>
@@ -38,6 +37,6 @@ OsPath createDateIndexSubdirectory(const OsPath& parentDir);
 Status tex_write(Tex* t, const VfsPath& filename);
 
 std::string Hexify(const std::string& s);
-std::string Hexify(const u8* s, size_t length);
+std::string Hexify(const std::uint8_t* s, size_t length);
 
 #endif // PS_UTIL_H

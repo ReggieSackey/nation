@@ -192,11 +192,11 @@ size_t ModIo::DownloadCallback(void* buffer, size_t size, size_t nmemb, void* us
 	// but we do not want to have a possibly valid hash in that case.
 	size_t written = len*size;
 
-	data->md5.Update(static_cast<const u8*>(buffer), written);
+	data->md5.Update(static_cast<const std::uint8_t*>(buffer), written);
 
 	ENSURE(data->hash_state);
 
-	crypto_generichash_update(data->hash_state, static_cast<const u8*>(buffer), written);
+	crypto_generichash_update(data->hash_state, static_cast<const std::uint8_t*>(buffer), written);
 
 	return written;
 }
@@ -576,7 +576,7 @@ bool ModIo::VerifyDownloadedFile(std::string& err)
 	// MD5 (because upstream provides it)
 	// Just used to make sure there was no obvious corruption during transfer.
 	{
-		u8 digest[MD5::DIGESTSIZE];
+		std::uint8_t digest[MD5::DIGESTSIZE];
 		m_CallbackData->md5.Final(digest);
 		std::string md5digest = Hexify(digest, MD5::DIGESTSIZE);
 

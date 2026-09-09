@@ -89,7 +89,7 @@ sEnvironmentSettings GetSettings()
 	// RGBColor (CVector3D) colors
 #define COLOR(A, B) A = Color((int)(B.X*255), (int)(B.Y*255), (int)(B.Z*255))
 	s.sunoverbrightness = MaxComponent(g_LightEnv.m_SunColor);
-	// clamp color to [0..1] before packing into u8 triplet
+	// clamp color to [0..1] before packing into std::uint8_t triplet
 	if(s.sunoverbrightness > 1.0f)
 		g_LightEnv.m_SunColor *= 1.0/s.sunoverbrightness;	// (there's no operator/=)
 	// no component was above 1.0, so reset scale factor (don't want to darken)

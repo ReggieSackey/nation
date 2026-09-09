@@ -156,7 +156,7 @@ private:
 	struct CellIconKey
 	{
 		std::string path;
-		u8 r, g, b;
+		std::uint8_t r, g, b;
 	};
 	struct CellIconKeyHash
 	{

@@ -27,12 +27,13 @@
 
 #include <cmath>
 
-std::vector<STerritoryBoundary> CTerritoryBoundaryCalculator::ComputeBoundaries(const Grid<u8>* territory)
+std::vector<STerritoryBoundary> CTerritoryBoundaryCalculator::ComputeBoundaries(
+	const Grid<std::uint8_t>* territory)
 {
 	std::vector<STerritoryBoundary> boundaries;
 
 	// Copy the territories grid so we can mess with it
-	Grid<u8> grid(*territory);
+	Grid<std::uint8_t> grid(*territory);
 
 	// Some constants for the border walk
 	CVector2D edgeOffsets[] = {
@@ -43,10 +44,10 @@ std::vector<STerritoryBoundary> CTerritoryBoundaryCalculator::ComputeBoundaries(
 	};
 
 	// syntactic sugar
-	const u8 TILE_BOTTOM = 0;
-	const u8 TILE_RIGHT = 1;
-	const u8 TILE_TOP = 2;
-	const u8 TILE_LEFT = 3;
+	const std::uint8_t TILE_BOTTOM = 0;
+	const std::uint8_t TILE_RIGHT = 1;
+	const std::uint8_t TILE_TOP = 2;
+	const std::uint8_t TILE_LEFT = 3;
 
 	const int CURVE_CW = -1;
 	const int CURVE_CCW = 1;
@@ -95,8 +96,8 @@ std::vector<STerritoryBoundary> CTerritoryBoundaryCalculator::ComputeBoundaries(
 		{
 			// saved tile state; from MSB to LSB:
 			// processed bit, blinking bit, player ID
-			u8 tileState = grid.get(i, j);
-			u8 tileDiscr = (tileState & TERRITORY_DISCR_MASK);
+			std::uint8_t tileState = grid.get(i, j);
+			std::uint8_t tileDiscr = (tileState & TERRITORY_DISCR_MASK);
 
 			// ignore neutral tiles (note that tiles without an owner should never have the blinking bit set)
 			if (!tileDiscr)
@@ -119,9 +120,9 @@ std::vector<STerritoryBoundary> CTerritoryBoundaryCalculator::ComputeBoundaries(
 			boundaries.back().blinking = (tileState & ICmpTerritoryManager::TERRITORY_BLINKING_MASK) != 0;
 			std::vector<CVector2D>& points = boundaries.back().points;
 
-			u8 dir = TILE_BOTTOM;
+			std::uint8_t dir = TILE_BOTTOM;
 
-			u8 cdir = dir;
+			std::uint8_t cdir = dir;
 			u16 ci = i, cj = j;
 
 			u16 maxi = (u16)(grid.m_W-1);

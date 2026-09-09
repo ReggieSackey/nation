@@ -30,7 +30,6 @@
 #include "lib/status.h"
 #include "lib/sysdep/sysdep.h"
 #include "lib/timer.h"
-#include "lib/types.h"
 #include "lib/utf8.h"
 #include "ps/CStr.h"
 #include "ps/ConfigDB.h"
@@ -505,7 +504,7 @@ std::string CUserReporter::LoadUserID()
 	// If we don't have a validly-formatted user ID, generate a new one
 	if (userID.length() != 16)
 	{
-		u8 bytes[8] = {0};
+		std::uint8_t bytes[8] = {0};
 		sys_generate_random_bytes(bytes, ARRAY_SIZE(bytes));
 		// ignore failures - there's not much we can do about it
 

@@ -192,7 +192,7 @@ struct Query
 	entity_pos_t yOrigin; // Used for parabolas only.
 	u32 ownersMask;
 	std::int32_t interface;
-	u8 flagsMask;
+	std::uint8_t flagsMask;
 	bool enabled;
 	bool parabolic;
 	bool accountForSize; // If true, the query accounts for unit sizes, otherwise it treats all entities as points.
@@ -266,7 +266,7 @@ struct EntityData
 	u32 size;
 	u16 visionSharing; // 1-bit per player
 	std::int8_t owner;
-	u8 flags; // See the FlagMasks enum
+	std::uint8_t flags; // See the FlagMasks enum
 
 	template<int mask>
 	inline bool HasFlag() const { return (flags & mask) != 0; }
@@ -274,7 +274,7 @@ struct EntityData
 	template<int mask>
 	inline void SetFlag(bool val) { flags = val ? (flags | mask) : (flags & ~mask); }
 
-	inline void SetFlag(u8 mask, bool val) { flags = val ? (flags | mask) : (flags & ~mask); }
+	inline void SetFlag(std::uint8_t mask, bool val) { flags = val ? (flags | mask) : (flags & ~mask); }
 };
 
 static_assert(sizeof(EntityData) == 24);
@@ -942,7 +942,7 @@ public:
 			for (std::int32_t j = 0; j < m_LosVerticesPerSide; j++)
 				for (std::int32_t i = 0; i < m_LosVerticesPerSide; i++)
 					if (!LosIsOffWorld(i, j))
-						for (u8 k = 1; k < MAX_LOS_PLAYER_ID+1; ++k)
+						for (std::uint8_t k = 1; k < MAX_LOS_PLAYER_ID+1; ++k)
 							m_ExploredVertices.at(k) += ((m_LosState.get(i, j) & ((u32)LosState::EXPLORED << (2*(k-1)))) > 0);
 		} else
 			m_LosState.resize(m_LosVerticesPerSide, m_LosVerticesPerSide);
@@ -996,7 +996,7 @@ public:
 
 	tag_t CreateActiveQuery(entity_id_t source,
 		entity_pos_t minRange, entity_pos_t maxRange,
-		const std::vector<int>& owners, int requiredInterface, u8 flags,
+		const std::vector<int>& owners, int requiredInterface, std::uint8_t flags,
 		bool accountForSize, bool preferMirages) override
 	{
 		tag_t id = m_QueryNext++;
@@ -1006,7 +1006,7 @@ public:
 
 	tag_t CreateActiveParabolicQuery(entity_id_t source,
 		entity_pos_t minRange, entity_pos_t maxRange, entity_pos_t baseRange, entity_pos_t yOrigin,
-		const std::vector<int>& owners, int requiredInterface, u8 flags, bool preferMirages = false) override
+		const std::vector<int>& owners, int requiredInterface, std::uint8_t flags, bool preferMirages = false) override
 	{
 		tag_t id = m_QueryNext++;
 		m_Queries[id] = ConstructParabolicQuery(source, minRange, maxRange, baseRange, yOrigin, owners, requiredInterface, flags, true, preferMirages);
@@ -1609,7 +1609,7 @@ public:
 
 	Query ConstructQuery(entity_id_t source,
 		entity_pos_t minRange, entity_pos_t maxRange,
-		const std::vector<int>& owners, int requiredInterface, u8 flagsMask,
+		const std::vector<int>& owners, int requiredInterface, std::uint8_t flagsMask,
 		bool accountForSize, bool preferMirages = false) const
 	{
 		// Min range must be non-negative.
@@ -1669,7 +1669,7 @@ public:
 
 	Query ConstructParabolicQuery(entity_id_t source,
 		entity_pos_t minRange, entity_pos_t maxRange, entity_pos_t baseRange, entity_pos_t yOrigin,
-		const std::vector<int>& owners, int requiredInterface, u8 flagsMask,
+		const std::vector<int>& owners, int requiredInterface, std::uint8_t flagsMask,
 		bool accountForSize, bool preferMirages = false) const
 	{
 		Query q = ConstructQuery(source, minRange, maxRange, owners, requiredInterface, flagsMask, accountForSize, preferMirages);
@@ -1815,7 +1815,7 @@ public:
 			collector.Submit(&m_DebugOverlayLines[i]);
 	}
 
-	u8 GetEntityFlagMask(const std::string& identifier) const override
+	std::uint8_t GetEntityFlagMask(const std::string& identifier) const override
 	{
 		if (identifier == "normal")
 			return FlagMasks::Normal;
@@ -1834,7 +1834,7 @@ public:
 		if (it == m_EntityData.end())
 			return;
 
-		u8 flag = GetEntityFlagMask(identifier);
+		std::uint8_t flag = GetEntityFlagMask(identifier);
 
 		if (flag == FlagMasks::None)
 			LOGWARNING("CCmpRangeManager: Invalid flag identifier %s for entity %u", identifier.c_str(), ent);
@@ -2084,7 +2084,7 @@ public:
 
 		// Calling UpdateVisibility can modify m_ModifiedEntities, so be careful:
 		// infinite loops could be triggered by feedback between entities and their mirages.
-		std::map<entity_id_t, u8> attempts;
+		std::map<entity_id_t, std::uint8_t> attempts;
 		while (!m_ModifiedEntities.empty())
 		{
 			entity_id_t ent = m_ModifiedEntities.back();
@@ -2115,7 +2115,8 @@ public:
 		if (oldVis == newVis)
 			return;
 
-		itEnts->second.visibilities = (itEnts->second.visibilities & ~(0x3 << 2 * (player - 1))) | ((u8)newVis << 2 * (player - 1));
+		itEnts->second.visibilities = (itEnts->second.visibilities & ~(0x3 << 2 * (player - 1))) |
+			(static_cast<std::uint8_t>(newVis) << 2 * (player - 1));
 
 		CMessageVisibilityChanged msg(player, ent, static_cast<int>(oldVis), static_cast<int>(newVis));
 		GetSimContext().GetComponentManager().PostMessage(ent, msg);
@@ -2218,7 +2219,7 @@ public:
 		PROFILE3("ExploreTerritories");
 
 		CmpPtr<ICmpTerritoryManager> cmpTerritoryManager(GetSystemEntity());
-		const Grid<u8>& grid = cmpTerritoryManager->GetTerritoryGrid();
+		const Grid<std::uint8_t>& grid = cmpTerritoryManager->GetTerritoryGrid();
 
 		// Territory data is stored per territory-tile (typically a multiple of terrain-tiles).
 		// LOS data is stored per los vertex (in reality tiles too, but it's the center that matters).
@@ -2234,7 +2235,7 @@ public:
 			{
 				// TODO: This fetches data redundantly if the los grid is smaller than the territory grid
 				// (but it's unlikely to matter much).
-				u8 p = grid.get(scale(i, grid.width() - 1), scale(j, grid.height() - 1)) & ICmpTerritoryManager::TERRITORY_PLAYER_MASK;
+				std::uint8_t p = grid.get(scale(i, grid.width() - 1), scale(j, grid.height() - 1)) & ICmpTerritoryManager::TERRITORY_PLAYER_MASK;
 				if (p > 0 && p <= MAX_LOS_PLAYER_ID)
 				{
 					u32& explored = m_ExploredVertices.at(p);
@@ -2402,7 +2403,7 @@ public:
 	/**
 	 * Update the LOS state of tiles within a given horizontal strip (i0,j) to (i1,j) (inclusive).
 	 */
-	inline void LosAddStripHelper(u8 owner, std::int32_t i0, std::int32_t i1, std::int32_t j, Grid<u16>& counts)
+	inline void LosAddStripHelper(std::uint8_t owner, std::int32_t i0, std::int32_t i1, std::int32_t j, Grid<u16>& counts)
 	{
 		if (i1 < i0)
 			return;
@@ -2430,7 +2431,7 @@ public:
 	/**
 	 * Update the LOS state of tiles within a given horizontal strip (i0,j) to (i1,j) (inclusive).
 	 */
-	inline void LosRemoveStripHelper(u8 owner, std::int32_t i0, std::int32_t i1, std::int32_t j,
+	inline void LosRemoveStripHelper(std::uint8_t owner, std::int32_t i0, std::int32_t i1, std::int32_t j,
 		Grid<u16>& counts)
 	{
 		if (i1 < i0)
@@ -2452,7 +2453,7 @@ public:
 		}
 	}
 
-	inline void MarkVisibilityDirtyAroundTile(u8 owner, std::int32_t i, std::int32_t j)
+	inline void MarkVisibilityDirtyAroundTile(std::uint8_t owner, std::int32_t i, std::int32_t j)
 	{
 		// If we're still in the deserializing process, we must not modify m_DirtyVisibility
 		if (m_Deserializing)
@@ -2483,7 +2484,7 @@ public:
 	 * Assumes owner is in the valid range.
 	 */
 	template<bool adding>
-	void LosUpdateHelper(u8 owner, entity_pos_t visionRange, CFixedVector2D pos)
+	void LosUpdateHelper(std::uint8_t owner, entity_pos_t visionRange, CFixedVector2D pos)
 	{
 		if (m_LosVerticesPerSide == 0) // do nothing if not initialised yet
 			return;
@@ -2570,7 +2571,7 @@ public:
 	 * by removing visibility around the 'from' position
 	 * and then adding visibility around the 'to' position.
 	 */
-	void LosUpdateHelperIncremental(u8 owner, entity_pos_t visionRange, CFixedVector2D from, CFixedVector2D to)
+	void LosUpdateHelperIncremental(std::uint8_t owner, entity_pos_t visionRange, CFixedVector2D from, CFixedVector2D to)
 	{
 		if (m_LosVerticesPerSide == 0) // do nothing if not initialised yet
 			return;
@@ -2698,7 +2699,7 @@ public:
 		if (visionRange.IsZero() || owner <= 0 || owner > MAX_LOS_PLAYER_ID)
 			return;
 
-		LosUpdateHelper<true>((u8)owner, visionRange, pos);
+		LosUpdateHelper<true>(static_cast<std::uint8_t>(owner), visionRange, pos);
 	}
 
 	void SharingLosAdd(u16 visionSharing, entity_pos_t visionRange, CFixedVector2D pos)
@@ -2716,7 +2717,7 @@ public:
 		if (visionRange.IsZero() || owner <= 0 || owner > MAX_LOS_PLAYER_ID)
 			return;
 
-		LosUpdateHelper<false>((u8)owner, visionRange, pos);
+		LosUpdateHelper<false>(static_cast<std::uint8_t>(owner), visionRange, pos);
 	}
 
 	void SharingLosRemove(u16 visionSharing, entity_pos_t visionRange, CFixedVector2D pos)
@@ -2737,12 +2738,12 @@ public:
 		if ((from - to).CompareLength(visionRange) > 0)
 		{
 			// If it's a very large move, then simply remove and add to the new position
-			LosUpdateHelper<false>((u8)owner, visionRange, from);
-			LosUpdateHelper<true>((u8)owner, visionRange, to);
+			LosUpdateHelper<false>(static_cast<std::uint8_t>(owner), visionRange, from);
+			LosUpdateHelper<true>(static_cast<std::uint8_t>(owner), visionRange, to);
 		}
 		else
 			// Otherwise use the version optimised for mostly-overlapping circles
-			LosUpdateHelperIncremental((u8)owner, visionRange, from, to);
+			LosUpdateHelperIncremental(static_cast<std::uint8_t>(owner), visionRange, from, to);
 	}
 
 	void SharingLosMove(u16 visionSharing, entity_pos_t visionRange, CFixedVector2D from, CFixedVector2D to)
@@ -2755,12 +2756,12 @@ public:
 				LosMove(i, visionRange, from, to);
 	}
 
-	u8 GetPercentMapExplored(player_id_t player) const override
+	std::uint8_t GetPercentMapExplored(player_id_t player) const override
 	{
-		return m_ExploredVertices.at((u8)player) * 100 / m_TotalInworldVertices;
+		return m_ExploredVertices.at(static_cast<std::uint8_t>(player)) * 100 / m_TotalInworldVertices;
 	}
 
-	u8 GetUnionPercentMapExplored(const std::vector<player_id_t>& players) const override
+	std::uint8_t GetUnionPercentMapExplored(const std::vector<player_id_t>& players) const override
 	{
 		u32 exploredVertices = 0;
 		std::vector<player_id_t>::const_iterator playerIt;

@@ -19,7 +19,6 @@
 
 #include "RelaxNG.h"
 
-#include "lib/types.h"
 #include "ps/CLogger.h"
 #include "ps/CStr.h"
 #include "ps/Errors.h"
@@ -118,7 +117,7 @@ bool RelaxNGValidator::LoadGrammar(const std::string& grammar)
 		return false;
 
 	MD5 hash;
-	hash.Update((const u8*)grammar.c_str(), grammar.length());
+	hash.Update(reinterpret_cast<const std::uint8_t*>(grammar.c_str()), grammar.length());
 	m_Hash = hash;
 
 	return true;

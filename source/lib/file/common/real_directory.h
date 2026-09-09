@@ -28,7 +28,6 @@
 #include "lib/os_path.h"
 #include "lib/status.h"
 #include "lib/sysdep/dir_watch.h"
-#include "lib/types.h"
 
 #include <cstddef>
 #include <memory>
@@ -57,9 +56,9 @@ public:
 	{
 		return m_path;
 	}
-	Status Load(const OsPath& name, const std::span<u8> buffer) const override;
+	Status Load(const OsPath& name, const std::span<std::uint8_t> buffer) const override;
 
-	Status Store(const OsPath& name, std::span<const u8> fileContents);
+	Status Store(const OsPath& name, std::span<const std::uint8_t> fileContents);
 
 	void Watch();
 

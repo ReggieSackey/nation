@@ -75,8 +75,7 @@ CObjectEntry::CObjectEntry(const std::shared_ptr<CObjectBase>& base, const CSimu
 CObjectEntry::~CObjectEntry() = default;
 
 bool CObjectEntry::BuildVariation(const std::vector<const std::set<CStr>*>& completeSelections,
-								  const std::vector<u8>& variationKey,
-								  CObjectManager& objectManager)
+	const std::vector<std::uint8_t>& variationKey, CObjectManager& objectManager)
 {
 	CObjectBase::Variation variation = m_Base->BuildVariation(variationKey);
 

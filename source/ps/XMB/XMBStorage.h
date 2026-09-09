@@ -108,7 +108,7 @@ public:
 	 */
 	bool LoadJSValue(const Script::Interface& scriptInterface, JS::HandleValue value, const std::string& rootName);
 
-	std::shared_ptr<u8> m_Buffer;
+	std::shared_ptr<std::uint8_t> m_Buffer;
 	size_t m_Size = 0;
 };
 

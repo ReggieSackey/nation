@@ -28,7 +28,6 @@
 #include "lib/os_path.h"
 #include "lib/path.h"
 #include "lib/secure_crt.h"
-#include "lib/types.h"
 #include "ps/CLogger.h"
 #include "ps/XML/RelaxNG.h"
 
@@ -82,7 +81,7 @@ class TestMeshManager : public CxxTest::TestSuite
 	void copyFile(const VfsPath& src, const VfsPath& dst)
 	{
 		// Copy a file into the mod directory, so we can work on it:
-		std::unique_ptr<u8[], AlignedDeleter> data; size_t size = 0;
+		std::unique_ptr<std::uint8_t[], AlignedDeleter> data; size_t size = 0;
 		TS_ASSERT_OK(g_VFS->LoadFile(src, data, size));
 		TS_ASSERT_OK(g_VFS->CreateFile(dst, {data.get(), size}));
 	}
@@ -91,7 +90,7 @@ class TestMeshManager : public CxxTest::TestSuite
 	{
 		// Create a junk trace file first, because vfs_opt_auto_build requires one
 //		std::string trace = "000.000000: L \"-\" 0 0000\n";
-//		vfs_store("trace.txt", (const u8*)trace.c_str(), trace.size(), FILE_NO_AIO);
+//		vfs_store("trace.txt", static_cast<std::uint8_t*>(trace.c_str()), trace.size(), FILE_NO_AIO);
 
 		// then make the archive
 //		TS_ASSERT_OK(vfs_opt_rebuild_main_archive(MOD_PATH"/trace.txt", MOD_PATH"/test%02d.zip"));
@@ -120,7 +119,7 @@ public:
 	{
 		copyFile(srcDAE, testDAE);
 		//buildArchive();
-		std::shared_ptr<u8> buf;
+		std::shared_ptr<std::uint8_t> buf;
 		AllocateAligned(buf, 100, maxSectorSize);
 		strcpy_s((char*)buf.get(), 5, "Test");
 		g_VFS->CreateFile(testDAE, {buf.get(), 4});
@@ -186,7 +185,7 @@ public:
 		TestLogger logger;
 
 		copyFile(srcDAE, testDAE);
-		std::shared_ptr<u8> buf;
+		std::shared_ptr<std::uint8_t> buf;
 		AllocateAligned(buf, 100, maxSectorSize);
 		strcpy_s((char*)buf.get(), 100, "Not valid XML");
 		g_VFS->CreateFile(testSkeletonDefs, {buf.get(), 13});
@@ -201,7 +200,7 @@ public:
 		TestLogger logger;
 
 		copyFile(srcSkeletonDefs, testSkeletonDefs);
-		std::shared_ptr<u8> buf;
+		std::shared_ptr<std::uint8_t> buf;
 		AllocateAligned(buf, 100, maxSectorSize);
 		strcpy_s((char*)buf.get(), 100, "Not valid XML");
 		g_VFS->CreateFile(testDAE, {buf.get(), 13});

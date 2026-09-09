@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Wildfire Games.
+/* Copyright (C) 2026 Wildfire Games.
  * This file is part of 0 A.D.
  *
  * 0 A.D. is free software: you can redistribute it and/or modify
@@ -18,7 +18,6 @@
 #ifndef INCLUDED_ISERIALIZER
 #define INCLUDED_ISERIALIZER
 
-#include "lib/types.h"
 #include "maths/Fixed.h"
 #include "ps/Errors.h"
 
@@ -233,7 +232,7 @@ public:
 	 * It is the caller's responsibility to deal with portability (padding, endianness, etc);
 	 * the typed serialize methods should usually be used instead of this.
 	 */
-	void RawBytes(const char* name, const u8* data, size_t len);
+	void RawBytes(const char* name, const std::uint8_t* data, size_t len);
 
 	/**
 	 * Returns true if the serializer is being used in debug mode.
@@ -264,7 +263,7 @@ protected:
 	virtual void PutString(const char* name, const std::string& value) = 0;
 	// We have to use a mutable handle because JS_Stringify requires that for unknown reasons.
 	virtual void PutScriptVal(const char* name, JS::MutableHandleValue value) = 0;
-	virtual void PutRaw(const char* name, const u8* data, size_t len) = 0;
+	virtual void PutRaw(const char* name, const std::uint8_t* data, size_t len) = 0;
 };
 
 #endif // INCLUDED_ISERIALIZER

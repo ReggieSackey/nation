@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Wildfire Games.
+/* Copyright (C) 2026 Wildfire Games.
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -43,7 +43,7 @@ public:
 	OutputBufferManager();
 
 	void Reset();
-	void SetBuffer(u8* buffer, size_t size);
+	void SetBuffer(std::uint8_t* buffer, size_t size);
 
 	/**
 	 * allocate a new output buffer.
@@ -57,7 +57,7 @@ public:
 	 **/
 	void AllocateBuffer(size_t size);
 
-	u8* Buffer() const
+	std::uint8_t* Buffer() const
 	{
 		return m_buffer;
 	}
@@ -68,12 +68,12 @@ public:
 	}
 
 private:
-	bool IsAllowableBuffer(u8* buffer, size_t size);
+	bool IsAllowableBuffer(std::uint8_t* buffer, size_t size);
 
-	u8* m_buffer;
+	std::uint8_t* m_buffer;
 	size_t m_size;
 
-	std::shared_ptr<u8> m_mem;
+	std::shared_ptr<std::uint8_t> m_mem;
 	// size of m_mem. allows reusing previously allocated buffers
 	// (user-specified buffers can't be reused because we have no control
 	// over their lifetime)
@@ -86,14 +86,14 @@ class Stream
 public:
 	Stream(const PICodec& codec);
 
-	void SetOutputBuffer(u8* out, size_t outSize);
+	void SetOutputBuffer(std::uint8_t* out, size_t outSize);
 
 	void AllocateOutputBuffer(size_t outSizeMax);
 
 	/**
 	 * 'feed' the codec with a data block.
 	 **/
-	Status Feed(const u8* in, size_t inSize);
+	Status Feed(const std::uint8_t* in, size_t inSize);
 
 	Status Finish();
 
@@ -127,7 +127,7 @@ public:
 	{
 	}
 
-	Status operator()(const u8* data, size_t size) const
+	Status operator()(const std::uint8_t* data, size_t size) const
 	{
 		return stream.Feed(data, size);
 	}

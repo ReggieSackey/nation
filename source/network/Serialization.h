@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Wildfire Games.
+/* Copyright (C) 2026 Wildfire Games.
  * This file is part of 0 A.D.
  *
  * 0 A.D. is free software: you can redistribute it and/or modify
@@ -17,7 +17,6 @@
 
 #include "lib/code_annotation.h"
 #include "lib/code_generation.h"
-#include "lib/types.h"
 
 #include <cstddef>
 
@@ -25,7 +24,7 @@
 #define INCLUDED_NETWORK_SERIALIZATION
 
 #define Serialize_int_1(_pos, _val) \
-	STMT( *((_pos)++) = (u8)((_val)&0xff); )
+	STMT( *((_pos)++) = static_cast<std::uint8_t>((_val)&0xff); )
 
 #define Serialize_int_2(_pos, _val) STMT(\
 	Serialize_int_1(_pos, (_val)>>8); \
@@ -93,7 +92,7 @@ public:
 	 * @return a pointer to the location in the buffer right after the
 	 * serialized object
 	 */
-	virtual u8 *Serialize(u8 *buffer) const = 0;
+	virtual std::uint8_t *Serialize(std::uint8_t *buffer) const = 0;
 	/**
 	 * Deserialize the object (i.e. read in data from the buffer and initialize
 	 * the object's fields). Note that it is up to the deserializer to detect
@@ -105,7 +104,7 @@ public:
 	 * @returns a pointer to the location in the buffer right after the
 	 * serialized object, or NULL if there was a data format error
 	 */
-	virtual const u8 *Deserialize(const u8 *buffer, const u8 *end) = 0;
+	virtual const std::uint8_t *Deserialize(const std::uint8_t *buffer, const std::uint8_t *end) = 0;
 };
 
 #endif

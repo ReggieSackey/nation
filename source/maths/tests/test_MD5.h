@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Wildfire Games.
+/* Copyright (C) 2026 Wildfire Games.
  * This file is part of 0 A.D.
  *
  * 0 A.D. is free software: you can redistribute it and/or modify
@@ -17,7 +17,6 @@
 
 #include "lib/self_test.h"
 
-#include "lib/types.h"
 #include "maths/MD5.h"
 #include "ps/Util.h"
 
@@ -27,17 +26,17 @@
 class TestMD5 : public CxxTest::TestSuite
 {
 public:
-	std::string decode(u8* digest)
+	std::string decode(std::uint8_t* digest)
 	{
 		return Hexify(digest, MD5::DIGESTSIZE);
 	}
 
 	void compare(const char* input, const char* expected)
 	{
-		u8 digest[MD5::DIGESTSIZE];
+		std::uint8_t digest[MD5::DIGESTSIZE];
 
 		MD5 m;
-		m.Update((const u8*)input, strlen(input));
+		m.Update(reinterpret_cast<const std::uint8_t*>(input), strlen(input));
 		m.Final(digest);
 
 		TSM_ASSERT_STR_EQUALS(input, decode(digest), expected);
@@ -96,9 +95,10 @@ public:
 
 	void test_chunks()
 	{
-		u8 digest[MD5::DIGESTSIZE];
+		std::uint8_t digest[MD5::DIGESTSIZE];
 
-		const u8* in = (const u8*)"12345678901234567890123456789012345678901234567890123456789012345678901234567890";
+		const std::uint8_t* in = reinterpret_cast<const std::uint8_t*>(
+			"12345678901234567890123456789012345678901234567890123456789012345678901234567890");
 		size_t len = 80;
 		const char* expected = "57edf4a22be3c955ac49da2e2107b67a";
 

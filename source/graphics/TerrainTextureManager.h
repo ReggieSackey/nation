@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Wildfire Games.
+/* Copyright (C) 2026 Wildfire Games.
  * This file is part of 0 A.D.
  *
  * 0 A.D. is free software: you can redistribute it and/or modify
@@ -19,7 +19,6 @@
 #define INCLUDED_TERRAINTEXTUREMANAGER
 
 #include "lib/file/vfs/vfs_path.h"
-#include "lib/types.h"
 #include "ps/CStr.h"
 #include "ps/Loader.h"
 #include "ps/Singleton.h"
@@ -75,7 +74,7 @@ struct TerrainAlpha
 	// Composite alpha map (all the alpha maps packed into one texture).
 	std::unique_ptr<Renderer::Backend::ITexture> m_CompositeAlphaMap;
 	// Data is used to separate file loading and uploading to GPU.
-	std::shared_ptr<u8> m_CompositeDataToUpload;
+	std::shared_ptr<std::uint8_t> m_CompositeDataToUpload;
 	// Coordinates of each (untransformed) alpha map within the packed texture.
 	struct
 	{

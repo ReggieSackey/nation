@@ -41,12 +41,12 @@ namespace Script { class Interface; }
 class CBufferBinarySerializerImpl
 {
 public:
-	CBufferBinarySerializerImpl(u8* buffer) :
+	CBufferBinarySerializerImpl(std::uint8_t* buffer) :
 		m_Buffer(buffer)
 	{
 	}
 
-	void Put([[maybe_unused]] const char* name, const u8* data, size_t len)
+	void Put([[maybe_unused]] const char* name, const std::uint8_t* data, size_t len)
 	{
 		#if DEBUG_SERIALIZER_ANNOTATE
 			std::string tag = "<";
@@ -59,7 +59,7 @@ public:
 		m_Buffer += len;
 	}
 
-	u8* m_Buffer;
+	std::uint8_t* m_Buffer;
 };
 
 /**
@@ -68,12 +68,12 @@ public:
 class CBufferBinarySerializer : public CBinarySerializer<CBufferBinarySerializerImpl>
 {
 public:
-	CBufferBinarySerializer(const Script::Interface& scriptInterface, u8* buffer) :
+	CBufferBinarySerializer(const Script::Interface& scriptInterface, std::uint8_t* buffer) :
 		CBinarySerializer<CBufferBinarySerializerImpl>(scriptInterface, buffer)
 	{
 	}
 
-	u8* GetBuffer()
+	std::uint8_t* GetBuffer()
 	{
 		return m_Impl.m_Buffer;
 	}
@@ -87,7 +87,7 @@ public:
 	{
 	}
 
-	void Put([[maybe_unused]] const char* name, const u8* /*data*/, size_t len)
+	void Put([[maybe_unused]] const char* name, const std::uint8_t* /*data*/, size_t len)
 	{
 		#if DEBUG_SERIALIZER_ANNOTATE
 		m_Length += 2;	// '<' and '>'
@@ -143,11 +143,11 @@ CSimulationMessage::CSimulationMessage(const CSimulationMessage& orig) :
 	m_Data.init(rq.cx, orig.m_Data);
 }
 
-u8* CSimulationMessage::Serialize(u8* pBuffer) const
+std::uint8_t* CSimulationMessage::Serialize(std::uint8_t* pBuffer) const
 {
 	// TODO: ought to handle serialization exceptions
 	// TODO: ought to represent common commands more efficiently
-	u8* pos = CNetMessage::Serialize(pBuffer);
+	std::uint8_t* pos = CNetMessage::Serialize(pBuffer);
 	CBufferBinarySerializer serializer(m_ScriptInterface, pos);
 	serializer.NumberU32_Unbounded("client", m_Client);
 	serializer.NumberI32_Unbounded("player", m_Player);
@@ -157,11 +157,11 @@ u8* CSimulationMessage::Serialize(u8* pBuffer) const
 	return serializer.GetBuffer();
 }
 
-const u8* CSimulationMessage::Deserialize(const u8* pStart, const u8* pEnd)
+const std::uint8_t* CSimulationMessage::Deserialize(const std::uint8_t* pStart, const std::uint8_t* pEnd)
 {
 	// TODO: ought to handle serialization exceptions
 	// TODO: ought to represent common commands more efficiently
-	const u8* pos = CNetMessage::Deserialize(pStart, pEnd);
+	const std::uint8_t* pos = CNetMessage::Deserialize(pStart, pEnd);
 	std::istringstream stream(std::string(pos, pEnd));
 	CStdDeserializer deserializer(m_ScriptInterface, stream);
 	deserializer.NumberU32_Unbounded("client", m_Client);
@@ -210,19 +210,19 @@ CGameSetupMessage::CGameSetupMessage(const Script::Interface& scriptInterface, J
 	m_Data.init(rq.cx, data);
 }
 
-u8* CGameSetupMessage::Serialize(u8* pBuffer) const
+std::uint8_t* CGameSetupMessage::Serialize(std::uint8_t* pBuffer) const
 {
 	// TODO: ought to handle serialization exceptions
-	u8* pos = CNetMessage::Serialize(pBuffer);
+	std::uint8_t* pos = CNetMessage::Serialize(pBuffer);
 	CBufferBinarySerializer serializer(m_ScriptInterface, pos);
 	serializer.ScriptVal("command", const_cast<JS::PersistentRootedValue*>(&m_Data));
 	return serializer.GetBuffer();
 }
 
-const u8* CGameSetupMessage::Deserialize(const u8* pStart, const u8* pEnd)
+const std::uint8_t* CGameSetupMessage::Deserialize(const std::uint8_t* pStart, const std::uint8_t* pEnd)
 {
 	// TODO: ought to handle serialization exceptions
-	const u8* pos = CNetMessage::Deserialize(pStart, pEnd);
+	const std::uint8_t* pos = CNetMessage::Deserialize(pStart, pEnd);
 	std::istringstream stream(std::string(pos, pEnd));
 	CStdDeserializer deserializer(m_ScriptInterface, stream);
 	deserializer.ScriptVal("command", const_cast<JS::PersistentRootedValue*>(&m_Data));

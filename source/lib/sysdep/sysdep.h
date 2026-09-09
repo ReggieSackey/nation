@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Wildfire Games.
+/* Copyright (C) 2026 Wildfire Games.
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -35,7 +35,6 @@
 #include "lib/os_path.h"
 #include "lib/status.h"
 #include "lib/sysdep/os.h"
-#include "lib/types.h"
 
 #include <cstdio>
 #include <string>
@@ -169,7 +168,7 @@ extern size_t sys_max_sector_size();
  * this should only be used with small numbers of bytes, to avoid
  * hogging the system's entropy.
  **/
-Status sys_generate_random_bytes(u8* buf, size_t count);
+Status sys_generate_random_bytes(std::uint8_t* buf, size_t count);
 
 /**
  * get the proxy address for accessing the given HTTP URL.

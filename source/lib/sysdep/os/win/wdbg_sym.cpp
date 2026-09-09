@@ -498,7 +498,7 @@ static Status out_check_limit()
 // called by dump_sequence for its string special-case.
 //
 // algorithm: scan the "string" and count # text chars vs. garbage.
-static bool is_string(const u8* p, size_t stride)
+static bool is_string(const std::uint8_t* p, size_t stride)
 {
 	// note: access violations are caught by dump_sym; output is "?".
 	int score = 0;
@@ -530,7 +530,7 @@ static bool is_string(const u8* p, size_t stride)
 
 
 // forward decl; called by dump_sequence and some of dump_sym_*.
-static Status dump_sym(DWORD id, const u8* p, DumpState& state);
+static Status dump_sym(DWORD id, const std::uint8_t* p, DumpState& state);
 
 // from cvconst.h
 //
@@ -578,7 +578,7 @@ static void dump_error(Status err)
 
 
 // moved out of dump_sequence.
-static Status dump_string(const u8* p, size_t el_size)
+static Status dump_string(const std::uint8_t* p, size_t el_size)
 {
 	// not char or wchar_t string
 	if(el_size != sizeof(char) && el_size != sizeof(wchar_t))
@@ -639,7 +639,7 @@ static void seq_determine_formatting(size_t el_size, size_t el_count, bool* fits
 
 static Status dump_sequence(DebugStlIterator el_iterator, void* internal, size_t el_count, DWORD el_type_id, size_t el_size, DumpState& state)
 {
-	const u8* el_p = 0;	// avoid "uninitialized" warning
+	const std::uint8_t* el_p = 0;	// avoid "uninitialized" warning
 
 	// special case: display as a string if the sequence looks to be text.
 	// do this only if container isn't empty because the otherwise the
@@ -700,18 +700,18 @@ static Status dump_sequence(DebugStlIterator el_iterator, void* internal, size_t
 }
 
 
-static const u8* array_iterator(void* internal, size_t el_size)
+static const std::uint8_t* array_iterator(void* internal, size_t el_size)
 {
-	const u8*& pos = *(const u8**)internal;
-	const u8* cur_pos = pos;
+	const std::uint8_t*& pos = *static_cast<const std::uint8_t**>(internal);
+	const std::uint8_t* cur_pos = pos;
 	pos += el_size;
 	return cur_pos;
 }
 
 
-static Status dump_array(const u8* p, size_t el_count, DWORD el_type_id, size_t el_size, DumpState& state)
+static Status dump_array(const std::uint8_t* p, size_t el_count, DWORD el_type_id, size_t el_size, DumpState& state)
 {
-	const u8* iterator_internal_pos = p;
+	const std::uint8_t* iterator_internal_pos = p;
 	return dump_sequence(array_iterator, &iterator_internal_pos,
 		el_count, el_type_id, el_size, state);
 }
@@ -778,7 +778,8 @@ static bool IsUnretrievable(DWORD flags)
 	return false;
 }
 
-static Status DetermineSymbolAddress(DWORD id, const SYMBOL_INFOW* sym, const DumpState& state, const u8** pp)
+static Status DetermineSymbolAddress(DWORD id, const SYMBOL_INFOW* sym, const DumpState& state,
+	const std::uint8_t** pp)
 {
 	DWORD dataKind;
 	if(!pSymGetTypeInfo(hProcess, state.moduleBase, id, TI_GET_DATAKIND, &dataKind))
@@ -798,7 +799,7 @@ static Status DetermineSymbolAddress(DWORD id, const SYMBOL_INFOW* sym, const Du
 	else if(IsUnretrievable(sym->Flags))
 		return ERR::SYM_UNRETRIEVABLE;	// NOWARN
 
-	*pp = (const u8*)(uintptr_t)addr;
+	*pp = reinterpret_cast<const std::uint8_t*>((uintptr_t)addr);
 
 #if 0
 	debug_printf("Symbol: %s at %p  flags=%X dk=%d sym->addr=%I64X fp=%I64x\n",
@@ -818,7 +819,7 @@ static Status DetermineSymbolAddress(DWORD id, const SYMBOL_INFOW* sym, const Du
 // will display the appropriate error message via dump_error.
 // called by dump_sym; lock is held.
 
-static Status dump_sym_array(DWORD type_id, const u8* p, DumpState& state)
+static Status dump_sym_array(DWORD type_id, const std::uint8_t* p, DumpState& state)
 {
 	ULONG64 size64 = 0;
 	if(!pSymGetTypeInfo(hProcess, state.moduleBase, type_id, TI_GET_LENGTH, &size64))
@@ -859,7 +860,7 @@ static void AppendCharacterIfPrintable(u64 data)
 }
 
 
-static Status dump_sym_base_type(DWORD type_id, const u8* p, DumpState& state)
+static Status dump_sym_base_type(DWORD type_id, const std::uint8_t* p, DumpState& state)
 {
 	DWORD base_type;
 	if(!pSymGetTypeInfo(hProcess, state.moduleBase, type_id, TI_GET_BASETYPE, &base_type))
@@ -995,7 +996,7 @@ static Status dump_sym_base_type(DWORD type_id, const u8* p, DumpState& state)
 
 //-----------------------------------------------------------------------------
 
-static Status dump_sym_base_class(DWORD type_id, const u8* p, DumpState& state)
+static Status dump_sym_base_class(DWORD type_id, const std::uint8_t* p, DumpState& state)
 {
 	DWORD base_class_type_id;
 	if(!pSymGetTypeInfo(hProcess, state.moduleBase, type_id, TI_GET_TYPEID, &base_class_type_id))
@@ -1014,7 +1015,7 @@ static Status dump_sym_base_class(DWORD type_id, const u8* p, DumpState& state)
 
 //-----------------------------------------------------------------------------
 
-static Status dump_sym_data(DWORD id, const u8* p, DumpState& state)
+static Status dump_sym_data(DWORD id, const std::uint8_t* p, DumpState& state)
 {
 	SYMBOL_INFO_PACKAGEW2 sp;
 	SYMBOL_INFOW* sym = &sp.si;
@@ -1038,7 +1039,7 @@ static Status dump_sym_data(DWORD id, const u8* p, DumpState& state)
 
 //-----------------------------------------------------------------------------
 
-static Status dump_sym_enum(DWORD type_id, const u8* p, DumpState& state)
+static Status dump_sym_enum(DWORD type_id, const std::uint8_t* p, DumpState& state)
 {
 	ULONG64 size64 = 0;
 	if(!pSymGetTypeInfo(hProcess, state.moduleBase, type_id, TI_GET_LENGTH, &size64))
@@ -1096,7 +1097,7 @@ static Status dump_sym_enum(DWORD type_id, const u8* p, DumpState& state)
 
 //-----------------------------------------------------------------------------
 
-static Status dump_sym_function(DWORD /*type_id*/, const u8* /*p*/, DumpState&)
+static Status dump_sym_function(DWORD /*type_id*/, const std::uint8_t* /*p*/, DumpState&)
 {
 	return INFO::SYM_SUPPRESS_OUTPUT;
 }
@@ -1104,7 +1105,7 @@ static Status dump_sym_function(DWORD /*type_id*/, const u8* /*p*/, DumpState&)
 
 //-----------------------------------------------------------------------------
 
-static Status dump_sym_function_type(DWORD /*type_id*/, const u8* p, DumpState& state)
+static Status dump_sym_function_type(DWORD /*type_id*/, const std::uint8_t* p, DumpState& state)
 {
 	// this symbol gives class parent, return type, and parameter count.
 	// unfortunately the one thing we care about, its name,
@@ -1132,7 +1133,7 @@ static Status dump_sym_function_type(DWORD /*type_id*/, const u8* p, DumpState& 
 // be reentered, which is not permissible).
 
 static const size_t maxVisited = 1000;
-static const u8* visited[maxVisited];
+static const std::uint8_t* visited[maxVisited];
 static size_t numVisited;
 
 static void ptr_reset_visited()
@@ -1140,7 +1141,7 @@ static void ptr_reset_visited()
 	numVisited = 0;
 }
 
-static bool ptr_already_visited(const u8* p)
+static bool ptr_already_visited(const std::uint8_t* p)
 {
 	for(size_t i = 0; i < numVisited; i++)
 	{
@@ -1172,7 +1173,7 @@ static bool ptr_already_visited(const u8* p)
 }
 
 
-static Status dump_sym_pointer(DWORD type_id, const u8* p, DumpState& state)
+static Status dump_sym_pointer(DWORD type_id, const std::uint8_t* p, DumpState& state)
 {
 	ULONG64 size64 = 0;
 	if(!pSymGetTypeInfo(hProcess, state.moduleBase, type_id, TI_GET_LENGTH, &size64))
@@ -1180,7 +1181,7 @@ static Status dump_sym_pointer(DWORD type_id, const u8* p, DumpState& state)
 	const size_t size = (size_t)size64;
 
 	// read+output pointer's value.
-	p = (const u8*)(uintptr_t)movzx_le64(p, size);
+	p = reinterpret_cast<const std::uint8_t*>(static_cast<uintptr_t>(movzx_le64(p, size)));
 	out(L"0x%p", p);
 
 	// bail if it's obvious the pointer is bogus
@@ -1215,7 +1216,7 @@ static Status dump_sym_pointer(DWORD type_id, const u8* p, DumpState& state)
 //-----------------------------------------------------------------------------
 
 
-static Status dump_sym_typedef(DWORD type_id, const u8* p, DumpState& state)
+static Status dump_sym_typedef(DWORD type_id, const std::uint8_t* p, DumpState& state)
 {
 	if(!pSymGetTypeInfo(hProcess, state.moduleBase, type_id, TI_GET_TYPEID, &type_id))
 		WARN_RETURN(ERR::SYM_TYPE_INFO_UNAVAILABLE);
@@ -1263,7 +1264,8 @@ static Status udt_get_child_type(const wchar_t* child_name, ULONG numChildren, c
 }
 
 
-static Status udt_dump_std(const wchar_t* type_name, const u8* p, size_t size, DumpState& state, ULONG numChildren, const DWORD* children)
+static Status udt_dump_std(const wchar_t* type_name, const std::uint8_t* p, size_t size, DumpState& state,
+	ULONG numChildren, const DWORD* children)
 {
 	Status err;
 
@@ -1288,7 +1290,7 @@ static Status udt_dump_std(const wchar_t* type_name, const u8* p, size_t size, D
 	// .. get iterator and # elements
 	size_t el_count;
 	DebugStlIterator el_iterator;
-	u8 it_mem[DEBUG_STL_MAX_ITERATOR_SIZE];
+	std::uint8_t it_mem[DEBUG_STL_MAX_ITERATOR_SIZE];
 	err = debug_stl_get_container_info(type_name, p, size, el_size, &el_count, &el_iterator, it_mem);
 	if(err != INFO::OK)
 		goto not_valid_container;
@@ -1380,7 +1382,7 @@ not_handle:
 }
 
 
-static Status udt_dump_suppressed(const wchar_t* type_name, const u8* /*p*/, size_t /*size*/,
+static Status udt_dump_suppressed(const wchar_t* type_name, const std::uint8_t* /*p*/, size_t /*size*/,
 	DumpState state, ULONG /*numChildren*/, const DWORD* /*children*/)
 {
 	if(!udt_should_suppress(type_name))
@@ -1433,7 +1435,8 @@ static bool udt_fits_on_one_line(const wchar_t* type_name, size_t child_count, s
 }
 
 
-static Status udt_dump_normal(const wchar_t* type_name, const u8* p, size_t size, DumpState state, ULONG numChildren, const DWORD* children)
+static Status udt_dump_normal(const wchar_t* type_name, const std::uint8_t* p, size_t size,
+	DumpState state, ULONG numChildren, const DWORD* children)
 {
 	// special case: boost::unordered types are complex and may cause a stack overflow
 	// see https://gitea.wildfiregames.com/0ad/0ad/issues/1813
@@ -1469,7 +1472,7 @@ static Status udt_dump_normal(const wchar_t* type_name, const u8* p, size_t size
 		if(!fits_on_one_line)
 			INDENT;
 
-		const u8* el_p = p+ofs;
+		const std::uint8_t* el_p = p+ofs;
 		Status err = dump_sym(child_id, el_p, state);
 
 		// there was no output for this child; undo its indentation (if any),
@@ -1511,7 +1514,7 @@ static Status udt_dump_normal(const wchar_t* type_name, const u8* p, size_t size
 }
 
 
-static Status dump_sym_udt(DWORD type_id, const u8* p, DumpState& state)
+static Status dump_sym_udt(DWORD type_id, const std::uint8_t* p, DumpState& state)
 {
 	ULONG64 size64 = 0;
 	if(!pSymGetTypeInfo(hProcess, state.moduleBase, type_id, TI_GET_LENGTH, &size64))
@@ -1557,7 +1560,7 @@ done:
 //-----------------------------------------------------------------------------
 
 
-static Status dump_sym_vtable(DWORD /*type_id*/, const u8* /*p*/, DumpState&)
+static Status dump_sym_vtable(DWORD /*type_id*/, const std::uint8_t* /*p*/, DumpState&)
 {
 	// unsupported (vtable internals are undocumented; too much work).
 	return INFO::SYM_SUPPRESS_OUTPUT;
@@ -1567,7 +1570,7 @@ static Status dump_sym_vtable(DWORD /*type_id*/, const u8* /*p*/, DumpState&)
 //-----------------------------------------------------------------------------
 
 
-static Status dump_sym_unknown(DWORD type_id, const u8* /*p*/, DumpState& state)
+static Status dump_sym_unknown(DWORD type_id, const std::uint8_t* /*p*/, DumpState& state)
 {
 	// redundant (already done in dump_sym), but this is rare.
 	DWORD type_tag;
@@ -1582,7 +1585,7 @@ static Status dump_sym_unknown(DWORD type_id, const u8* /*p*/, DumpState& state)
 
 //-----------------------------------------------------------------------------
 
-typedef Status (*DumpFunc)(DWORD typeId, const u8* p, DumpState& state);
+typedef Status (*DumpFunc)(DWORD typeId, const std::uint8_t* p, DumpState& state);
 
 static DumpFunc DumpFuncFromTypeTag(DWORD typeTag)
 {
@@ -1618,7 +1621,7 @@ static DumpFunc DumpFuncFromTypeTag(DWORD typeTag)
 
 // write name and value of the symbol <type_id> to the output buffer.
 // delegates to dump_sym_* depending on the symbol's tag.
-static Status dump_sym(DWORD type_id, const u8* p, DumpState& state)
+static Status dump_sym(DWORD type_id, const std::uint8_t* p, DumpState& state)
 {
 	RETURN_STATUS_IF_ERR(out_check_limit());
 
@@ -1651,7 +1654,7 @@ static BOOL CALLBACK dump_sym_cb(SYMBOL_INFOW* sym, ULONG /*size*/, PVOID userCo
 		return TRUE;	// continue
 
 	out_latch_pos();	// see decl
-	const u8* p = (const u8*)(uintptr_t)sym->Address;
+	const std::uint8_t* p = reinterpret_cast<const std::uint8_t*>((uintptr_t)sym->Address);
 	DumpState state((uintptr_t)sym->ModBase, (LPSTACKFRAME64)userContext);
 
 	INDENT;

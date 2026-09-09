@@ -52,7 +52,7 @@ const entity_pos_t NEVER_IN_RANGE = entity_pos_t::FromInt(-2);
  * so define this enum here (Ideally, it'd be in its own header file,
  * but adding header file does incur its own compilation time increase).
  */
-enum class LosVisibility : u8
+enum class LosVisibility : std::uint8_t
 {
 	HIDDEN = 0,
 	FOGGED = 1,
@@ -169,7 +169,7 @@ public:
 	 */
 	virtual tag_t CreateActiveQuery(entity_id_t source,
 		entity_pos_t minRange, entity_pos_t maxRange,
-		const std::vector<int>& owners, int requiredInterface, u8 flags,
+		const std::vector<int>& owners, int requiredInterface, std::uint8_t flags,
 		bool accountForSize, bool preferMirages = false) = 0;
 
 	/**
@@ -196,7 +196,8 @@ public:
 	 */
 	virtual tag_t CreateActiveParabolicQuery(entity_id_t source,
 		entity_pos_t minRange, entity_pos_t maxRange, entity_pos_t baseRange, entity_pos_t yOrigin,
-		const std::vector<int>& owners, int requiredInterface, u8 flags, bool preferMirages = false) = 0;
+		const std::vector<int>& owners, int requiredInterface, std::uint8_t flags,
+		bool preferMirages = false) = 0;
 
 	/**
 	 * Get the effective range in a parablic range query.
@@ -288,7 +289,7 @@ public:
 	/**
 	 * Returns the mask for the specified identifier.
 	 */
-	virtual u8 GetEntityFlagMask(const std::string& identifier) const = 0;
+	virtual std::uint8_t GetEntityFlagMask(const std::string& identifier) const = 0;
 
 	/**
 	 * Set the flag specified by the identifier to the supplied value for the entity
@@ -415,13 +416,13 @@ public:
 	/**
 	 * Get percent map explored statistics for specified player.
 	 */
-	virtual u8 GetPercentMapExplored(player_id_t player) const = 0;
+	virtual std::uint8_t GetPercentMapExplored(player_id_t player) const = 0;
 
 	/**
 	 * Get percent map explored statistics for specified set of players.
 	 * Note: this function computes statistics from scratch and should not be called too often.
 	 */
-	virtual u8 GetUnionPercentMapExplored(const std::vector<player_id_t>& players) const = 0;
+	virtual std::uint8_t GetUnionPercentMapExplored(const std::vector<player_id_t>& players) const = 0;
 
 	/**
 	 * @return The number of LOS vertices.

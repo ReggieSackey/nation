@@ -61,7 +61,7 @@ public:
 	const CSimContext& GetSimContext() const { return *m_SimContext; }
 	void SetSimContext(const CSimContext& context) { m_SimContext = &context; }
 
-	static u8 GetSerializationVersion() { return 0; }
+	static std::uint8_t GetSerializationVersion() { return 0; }
 	virtual void Serialize(ISerializer& serialize) = 0;
 	virtual void Deserialize(const CParamNode& paramNode, IDeserializer& deserialize) = 0;
 

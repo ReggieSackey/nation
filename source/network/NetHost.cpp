@@ -57,7 +57,7 @@ ENetPacket* CNetHost::CreatePacket(const CNetMessage* message)
 	ENSURE(size); // else we'll fail when accessing the 0th element
 
 	// Adjust buffer for message
-	std::vector<u8> buffer;
+	std::vector<std::uint8_t> buffer;
 	buffer.resize(size);
 
 	// Save message to internal buffer

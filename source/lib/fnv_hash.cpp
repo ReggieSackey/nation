@@ -1,4 +1,4 @@
-/* Copyright (C) 2021 Wildfire Games.
+/* Copyright (C) 2026 Wildfire Games.
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -33,7 +33,7 @@ u32 fnv_hash(const void* buf, size_t len)
 	// give distinct values for different length 0 buffers.
 	// value taken from FNV; it has no special significance.
 
-	const u8* p = (const u8*)buf;
+	const std::uint8_t* p = static_cast<const std::uint8_t*>(buf);
 
 	// expected case: string
 	if(!len)
@@ -68,7 +68,7 @@ u64 fnv_hash64(const void* buf, size_t len)
 	// give distinct values for different length 0 buffers.
 	// value taken from FNV; it has no special significance.
 
-	const u8* p = (const u8*)buf;
+	const std::uint8_t* p = static_cast<const std::uint8_t*>(buf);
 
 	// expected case: string
 	if(!len)

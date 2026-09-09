@@ -32,7 +32,6 @@
 #include "lib/file/vfs/vfs.h"
 #include "lib/status.h"
 #include "lib/timer.h"
-#include "lib/types.h"
 #include "lib/utf8.h"
 #include "maths/MathUtil.h"
 #include "maths/Rect.h"
@@ -629,7 +628,7 @@ void CConsole::LoadHistory()
 	if (!VfsFileExists(m_HistoryFile))
 		return;
 
-	std::unique_ptr<u8[], AlignedDeleter> buf; size_t buflen;
+	std::unique_ptr<std::uint8_t[], AlignedDeleter> buf; size_t buflen;
 	if (g_VFS->LoadFile(m_HistoryFile, buf, buflen) < 0)
 		return;
 

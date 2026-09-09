@@ -93,13 +93,13 @@ template<> bool FromJSVal<u16>(const Request& rq,  JS::HandleValue v, u16& out)
 	return true;
 }
 
-template<> bool FromJSVal<u8>(const Request& rq,  JS::HandleValue v, u8& out)
+template<> bool FromJSVal<std::uint8_t>(const Request& rq,  JS::HandleValue v, std::uint8_t& out)
 {
 	u16 tmp;
 	FAIL_IF_NOT(v.isNumber(), v);
 	if (!JS::ToUint16(rq.cx, v, &tmp))
 		return false;
-	out = (u8)tmp;
+	out = static_cast<std::uint8_t>(tmp);
 	return true;
 }
 
@@ -216,7 +216,7 @@ template<> void ToJSVal<u16>(const Request&, JS::MutableHandleValue ret, const u
 	ret.set(JS::NumberValue(val));
 }
 
-template<> void ToJSVal<u8>(const Request&, JS::MutableHandleValue ret, const u8& val)
+template<> void ToJSVal<std::uint8_t>(const Request&, JS::MutableHandleValue ret, const std::uint8_t& val)
 {
 	ret.set(JS::NumberValue(val));
 }

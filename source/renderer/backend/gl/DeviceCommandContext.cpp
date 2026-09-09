@@ -150,7 +150,7 @@ void UploadDynamicBufferRegionImpl(
 			break;
 		}
 
-		uploadFunction(static_cast<u8*>(mappedData) + dataOffset);
+		uploadFunction(static_cast<std::uint8_t*>(mappedData) + dataOffset);
 
 		if (glUnmapBuffer(target) == GL_TRUE)
 			break;
@@ -485,7 +485,8 @@ void CDeviceCommandContext::UploadBufferRegion(
 	// dynamic upload.
 	if (buffer->IsDynamic() && buffer->GetType() != IBuffer::Type::UNIFORM)
 	{
-		UploadDynamicBufferRegionImpl(target, buffer->GetSize(), dataOffset, dataSize, [data, dataSize](u8* mappedData)
+		UploadDynamicBufferRegionImpl(target, buffer->GetSize(), dataOffset, dataSize,
+			[data, dataSize](std::uint8_t* mappedData)
 		{
 			std::memcpy(mappedData, data, dataSize);
 		});

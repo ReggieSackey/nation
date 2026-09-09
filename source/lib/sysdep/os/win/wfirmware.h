@@ -34,7 +34,7 @@ typedef std::vector<TableId> TableIds;
 
 extern TableIds GetTableIDs(Provider provider);
 
-typedef std::vector<u8> Table;
+typedef std::vector<std::uint8_t> Table;
 
 extern Table GetTable(Provider provider, TableId tableId);
 

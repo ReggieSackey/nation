@@ -18,7 +18,6 @@
 #ifndef INCLUDED_HASHSERIALIZER
 #define INCLUDED_HASHSERIALIZER
 
-#include "lib/types.h"
 #include "maths/MD5.h"
 #include "simulation2/serialization/BinarySerializer.h"
 
@@ -34,16 +33,16 @@ class CHashSerializerImpl
 
 public:
 	size_t GetHashLength();
-	const u8* ComputeHash();
+	const std::uint8_t* ComputeHash();
 
-	void Put(const char* /*name*/, const u8* data, size_t len)
+	void Put(const char* /*name*/, const std::uint8_t* data, size_t len)
 	{
 		m_Hash.Update(data, len);
 	}
 
 private:
 	HashFunc m_Hash;
-	u8 m_HashData[HashFunc::DIGESTSIZE];
+	std::uint8_t m_HashData[HashFunc::DIGESTSIZE];
 };
 
 class CHashSerializer : public CBinarySerializer<CHashSerializerImpl>
@@ -52,7 +51,7 @@ public:
 	CHashSerializer(const Script::Interface& scriptInterface);
 
 	size_t GetHashLength();
-	const u8* ComputeHash();
+	const std::uint8_t* ComputeHash();
 };
 
 #endif // INCLUDED_HASHSERIALIZER

@@ -25,7 +25,6 @@
 #include "lib/path.h"
 #include "lib/status.h"
 #include "lib/tex/tex.h"
-#include "lib/types.h"
 #include "maths/Rect.h"
 #include "maths/Vector2D.h"
 #include "ps/CLogger.h"
@@ -91,7 +90,7 @@ public:
 
 	static std::unique_ptr<CGUIMouseEventMaskTexture> Create(const std::string_view spec)
 	{
-		std::shared_ptr<u8> shapeFile;
+		std::shared_ptr<std::uint8_t> shapeFile;
 		CCacheLoader loader(g_VFS, L".dds");
 		VfsPath sourcePath = VfsPath("art") / L"textures" / L"ui" /
 			std::string{spec.substr(specOffset)};
@@ -130,7 +129,8 @@ public:
 		mask->m_Width = static_cast<u16>(tex.m_Width);
 		mask->m_Height = static_cast<u16>(tex.m_Height);
 		mask->m_Data.reserve(mask->m_Width * mask->m_Height);
-		for (u8* ptr = tex.get_data(); ptr < tex.get_data() + tex.m_DataSize; ptr += tex.m_Bpp/8)
+		for (std::uint8_t* ptr = tex.get_data(); ptr < tex.get_data() + tex.m_DataSize;
+			ptr += tex.m_Bpp/8)
 		{
 			if (tex.m_Bpp == 32)
 				mask->m_Data.push_back(*(ptr + 3) > 0);

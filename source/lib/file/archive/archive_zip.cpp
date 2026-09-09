@@ -336,7 +336,7 @@ public:
 		return m_file->Pathname();
 	}
 
-	Status Load(const OsPath& /*name*/, const std::span<u8> buffer) const override
+	Status Load(const OsPath& /*name*/, const std::span<std::uint8_t> buffer) const override
 	{
 		AdjustOffset();
 
@@ -384,7 +384,7 @@ private:
 
 	struct LFH_Copier
 	{
-		LFH_Copier(u8* lfh_dst, size_t lfh_bytes_remaining)
+		LFH_Copier(std::uint8_t* lfh_dst, size_t lfh_bytes_remaining)
 			: lfh_dst(lfh_dst), lfh_bytes_remaining(lfh_bytes_remaining)
 		{
 		}
@@ -396,7 +396,7 @@ private:
 		// rationale: this allows using temp buffers for zip_fixup_lfh,
 		// which avoids involving the file buffer manager and thus
 		// avoids cluttering the trace and cache contents.
-		Status operator()(const u8* block, size_t size) const
+		Status operator()(const std::uint8_t* block, size_t size) const
 		{
 			ENSURE(size <= lfh_bytes_remaining);
 			memcpy(lfh_dst, block, size);
@@ -406,7 +406,7 @@ private:
 			return INFO::OK;
 		}
 
-		mutable u8* lfh_dst;
+		mutable std::uint8_t* lfh_dst;
 		mutable size_t lfh_bytes_remaining;
 	};
 
@@ -431,7 +431,7 @@ private:
 		// previously read file (i.e. both are small).
 		LFH lfh;
 		io::Operation op(*m_file.get(), 0, sizeof(LFH), m_ofs);
-		if(io::Run(op, io::Parameters(), LFH_Copier((u8*)&lfh, sizeof(LFH))) == INFO::OK)
+		if(io::Run(op, io::Parameters(), LFH_Copier(reinterpret_cast<std::uint8_t*>(&lfh), sizeof(LFH))) == INFO::OK)
 			m_ofs += (off_t)lfh.Size();
 	}
 
@@ -476,7 +476,7 @@ public:
 		RETURN_STATUS_IF_ERR(io::Run(op));
 
 		// iterate over Central Directory
-		const u8* pos = buf.get();
+		const std::uint8_t* pos = buf.get();
 		for(size_t i = 0; i < cd_numEntries; i++)
 		{
 			// scan for next CDFH
@@ -510,11 +510,12 @@ private:
 	 * @param recordSize size of record (including signature)
 	 * @return pointer to record within buffer or 0 if not found.
 	 **/
-	static const u8* FindRecord(const u8* buf, size_t size, const u8* start, u32 magic, size_t recordSize)
+	static const std::uint8_t* FindRecord(const std::uint8_t* buf, size_t size,
+		const std::uint8_t* start, u32 magic, size_t recordSize)
 	{
 		// (don't use <start> as the counter - otherwise we can't tell if
 		// scanning within the buffer was necessary.)
-		for(const u8* p = start; p <= buf+size-recordSize; p++)
+		for(const std::uint8_t* p = start; p <= buf+size-recordSize; p++)
 		{
 			// found it
 			if(*(u32*)p == magic)
@@ -533,7 +534,8 @@ private:
 	// search for ECDR in the last <maxScanSize> bytes of the file.
 	// if found, fill <dst_ecdr> with a copy of the (little-endian) ECDR and
 	// return INFO::OK, otherwise IO error or ERR::CORRUPTED.
-	static Status ScanForEcdr(const PFile& file, off_t fileSize, u8* buf, size_t maxScanSize, size_t& cd_numEntries, off_t& cd_ofs, size_t& cd_size)
+	static Status ScanForEcdr(const PFile& file, off_t fileSize, std::uint8_t* buf, size_t maxScanSize,
+		size_t& cd_numEntries, off_t& cd_ofs, size_t& cd_size)
 	{
 		// don't scan more than the entire file
 		const size_t scanSize = std::min(maxScanSize, size_t(fileSize));
@@ -551,7 +553,7 @@ private:
 
 		for (off_t commentSize = 0; commentSize <= offsetInBlock && !ecdr; ++commentSize)
 		{
-			const u8 *pECDRTest = buf + offsetInBlock - commentSize;
+			const std::uint8_t *pECDRTest = buf + offsetInBlock - commentSize;
 			if (*reinterpret_cast<const u32*>(pECDRTest) == ecdr_magic)
 			{
 				// Signature matches, test whether comment
@@ -588,7 +590,8 @@ private:
 	{
 		const size_t maxScanSize = 66000u;	// see below
 		io::BufferPtr buf(io::Allocate(maxScanSize));
-		Status ret = ScanForEcdr(file, fileSize, static_cast<u8*>(buf.get()), maxScanSize, cd_numEntries, cd_ofs, cd_size);
+		Status ret = ScanForEcdr(file, fileSize, static_cast<std::uint8_t*>(buf.get()), maxScanSize,
+			cd_numEntries, cd_ofs, cd_size);
 		if(ret == INFO::OK)
 			return INFO::OK;
 
@@ -668,14 +671,16 @@ public:
 		return AddFileOrMemory(fileInfo, pathnameInArchive, file, NULL);
 	}
 
-	Status AddMemory(const u8* data, size_t size, time_t mtime, const OsPath& pathnameInArchive)
+	Status AddMemory(const std::uint8_t* data, size_t size, time_t mtime,
+		const OsPath& pathnameInArchive)
 	{
 		CFileInfo fileInfo(pathnameInArchive, size, mtime);
 
 		return AddFileOrMemory(fileInfo, pathnameInArchive, PFile(), data);
 	}
 
-	Status AddFileOrMemory(const CFileInfo& fileInfo, const OsPath& pathnameInArchive, const PFile& file, const u8* data)
+	Status AddFileOrMemory(const CFileInfo& fileInfo, const OsPath& pathnameInArchive, const PFile& file,
+		const std::uint8_t* data)
 	{
 		ENSURE((file && !data) || (data && !file));
 
@@ -714,7 +719,7 @@ public:
 		// read and compress file contents
 		size_t csize; u32 checksum;
 		{
-			u8* cdata = buf.get() + sizeof(LFH) + pathnameLength;
+			std::uint8_t* cdata = buf.get() + sizeof(LFH) + pathnameLength;
 			Stream stream(codec);
 			stream.SetOutputBuffer(cdata, csizeMax);
 			StreamFeeder streamFeeder(stream);

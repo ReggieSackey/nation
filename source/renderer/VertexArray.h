@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Wildfire Games.
+/* Copyright (C) 2026 Wildfire Games.
  * This file is part of 0 A.D.
  *
  * 0 A.D. is free software: you can redistribute it and/or modify
@@ -158,7 +158,7 @@ public:
 		// Get an iterator over the backing store for the given attribute that
 		// initially points at the first vertex.
 		// Supported types T: CVector3D, CVector4D, float[2], SColor4ub,
-		// u16, u16[2], u8[4], short, short[2].
+		// u16, u16[2], std::uint8_t[4], short, short[2].
 		// This function verifies at runtime that the requested type T matches
 		// the attribute definition passed to AddAttribute().
 		template<typename T>

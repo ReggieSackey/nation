@@ -95,12 +95,12 @@ private:
 	u32 data; // 2-bit status; 15-bit PredI; 15-bit PredJ; packed for storage efficiency
 
 public:
-	inline u8 GetStatus() const
+	inline std::uint8_t GetStatus() const
 	{
 		return data & 3;
 	}
 
-	inline void SetStatus(u8 s)
+	inline void SetStatus(std::uint8_t s)
 	{
 		ASSERT(s < 4);
 		data &= ~3;
@@ -221,7 +221,7 @@ public:
 	void ComputePath(const HierarchicalPathfinder& hierPath, entity_pos_t x0, entity_pos_t z0, const PathGoal& origGoal,
 		pass_class_t passClass, std::vector<CircularRegion> excludedRegions, WaypointPath& path);
 
-	void GetDebugData(u32& steps, double& time, Grid<u8>& grid) const
+	void GetDebugData(u32& steps, double& time, Grid<std::uint8_t>& grid) const
 	{
 		GetDebugDataJPS(steps, time, grid);
 	}
@@ -269,7 +269,7 @@ private:
 	 * TODO: cleanup documentation
 	 */
 	void ComputeJPSPath(const HierarchicalPathfinder& hierPath, entity_pos_t x0, entity_pos_t z0, const PathGoal& origGoal, pass_class_t passClass, WaypointPath& path) const;
-	void GetDebugDataJPS(u32& steps, double& time, Grid<u8>& grid) const;
+	void GetDebugDataJPS(u32& steps, double& time, Grid<std::uint8_t>& grid) const;
 
 	// Helper functions for ComputePath
 

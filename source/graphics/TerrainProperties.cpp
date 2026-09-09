@@ -128,11 +128,11 @@ void CTerrainProperties::LoadXml(XMBElement node, CXeromyces *pFile, const VfsPa
 				continue;
 
 			// m_BaseColor is BGRA
-			u8 *baseColor = (u8*)&m_BaseColor;
-			baseColor[0] = (u8)(col.b*255);
-			baseColor[1] = (u8)(col.g*255);
-			baseColor[2] = (u8)(col.r*255);
-			baseColor[3] = (u8)(col.a*255);
+			std::uint8_t* baseColor = reinterpret_cast<std::uint8_t*>(&m_BaseColor);
+			baseColor[0] = static_cast<std::uint8_t>(col.b * 255);
+			baseColor[1] = static_cast<std::uint8_t>(col.g * 255);
+			baseColor[2] = static_cast<std::uint8_t>(col.r * 255);
+			baseColor[3] = static_cast<std::uint8_t>(col.a * 255);
 			m_HasBaseColor = true;
 		}
 		else if (attr.Name == attr_angle)

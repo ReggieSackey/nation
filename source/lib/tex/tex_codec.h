@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Wildfire Games.
+/* Copyright (C) 2026 Wildfire Games.
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -30,7 +30,6 @@
 #include "lib/code_annotation.h"
 #include "lib/os_path.h"
 #include "lib/status.h"
-#include "lib/types.h"
 
 #include <cstddef>
 #include <vector>
@@ -58,7 +57,7 @@ public:
 	 * @param t output texture object
 	 * @return Status
 	 **/
-	virtual Status decode(u8* data, size_t size, Tex* RESTRICT t) const = 0;
+	virtual Status decode(std::uint8_t* data, size_t size, Tex* RESTRICT t) const = 0;
 
 	/**
 	 * encode the texture data into the codec's file format (in memory).
@@ -92,7 +91,7 @@ public:
 	 * (this should be enough to examine the header's 'magic' field)
 	 * @return bool
 	 **/
-	virtual bool is_hdr(const u8* file) const = 0;
+	virtual bool is_hdr(const std::uint8_t* file) const = 0;
 
 	/**
 	 * is the extension that of a file format supported by this codec?
@@ -115,7 +114,7 @@ public:
 	 * variable-length fields.
 	 * @return size [bytes]
 	 **/
-	virtual size_t hdr_size(const u8* file) const = 0;
+	virtual size_t hdr_size(const std::uint8_t* file) const = 0;
 
 	/**
 	 * name of codec for debug purposes. typically set via TEX_CODEC_REGISTER.
@@ -127,12 +126,12 @@ public:
 
 class TexCodecPng:ITexCodec {
 public:
-	virtual Status decode(u8* data, size_t size, Tex* RESTRICT t) const;
+	virtual Status decode(std::uint8_t* data, size_t size, Tex* RESTRICT t) const;
 	virtual Status encode(Tex* RESTRICT t, DynArray* RESTRICT da) const;
 	virtual Status transform(Tex* t, size_t transforms) const;
-	virtual bool is_hdr(const u8* file) const;
+	virtual bool is_hdr(const std::uint8_t* file) const;
 	virtual bool is_ext(const OsPath& extension) const;
-	virtual size_t hdr_size(const u8* file) const;
+	virtual size_t hdr_size(const std::uint8_t* file) const;
 	virtual const wchar_t* get_name() const {
 		static const wchar_t *name = L"png";
 		return name;
@@ -141,12 +140,12 @@ public:
 
 class TexCodecDds:ITexCodec {
 public:
-	virtual Status decode(u8* data, size_t size, Tex* RESTRICT t) const;
+	virtual Status decode(std::uint8_t* data, size_t size, Tex* RESTRICT t) const;
 	virtual Status encode(Tex* RESTRICT t, DynArray* RESTRICT da) const;
 	virtual Status transform(Tex* t, size_t transforms) const;
-	virtual bool is_hdr(const u8* file) const;
+	virtual bool is_hdr(const std::uint8_t* file) const;
 	virtual bool is_ext(const OsPath& extension) const;
-	virtual size_t hdr_size(const u8* file) const;
+	virtual size_t hdr_size(const std::uint8_t* file) const;
 	virtual const wchar_t* get_name() const {
 		static const wchar_t *name = L"dds";
 		return name;
@@ -155,12 +154,12 @@ public:
 
 class TexCodecTga:ITexCodec {
 public:
-	virtual Status decode(u8* data, size_t size, Tex* RESTRICT t) const;
+	virtual Status decode(std::uint8_t* data, size_t size, Tex* RESTRICT t) const;
 	virtual Status encode(Tex* RESTRICT t, DynArray* RESTRICT da) const;
 	virtual Status transform(Tex* t, size_t transforms) const;
-	virtual bool is_hdr(const u8* file) const;
+	virtual bool is_hdr(const std::uint8_t* file) const;
 	virtual bool is_ext(const OsPath& extension) const;
-	virtual size_t hdr_size(const u8* file) const;
+	virtual size_t hdr_size(const std::uint8_t* file) const;
 	virtual const wchar_t* get_name() const {
 		static const wchar_t *name = L"tga";
 		return name;
@@ -169,12 +168,12 @@ public:
 
 class TexCodecBmp:ITexCodec {
 public:
-	virtual Status decode(u8* data, size_t size, Tex* RESTRICT t) const;
+	virtual Status decode(std::uint8_t* data, size_t size, Tex* RESTRICT t) const;
 	virtual Status encode(Tex* RESTRICT t, DynArray* RESTRICT da) const;
 	virtual Status transform(Tex* t, size_t transforms) const;
-	virtual bool is_hdr(const u8* file) const;
+	virtual bool is_hdr(const std::uint8_t* file) const;
 	virtual bool is_ext(const OsPath& extension) const;
-	virtual size_t hdr_size(const u8* file) const;
+	virtual size_t hdr_size(const std::uint8_t* file) const;
 	virtual const wchar_t* get_name() const {
 		static const wchar_t *name = L"bmp";
 		return name;
@@ -202,7 +201,7 @@ extern Status tex_codec_for_filename(const OsPath& extension, const ITexCodec** 
  * @return Status; ERR::RES_UNKNOWN_FORMAT if no codec indicates they can
  * handle the given format (header).
  **/
-extern Status tex_codec_for_header(const u8* data, size_t data_size, const ITexCodec** c);
+extern Status tex_codec_for_header(const std::uint8_t* data, size_t data_size, const ITexCodec** c);
 
 /**
  * transform the texture's pixel format.
@@ -234,8 +233,8 @@ extern Status tex_codec_transform(Tex* t, size_t transforms);
  * "global orientation".
  * depending on src and dst, the row array is flipped if necessary.
  **/
-typedef const u8* RowPtr;
-extern std::vector<RowPtr> tex_codec_alloc_rows(const u8* data, size_t h, size_t pitch, size_t src_flags, size_t dst_orientation);
+typedef const std::uint8_t* RowPtr;
+extern std::vector<RowPtr> tex_codec_alloc_rows(const std::uint8_t* data, size_t h, size_t pitch, size_t src_flags, size_t dst_orientation);
 
 /**
  * apply transforms and then copy header and image into output buffer.

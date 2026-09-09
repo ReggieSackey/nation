@@ -33,7 +33,7 @@ size_t CHashSerializer::GetHashLength()
 	return m_Impl.GetHashLength();
 }
 
-const u8* CHashSerializer::ComputeHash()
+const std::uint8_t* CHashSerializer::ComputeHash()
 {
 	return m_Impl.ComputeHash();
 }
@@ -43,7 +43,7 @@ size_t CHashSerializerImpl::GetHashLength()
 	return HashFunc::DIGESTSIZE;
 }
 
-const u8* CHashSerializerImpl::ComputeHash()
+const std::uint8_t* CHashSerializerImpl::ComputeHash()
 {
 	m_Hash.Final(m_HashData);
 	return m_HashData;

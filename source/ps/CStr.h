@@ -50,7 +50,6 @@ enum PS_TRIM_MODE
 #define CSTR_H_A
 #endif
 
-#include "lib/types.h"
 #include "ps/CStrForward.h"
 
 #include <string>
@@ -223,8 +222,8 @@ public:
 	// (These are not virtual or inherited from ISerializable, to avoid
 	// adding a vtable and making the strings larger than std::string)
 	size_t GetSerializedLength() const;
-	u8* Serialize(u8* buffer) const;
-	const u8* Deserialize(const u8* buffer, const u8* bufferend);
+	std::uint8_t* Serialize(std::uint8_t* buffer) const;
+	const std::uint8_t* Deserialize(const std::uint8_t* buffer, const std::uint8_t* bufferend);
 };
 
 namespace std

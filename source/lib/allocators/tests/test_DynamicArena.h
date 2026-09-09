@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Wildfire Games.
+/* Copyright (C) 2026 Wildfire Games.
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -23,7 +23,6 @@
 #include "lib/self_test.h"
 
 #include "lib/allocators/DynamicArena.h"
-#include "lib/types.h"
 
 class TestDynamicArena : public CxxTest::TestSuite
 {
@@ -31,7 +30,7 @@ public:
 	void test_allocate()
 	{
 		Allocators::DynamicArena<100> testArena;
-		u8* p = static_cast<u8*>(testArena.allocate(10, 1));
+		std::uint8_t* p = static_cast<std::uint8_t*>(testArena.allocate(10, 1));
 		TS_ASSERT(p != nullptr);
 		void* p2 = testArena.allocate(10, 1);
 		TS_ASSERT(p + 10 == p2);
@@ -55,22 +54,22 @@ public:
 	void test_alignment()
 	{
 		Allocators::DynamicArena<100> testArena;
-		u8* p = static_cast<u8*>(testArena.allocate(4, 1));
+		std::uint8_t* p = static_cast<std::uint8_t*>(testArena.allocate(4, 1));
 		TS_ASSERT(p != nullptr);
 
-		u8* p2 = static_cast<u8*>(testArena.allocate(1, 8));
+		std::uint8_t* p2 = static_cast<std::uint8_t*>(testArena.allocate(1, 8));
 		TS_ASSERT_EQUALS(p + 8, p2);
 
-		p2 = static_cast<u8*>(testArena.allocate(1, 8));
+		p2 = static_cast<std::uint8_t*>(testArena.allocate(1, 8));
 		TS_ASSERT_EQUALS(p + 16, p2);
 
-		p2 = static_cast<u8*>(testArena.allocate(1, 8));
+		p2 = static_cast<std::uint8_t*>(testArena.allocate(1, 8));
 		TS_ASSERT_EQUALS(p + 24, p2);
 
-		p2 = static_cast<u8*>(testArena.allocate(1, 2));
+		p2 = static_cast<std::uint8_t*>(testArena.allocate(1, 2));
 		TS_ASSERT_EQUALS(p + 26, p2);
 
-		p2 = static_cast<u8*>(testArena.allocate(1, 8));
+		p2 = static_cast<std::uint8_t*>(testArena.allocate(1, 8));
 		TS_ASSERT_EQUALS(p + 32, p2);
 	}
 };

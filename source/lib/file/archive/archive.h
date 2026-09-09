@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Wildfire Games.
+/* Copyright (C) 2026 Wildfire Games.
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -32,7 +32,6 @@
 #include "lib/file/vfs/vfs_path.h"
 #include "lib/os_path.h"
 #include "lib/status.h"
-#include "lib/types.h"
 
 #include <cstdint>
 #include <ctime>
@@ -110,7 +109,8 @@ struct IArchiveWriter
 	 * @param mtime the last-modified-time to be stored in the archive
 	 * @param pathnameInArchive the name to store in the archive
 	 **/
-	virtual Status AddMemory(const u8* data, size_t size, time_t mtime, const OsPath& pathnameInArchive) = 0;
+	virtual Status AddMemory(const std::uint8_t* data, size_t size, time_t mtime,
+		const OsPath& pathnameInArchive) = 0;
 };
 
 typedef std::shared_ptr<IArchiveWriter> PIArchiveWriter;

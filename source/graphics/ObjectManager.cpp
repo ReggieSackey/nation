@@ -125,7 +125,7 @@ CObjectEntry* CObjectManager::FindObjectVariation(const std::shared_ptr<CObjectB
 	PROFILE2("FindObjectVariation");
 
 	// Look to see whether this particular variation has already been loaded
-	std::vector<u8> choices = base->CalculateVariationKey(completeSelections);
+	std::vector<std::uint8_t> choices = base->CalculateVariationKey(completeSelections);
 	ObjectKey key (base->GetIdentifier(), choices);
 	decltype(m_Objects)::iterator it = m_Objects.find(key);
 	if (it != m_Objects.end() && !it->second.outdated)

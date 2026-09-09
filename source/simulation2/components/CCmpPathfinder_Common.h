@@ -226,7 +226,7 @@ public:
 
 	void SetHierDebugOverlay(bool enabled) override;
 
-	void GetDebugData(u32& steps, double& time, Grid<u8>& grid) const override;
+	void GetDebugData(u32& steps, double& time, Grid<std::uint8_t>& grid) const override;
 
 	void SetAtlasOverlay(bool enable, pass_class_t passClass = 0) override;
 
@@ -269,5 +269,4 @@ public:
 
 	void RenderSubmit(SceneCollector& collector);
 };
-
 #endif // INCLUDED_CCMPPATHFINDER_COMMON

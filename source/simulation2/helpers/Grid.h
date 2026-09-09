@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Wildfire Games.
+/* Copyright (C) 2026 Wildfire Games.
  * This file is part of 0 A.D.
  *
  * 0 A.D. is free software: you can redistribute it and/or modify
@@ -373,7 +373,7 @@ struct GridUpdateInformation
 {
 	bool dirty;
 	bool globallyDirty;
-	Grid<u8> dirtinessGrid;
+	Grid<std::uint8_t> dirtinessGrid;
 
 	/**
 	 * Update the information with additionnal needed updates, then erase the source of additions.

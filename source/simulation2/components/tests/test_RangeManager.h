@@ -561,7 +561,7 @@ public:
 		cmp->ExploreCircle(1, entity_pos_t::FromInt(128), entity_pos_t::FromInt(128), fixed::FromInt(50));
 
 		// Check that some tiles were explored (not 0%, not 100%)
-		u8 percentExplored = cmp->GetPercentMapExplored(1);
+		std::uint8_t percentExplored = cmp->GetPercentMapExplored(1);
 		TS_ASSERT(percentExplored > 0 && percentExplored < 100);
 
 		// Test invalid player (should do nothing)

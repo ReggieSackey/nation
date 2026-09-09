@@ -55,18 +55,20 @@
 // - can't pass code as string, and use s[0]..s[3], because
 //   VC6/7 don't realize the macro is constant
 //   (it should be usable as a switch{} expression)
-// - the casts are ugly but necessary. u32 is required because u8 << 8 == 0;
-//   the additional u8 cast ensures each character is treated as unsigned
-//   (otherwise, they'd be promoted to signed int before the u32 cast,
-//   which would break things).
+// - the casts are ugly but necessary. u32 is required because
+//   std::uint8_t << 8 == 0; the additional std::uint8_t cast ensures each
+//   character is treated as unsigned (otherwise, they'd be promoted to signed
+//   int before the u32 cast, which would break things).
 
 /// big-endian version of FOURCC
-#define FOURCC_BE(a,b,c,d) ( ((u32)(u8)a) << 24 | ((u32)(u8)b) << 16 | \
-	((u32)(u8)c) << 8  | ((u32)(u8)d) << 0  )
+#define FOURCC_BE(a,b,c,d) ( ((u32)static_cast<std::uint8_t>(a)) << 24 | \
+	((u32)static_cast<std::uint8_t>(b)) << 16 | ((u32)static_cast<std::uint8_t>(c)) << 8  | \
+	((u32)static_cast<std::uint8_t>(d)) << 0 )
 
 /// little-endian version of FOURCC
-#define FOURCC_LE(a,b,c,d) ( ((u32)(u8)a) << 0  | ((u32)(u8)b) << 8  | \
-	((u32)(u8)c) << 16 | ((u32)(u8)d) << 24 )
+#define FOURCC_LE(a,b,c,d) ( ((u32)static_cast<std::uint8_t>(a)) << 0 | \
+	((u32)static_cast<std::uint8_t>(b)) << 8 | ((u32)static_cast<std::uint8_t>(c)) << 16 | \
+	((u32)static_cast<std::uint8_t>(d)) << 24 )
 
 #if BYTE_ORDER == BIG_ENDIAN
 # define FOURCC FOURCC_BE
@@ -119,15 +121,15 @@ void write_be64(void* p, u64 x);	/// see write_be16
  * zero-extend \<size\> (truncated to 8) bytes of little-endian data to u64,
  * starting at address \<p\> (need not be aligned).
  **/
-u64 movzx_le64(const u8* p, size_t size);
-u64 movzx_be64(const u8* p, size_t size);
+u64 movzx_le64(const std::uint8_t* p, size_t size);
+u64 movzx_be64(const std::uint8_t* p, size_t size);
 
 /**
  * sign-extend \<size\> (truncated to 8) bytes of little-endian data to
  * std::int64_t, starting at address \<p\> (need not be aligned).
  **/
-std::int64_t movsx_le64(const u8* p, size_t size);
-std::int64_t movsx_be64(const u8* p, size_t size);
+std::int64_t movsx_le64(const std::uint8_t* p, size_t size);
+std::int64_t movsx_be64(const std::uint8_t* p, size_t size);
 
 
 #if MSC_VERSION

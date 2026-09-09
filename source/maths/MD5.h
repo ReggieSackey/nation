@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Wildfire Games.
+/* Copyright (C) 2026 Wildfire Games.
  * This file is part of 0 A.D.
  *
  * 0 A.D. is free software: you can redistribute it and/or modify
@@ -34,7 +34,7 @@ public:
 
 	MD5();
 
-	void Update(const u8* data, size_t len)
+	void Update(const std::uint8_t* data, size_t len)
 	{
 		// (Defined inline for efficiency in the common fixed-length fits-in-buffer case)
 
@@ -60,14 +60,14 @@ public:
 		UpdateRest(data, len);
 	}
 
-	void Final(u8* digest);
+	void Final(std::uint8_t* digest);
 
 private:
 	void InitState();
-	void UpdateRest(const u8* data, size_t len);
+	void UpdateRest(const std::uint8_t* data, size_t len);
 	void Transform(const u32* in);
 	u32 m_Digest[4]; // internal state
-	u8 m_Buf[64]; // buffered input bytes
+	std::uint8_t m_Buf[64]; // buffered input bytes
 	size_t m_BufLen; // bytes in m_Buf that are valid
 	u64 m_InputLen; // bytes
 };

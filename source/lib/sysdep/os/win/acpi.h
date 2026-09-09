@@ -34,8 +34,8 @@ struct AcpiTable
 {
 	char signature[4];
 	u32 size;					// table size [bytes], including header
-	u8 revision;
-	u8 checksum;				// to make sum of entire table == 0
+	std::uint8_t revision;
+	std::uint8_t checksum;				// to make sum of entire table == 0
 	char oemId[6];
 	char oemTableId[8];
 	u32 oemRevision;
@@ -55,24 +55,24 @@ enum AcpiAddressSpace
 // address of a struct or register
 struct AcpiGenericAddress
 {
-	u8 addressSpaceId;
-	u8 registerBitWidth;
-	u8 registerBitOffset;
-	u8 accessSize;
+	std::uint8_t addressSpaceId;
+	std::uint8_t registerBitWidth;
+	std::uint8_t registerBitOffset;
+	std::uint8_t accessSize;
 	u64 address;
 };
 
 struct FADT	// signature is FACP!
 {
 	AcpiTable header;
-	u8 unused1[40];
+	std::uint8_t unused1[40];
 	u32 pmTimerPortAddress;
-	u8 unused2[16];
+	std::uint8_t unused2[16];
 	u16 c2Latency;	// [us]
 	u16 c3Latency;	// [us]
-	u8 unused3[5];
-	u8 dutyWidth;
-	u8 unused4[6];
+	std::uint8_t unused3[5];
+	std::uint8_t dutyWidth;
+	std::uint8_t unused4[6];
 	u32 flags;
 	// (ACPI4 defines additional fields after this)
 

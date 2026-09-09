@@ -30,7 +30,6 @@
 #include "lib/file/vfs/vfs_tree.h"
 #include "lib/os_path.h"
 #include "lib/status.h"
-#include "lib/types.h"
 
 #include <cstddef>
 
@@ -45,7 +44,7 @@ public:
 	size_t Precedence() const override { return m_Precedence; }
 	wchar_t LocationCode() const override { return L'\0'; }
 	const OsPath& Path() const override { return m_Path; }
-	Status Load(const OsPath& /*name*/, const std::span<u8>) const override
+	Status Load(const OsPath& /*name*/, const std::span<std::uint8_t>) const override
 	{
 		return INFO::OK;
 	}

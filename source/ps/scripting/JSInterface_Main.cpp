@@ -25,7 +25,6 @@
 #include "lib/file/vfs/vfs_path.h"
 #include "lib/frequency_filter.h"
 #include "lib/sysdep/sysdep.h"
-#include "lib/types.h"
 #include "maths/MD5.h"
 #include "maths/Size2D.h"
 #include "ps/CLogger.h"
@@ -125,10 +124,10 @@ int GetTextWidth(const std::string& fontName, const std::wstring& text)
 
 std::string CalculateMD5(const std::string& input)
 {
-	u8 digest[MD5::DIGESTSIZE];
+	std::uint8_t digest[MD5::DIGESTSIZE];
 
 	MD5 m;
-	m.Update((const u8*)input.c_str(), input.length());
+	m.Update(reinterpret_cast<const std::uint8_t*>(input.c_str()), input.length());
 	m.Final(digest);
 
 	return Hexify(digest, MD5::DIGESTSIZE);

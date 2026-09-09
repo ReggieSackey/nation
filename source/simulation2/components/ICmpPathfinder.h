@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Wildfire Games.
+/* Copyright (C) 2026 Wildfire Games.
  * This file is part of 0 A.D.
  *
  * 0 A.D. is free software: you can redistribute it and/or modify
@@ -207,7 +207,7 @@ public:
 	/**
 	 * Returns some stats about the last ComputePath.
 	 */
-	virtual void GetDebugData(u32& steps, double& time, Grid<u8>& grid) const = 0;
+	virtual void GetDebugData(u32& steps, double& time, Grid<std::uint8_t>& grid) const = 0;
 
 	/**
 	 * Sets up the pathfinder passability overlay in Atlas.

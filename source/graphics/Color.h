@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Wildfire Games.
+/* Copyright (C) 2026 Wildfire Games.
  * This file is part of 0 A.D.
  *
  * 0 A.D. is free software: you can redistribute it and/or modify
@@ -19,7 +19,6 @@
 #define INCLUDED_COLOR
 
 #include "graphics/SColor.h"
-#include "lib/types.h"
 #include "maths/Vector3D.h"
 #include "maths/Vector4D.h"
 
@@ -89,10 +88,10 @@ struct CColor
 	SColor4ub AsSColor4ub() const
 	{
 		return SColor4ub(
-			static_cast<u8>(r * 255.f),
-			static_cast<u8>(g * 255.f),
-			static_cast<u8>(b * 255.f),
-			static_cast<u8>(a * 255.f)
+			static_cast<std::uint8_t>(r * 255.f),
+			static_cast<std::uint8_t>(g * 255.f),
+			static_cast<std::uint8_t>(b * 255.f),
+			static_cast<std::uint8_t>(a * 255.f)
 		);
 	}
 

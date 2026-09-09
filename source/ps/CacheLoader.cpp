@@ -134,12 +134,12 @@ VfsPath CCacheLoader::LooseCachePath(const VfsPath& sourcePath, const MD5& initi
 	// Construct a hash of the file data and settings.
 
 	MD5 hash = initialHash;
-	hash.Update((const u8*)&mtime, sizeof(mtime));
-	hash.Update((const u8*)&size, sizeof(size));
-	hash.Update((const u8*)&version, sizeof(version));
+	hash.Update(reinterpret_cast<const std::uint8_t*>(&mtime), sizeof(mtime));
+	hash.Update(reinterpret_cast<const std::uint8_t*>(&size), sizeof(size));
+	hash.Update(reinterpret_cast<const std::uint8_t*>(&version), sizeof(version));
 	// these are local cached files, so we don't care about endianness etc
 
-	u8 digest[MD5::DIGESTSIZE];
+	std::uint8_t digest[MD5::DIGESTSIZE];
 	hash.Final(digest);
 
 	// Get the mod path

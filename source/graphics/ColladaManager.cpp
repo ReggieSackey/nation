@@ -314,7 +314,7 @@ public:
 		}
 
 		for (const u64& h : m_skeletonHashes)
-			hash.Update((const u8*)&h, sizeof(h));
+			hash.Update(reinterpret_cast<const std::uint8_t*>(&h), sizeof(h));
 	}
 
 private:

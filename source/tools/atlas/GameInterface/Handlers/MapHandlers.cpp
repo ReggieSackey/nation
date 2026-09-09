@@ -319,7 +319,7 @@ QUERYHANDLER(RasterizeMinimap)
 	const ssize_t bpp = 24;
 	const ssize_t imageDataSize = dimension * dimension * (bpp / 8);
 
-	std::vector<u8> imageBytes(imageDataSize);
+	std::vector<std::uint8_t> imageBytes(imageDataSize);
 
 	float shallowPassageHeight = CMiniMapTexture::GetShallowPassageHeight();
 
@@ -368,9 +368,12 @@ QUERYHANDLER(RasterizeMinimap)
 				}
 
 				// Convert
-				imageBytes[position++] = static_cast<u8>(static_cast<float>(color & 0xff) * scale);
-				imageBytes[position++] = static_cast<u8>(static_cast<float>((color >> 8) & 0xff) * scale);
-				imageBytes[position++] = static_cast<u8>(static_cast<float>((color >> 16) & 0xff) * scale);
+				imageBytes[position++] = static_cast<std::uint8_t>(static_cast<float>(
+					color & 0xff) * scale);
+				imageBytes[position++] = static_cast<std::uint8_t>(static_cast<float>(
+					(color >> 8) & 0xff) * scale);
+				imageBytes[position++] = static_cast<std::uint8_t>(static_cast<float>(
+					(color >> 16) & 0xff) * scale);
 			}
 		}
 	}

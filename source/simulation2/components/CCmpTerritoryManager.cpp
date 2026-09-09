@@ -77,11 +77,11 @@ namespace
 {
 constexpr bool DISABLE_TERRITORY_OVERLAY{true};
 
-void BuildTextureRGBA(Grid<u8>*& territories, std::uint8_t* data, const int w, const int h)
+void BuildTextureRGBA(Grid<std::uint8_t>*& territories, std::uint8_t* data, const int w, const int h)
 {
 	TerrainTextureOverlay::OverwriteEachTile(data, w, h, [&](const int i, const int j)
 	{
-		const u8 id{static_cast<std::uint8_t>(territories->get(j, i) &
+		const std::uint8_t id{static_cast<std::uint8_t>(territories->get(j, i) &
 			ICmpTerritoryManager::TERRITORY_PLAYER_MASK)};
 		return TerrainTextureOverlay::GetColor(id, 64);
 	});
@@ -112,7 +112,7 @@ public:
 		return "<a:component type='system'/><empty/>";
 	}
 
-	u8 m_ImpassableCost;
+	std::uint8_t m_ImpassableCost;
 	float m_BorderThickness;
 	float m_BorderSeparation;
 
@@ -120,13 +120,13 @@ public:
 	// connected flag in bit 5 (TERRITORY_CONNECTED_MASK)
 	// blinking flag  in bit 6 (TERRITORY_BLINKING_MASK)
 	// processed flag in bit 7 (TERRITORY_PROCESSED_MASK)
-	Grid<u8>* m_Territories;
+	Grid<std::uint8_t>* m_Territories;
 
 	std::vector<u16> m_TerritoryCellCounts;
 	u16 m_TerritoryTotalPassableCellCount;
 
 	// Saves the cost per tile (to stop territory on impassable tiles)
-	Grid<u8>* m_CostGrid;
+	Grid<std::uint8_t>* m_CostGrid;
 
 	// Set to true when territories change; will send a TerritoriesChanged message
 	// during the Update phase
@@ -177,7 +177,7 @@ public:
 
 		int impassableCost = externalParamNode.GetChild("TerritoryManager").GetChild("ImpassableCost").ToInt();
 		ENSURE(0 <= impassableCost && impassableCost <= 255);
-		m_ImpassableCost = (u8)impassableCost;
+		m_ImpassableCost = static_cast<std::uint8_t>(impassableCost);
 
 		const std::string& visibilityStatus = externalParamNode.GetChild("TerritoryManager").GetChild("VisibilityStatus").ToString();
 		m_Enabled = visibilityStatus != "off";
@@ -276,7 +276,7 @@ public:
 			MakeDirty();
 	}
 
-	const Grid<u8>& GetTerritoryGrid() override
+	const Grid<std::uint8_t>& GetTerritoryGrid() override
 	{
 		CalculateTerritories();
 		ENSURE(m_Territories);
@@ -332,7 +332,7 @@ public:
 
 	void CalculateTerritories();
 
-	u8 GetTerritoryPercentage(player_id_t player) override;
+	std::uint8_t GetTerritoryPercentage(player_id_t player) override;
 
 	std::vector<STerritoryBoundary> ComputeBoundaries();
 
@@ -446,7 +446,7 @@ void CCmpTerritoryManager::CalculateCostGrid()
 	int tilesW = passGrid.m_W / NAVCELLS_PER_TERRITORY_TILE;
 	int tilesH = passGrid.m_H / NAVCELLS_PER_TERRITORY_TILE;
 
-	m_CostGrid = new Grid<u8>(tilesW, tilesH);
+	m_CostGrid = new Grid<std::uint8_t>(tilesW, tilesH);
 	m_TerritoryTotalPassableCellCount = 0;
 
 	for (int i = 0; i < tilesW; ++i)
@@ -488,7 +488,7 @@ void CCmpTerritoryManager::CalculateTerritories()
 	const u16 tilesW = m_CostGrid->m_W;
 	const u16 tilesH = m_CostGrid->m_H;
 
-	m_Territories = new Grid<u8>(tilesW, tilesH);
+	m_Territories = new Grid<std::uint8_t>(tilesW, tilesH);
 
 	// Reset territory counts for all players
 	CmpPtr<ICmpPlayerManager> cmpPlayerManager(GetSystemEntity());
@@ -530,7 +530,7 @@ void CCmpTerritoryManager::CalculateTerritories()
 		// playerGrid stores the combined weight of all entities for this player
 		Grid<u32> playerGrid(tilesW, tilesH);
 
-		u8 owner = static_cast<u8>(pair.first);
+		std::uint8_t owner = static_cast<std::uint8_t>(pair.first);
 		const std::vector<entity_id_t>& ents = pair.second;
 		// With 2^16 entities, we're safe against overflows as the weight is also limited to 2^16
 		ENSURE(ents.size() < 1 << 16);
@@ -611,7 +611,7 @@ void CCmpTerritoryManager::CalculateTerritories()
 		u16 i, j;
 		NearestTerritoryTile(pos.X, pos.Y, i, j, tilesW, tilesH);
 
-		u8 owner = (u8)cmpOwnership->GetOwner();
+		std::uint8_t owner = static_cast<std::uint8_t>(cmpOwnership->GetOwner());
 
 		Floodfill({i, j}, {tilesW, tilesH}, [&](const Tile*, const Tile& neighbour)
 			{
@@ -645,7 +645,7 @@ std::vector<STerritoryBoundary> CCmpTerritoryManager::ComputeBoundaries()
 	return CTerritoryBoundaryCalculator::ComputeBoundaries(m_Territories);
 }
 
-u8 CCmpTerritoryManager::GetTerritoryPercentage(player_id_t player)
+std::uint8_t CCmpTerritoryManager::GetTerritoryPercentage(player_id_t player)
 {
 	if (player <= 0 || (m_Territories && static_cast<size_t>(player) >= m_TerritoryCellCounts.size()))
 		return 0;
@@ -656,7 +656,7 @@ u8 CCmpTerritoryManager::GetTerritoryPercentage(player_id_t player)
 	if (m_TerritoryTotalPassableCellCount == 0 || static_cast<size_t>(player) >= m_TerritoryCellCounts.size())
 		return 0;
 
-	u8 percentage = (m_TerritoryCellCounts[player] * 100) / m_TerritoryTotalPassableCellCount;
+	std::uint8_t percentage = (m_TerritoryCellCounts[player] * 100) / m_TerritoryTotalPassableCellCount;
 	ENSURE(percentage <= 100);
 	return percentage;
 }
@@ -861,7 +861,7 @@ void CCmpTerritoryManager::SetTerritoryBlinking(entity_pos_t x, entity_pos_t z, 
 
 	Floodfill({i, j}, {tilesW, tilesH}, [&](const Tile*, const Tile& neighbour)
 		{
-			const u8 bitmask{m_Territories->get(neighbour.x, neighbour.z)};
+			const std::uint8_t bitmask{m_Territories->get(neighbour.x, neighbour.z)};
 			if ((bitmask & TERRITORY_PLAYER_MASK) != thisOwner)
 				return false;
 			const bool blinking{(bitmask & TERRITORY_BLINKING_MASK) != 0};

@@ -296,9 +296,9 @@ public:
 					}
 					else
 					{
-						// Check for less than 254 joints because we store them in a u8,
-						//	0xFF is a reserved value (no influence), and we reserve one slot
-						//	for the above special case.
+						// Check for less than 254 joints because we store them in a
+						//	std::uint8_t, 0xFF is a reserved value (no influence), and we
+						//	reserve one slot for the above special case.
 						uint32 jointIdx = vertexInfluences[i].GetPair(j)->jointIndex;
 						REQUIRE(jointIdx < 0xFE, "sensible number of joints (<254)");
 
