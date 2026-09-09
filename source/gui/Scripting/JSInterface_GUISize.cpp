@@ -57,7 +57,7 @@ void JSI_GUISize::RegisterScriptClass(Script::Interface& scriptInterface)
 	scriptInterface.DefineCustomObjectType(&JSI_GUISize::JSI_class, JSI_GUISize::construct, 0, nullptr, JSI_GUISize::JSI_methods, nullptr, nullptr);
 }
 
-bool JSI_GUISize::construct(JSContext* cx, uint argc, JS::Value* vp)
+bool JSI_GUISize::construct(JSContext* cx, unsigned int argc, JS::Value* vp)
 {
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 	Script::Request rq(cx);
@@ -117,7 +117,7 @@ std::string JSI_GUISize::ToPercentString(double pix, double per)
 	return fmt::format("{}%{:+}", per, pix);
 }
 
-bool JSI_GUISize::toString(JSContext* cx, uint argc, JS::Value* vp)
+bool JSI_GUISize::toString(JSContext* cx, unsigned int argc, JS::Value* vp)
 {
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 	std::string buffer;

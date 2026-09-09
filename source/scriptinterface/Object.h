@@ -19,7 +19,6 @@
 #define INCLUDED_SCRIPTINTERFACE_OBJECT
 
 #include "lib/posix/posix_types.h"
-#include "lib/types.h"
 #include "ps/CLogger.h"
 #include "scriptinterface/Conversions.h"
 #include "scriptinterface/Request.h"
@@ -114,7 +113,7 @@ inline bool HasProperty(const Script::Request& rq, JS::HandleValue obj, const ch
 template<typename PropType>
 inline bool SetProperty(const Script::Request& rq, JS::HandleValue obj, PropType name, JS::HandleValue value, bool constant = false, bool enumerable = true)
 {
-	uint attrs = 0;
+	unsigned int attrs = 0;
 	if (constant)
 		attrs |= JSPROP_READONLY | JSPROP_PERMANENT;
 	if (enumerable)

@@ -19,7 +19,6 @@
 #define INCLUDED_TURNMANAGER
 
 #include "lib/code_annotation.h"
-#include "lib/types.h"
 #include "ps/CStr.h"
 #include "simulation2/helpers/SimulationCommand.h"
 
@@ -212,7 +211,7 @@ protected:
 	std::deque<std::map<turn_id_t, std::vector<SimulationCommand>>> m_QueuedCommands;
 
 	int m_PlayerId;
-	uint m_ClientId;
+	unsigned int m_ClientId;
 
 	/// Simulation time remaining until we ought to execute the next turn (as a negative value to
 	/// add elapsed time increments to until we reach 0).

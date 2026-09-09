@@ -19,7 +19,6 @@
 #define INCLUDED_SCRIPT_INTERFACE
 
 #include "lib/code_annotation.h"
-#include "lib/types.h"
 #include "ps/Errors.h"
 #include "scriptinterface/Conversions.h"
 #include "scriptinterface/Exceptions.h"
@@ -196,7 +195,8 @@ public:
 	void CallConstructor(JS::HandleValue ctor, JS::HandleValueArray argv, JS::MutableHandleValue out) const;
 
 	JSObject* CreateCustomObject(const std::string & typeName) const;
-	void DefineCustomObjectType(JSClass *clasp, JSNative constructor, uint minArgs, JSPropertySpec *ps, JSFunctionSpec *fs, JSPropertySpec *static_ps, JSFunctionSpec *static_fs);
+	void DefineCustomObjectType(JSClass *clasp, JSNative constructor, unsigned int minArgs,
+		JSPropertySpec *ps, JSFunctionSpec *fs, JSPropertySpec *static_ps, JSFunctionSpec *static_fs);
 
 	/**
 	 * Set the named property on the global object.
@@ -255,7 +255,7 @@ public:
 	/**
 	 * JSNative wrapper of the above.
 	 */
-	static bool Math_random(JSContext* cx, uint argc, JS::Value* vp);
+	static bool Math_random(JSContext* cx, unsigned int argc, JS::Value* vp);
 
 	/**
 	 * Name the reserved slots we may need to use in custom JSObjects.

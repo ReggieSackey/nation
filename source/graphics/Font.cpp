@@ -536,12 +536,12 @@ void CFont::BlendGlyphBitmapToTexture(const FT_Bitmap& bitmap, int targetX, int 
 void CFont::BlendGlyphBitmapToTextureRGBA(const FT_Bitmap& bitmap, int targetX, int targetY,
 	std::uint8_t r, std::uint8_t g, std::uint8_t b)
 {
-	for (uint y{0}; y != bitmap.rows; ++y)
+	for (unsigned int y{0}; y != bitmap.rows; ++y)
 	{
 		const std::uint8_t* srcRow{bitmap.buffer + y * bitmap.pitch};
 		std::uint8_t* dstRow{m_TexData.get() + ((targetY + y) * m_AtlasWidth + targetX) * m_TextureFormatStride};
 
-		for (uint x{0}; x != bitmap.width; ++x)
+		for (unsigned int x{0}; x != bitmap.width; ++x)
 		{
 			std::uint8_t* tempDstRow{dstRow + x * m_TextureFormatStride};
 			std::uint8_t alpha{srcRow[x]};
@@ -566,7 +566,7 @@ void CFont::BlendGlyphBitmapToTextureRGBA(const FT_Bitmap& bitmap, int targetX, 
 
 void  CFont::BlendGlyphBitmapToTextureR8(const FT_Bitmap& bitmap, int targetX, int targetY)
 {
-	for (uint y{0}; y != bitmap.rows; ++y)
+	for (unsigned int y{0}; y != bitmap.rows; ++y)
 	{
 		const std::uint8_t* srcRow{bitmap.buffer + y * bitmap.pitch};
 		std::uint8_t* dstRow{m_TexData.get() + ((targetY + y) * m_AtlasWidth + targetX)};

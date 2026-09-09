@@ -137,7 +137,7 @@ void CBinarySerializerScriptImpl::HandleScriptVal(const Script::Request& rq, JS:
 
 			// Arrays like [1, 2, ] have an 'undefined' at the end which is part of the
 			// length but seemingly isn't enumerated, so store the length explicitly
-			uint length = 0;
+			unsigned int length = 0;
 			if (!JS::GetArrayLength(rq.cx, obj, &length))
 				throw PSERROR_Serialize_ScriptError("JS::GetArrayLength failed");
 			m_Serializer.NumberU32_Unbounded("array length", length);

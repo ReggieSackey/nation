@@ -56,7 +56,7 @@ void CNetServerSession::Disconnect(NetDisconnectReason reason)
 	if (reason == NDR_UNKNOWN)
 		LOGWARNING("Disconnecting client without communicating the disconnect reason!");
 
-	Update((uint)NMT_CONNECTION_LOST, NULL);
+	Update(static_cast<unsigned int>(NMT_CONNECTION_LOST), nullptr);
 
 	enet_peer_disconnect(m_Peer, static_cast<enet_uint32>(reason));
 }

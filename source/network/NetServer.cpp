@@ -24,7 +24,6 @@
 #include "lib/external_libraries/enet.h"
 #include "lib/secure_crt.h"
 #include "lib/status.h"
-#include "lib/types.h"
 #include "lib/utf8.h"
 #include "network/FSM.h"
 #include "network/NetEnet.h"
@@ -507,7 +506,7 @@ bool CNetServerWorker::RunStep()
 			const std::unique_ptr<CNetServerSession> _ = std::move(*iter);
 			m_Sessions.erase(iter);
 
-			session->Update((uint)NMT_CONNECTION_LOST, NULL);
+			session->Update(static_cast<unsigned int>(NMT_CONNECTION_LOST), nullptr);
 
 			event.peer->data = NULL;
 		}
@@ -636,41 +635,70 @@ void CNetServerWorker::SetupSession(CNetServerSession* session)
 {
 	// Set up transitions for session
 
-	session->AddTransition(NSS_UNCONNECTED, (uint)NMT_CONNECTION_LOST, NSS_UNCONNECTED);
+	session->AddTransition(NSS_UNCONNECTED, static_cast<unsigned int>(NMT_CONNECTION_LOST),
+		NSS_UNCONNECTED);
 
-	session->AddTransition(NSS_HANDSHAKE, (uint)NMT_CONNECTION_LOST, NSS_UNCONNECTED);
-	session->AddTransition(NSS_HANDSHAKE, (uint)NMT_CLIENT_HANDSHAKE, NSS_AUTHENTICATE, &OnClientHandshake, session);
+	session->AddTransition(NSS_HANDSHAKE, static_cast<unsigned int>(NMT_CONNECTION_LOST),
+		NSS_UNCONNECTED);
+	session->AddTransition(NSS_HANDSHAKE, static_cast<unsigned int>(NMT_CLIENT_HANDSHAKE),
+		NSS_AUTHENTICATE, &OnClientHandshake, session);
 
-	session->AddTransition(NSS_LOBBY_AUTHENTICATE, (uint)NMT_CONNECTION_LOST, NSS_UNCONNECTED);
-	session->AddTransition(NSS_LOBBY_AUTHENTICATE, (uint)NMT_AUTHENTICATE, NSS_PREGAME, &OnAuthenticate, session);
+	session->AddTransition(NSS_LOBBY_AUTHENTICATE, static_cast<unsigned int>(NMT_CONNECTION_LOST),
+		NSS_UNCONNECTED);
+	session->AddTransition(NSS_LOBBY_AUTHENTICATE, static_cast<unsigned int>(NMT_AUTHENTICATE),
+		NSS_PREGAME, &OnAuthenticate, session);
 
-	session->AddTransition(NSS_AUTHENTICATE, (uint)NMT_CONNECTION_LOST, NSS_UNCONNECTED);
-	session->AddTransition(NSS_AUTHENTICATE, (uint)NMT_AUTHENTICATE, NSS_PREGAME, &OnAuthenticate, session);
+	session->AddTransition(NSS_AUTHENTICATE, static_cast<unsigned int>(NMT_CONNECTION_LOST),
+		NSS_UNCONNECTED);
+	session->AddTransition(NSS_AUTHENTICATE, static_cast<unsigned int>(NMT_AUTHENTICATE), NSS_PREGAME,
+		&OnAuthenticate, session);
 
-	session->AddTransition(NSS_PREGAME, (uint)NMT_CONNECTION_LOST, NSS_UNCONNECTED, &OnDisconnect, session);
-	session->AddTransition(NSS_PREGAME, (uint)NMT_CHAT, NSS_PREGAME, &OnChat, session);
-	session->AddTransition(NSS_PREGAME, (uint)NMT_READY, NSS_PREGAME, &OnReady, session);
-	session->AddTransition(NSS_PREGAME, (uint)NMT_CLEAR_ALL_READY, NSS_PREGAME, &OnClearAllReady, session);
-	session->AddTransition(NSS_PREGAME, (uint)NMT_GAME_SETUP, NSS_PREGAME, &OnGameSetup, session);
-	session->AddTransition(NSS_PREGAME, (uint)NMT_ASSIGN_PLAYER, NSS_PREGAME, &OnAssignPlayer, session);
-	session->AddTransition(NSS_PREGAME, (uint)NMT_KICKED, NSS_PREGAME, &OnKickPlayer, session);
-	session->AddTransition(NSS_PREGAME, (uint)NMT_GAME_START, NSS_PREGAME, &OnGameStart, session);
-	session->AddTransition(NSS_PREGAME, (uint)NMT_SAVED_GAME_START, NSS_PREGAME, &OnSavedGameStart, session);
-	session->AddTransition(NSS_PREGAME, (uint)NMT_LOADED_GAME, NSS_INGAME, &OnLoadedGame, session);
+	session->AddTransition(NSS_PREGAME, static_cast<unsigned int>(NMT_CONNECTION_LOST), NSS_UNCONNECTED,
+		&OnDisconnect, session);
+	session->AddTransition(NSS_PREGAME, static_cast<unsigned int>(NMT_CHAT), NSS_PREGAME, &OnChat,
+		session);
+	session->AddTransition(NSS_PREGAME, static_cast<unsigned int>(NMT_READY), NSS_PREGAME, &OnReady,
+		session);
+	session->AddTransition(NSS_PREGAME, static_cast<unsigned int>(NMT_CLEAR_ALL_READY), NSS_PREGAME,
+		&OnClearAllReady, session);
+	session->AddTransition(NSS_PREGAME, static_cast<unsigned int>(NMT_GAME_SETUP), NSS_PREGAME,
+		&OnGameSetup, session);
+	session->AddTransition(NSS_PREGAME, static_cast<unsigned int>(NMT_ASSIGN_PLAYER), NSS_PREGAME,
+		&OnAssignPlayer, session);
+	session->AddTransition(NSS_PREGAME, static_cast<unsigned int>(NMT_KICKED), NSS_PREGAME,
+		&OnKickPlayer, session);
+	session->AddTransition(NSS_PREGAME, static_cast<unsigned int>(NMT_GAME_START), NSS_PREGAME,
+		&OnGameStart, session);
+	session->AddTransition(NSS_PREGAME, static_cast<unsigned int>(NMT_SAVED_GAME_START), NSS_PREGAME,
+		&OnSavedGameStart, session);
+	session->AddTransition(NSS_PREGAME, static_cast<unsigned int>(NMT_LOADED_GAME), NSS_INGAME,
+		&OnLoadedGame, session);
 
-	session->AddTransition(NSS_JOIN_SYNCING, (uint)NMT_KICKED, NSS_JOIN_SYNCING, &OnKickPlayer, session);
-	session->AddTransition(NSS_JOIN_SYNCING, (uint)NMT_CONNECTION_LOST, NSS_UNCONNECTED, &OnDisconnect, session);
-	session->AddTransition(NSS_JOIN_SYNCING, (uint)NMT_LOADED_GAME, NSS_INGAME, &OnJoinSyncingLoadedGame, session);
+	session->AddTransition(NSS_JOIN_SYNCING, static_cast<unsigned int>(NMT_KICKED), NSS_JOIN_SYNCING,
+		&OnKickPlayer, session);
+	session->AddTransition(NSS_JOIN_SYNCING, static_cast<unsigned int>(NMT_CONNECTION_LOST),
+		NSS_UNCONNECTED, &OnDisconnect, session);
+	session->AddTransition(NSS_JOIN_SYNCING, static_cast<unsigned int>(NMT_LOADED_GAME), NSS_INGAME,
+		&OnJoinSyncingLoadedGame, session);
 
-	session->AddTransition(NSS_INGAME, (uint)NMT_REJOINED, NSS_INGAME, &OnRejoined, session);
-	session->AddTransition(NSS_INGAME, (uint)NMT_KICKED, NSS_INGAME, &OnKickPlayer, session);
-	session->AddTransition(NSS_INGAME, (uint)NMT_CLIENT_PAUSED, NSS_INGAME, &OnClientPaused, session);
-	session->AddTransition(NSS_INGAME, (uint)NMT_CONNECTION_LOST, NSS_UNCONNECTED, &OnDisconnect, session);
-	session->AddTransition(NSS_INGAME, (uint)NMT_CHAT, NSS_INGAME, &OnChat, session);
-	session->AddTransition(NSS_INGAME, (uint)NMT_SIMULATION_COMMAND, NSS_INGAME, &OnSimulationCommand, session);
-	session->AddTransition(NSS_INGAME, (uint)NMT_FLARE, NSS_INGAME, &OnFlare, session);
-	session->AddTransition(NSS_INGAME, (uint)NMT_SYNC_CHECK, NSS_INGAME, &OnSyncCheck, session);
-	session->AddTransition(NSS_INGAME, (uint)NMT_END_COMMAND_BATCH, NSS_INGAME, &OnEndCommandBatch, session);
+	session->AddTransition(NSS_INGAME, static_cast<unsigned int>(NMT_REJOINED), NSS_INGAME, &OnRejoined,
+		session);
+	session->AddTransition(NSS_INGAME, static_cast<unsigned int>(NMT_KICKED), NSS_INGAME, &OnKickPlayer,
+		session);
+	session->AddTransition(NSS_INGAME, static_cast<unsigned int>(NMT_CLIENT_PAUSED), NSS_INGAME,
+		&OnClientPaused, session);
+	session->AddTransition(NSS_INGAME, static_cast<unsigned int>(NMT_CONNECTION_LOST), NSS_UNCONNECTED,
+		&OnDisconnect, session);
+	session->AddTransition(NSS_INGAME, static_cast<unsigned int>(NMT_CHAT), NSS_INGAME, &OnChat,
+		session);
+	session->AddTransition(NSS_INGAME, static_cast<unsigned int>(NMT_SIMULATION_COMMAND), NSS_INGAME,
+		&OnSimulationCommand, session);
+	session->AddTransition(NSS_INGAME, static_cast<unsigned int>(NMT_FLARE), NSS_INGAME, &OnFlare,
+		session);
+	session->AddTransition(NSS_INGAME, static_cast<unsigned int>(NMT_SYNC_CHECK), NSS_INGAME,
+		&OnSyncCheck, session);
+	session->AddTransition(NSS_INGAME, static_cast<unsigned int>(NMT_END_COMMAND_BATCH), NSS_INGAME,
+		&OnEndCommandBatch, session);
 
 	// Set first state
 	session->SetFirstState(NSS_HANDSHAKE);
@@ -881,7 +909,7 @@ void CNetServerWorker::ProcessLobbyAuth(const CStr& name, const CStr& token)
 
 bool CNetServerWorker::OnClientHandshake(CNetServerSession* session, CFsmEvent<CNetMessage*>* event)
 {
-	ENSURE(event->GetType() == (uint)NMT_CLIENT_HANDSHAKE);
+	ENSURE(event->GetType() == static_cast<unsigned int>(NMT_CLIENT_HANDSHAKE));
 
 	CNetServerWorker& server = session->GetServer();
 
@@ -934,7 +962,7 @@ bool CNetServerWorker::OnClientHandshake(CNetServerSession* session, CFsmEvent<C
 
 bool CNetServerWorker::OnAuthenticate(CNetServerSession* session, CFsmEvent<CNetMessage*>* event)
 {
-	ENSURE(event->GetType() == (uint)NMT_AUTHENTICATE);
+	ENSURE(event->GetType() == static_cast<unsigned int>(NMT_AUTHENTICATE));
 
 	CNetServerWorker& server = session->GetServer();
 
@@ -1151,7 +1179,7 @@ bool CNetServerWorker::OnAuthenticate(CNetServerSession* session, CFsmEvent<CNet
 
 bool CNetServerWorker::OnSimulationCommand(CNetServerSession* session, CFsmEvent<CNetMessage*>* event)
 {
-	ENSURE(event->GetType() == (uint)NMT_SIMULATION_COMMAND);
+	ENSURE(event->GetType() == static_cast<unsigned int>(NMT_SIMULATION_COMMAND));
 
 	CNetServerWorker& server = session->GetServer();
 
@@ -1188,7 +1216,7 @@ bool CNetServerWorker::OnSimulationCommand(CNetServerSession* session, CFsmEvent
 
 bool CNetServerWorker::OnFlare(CNetServerSession* session, CFsmEvent<CNetMessage*>* event)
 {
-	ENSURE(event->GetType() == (uint)NMT_FLARE);
+	ENSURE(event->GetType() == static_cast<unsigned int>(NMT_FLARE));
 
 	CNetServerWorker& server = session->GetServer();
 	CFlareMessage* message = (CFlareMessage*)event->GetParamRef();
@@ -1200,7 +1228,7 @@ bool CNetServerWorker::OnFlare(CNetServerSession* session, CFsmEvent<CNetMessage
 
 bool CNetServerWorker::OnSyncCheck(CNetServerSession* session, CFsmEvent<CNetMessage*>* event)
 {
-	ENSURE(event->GetType() == (uint)NMT_SYNC_CHECK);
+	ENSURE(event->GetType() == static_cast<unsigned int>(NMT_SYNC_CHECK));
 
 	CNetServerWorker& server = session->GetServer();
 
@@ -1212,7 +1240,7 @@ bool CNetServerWorker::OnSyncCheck(CNetServerSession* session, CFsmEvent<CNetMes
 
 bool CNetServerWorker::OnEndCommandBatch(CNetServerSession* session, CFsmEvent<CNetMessage*>* event)
 {
-	ENSURE(event->GetType() == (uint)NMT_END_COMMAND_BATCH);
+	ENSURE(event->GetType() == static_cast<unsigned int>(NMT_END_COMMAND_BATCH));
 
 	CNetServerWorker& server = session->GetServer();
 
@@ -1225,7 +1253,7 @@ bool CNetServerWorker::OnEndCommandBatch(CNetServerSession* session, CFsmEvent<C
 
 bool CNetServerWorker::OnChat(CNetServerSession* session, CFsmEvent<CNetMessage*>* event)
 {
-	ENSURE(event->GetType() == (uint)NMT_CHAT);
+	ENSURE(event->GetType() == static_cast<unsigned int>(NMT_CHAT));
 
 	CNetServerWorker& server = session->GetServer();
 
@@ -1251,7 +1279,7 @@ bool CNetServerWorker::OnChat(CNetServerSession* session, CFsmEvent<CNetMessage*
 
 bool CNetServerWorker::OnReady(CNetServerSession* session, CFsmEvent<CNetMessage*>* event)
 {
-	ENSURE(event->GetType() == (uint)NMT_READY);
+	ENSURE(event->GetType() == static_cast<unsigned int>(NMT_READY));
 
 	CNetServerWorker& server = session->GetServer();
 
@@ -1271,7 +1299,7 @@ bool CNetServerWorker::OnReady(CNetServerSession* session, CFsmEvent<CNetMessage
 
 bool CNetServerWorker::OnClearAllReady(CNetServerSession* session, CFsmEvent<CNetMessage*>* event)
 {
-	ENSURE(event->GetType() == (uint)NMT_CLEAR_ALL_READY);
+	ENSURE(event->GetType() == static_cast<unsigned int>(NMT_CLEAR_ALL_READY));
 
 	CNetServerWorker& server = session->GetServer();
 
@@ -1283,7 +1311,7 @@ bool CNetServerWorker::OnClearAllReady(CNetServerSession* session, CFsmEvent<CNe
 
 bool CNetServerWorker::OnGameSetup(CNetServerSession* session, CFsmEvent<CNetMessage*>* event)
 {
-	ENSURE(event->GetType() == (uint)NMT_GAME_SETUP);
+	ENSURE(event->GetType() == static_cast<unsigned int>(NMT_GAME_SETUP));
 
 	CNetServerWorker& server = session->GetServer();
 
@@ -1306,7 +1334,7 @@ bool CNetServerWorker::OnGameSetup(CNetServerSession* session, CFsmEvent<CNetMes
 
 bool CNetServerWorker::OnAssignPlayer(CNetServerSession* session, CFsmEvent<CNetMessage*>* event)
 {
-	ENSURE(event->GetType() == (uint)NMT_ASSIGN_PLAYER);
+	ENSURE(event->GetType() == static_cast<unsigned int>(NMT_ASSIGN_PLAYER));
 	CNetServerWorker& server = session->GetServer();
 
 	if (session->GetGUID() == server.m_ControllerGUID)
@@ -1319,7 +1347,7 @@ bool CNetServerWorker::OnAssignPlayer(CNetServerSession* session, CFsmEvent<CNet
 
 bool CNetServerWorker::OnGameStart(CNetServerSession* session, CFsmEvent<CNetMessage*>* event)
 {
-	ENSURE(event->GetType() == (uint)NMT_GAME_START);
+	ENSURE(event->GetType() == static_cast<unsigned int>(NMT_GAME_START));
 	CNetServerWorker& server = session->GetServer();
 
 	if (session->GetGUID() != server.m_ControllerGUID)
@@ -1332,7 +1360,7 @@ bool CNetServerWorker::OnGameStart(CNetServerSession* session, CFsmEvent<CNetMes
 
 bool CNetServerWorker::OnSavedGameStart(CNetServerSession* session, CFsmEvent<CNetMessage*>* event)
 {
-	ENSURE(event->GetType() == static_cast<uint>(NMT_SAVED_GAME_START));
+	ENSURE(event->GetType() == static_cast<unsigned int>(NMT_SAVED_GAME_START));
 	CNetServerWorker& server{session->GetServer()};
 
 	if (session->GetGUID() != server.m_ControllerGUID)
@@ -1351,7 +1379,7 @@ bool CNetServerWorker::OnSavedGameStart(CNetServerSession* session, CFsmEvent<CN
 
 bool CNetServerWorker::OnLoadedGame(CNetServerSession* loadedSession, CFsmEvent<CNetMessage*>* event)
 {
-	ENSURE(event->GetType() == (uint)NMT_LOADED_GAME);
+	ENSURE(event->GetType() == static_cast<unsigned int>(NMT_LOADED_GAME));
 
 	CNetServerWorker& server = loadedSession->GetServer();
 
@@ -1396,7 +1424,7 @@ bool CNetServerWorker::OnJoinSyncingLoadedGame(CNetServerSession* session, CFsmE
 	// we could try repeating this process a few times until the client converges
 	// on the up-to-date state, before setting them as active.)
 
-	ENSURE(event->GetType() == (uint)NMT_LOADED_GAME);
+	ENSURE(event->GetType() == static_cast<unsigned int>(NMT_LOADED_GAME));
 
 	CNetServerWorker& server = session->GetServer();
 
@@ -1438,7 +1466,7 @@ bool CNetServerWorker::OnJoinSyncingLoadedGame(CNetServerSession* session, CFsmE
 bool CNetServerWorker::OnRejoined(CNetServerSession* session, CFsmEvent<CNetMessage*>* event)
 {
 	// A client has finished rejoining and the loading screen disappeared.
-	ENSURE(event->GetType() == (uint)NMT_REJOINED);
+	ENSURE(event->GetType() == static_cast<unsigned int>(NMT_REJOINED));
 
 	CNetServerWorker& server = session->GetServer();
 
@@ -1461,7 +1489,7 @@ bool CNetServerWorker::OnRejoined(CNetServerSession* session, CFsmEvent<CNetMess
 
 bool CNetServerWorker::OnKickPlayer(CNetServerSession* session, CFsmEvent<CNetMessage*>* event)
 {
-	ENSURE(event->GetType() == (uint)NMT_KICKED);
+	ENSURE(event->GetType() == static_cast<unsigned int>(NMT_KICKED));
 
 	CNetServerWorker& server = session->GetServer();
 
@@ -1475,7 +1503,7 @@ bool CNetServerWorker::OnKickPlayer(CNetServerSession* session, CFsmEvent<CNetMe
 
 bool CNetServerWorker::OnDisconnect(CNetServerSession* session, CFsmEvent<CNetMessage*>* event)
 {
-	ENSURE(event->GetType() == (uint)NMT_CONNECTION_LOST);
+	ENSURE(event->GetType() == static_cast<unsigned int>(NMT_CONNECTION_LOST));
 
 	CNetServerWorker& server = session->GetServer();
 
@@ -1486,7 +1514,7 @@ bool CNetServerWorker::OnDisconnect(CNetServerSession* session, CFsmEvent<CNetMe
 
 bool CNetServerWorker::OnClientPaused(CNetServerSession* session, CFsmEvent<CNetMessage*>* event)
 {
-	ENSURE(event->GetType() == (uint)NMT_CLIENT_PAUSED);
+	ENSURE(event->GetType() == static_cast<unsigned int>(NMT_CLIENT_PAUSED));
 
 	CNetServerWorker& server = session->GetServer();
 

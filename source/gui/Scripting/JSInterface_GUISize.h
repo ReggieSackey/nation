@@ -20,7 +20,6 @@
 
 
 #include "lib/posix/posix_types.h"
-#include "lib/types.h"
 
 #include <string>
 
@@ -41,8 +40,8 @@ namespace JSI_GUISize
 
 	void RegisterScriptClass(Script::Interface& scriptInterface);
 
-	bool construct(JSContext* cx, uint argc, JS::Value* vp);
-	bool toString(JSContext* cx, uint argc, JS::Value* vp);
+	bool construct(JSContext* cx, unsigned int argc, JS::Value* vp);
+	bool toString(JSContext* cx, unsigned int argc, JS::Value* vp);
 
 	std::string ToPercentString(double pix, double per);
 }

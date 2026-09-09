@@ -25,7 +25,6 @@
 #include "gui/Scripting/JSInterface_GUISize.h"
 #include "gui/SettingTypes/CGUISize.h"
 #include "lib/code_generation.h"
-#include "lib/types.h"
 #include "maths/Rect.h"
 #include "ps/CLogger.h"
 #include "ps/CStr.h"
@@ -92,7 +91,7 @@ std::string ToPercentString(double pix, double per)
 	return fmt::format("{}%{:+}", per, pix);
 }
 
-bool toString(JSContext* cx, uint argc, JS::Value* vp)
+bool toString(JSContext* cx, unsigned int argc, JS::Value* vp)
 {
 	JS::CallArgs args{JS::CallArgsFromVp(argc, vp)};
 	JS::RootedObject obj{cx, &args.thisv().toObject()};

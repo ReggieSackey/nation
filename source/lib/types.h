@@ -29,6 +29,4 @@
 
 #include <cstdint>
 
-typedef unsigned int uint;
-
 #endif // #ifndef INCLUDED_TYPES

@@ -31,7 +31,6 @@
  * triggered. All with the hotkey name stored in ev.user.data1 as a const char*.
  */
 
-#include "lib/types.h"
 #include "ps/CStr.h"
 #include "ps/containers/StaticVector.h"
 #include "ps/Input.h"
@@ -44,12 +43,12 @@ using SDL_Scancode_ = int;
 
 // 0x8000 is SDL_USEREVENT, this is static_asserted in Hotkey.cpp
 // We do this to avoid including SDL in this header.
-const uint SDL_USEREVENT_ = 0x8000;
-const uint SDL_HOTKEYPRESS = SDL_USEREVENT_;
-const uint SDL_HOTKEYDOWN = SDL_USEREVENT_ + 1;
-const uint SDL_HOTKEYUP = SDL_USEREVENT_ + 2;
-const uint SDL_HOTKEYPRESS_SILENT = SDL_USEREVENT_ + 3;
-const uint SDL_HOTKEYUP_SILENT = SDL_USEREVENT_ + 4;
+const unsigned int SDL_USEREVENT_ = 0x8000;
+const unsigned int SDL_HOTKEYPRESS = SDL_USEREVENT_;
+const unsigned int SDL_HOTKEYDOWN = SDL_USEREVENT_ + 1;
+const unsigned int SDL_HOTKEYUP = SDL_USEREVENT_ + 2;
+const unsigned int SDL_HOTKEYPRESS_SILENT = SDL_USEREVENT_ + 3;
+const unsigned int SDL_HOTKEYUP_SILENT = SDL_USEREVENT_ + 4;
 
 // Value not mapping to any valid SDL_SCANCODE_*
 constexpr SDL_Scancode_ UNUSED_HOTKEY_CODE{-1};

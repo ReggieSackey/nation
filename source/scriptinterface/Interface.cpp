@@ -148,12 +148,12 @@ JSClass global_class = {
 
 // Functions in the global namespace:
 
-bool print(JSContext* cx, uint argc, JS::Value* vp)
+bool print(JSContext* cx, unsigned int argc, JS::Value* vp)
 {
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 	Script::Request rq(cx);
 
-	for (uint i = 0; i < args.length(); ++i)
+	for (unsigned int i = 0; i < args.length(); ++i)
 	{
 		std::wstring str;
 		if (!Script::FromJSVal(rq, args[i], str))
@@ -165,7 +165,7 @@ bool print(JSContext* cx, uint argc, JS::Value* vp)
 	return true;
 }
 
-bool logmsg(JSContext* cx, uint argc, JS::Value* vp)
+bool logmsg(JSContext* cx, unsigned int argc, JS::Value* vp)
 {
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 	if (args.length() < 1)
@@ -183,7 +183,7 @@ bool logmsg(JSContext* cx, uint argc, JS::Value* vp)
 	return true;
 }
 
-bool warn(JSContext* cx, uint argc, JS::Value* vp)
+bool warn(JSContext* cx, unsigned int argc, JS::Value* vp)
 {
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 	if (args.length() < 1)
@@ -201,7 +201,7 @@ bool warn(JSContext* cx, uint argc, JS::Value* vp)
 	return true;
 }
 
-bool error(JSContext* cx, uint argc, JS::Value* vp)
+bool error(JSContext* cx, unsigned int argc, JS::Value* vp)
 {
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 	if (args.length() < 1)
@@ -323,7 +323,7 @@ bool Interface::MathRandom(double& nbr) const
 	return true;
 }
 
-bool Interface::Math_random(JSContext* cx, uint argc, JS::Value* vp)
+bool Interface::Math_random(JSContext* cx, unsigned int argc, JS::Value* vp)
 {
 	JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
 	double r;
@@ -528,7 +528,8 @@ void Interface::CallConstructor(JS::HandleValue ctor, JS::HandleValueArray argv,
 		out.setObjectOrNull(objOut);
 }
 
-void Interface::DefineCustomObjectType(JSClass *clasp, JSNative constructor, uint minArgs, JSPropertySpec *ps, JSFunctionSpec *fs, JSPropertySpec *static_ps, JSFunctionSpec *static_fs)
+void Interface::DefineCustomObjectType(JSClass *clasp, JSNative constructor, unsigned int minArgs,
+	JSPropertySpec *ps, JSFunctionSpec *fs, JSPropertySpec *static_ps, JSFunctionSpec *static_fs)
 {
 	Request rq(this);
 	std::string typeName = clasp->name;
@@ -606,7 +607,7 @@ bool Interface::SetGlobal_(const char* name, JS::HandleValue value, bool replace
 		}
 	}
 
-	uint attrs = 0;
+	unsigned int attrs = 0;
 	if (constant)
 		attrs |= JSPROP_READONLY;
 	if (enumerate)

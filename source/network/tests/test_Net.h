@@ -80,7 +80,7 @@ public:
 		DeleteDirectory(DataDir()/"_testcache");
 	}
 
-	bool clients_are_all(const std::vector<CNetClient*>& clients, uint state)
+	bool clients_are_all(const std::vector<CNetClient*>& clients, unsigned int state)
 	{
 		for (size_t j = 0; j < clients.size(); ++j)
 			if (clients[j]->GetCurrState() != state)
