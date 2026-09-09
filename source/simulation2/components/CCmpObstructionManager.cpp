@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Wildfire Games.
+/* Copyright (C) 2026 Wildfire Games.
  * This file is part of 0 A.D.
  *
  * 0 A.D. is free software: you can redistribute it and/or modify
@@ -1180,11 +1180,12 @@ void CCmpObstructionManager::RasterizeHelper(Grid<NavcellData>& grid, ICmpObstru
 		SimRasterize::RasterizeRectWithClearance(spans, square, clearance, Pathfinding::NAVCELL_SIZE);
 		for (SimRasterize::Span& span : spans)
 		{
-			i16 j = Clamp(span.j, (i16)0, (i16)(grid.m_H-1));
-			i16 i0 = std::max(span.i0, (i16)0);
-			i16 i1 = std::min(span.i1, (i16)grid.m_W);
+			std::int16_t j = Clamp(span.j, static_cast<std::int16_t>(0),
+				static_cast<std::int16_t>(grid.m_H-1));
+			std::int16_t i0 = std::max(span.i0, static_cast<std::int16_t>(0));
+			std::int16_t i1 = std::min(span.i1, static_cast<std::int16_t>(grid.m_W));
 
-			for (i16 i = i0; i < i1; ++i)
+			for (std::int16_t i = i0; i < i1; ++i)
 				grid.set(i, j, grid.get(i, j) | appliedMask);
 		}
 	}

@@ -1065,16 +1065,16 @@ ICmpObstruction::EFoundationCheck CCmpPathfinder::CheckBuildingPlacement(const I
 	SimRasterize::RasterizeRectWithClearance(spans, square, expand, Pathfinding::NAVCELL_SIZE);
 	for (const SimRasterize::Span& span : spans)
 	{
-		i16 i0 = span.i0;
-		i16 i1 = span.i1;
-		i16 j = span.j;
+		std::int16_t i0 = span.i0;
+		std::int16_t i1 = span.i1;
+		std::int16_t j = span.j;
 
 		// Fail if any span extends outside the grid
 		if (i0 < 0 || i1 > m_TerrainOnlyGrid->m_W || j < 0 || j >= m_TerrainOnlyGrid->m_H)
 			return ICmpObstruction::FOUNDATION_CHECK_FAIL_TERRAIN_CLASS;
 
 		// Fail if any span includes an impassable tile
-		for (i16 i = i0; i < i1; ++i)
+		for (std::int16_t i = i0; i < i1; ++i)
 			if (!IS_PASSABLE(m_TerrainOnlyGrid->get(i, j), passClass))
 				return ICmpObstruction::FOUNDATION_CHECK_FAIL_TERRAIN_CLASS;
 	}

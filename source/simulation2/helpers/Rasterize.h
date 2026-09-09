@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Wildfire Games.
+/* Copyright (C) 2026 Wildfire Games.
  * This file is part of 0 A.D.
  *
  * 0 A.D. is free software: you can redistribute it and/or modify
@@ -23,7 +23,6 @@
  * Helper functions related to rasterizing geometric shapes to grids.
  */
 
-#include "lib/types.h"
 #include "simulation2/components/ICmpObstructionManager.h"
 #include "simulation2/helpers/Position.h"
 
@@ -37,9 +36,9 @@ namespace SimRasterize
  */
 struct Span
 {
-	i16 i0;
-	i16 i1;
-	i16 j;
+	std::int16_t i0;
+	std::int16_t i1;
+	std::int16_t j;
 };
 
 typedef std::vector<Span> Spans;

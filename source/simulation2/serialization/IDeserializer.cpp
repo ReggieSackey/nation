@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Wildfire Games.
+/* Copyright (C) 2026 Wildfire Games.
  * This file is part of 0 A.D.
  *
  * 0 A.D. is free software: you can redistribute it and/or modify
@@ -67,7 +67,7 @@ void IDeserializer::NumberI16(const char* name, int16_t& out, int16_t lower, int
 {
 	int16_t value;
 	Get(name, (u8*)&value, sizeof(uint16_t));
-	value = (i16)to_le16((u16)value);
+	value = static_cast<std::int16_t>(to_le16((u16)value));
 
 	if (!(lower <= value && value <= upper))
 		throw PSERROR_Deserialize_OutOfBounds(name);
@@ -120,7 +120,7 @@ void IDeserializer::NumberI16_Unbounded(const char* name, int16_t& out)
 {
 	int16_t value;
 	Get(name, (u8*)&value, sizeof(int16_t));
-	out = (i16)to_le16((u16)value);
+	out = static_cast<std::int16_t>(to_le16((u16)value));
 }
 
 void IDeserializer::NumberU32_Unbounded(const char* name, uint32_t& out)

@@ -52,10 +52,10 @@ void SimRasterize::RasterizeRectWithClearance(Spans& spans,
 	CFixedVector2D shapeHalfSize(CFixedVector2D(shape.hw, shape.hh));
 	CFixedVector2D halfSize(shape.hw + rasterClearance, shape.hh + rasterClearance);
 	CFixedVector2D halfBound = Geometry::GetHalfBoundingBox(shape.u, shape.v, halfSize);
-	i16 i0 = ((shape.x - halfBound.X) / cellSize).ToInt_RoundToNegInfinity();
-	i16 j0 = ((shape.z - halfBound.Y) / cellSize).ToInt_RoundToNegInfinity();
-	i16 i1 = ((shape.x + halfBound.X) / cellSize).ToInt_RoundToInfinity();
-	i16 j1 = ((shape.z + halfBound.Y) / cellSize).ToInt_RoundToInfinity();
+	std::int16_t i0 = ((shape.x - halfBound.X) / cellSize).ToInt_RoundToNegInfinity();
+	std::int16_t j0 = ((shape.z - halfBound.Y) / cellSize).ToInt_RoundToNegInfinity();
+	std::int16_t i1 = ((shape.x + halfBound.X) / cellSize).ToInt_RoundToInfinity();
+	std::int16_t j1 = ((shape.z + halfBound.Y) / cellSize).ToInt_RoundToInfinity();
 
 	if (j1 <= j0)
 		return; // empty bounds - this shouldn't happen
@@ -65,7 +65,7 @@ void SimRasterize::RasterizeRectWithClearance(Spans& spans,
 
 	spans.reserve(j1 - j0);
 
-	for (i16 j = j0; j < j1; ++j)
+	for (std::int16_t j = j0; j < j1; ++j)
 	{
 		// Find the min/max range of cells that are strictly inside the square+rasterClearance.
 		// (Since the square+rasterClearance is a convex shape, we can just test each
@@ -73,11 +73,11 @@ void SimRasterize::RasterizeRectWithClearance(Spans& spans,
 		// When looping on i, if the previous cell was inside, no need to check again the left corners.
 		// and we can stop the loop when exiting the shape.
 		// Futhermore if one of the right corners of a cell is outside, no need to check the following cell
-		i16 spanI0 = std::numeric_limits<i16>::max();
-		i16 spanI1 = std::numeric_limits<i16>::min();
+		std::int16_t spanI0 = std::numeric_limits<std::int16_t>::max();
+		std::int16_t spanI1 = std::numeric_limits<std::int16_t>::min();
 		bool previousInside = false;
 		bool skipNextCell = false;
-		for (i16 i = i0; i < i1; ++i)
+		for (std::int16_t i = i0; i < i1; ++i)
 		{
 			if (skipNextCell)
 			{

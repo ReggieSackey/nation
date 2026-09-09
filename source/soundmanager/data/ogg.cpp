@@ -192,7 +192,7 @@ public:
 		while (bytesRead < buffer.size())
 		{
 			constexpr int isBigEndian{(BYTE_ORDER == BIG_ENDIAN)};
-			constexpr int wordSize{sizeof(i16)};
+			constexpr int wordSize{sizeof(std::int16_t)};
 			constexpr int isSigned{1};
 			// Unused.
 			int bitstream;
