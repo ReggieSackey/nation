@@ -354,11 +354,11 @@ CModelRData* GPUSkinnedModelModelRenderer::CreateModelData(const void* key, CMod
 	modelRData->m_PositionHandle = g_Renderer.GetVertexBufferManager().AllocateChunk(
 		OUTPUT_POSITION_STRIDE, numberOfVertices, Renderer::Backend::IBuffer::Type::VERTEX,
 		Renderer::Backend::IBuffer::Usage::STORAGE,
-		nullptr, CVertexBufferManager::Group::WATER);
+		nullptr, CVertexBufferManager::Group::DEFAULT);
 	modelRData->m_NormalTangentHandle = g_Renderer.GetVertexBufferManager().AllocateChunk(
 		OUTPUT_NORMAL_TANGENT_STRIDE, numberOfVertices, Renderer::Backend::IBuffer::Type::VERTEX,
 		Renderer::Backend::IBuffer::Usage::STORAGE,
-		nullptr, CVertexBufferManager::Group::WATER);
+		nullptr, CVertexBufferManager::Group::DEFAULT);
 
 	return modelRData;
 }
