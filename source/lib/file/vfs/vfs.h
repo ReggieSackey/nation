@@ -145,8 +145,7 @@ struct IVFS
 	/**
 	 * Create a file with the given contents.
 	 * @param pathname
-	 * @param fileContents
-	 * @param size [bytes] of the contents, will match that of the file.
+	 * @param fileContents the pointer must be aligned to maxSectorSize
 	 * @return Status.
 	 **/
 	virtual Status CreateFile(const VfsPath& pathname, std::span<const u8> fileContents) = 0;

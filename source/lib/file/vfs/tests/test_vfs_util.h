@@ -22,6 +22,7 @@
 
 #include "lib/self_test.h"
 
+#include "lib/allocators/shared_ptr.h"
 #include "lib/file/file_system.h"
 #include "lib/file/vfs/vfs.h"
 #include "lib/file/vfs/vfs_path.h"
@@ -76,7 +77,9 @@ public:
 
 	void test_getPathnames()
 	{
-		std::shared_ptr<u8> nodata(new u8);
+		std::shared_ptr<u8> nodata;
+		TS_ASSERT_OK(AllocateAligned(nodata, 1, maxSectorSize));
+
 		g_VFS->CreateFile("test_file.txt", {nodata.get(), 0});
 		g_VFS->CreateFile("test_file2.txt", {nodata.get(), 0});
 		g_VFS->CreateFile("test_file3.txt", {nodata.get(), 0});

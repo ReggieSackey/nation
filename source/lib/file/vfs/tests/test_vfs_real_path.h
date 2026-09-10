@@ -22,6 +22,7 @@
 
 #include "lib/self_test.h"
 
+#include "lib/allocators/shared_ptr.h"
 #include "lib/file/file_system.h"
 #include "lib/file/vfs/vfs.h"
 #include "lib/os_path.h"
@@ -80,7 +81,8 @@ public:
 		createRealDir(TEST_FOLDER / "cache" / "some_folder");
 		createRealDir(TEST_FOLDER / "some_mod" / "cache" / "some_mod");
 
-		std::shared_ptr<u8> buf(new u8(1));
+		std::shared_ptr<u8> buf;
+		TS_ASSERT_OK(AllocateAligned(buf, 1, maxSectorSize));
 
 		g_VFS->Mount(L"", TEST_FOLDER / "some_mod" / "", 0, 0);
 

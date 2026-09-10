@@ -145,6 +145,8 @@ public:
 
 		WARN_RETURN_STATUS_IF_ERR(st);
 
+		ENSURE(IsAligned(fileContents.data(), maxSectorSize));
+
 		const PRealDirectory& realDirectory = directory->AssociatedDirectory();
 		const OsPath name = pathname.Filename();
 		RETURN_STATUS_IF_ERR(realDirectory->Store(name, fileContents));
