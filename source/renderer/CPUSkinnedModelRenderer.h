@@ -62,9 +62,6 @@ public:
 	void PrepareForRendering(std::span<CModel*> models);
 
 protected:
-	void UpdateModelData(
-		CModel* model, CModelRData* data, int updateflags);
-
 	void UploadModelData(
 		Renderer::Backend::IDeviceCommandContext* deviceCommandContext,
 		CModel* model, CModelRData* data);

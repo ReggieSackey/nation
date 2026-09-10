@@ -139,6 +139,8 @@ public:
 		Submissions TransparentSkinned;
 		Submissions TransparentUnskinned;
 
+		std::vector<CModel*> uniqueSkinnedSubmissionsForUpdate;
+
 		ModelRenderer modelRenderer;
 
 		InstancingModelRenderer VertexInstancingShader;
@@ -168,12 +170,7 @@ public:
 			Model.GPUSkinningEnabled
 				? static_cast<ModelVertexRenderer&>(*Model.VertexGPUSkinningShader)
 				: static_cast<ModelVertexRenderer&>(Model.VertexCPUSkinningShader)};
-
-		for (int cullGroup{0}; cullGroup < CSceneRenderer::CULL_MAX; ++cullGroup)
-		{
-			modelVertexSkinningRenderer.UploadModelsData(deviceCommandContext, Model.OpaqueSkinned.submissions[cullGroup]);
-			modelVertexSkinningRenderer.UploadModelsData(deviceCommandContext, Model.TransparentSkinned.submissions[cullGroup]);
-		}
+		modelVertexSkinningRenderer.UploadModelsData(deviceCommandContext, Model.uniqueSkinnedSubmissionsForUpdate);
 
 		for (int cullGroup{0}; cullGroup < CSceneRenderer::CULL_MAX; ++cullGroup)
 		{
@@ -201,9 +198,11 @@ public:
 
 		for (int cullGroup{0}; cullGroup < CSceneRenderer::CULL_MAX; ++cullGroup)
 		{
-			PrepareModels(deviceCommandContext, modelVertexSkinningRenderer, Model.OpaqueSkinned.submissions[cullGroup]);
-			PrepareModels(deviceCommandContext, modelVertexSkinningRenderer, Model.TransparentSkinned.submissions[cullGroup]);
+			PrepareModels(modelVertexSkinningRenderer, Model.OpaqueSkinned.submissions[cullGroup]);
+			PrepareModels(modelVertexSkinningRenderer, Model.TransparentSkinned.submissions[cullGroup]);
 		}
+
+		modelVertexSkinningRenderer.UpdateModelsData(deviceCommandContext, Model.uniqueSkinnedSubmissionsForUpdate);
 
 		// See CPUSkinnedModelVertexRenderer::PrepareForRendering comment.
 		if (!Model.GPUSkinningEnabled)
@@ -215,30 +214,24 @@ public:
 			}
 		}
 
-		for (int cullGroup{0}; cullGroup < CSceneRenderer::CULL_MAX; ++cullGroup)
-		{
-			PrepareModels(deviceCommandContext, Model.VertexInstancingShader, Model.OpaqueUnskinned.submissions[cullGroup]);
-			PrepareModels(deviceCommandContext, Model.VertexInstancingShader, Model.TransparentUnskinned.submissions[cullGroup]);
-		}
+		// We don't need to update unskinned models.
 	}
 
 	void PrepareModels(
-		Renderer::Backend::IDeviceCommandContext* deviceCommandContext, ModelVertexRenderer& modelVertexRenderer, std::span<CModel*> submissions)
+		ModelVertexRenderer& modelVertexRenderer, std::span<CModel*> submissions)
 	{
 		for (CModel* model : submissions)
 		{
 			model->ValidatePosition();
 
-			CModelRData* rdata = static_cast<CModelRData*>(model->GetRenderData());
+			CModelRData* rdata{static_cast<CModelRData*>(model->GetRenderData())};
 			ENSURE(rdata->GetKey() == &modelVertexRenderer);
-		}
 
-		modelVertexRenderer.UpdateModelsData(deviceCommandContext, submissions);
-
-		for (CModel* model : submissions)
-		{
-			CModelRData* rdata = static_cast<CModelRData*>(model->GetRenderData());
-			rdata->m_UpdateFlags = 0;
+			if (rdata->m_UpdateFlags & RENDERDATA_UPDATE_VERTICES)
+			{
+				Model.uniqueSkinnedSubmissionsForUpdate.emplace_back(model);
+				rdata->m_UpdateFlags = 0;
+			}
 		}
 	}
 
@@ -1010,6 +1003,7 @@ void CSceneRenderer::EndFrame()
 		m->Model.OpaqueUnskinned.submissions[cullGroup].clear();
 		m->Model.TransparentUnskinned.submissions[cullGroup].clear();
 	}
+	m->Model.uniqueSkinnedSubmissionsForUpdate.clear();
 }
 
 void CSceneRenderer::DisplayFrustum(Renderer::Backend::IDeviceCommandContext& deviceCommandContext)

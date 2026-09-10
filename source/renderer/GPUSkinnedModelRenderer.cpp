@@ -423,34 +423,31 @@ void GPUSkinnedModelModelRenderer::UpdateModelData(
 	ModelDefRData* modelDefRData{static_cast<ModelDefRData*>(modelDef->GetRenderData(m.get()))};
 	ModelRData* modelRData{static_cast<ModelRData*>(data)};
 
-	if (updateflags & RENDERDATA_UPDATE_VERTICES)
-	{
-		constexpr uint32_t threadGroupWorkRegionDim{64};
-		const uint32_t vertexCount{static_cast<uint32_t>(modelRData->m_PositionHandle->m_Count)};
-		const uint32_t dispatchGroupCountX{DivideRoundUp(vertexCount, threadGroupWorkRegionDim)};
+	constexpr uint32_t threadGroupWorkRegionDim{64};
+	const uint32_t vertexCount{static_cast<uint32_t>(modelRData->m_PositionHandle->m_Count)};
+	const uint32_t dispatchGroupCountX{DivideRoundUp(vertexCount, threadGroupWorkRegionDim)};
 
-		// Bind matrices for current animation state.
-		// Add 1 to NumBones because of the special 'root' bone.
-		deviceCommandContext->SetUniform(
-			shaderProgram->GetBindingSlot(str_skinBlendMatrices),
-			std::span<const float>(
-				model->GetAnimatedBoneMatrices()[0]._data,
-				model->GetAnimatedBoneMatrices()[0].AsFloatArray().size() * (modelDef->GetNumBones() + 1)));
+	// Bind matrices for current animation state.
+	// Add 1 to NumBones because of the special 'root' bone.
+	deviceCommandContext->SetUniform(
+		shaderProgram->GetBindingSlot(str_skinBlendMatrices),
+		std::span<const float>(
+			model->GetAnimatedBoneMatrices()[0]._data,
+			model->GetAnimatedBoneMatrices()[0].AsFloatArray().size() * (modelDef->GetNumBones() + 1)));
 
-		ENSURE(modelRData->m_PositionHandle->m_Count == modelRData->m_NormalTangentHandle->m_Count);
-		deviceCommandContext->SetUniform(shaderProgram->GetBindingSlot(str_vertexCount),
-			static_cast<float>(vertexCount));
-		deviceCommandContext->SetUniform(shaderProgram->GetBindingSlot(str_offset),
-			static_cast<float>(modelDefRData->m_Array.GetOffset()),
-			static_cast<float>(modelDefRData->m_BlendArray.GetOffset()),
-			static_cast<float>(modelRData->m_PositionHandle->m_Index),
-			static_cast<float>(modelRData->m_NormalTangentHandle->m_Index));
-		deviceCommandContext->SetStorageBuffer(shaderProgram->GetBindingSlot(str_InputVertices), modelDefRData->m_Array.GetBuffer());
-		deviceCommandContext->SetStorageBuffer(shaderProgram->GetBindingSlot(str_SkinData), modelDefRData->m_BlendArray.GetBuffer());
-		deviceCommandContext->SetStorageBuffer(shaderProgram->GetBindingSlot(str_OutputPositions), modelRData->m_PositionHandle->m_Owner->GetBuffer());
-		deviceCommandContext->SetStorageBuffer(shaderProgram->GetBindingSlot(str_OutputNormalsTangents), modelRData->m_NormalTangentHandle->m_Owner->GetBuffer());
-		deviceCommandContext->Dispatch(dispatchGroupCountX, 1, 1);
-	}
+	ENSURE(modelRData->m_PositionHandle->m_Count == modelRData->m_NormalTangentHandle->m_Count);
+	deviceCommandContext->SetUniform(shaderProgram->GetBindingSlot(str_vertexCount),
+		static_cast<float>(vertexCount));
+	deviceCommandContext->SetUniform(shaderProgram->GetBindingSlot(str_offset),
+		static_cast<float>(modelDefRData->m_Array.GetOffset()),
+		static_cast<float>(modelDefRData->m_BlendArray.GetOffset()),
+		static_cast<float>(modelRData->m_PositionHandle->m_Index),
+		static_cast<float>(modelRData->m_NormalTangentHandle->m_Index));
+	deviceCommandContext->SetStorageBuffer(shaderProgram->GetBindingSlot(str_InputVertices), modelDefRData->m_Array.GetBuffer());
+	deviceCommandContext->SetStorageBuffer(shaderProgram->GetBindingSlot(str_SkinData), modelDefRData->m_BlendArray.GetBuffer());
+	deviceCommandContext->SetStorageBuffer(shaderProgram->GetBindingSlot(str_OutputPositions), modelRData->m_PositionHandle->m_Owner->GetBuffer());
+	deviceCommandContext->SetStorageBuffer(shaderProgram->GetBindingSlot(str_OutputNormalsTangents), modelRData->m_NormalTangentHandle->m_Owner->GetBuffer());
+	deviceCommandContext->Dispatch(dispatchGroupCountX, 1, 1);
 }
 
 void GPUSkinnedModelModelRenderer::UploadModelsData(Renderer::Backend::IDeviceCommandContext*,

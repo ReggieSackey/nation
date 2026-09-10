@@ -198,17 +198,8 @@ void CPUSkinnedModelVertexRenderer::UpdateModelsData(Renderer::Backend::IDeviceC
 {
 	for (CModel* model : models)
 	{
-		CModelRData* rdata = static_cast<CModelRData*>(model->GetRenderData());
-		UpdateModelData(model, rdata, rdata->m_UpdateFlags);
-	}
-}
-
-// Fill in and upload dynamic vertex array
-void CPUSkinnedModelVertexRenderer::UpdateModelData(CModel* model, CModelRData* data, int updateflags)
-{
-	if (updateflags & RENDERDATA_UPDATE_VERTICES)
-	{
-		ModelRData* modelRData = static_cast<ModelRData*>(data);
+		CModelRData* rdata{static_cast<CModelRData*>(model->GetRenderData())};
+		ModelRData* modelRData{static_cast<ModelRData*>(rdata)};
 
 		// build vertices
 		VertexArrayIterator<CVector3D> Position = modelRData->m_Position.GetIterator<CVector3D>();
