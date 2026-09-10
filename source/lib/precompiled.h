@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Wildfire Games.
+/* Copyright (C) 2026 Wildfire Games.
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -66,7 +66,6 @@
 #include "lib/sysdep/arch.h"
 #include "lib/sysdep/os.h"
 #include "lib/sysdep/stl.h"
-#include "lib/types.h"
 #include "lib/debug.h"
 #include "lib/lib.h"
 #include "lib/secure_crt.h"

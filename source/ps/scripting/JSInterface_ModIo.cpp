@@ -20,7 +20,6 @@
 #include "JSInterface_ModIo.h"
 
 #include "lib/debug.h"
-#include "lib/types.h"
 #include "ps/CLogger.h"
 #include "ps/ModIo.h"
 #include "scriptinterface/FunctionWrapper.h"

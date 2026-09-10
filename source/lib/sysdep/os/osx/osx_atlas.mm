@@ -1,4 +1,4 @@
-/* Copyright (C) 2021 Wildfire Games.
+/* Copyright (C) 2026 Wildfire Games.
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -25,7 +25,6 @@
 
 #import "osx_atlas.h"
 
-#include "lib/types.h"
 #include "ps/CStr.h"
 
 void startNewAtlasProcess(const std::vector<CStr8>& mods)

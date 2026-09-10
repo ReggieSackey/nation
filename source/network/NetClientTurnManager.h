@@ -19,7 +19,6 @@
 #define INCLUDED_NETCLIENTTURNMANAGER
 
 #include "lib/code_annotation.h"
-#include "lib/types.h"
 #include "network/NetMessage.h"
 #include "ps/CStr.h"
 #include "simulation2/system/TurnManager.h"

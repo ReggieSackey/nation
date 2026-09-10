@@ -31,7 +31,6 @@
 #include "lib/posix/posix_filesystem.h"
 #include "lib/posix/posix_types.h"
 #include "lib/status.h"
-#include "lib/types.h"
 
 #include <vector>
 

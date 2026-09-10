@@ -18,7 +18,6 @@
 #ifndef INCLUDED_LOCALTURNMANAGER
 #define INCLUDED_LOCALTURNMANAGER
 
-#include "lib/types.h"
 #include "simulation2/helpers/Player.h"
 #include "simulation2/system/TurnManager.h"
 
