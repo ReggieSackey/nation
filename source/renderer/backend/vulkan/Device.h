@@ -164,6 +164,8 @@ public:
 
 	void OnPresent();
 
+	void OnSwapChainRecreation();
+
 	void SetObjectName(VkObjectType type, const void* handle, const char* name)
 	{
 		SetObjectName(type, reinterpret_cast<uint64_t>(handle), name);

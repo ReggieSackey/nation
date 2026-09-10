@@ -103,11 +103,6 @@ CPostprocManager::CPostprocManager(Renderer::Backend::IDevice* device)
 {
 }
 
-CPostprocManager::~CPostprocManager()
-{
-	Cleanup();
-}
-
 bool CPostprocManager::IsEnabled() const
 {
 	const bool isDepthStencilFormatPresent =
@@ -143,7 +138,7 @@ void CPostprocManager::Cleanup()
 	}
 }
 
-void CPostprocManager::Initialize()
+void CPostprocManager::Initialize(const uint32_t width, const uint32_t height)
 {
 	if (m_IsInitialized)
 		return;
@@ -168,8 +163,9 @@ void CPostprocManager::Initialize()
 		std::back_inserter(m_AllowedSampleCounts),
 		[maxSamples](const uint32_t sampleCount) { return sampleCount <= maxSamples; } );
 
-	// The screen size starts out correct and then must be updated with Resize()
-	RecalculateSize(g_Renderer.GetWidth(), g_Renderer.GetHeight());
+	// The screen size starts out correct and then must be updated with
+	// Create/DestroyViewSizeDependentObjects()
+	RecalculateSize(width, height);
 
 	RecreateBuffers();
 	m_IsInitialized = true;
@@ -229,13 +225,25 @@ void CPostprocManager::InitializePBR()
 	}
 }
 
-void CPostprocManager::Resize()
+void CPostprocManager::Recreate()
 {
-	RecalculateSize(g_Renderer.GetWidth(), g_Renderer.GetHeight());
+	DestroyViewSizeDependentObjects();
+	CreateViewSizeDependentObjects(m_UnscaledWidth, m_UnscaledHeight);
+}
+
+void CPostprocManager::CreateViewSizeDependentObjects(const uint32_t width, const uint32_t height)
+{
+	RecalculateSize(width, height);
 
 	// If the buffers were intialized, recreate them to the new size.
 	if (m_IsInitialized)
 		RecreateBuffers();
+}
+
+void CPostprocManager::DestroyViewSizeDependentObjects()
+{
+	Cleanup();
+	DestroyMultisampleBuffer();
 }
 
 void CPostprocManager::RecreateBuffers()
@@ -986,8 +994,6 @@ void CPostprocManager::CreateMultisampleBuffer()
 
 void CPostprocManager::DestroyMultisampleBuffer()
 {
-	if (m_UsingMultisampleBuffer)
-		return;
 	m_MultisampleFramebuffer.reset();
 	m_MultisampleColorTex.reset();
 	m_MultisampleDepthTex.reset();

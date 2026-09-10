@@ -59,6 +59,16 @@ std::unique_ptr<CSwapChain> CSwapChain::Create(
 	int surfaceDrawableWidth, int surfaceDrawableHeight,
 	const bool vsync, std::unique_ptr<ISwapChain> oldSwapChain)
 {
+	// We don't need to wait to destroy the depth texture as it's independent
+	// from VkSwapchainKHR.
+	if (oldSwapChain)
+	{
+		oldSwapChain->As<CSwapChain>()->m_DepthTexture.reset();
+
+		// Workaround to free the depth texture immediately.
+		device->OnSwapChainRecreation();
+	}
+
 	// It seems some drivers might not reuse the same swapchain memory. So
 	// to avoid higher memory peaks destroy the old swapchain before.
 	const bool destroyOldSwapchainBefore{
@@ -225,6 +235,8 @@ std::unique_ptr<CSwapChain> CSwapChain::Create(
 	ENSURE_VK_SUCCESS(getSwapchainImagesResult);
 	ENSURE(imageCount > 0);
 
+	// We create a depth texture to mimic GL behavior where SDL creates it for
+	// a backbuffer.
 	swapChain->m_DepthTexture = CTexture::Create(
 		device, "SwapChainDepthTexture", ITexture::Type::TEXTURE_2D,
 		ITexture::Usage::DEPTH_STENCIL_ATTACHMENT,

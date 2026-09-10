@@ -131,7 +131,7 @@ struct ShadowMapInternals
 	CCamera SavedViewCamera;
 
 	void CalculateShadowMatrices(const int cascade);
-	void CreateTexture();
+	void CreateTexture(const uint32_t width, const uint32_t height);
 	void UpdateCascadesParameters();
 };
 
@@ -227,25 +227,29 @@ ShadowMap::~ShadowMap()
 	delete m;
 }
 
-// Force the texture/buffer/etc to be recreated, particularly when the renderer's
-// size has changed
-void ShadowMap::RecreateTexture()
+void ShadowMap::CreateViewSizeDependentObjects(const uint32_t width, const uint32_t height)
+{
+	m->UpdateCascadesParameters();
+
+	m->CreateTexture(width, height);
+}
+
+void ShadowMap::DestroyViewSizeDependentObjects()
 {
 	m->Framebuffer.reset();
 	m->Texture.reset();
 	m->DummyTexture.reset();
+}
 
-	m->UpdateCascadesParameters();
-
-	// (Texture will be constructed in next SetupFrame)
+void ShadowMap::RecreateTexture()
+{
+	DestroyViewSizeDependentObjects();
+	CreateViewSizeDependentObjects(g_Renderer.GetWidth(), g_Renderer.GetHeight());
 }
 
 // SetupFrame: camera and light direction for this frame
 void ShadowMap::SetupFrame(const CCamera& camera, const CVector3D& lightdir)
 {
-	if (!m->Texture)
-		m->CreateTexture();
-
 	CVector3D x(0, 1, 0), eyepos;
 
 	CVector3D z = lightdir;
@@ -486,7 +490,7 @@ void ShadowMapInternals::CalculateShadowMatrices(const int cascade)
 }
 
 // Create the shadow map
-void ShadowMapInternals::CreateTexture()
+void ShadowMapInternals::CreateTexture(const uint32_t width, const uint32_t height)
 {
 	// Cleanup
 	Framebuffer.reset();
@@ -509,7 +513,7 @@ void ShadowMapInternals::CreateTexture()
 		break;
 	// Ultra
 	case 2:
-		shadowMapSize = std::max(round_up_to_pow2(std::max(g_Renderer.GetWidth(), g_Renderer.GetHeight())), 4096);
+		shadowMapSize = std::max(round_up_to_pow2(std::max(width, height)), 4096u);
 		break;
 	// Medium as is
 	default:

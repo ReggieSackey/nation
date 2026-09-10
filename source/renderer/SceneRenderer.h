@@ -64,8 +64,10 @@ public:
 	CSceneRenderer(Renderer::Backend::IDevice* device);
 	~CSceneRenderer();
 
-	void Initialize();
-	void Resize(int width, int height);
+	void Initialize(const uint32_t width, const uint32_t height);
+
+	void CreateViewSizeDependentObjects(const uint32_t width, const uint32_t height);
+	void DestroyViewSizeDependentObjects();
 
 	void BeginFrame();
 	void EndFrame();

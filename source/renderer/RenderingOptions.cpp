@@ -170,7 +170,7 @@ void CRenderingOptions::ReadConfigAndSetupHooks()
 	m_ConfigHooks->Setup("renderer.scale", []()
 		{
 			if (CRenderer::IsInitialised())
-				g_Renderer.GetPostprocManager().Resize();
+				g_Renderer.GetPostprocManager().Recreate();
 		});
 
 	m_ConfigHooks->Setup("renderer.upscale.technique", []()

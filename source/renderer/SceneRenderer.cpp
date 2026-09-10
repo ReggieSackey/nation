@@ -365,22 +365,30 @@ void CSceneRenderer::ReloadShaders([[maybe_unused]] Renderer::Backend::IDevice* 
 	}
 }
 
-void CSceneRenderer::Initialize()
+void CSceneRenderer::Initialize(const uint32_t width, const uint32_t height)
 {
 	// Let component renderers perform one-time initialization after graphics capabilities and
 	// the shader path have been determined.
 	m->waterManager.Initialize();
 	m->terrainRenderer.Initialize();
 	m->overlayRenderer.Initialize();
+
+	CreateViewSizeDependentObjects(width, height);
 }
 
-// resize renderer view
-void CSceneRenderer::Resize(int /*width*/, int /*height*/)
+void CSceneRenderer::CreateViewSizeDependentObjects(const uint32_t width, const uint32_t height)
 {
 	// need to recreate the shadow map object to resize the shadow texture
-	m->shadow.RecreateTexture();
+	m->shadow.CreateViewSizeDependentObjects(width, height);
 
-	m->waterManager.RecreateOrLoadTexturesIfNeeded();
+	m->waterManager.CreateViewSizeDependentObjects(width, height);
+}
+
+void CSceneRenderer::DestroyViewSizeDependentObjects()
+{
+	m->waterManager.DestroyViewSizeDependentObjects();
+
+	m->shadow.DestroyViewSizeDependentObjects();
 }
 
 void CSceneRenderer::BeginFrame()

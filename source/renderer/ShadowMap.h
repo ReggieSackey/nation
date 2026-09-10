@@ -42,10 +42,13 @@ public:
 
 	/**
 	 * RecreateTexture: Destroy the current shadow texture and force creation of
-	 * a new one. Useful when the renderer's size has changed and the texture
-	 * should be resized too.
+	 * a new one. Useful when shadows settings have changed and the texture
+	 * should be resized/updated too.
 	 */
 	void RecreateTexture();
+
+	void CreateViewSizeDependentObjects(const uint32_t width, const uint32_t height);
+	void DestroyViewSizeDependentObjects();
 
 	/**
 	 * SetupFrame: Configure light space for the given camera and light direction,

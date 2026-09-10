@@ -875,11 +875,13 @@ void CVideoMode::UpdateRenderer(int w, int h)
 
 	SViewPort vp = { 0, 0, w, h };
 
+	// We need to separate destroy and create of objects to be able to flush
+	// all queued to destroy resources during WaitUntilIdle.
+	if (CRenderer::IsInitialised())
+		g_Renderer.DestroyViewSizeDependentObjects();
+
 	if (g_VideoMode.m_BackendDevice)
 	{
-		// TODO: implement freeing window size dependent resources before
-		// waiting to reduce a memory spike.
-
 		// We need to wait until we can destroy the swapchain because it
 		// might be in use.
 		g_VideoMode.m_BackendDevice->WaitUntilIdle();
@@ -888,7 +890,7 @@ void CVideoMode::UpdateRenderer(int w, int h)
 	}
 
 	if (CRenderer::IsInitialised())
-		g_Renderer.Resize(w, h);
+		g_Renderer.CreateViewSizeDependentObjects(w, h);
 
 	if (g_GUI)
 		g_GUI->UpdateResolution();

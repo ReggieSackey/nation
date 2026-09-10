@@ -82,10 +82,10 @@ public:
 	~CRenderer();
 
 	// open up the renderer: performs any necessary initialisation
-	bool Open(int width, int height);
+	bool Open(const uint32_t width, const uint32_t height);
 
-	// resize renderer view
-	void Resize(int width, int height);
+	void CreateViewSizeDependentObjects(const uint32_t width, const uint32_t height);
+	void DestroyViewSizeDependentObjects();
 
 	// return view width
 	int GetWidth() const { return m_Width; }

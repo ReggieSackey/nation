@@ -37,17 +37,19 @@ class CPostprocManager
 {
 public:
 	CPostprocManager(Renderer::Backend::IDevice* device);
-	~CPostprocManager();
 
 	// Returns true if the the manager can be used.
 	bool IsEnabled() const;
 
 	// Create all buffers/textures in GPU memory and set default effect.
 	// @note Must be called before using in the renderer. May be called multiple times.
-	void Initialize();
+	void Initialize(const uint32_t width, const uint32_t height);
 
-	// Update the size of the screen
-	void Resize();
+	// Recreate needed resources. Useful to call on settings changes.
+	void Recreate();
+
+	void CreateViewSizeDependentObjects(const uint32_t width, const uint32_t height);
+	void DestroyViewSizeDependentObjects();
 
 	// Returns a list of xml files found in shaders/effects/postproc.
 	static std::vector<CStrW> GetPostEffects();

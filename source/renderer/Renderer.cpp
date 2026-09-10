@@ -476,7 +476,7 @@ void CRenderer::ReloadShaders()
 	m->ShadersDirty = false;
 }
 
-bool CRenderer::Open(int width, int height)
+bool CRenderer::Open(const uint32_t width, const uint32_t height)
 {
 	m->IsOpen = true;
 
@@ -487,21 +487,27 @@ bool CRenderer::Open(int width, int height)
 	m->debugRenderer.Initialize();
 
 	if (m->postprocManager.IsEnabled())
-		m->postprocManager.Initialize();
+		m->postprocManager.Initialize(width, height);
 
-	m->sceneRenderer.Initialize();
+	m->sceneRenderer.Initialize(width, height);
 
 	return true;
 }
 
-void CRenderer::Resize(int width, int height)
+void CRenderer::CreateViewSizeDependentObjects(const uint32_t width, const uint32_t height)
 {
 	m_Width = width;
 	m_Height = height;
 
-	m->postprocManager.Resize();
+	m->postprocManager.CreateViewSizeDependentObjects(width, height);
 
-	m->sceneRenderer.Resize(width, height);
+	m->sceneRenderer.CreateViewSizeDependentObjects(width, height);
+}
+
+void CRenderer::DestroyViewSizeDependentObjects()
+{
+	m->sceneRenderer.DestroyViewSizeDependentObjects();
+	m->postprocManager.DestroyViewSizeDependentObjects();
 }
 
 bool CRenderer::ShouldRender() const
@@ -588,7 +594,7 @@ void CRenderer::RenderFrameImpl(
 		CPostprocManager& postprocManager{GetPostprocManager()};
 		if (postprocManager.IsEnabled())
 		{
-			postprocManager.Initialize();
+			postprocManager.Initialize(m_Width, m_Height);
 			RenderGameWithPostProcessingAndGUI(
 				swapChain, gameView, postprocManager, renderGUI, renderLogger);
 		}
@@ -897,7 +903,10 @@ void CRenderer::RenderBigScreenShot(const bool needsPresent)
 
 	// Resize various things so that the sizes and aspect ratios are correct
 	{
-		g_Renderer.Resize(tileWidth, tileHeight);
+		DestroyViewSizeDependentObjects();
+		m->device->WaitUntilIdle();
+		CreateViewSizeDependentObjects(tileWidth, tileHeight);
+
 		SViewPort vp = { 0, 0, tileWidth, tileHeight };
 		g_Game->GetView()->SetViewport(vp);
 	}
@@ -948,8 +957,12 @@ void CRenderer::RenderBigScreenShot(const bool needsPresent)
 
 	// Restore the viewport settings
 	{
-		g_Renderer.Resize(g_VideoMode.GetWindowWidth(), g_VideoMode.GetWindowHeight());
+		DestroyViewSizeDependentObjects();
+		m->device->WaitUntilIdle();
+
 		SViewPort vp = { 0, 0, g_VideoMode.GetWindowWidth(), g_VideoMode.GetWindowHeight() };
+		CreateViewSizeDependentObjects(vp.m_Width, vp.m_Height);
+
 		g_Game->GetView()->SetViewport(vp);
 		g_Game->GetView()->SetCamera(oldCamera);
 	}

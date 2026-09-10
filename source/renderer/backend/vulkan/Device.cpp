@@ -836,6 +836,14 @@ void CDevice::OnPresent()
 	++m_FrameID;
 }
 
+void CDevice::OnSwapChainRecreation()
+{
+	// We're sure that a client must call WaitUntilIdle to be able to
+	// recreate a swapchain.
+	ProcessObjectToDestroyQueue(true);
+	ProcessDeviceObjectToDestroyQueue(true);
+}
+
 bool CDevice::IsTextureFormatSupported(const Format format) const
 {
 	switch (format)

@@ -236,6 +236,31 @@ int WaterManager::LoadWaterTextures()
 	return 0;
 }
 
+void WaterManager::CreateViewSizeDependentObjects(const uint32_t, const uint32_t)
+{
+	RecreateOrLoadTexturesIfNeeded();
+}
+
+void WaterManager::DestroyViewSizeDependentObjects()
+{
+	m_ReflectionFramebuffer.reset();
+	m_ReflectionTexture.reset();
+	m_ReflFboDepthTexture.reset();
+
+	m_ReflectionFramebufferInitialized = false;
+
+	m_RefractionFramebuffer.reset();
+	m_RefractionTexture.reset();
+	m_RefrFboDepthTexture.reset();
+
+	m_RefractionFramebufferInitialized = false;
+
+	m_FancyEffectsFramebuffer.reset();
+	m_FancyEffectsOccludersFramebuffer.reset();
+	m_FancyTexture.reset();
+	m_FancyTextureDepth.reset();
+}
+
 void WaterManager::RecreateOrLoadTexturesIfNeeded()
 {
 	// Use screen-sized textures for minimum artifacts.
