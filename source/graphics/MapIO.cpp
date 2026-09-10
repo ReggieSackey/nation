@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Wildfire Games.
+/* Copyright (C) 2026 Wildfire Games.
  * This file is part of 0 A.D.
  *
  * 0 A.D. is free software: you can redistribute it and/or modify
@@ -34,6 +34,7 @@
 
 #include <algorithm>
 #include <cstddef>
+#include <filesystem>
 #include <fcntl.h>
 #include <memory>
 #include <string>
@@ -56,14 +57,10 @@ Status LoadHeightmapImageOs(const OsPath& filepath, std::vector<u16>& heightmap)
 	File file;
 	RETURN_STATUS_IF_ERR(file.Open(OsString(filepath), O_RDONLY));
 
-#if OS_WIN
-	// sizeof(long) == 4 on Windows so we can't use lseek.
-	size_t fileSize = _lseeki64(file.Descriptor(), 0, SEEK_END);
-	_lseeki64(file.Descriptor(), 0, SEEK_SET);
-#else
-	size_t fileSize = lseek(file.Descriptor(), 0, SEEK_END);
-	lseek(file.Descriptor(), 0, SEEK_SET);
-#endif
+	std::error_code ec{};
+	const size_t fileSize{static_cast<size_t>(std::filesystem::file_size(filepath.fileSystemPath(), ec))};
+	if (ec)
+		return StatusFromSystemError(ec);
 
 	std::shared_ptr<u8> fileData;
 	RETURN_STATUS_IF_ERR(AllocateAligned(fileData, fileSize, maxSectorSize));
