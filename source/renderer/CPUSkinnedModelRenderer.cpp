@@ -206,10 +206,10 @@ void CPUSkinnedModelVertexRenderer::UpdateModelsData(Renderer::Backend::IDeviceC
 // Fill in and upload dynamic vertex array
 void CPUSkinnedModelVertexRenderer::UpdateModelData(CModel* model, CModelRData* data, int updateflags)
 {
-	ModelRData* modelRData = static_cast<ModelRData*>(data);
-
 	if (updateflags & RENDERDATA_UPDATE_VERTICES)
 	{
+		ModelRData* modelRData = static_cast<ModelRData*>(data);
+
 		// build vertices
 		VertexArrayIterator<CVector3D> Position = modelRData->m_Position.GetIterator<CVector3D>();
 		VertexArrayIterator<CVector3D> Normal = modelRData->m_Normal.GetIterator<CVector3D>();
@@ -219,8 +219,15 @@ void CPUSkinnedModelVertexRenderer::UpdateModelData(CModel* model, CModelRData* 
 		// upload everything to vertex buffer
 		modelRData->m_Array.Upload();
 	}
+}
 
-	modelRData->m_Array.PrepareForRendering();
+void CPUSkinnedModelVertexRenderer::PrepareForRendering(std::span<CModel*> models)
+{
+	for (CModel* model : models)
+	{
+		ModelRData* modelRData{static_cast<ModelRData*>(static_cast<CModelRData*>(model->GetRenderData()))};
+		modelRData->m_Array.PrepareForRendering();
+	}
 }
 
 void CPUSkinnedModelVertexRenderer::UploadModelsData(

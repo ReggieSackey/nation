@@ -55,6 +55,12 @@ public:
 		Renderer::Backend::IDeviceCommandContext* deviceCommandContext,
 		Renderer::Backend::IShaderProgram* shader, CModel* model, CModelRData* data) override;
 
+	/**
+	 * For CPU skinning we need to mark dynamic buffer chunks as needed before rendering.
+	 * It must be called before uploading.
+	 */
+	void PrepareForRendering(std::span<CModel*> models);
+
 protected:
 	void UpdateModelData(
 		CModel* model, CModelRData* data, int updateflags);

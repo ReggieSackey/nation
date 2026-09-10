@@ -205,6 +205,16 @@ public:
 			PrepareModels(deviceCommandContext, modelVertexSkinningRenderer, Model.TransparentSkinned.submissions[cullGroup]);
 		}
 
+		// See CPUSkinnedModelVertexRenderer::PrepareForRendering comment.
+		if (!Model.GPUSkinningEnabled)
+		{
+			for (int cullGroup{0}; cullGroup < CSceneRenderer::CULL_MAX; ++cullGroup)
+			{
+				Model.VertexCPUSkinningShader.PrepareForRendering(Model.OpaqueSkinned.submissions[cullGroup]);
+				Model.VertexCPUSkinningShader.PrepareForRendering(Model.TransparentSkinned.submissions[cullGroup]);
+			}
+		}
+
 		for (int cullGroup{0}; cullGroup < CSceneRenderer::CULL_MAX; ++cullGroup)
 		{
 			PrepareModels(deviceCommandContext, Model.VertexInstancingShader, Model.OpaqueUnskinned.submissions[cullGroup]);
