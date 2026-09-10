@@ -53,14 +53,14 @@ STATUS_ADD_DEFINITIONS(vfsStatusDefinitions);
 
 static std::mutex vfs_mutex;
 
-class VFS : public IVFS
+class VFS final : public IVFS
 {
 public:
 	VFS() : m_trace(CreateDummyTrace(8*MiB))
 	{
 	}
 
-	virtual Status Mount(const VfsPath& mountPoint, const OsPath& path, size_t flags /* = 0 */, size_t priority /* = 0 */)
+	Status Mount(const VfsPath& mountPoint, const OsPath& path, size_t flags /* = 0 */, size_t priority /* = 0 */) final
 	{
 		ENSURE(path.IsDirectory());
 
@@ -81,7 +81,7 @@ public:
 		return INFO::OK;
 	}
 
-	virtual Status GetFileInfo(const VfsPath& pathname, CFileInfo* pfileInfo) const
+	Status GetFileInfo(const VfsPath& pathname, CFileInfo* pfileInfo) const final
 	{
 		std::lock_guard<std::mutex> lock(vfs_mutex);
 		VfsDirectory* directory;
@@ -95,7 +95,7 @@ public:
 		return INFO::OK;
 	}
 
-	virtual Status GetFilePriority(const VfsPath& pathname, size_t* ppriority) const
+	Status GetFilePriority(const VfsPath& pathname, size_t* ppriority) const final
 	{
 		std::lock_guard<std::mutex> lock(vfs_mutex);
 		VfsDirectory* directory; VfsFile* file;
@@ -104,7 +104,7 @@ public:
 		return INFO::OK;
 	}
 
-	virtual Status GetDirectoryEntries(const VfsPath& path, CFileInfos* fileInfos, DirectoryNames* subdirectoryNames) const
+	Status GetDirectoryEntries(const VfsPath& path, CFileInfos* fileInfos, DirectoryNames* subdirectoryNames) const final
 	{
 		std::lock_guard<std::mutex> lock(vfs_mutex);
 		VfsDirectory* directory;
@@ -134,7 +134,7 @@ public:
 		return INFO::OK;
 	}
 
-	virtual Status CreateFile(const VfsPath& pathname, std::span<const u8> fileContents)
+	Status CreateFile(const VfsPath& pathname, std::span<const u8> fileContents) final
 	{
 		std::lock_guard<std::mutex> lock(vfs_mutex);
 		VfsDirectory* directory;
@@ -158,7 +158,7 @@ public:
 		return INFO::OK;
 	}
 
-	virtual Status LoadFile(const VfsPath& pathname, std::shared_ptr<u8>& fileContents, size_t& size)
+	Status LoadFile(const VfsPath& pathname, std::shared_ptr<u8>& fileContents, size_t& size) final
 	{
 		std::lock_guard<std::mutex> lock(vfs_mutex);
 
@@ -180,7 +180,7 @@ public:
 		return INFO::OK;
 	}
 
-	virtual std::wstring TextRepresentation() const
+	std::wstring TextRepresentation() const final
 	{
 		std::lock_guard<std::mutex> lock(vfs_mutex);
 		std::wstring textRepresentation;
@@ -189,7 +189,7 @@ public:
 		return textRepresentation;
 	}
 
-	virtual Status GetOriginalPath(const VfsPath& pathname, OsPath& realPathname)
+	Status GetOriginalPath(const VfsPath& pathname, OsPath& realPathname) final
 	{
 		std::lock_guard<std::mutex> lock(vfs_mutex);
 		VfsDirectory* directory; VfsFile* file;
@@ -198,7 +198,7 @@ public:
 		return INFO::OK;
 	}
 
-	virtual Status GetRealPath(const VfsPath& pathname, OsPath& realPathname, bool createMissingDirectories)
+	Status GetRealPath(const VfsPath& pathname, OsPath& realPathname, bool createMissingDirectories) final
 	{
 		std::lock_guard<std::mutex> lock(vfs_mutex);
 		VfsDirectory* directory; VfsFile* file;
@@ -209,7 +209,7 @@ public:
 		return INFO::OK;
 	}
 
-	virtual Status GetDirectoryRealPath(const VfsPath& pathname, OsPath& realPathname, bool createMissingDirectories)
+	Status GetDirectoryRealPath(const VfsPath& pathname, OsPath& realPathname, bool createMissingDirectories) final
 	{
 		std::lock_guard<std::mutex> lock(vfs_mutex);
 		VfsDirectory* directory;
@@ -220,7 +220,7 @@ public:
 		return INFO::OK;
 	}
 
-	virtual Status GetVirtualPath(const OsPath& realPathname, VfsPath& pathname)
+	Status GetVirtualPath(const OsPath& realPathname, VfsPath& pathname) final
 	{
 		std::lock_guard<std::mutex> lock(vfs_mutex);
 		const OsPath realPath = realPathname.Parent()/"";
@@ -230,7 +230,7 @@ public:
 		return INFO::OK;
 	}
 
-	virtual Status RemoveFile(const VfsPath& pathname)
+	Status RemoveFile(const VfsPath& pathname) final
 	{
 		std::lock_guard<std::mutex> lock(vfs_mutex);
 
@@ -241,7 +241,7 @@ public:
 		return INFO::OK;
 	}
 
-	virtual Status RepopulateDirectory(const VfsPath& path)
+	Status RepopulateDirectory(const VfsPath& path) final
 	{
 		std::lock_guard<std::mutex> lock(vfs_mutex);
 
@@ -252,7 +252,7 @@ public:
 		return INFO::OK;
 	}
 
-	virtual void Clear()
+	void Clear() final
 	{
 		std::lock_guard<std::mutex> lock(vfs_mutex);
 		m_rootDirectory.Clear();
