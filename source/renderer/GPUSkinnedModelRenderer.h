@@ -60,7 +60,7 @@ private:
 	void UpdateModelData(
 		Renderer::Backend::IDeviceCommandContext* deviceCommandContext,
 		Renderer::Backend::IShaderProgram* shaderProgram,
-		CModel* model, CModelRData* data, int updateflags);
+		CModel* model, CModelRData* data);
 
 	struct Internals;
 	const std::unique_ptr<Internals> m;

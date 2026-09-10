@@ -393,7 +393,7 @@ void GPUSkinnedModelModelRenderer::UpdateModelsData(
 			continue;
 		}
 		CModelRData* rdata{static_cast<CModelRData*>(model->GetRenderData())};
-		UpdateModelData(deviceCommandContext, m->skinningShaderTechnique64->GetShader(), model, rdata, rdata->m_UpdateFlags);
+		UpdateModelData(deviceCommandContext, m->skinningShaderTechnique64->GetShader(), model, rdata);
 	}
 
 	if (!models192.empty())
@@ -403,7 +403,7 @@ void GPUSkinnedModelModelRenderer::UpdateModelsData(
 		for (CModel* model : models192)
 		{
 			CModelRData* rdata{static_cast<CModelRData*>(model->GetRenderData())};
-			UpdateModelData(deviceCommandContext, m->skinningShaderTechnique192->GetShader(), model, rdata, rdata->m_UpdateFlags);
+			UpdateModelData(deviceCommandContext, m->skinningShaderTechnique192->GetShader(), model, rdata);
 		}
 	}
 
@@ -417,7 +417,7 @@ void GPUSkinnedModelModelRenderer::UpdateModelsData(
 void GPUSkinnedModelModelRenderer::UpdateModelData(
 	Renderer::Backend::IDeviceCommandContext* deviceCommandContext,
 	Renderer::Backend::IShaderProgram* shaderProgram,
-	CModel* model, CModelRData* data, int updateflags)
+	CModel* model, CModelRData* data)
 {
 	CModelDefPtr modelDef{model->GetModelDef()};
 	ModelDefRData* modelDefRData{static_cast<ModelDefRData*>(modelDef->GetRenderData(m.get()))};
