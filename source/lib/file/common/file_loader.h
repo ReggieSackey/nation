@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Wildfire Games.
+/* Copyright (C) 2026 Wildfire Games.
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -29,6 +29,7 @@
 
 #include <cstddef>
 #include <memory>
+#include <span>
 
 struct IFileLoader
 {
@@ -38,7 +39,7 @@ struct IFileLoader
 	virtual wchar_t LocationCode() const = 0;
 	virtual const OsPath& Path() const = 0;
 
-	virtual Status Load(const OsPath& name, const std::shared_ptr<u8>& buf, size_t size) const = 0;
+	virtual Status Load(const OsPath& name, const std::span<u8> buffer) const = 0;
 };
 
 typedef std::shared_ptr<IFileLoader> PIFileLoader;

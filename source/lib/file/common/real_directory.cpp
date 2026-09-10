@@ -48,9 +48,9 @@ RealDirectory::RealDirectory(const OsPath& path, size_t priority, size_t flags)
 }
 
 
-/*virtual*/ Status RealDirectory::Load(const OsPath& name, const std::shared_ptr<u8>& buf, size_t size) const
+/*virtual*/ Status RealDirectory::Load(const OsPath& name, const std::span<u8> buffer) const
 {
-	return io::Load(m_path / name, buf.get(), size);
+	return io::Load(m_path / name, buffer.data(), buffer.size());
 }
 
 

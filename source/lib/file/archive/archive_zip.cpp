@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Wildfire Games.
+/* Copyright (C) 2026 Wildfire Games.
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -336,7 +336,7 @@ public:
 		return m_file->Pathname();
 	}
 
-	Status Load(const OsPath& /*name*/, const std::shared_ptr<u8>& buf, size_t size) const override
+	Status Load(const OsPath& /*name*/, const std::span<u8> buffer) const override
 	{
 		AdjustOffset();
 
@@ -354,7 +354,7 @@ public:
 		}
 
 		Stream stream(codec);
-		stream.SetOutputBuffer(buf.get(), size);
+		stream.SetOutputBuffer(buffer.data(), buffer.size());
 		io::Operation op(*m_file.get(), 0, m_csize, m_ofs);
 		StreamFeeder streamFeeder(stream);
 		RETURN_STATUS_IF_ERR(io::Run(op, io::Parameters(), streamFeeder));

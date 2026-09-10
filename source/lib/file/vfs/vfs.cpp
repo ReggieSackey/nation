@@ -172,7 +172,7 @@ public:
 		size = file->Size();
 
 		RETURN_STATUS_IF_ERR(AllocateAligned(fileContents, size, maxSectorSize));
-		RETURN_STATUS_IF_ERR(file->Loader()->Load(file->Name(), fileContents, file->Size()));
+		RETURN_STATUS_IF_ERR(file->Loader()->Load(file->Name(), {fileContents.get(), file->Size()}));
 
 		stats_io_user_request(size);
 		m_trace->NotifyLoad(pathname, size);

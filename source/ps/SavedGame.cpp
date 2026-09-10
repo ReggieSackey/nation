@@ -208,13 +208,13 @@ public:
 		{
 			std::string buffer;
 			buffer.resize(fileInfo.Size());
-			WARN_IF_ERR(archiveFile->Load("", DummySharedPtr((u8*)buffer.data()), buffer.size()));
+			WARN_IF_ERR(archiveFile->Load("", {reinterpret_cast<u8*>(buffer.data()), buffer.size()}));
 			Script::ParseJSON(Script::Request(m_ScriptInterface), buffer, &m_Metadata);
 		}
 		else if (pathname == L"simulation.dat" && m_SavedState)
 		{
 			m_SavedState->resize(fileInfo.Size());
-			WARN_IF_ERR(archiveFile->Load("", DummySharedPtr((u8*)m_SavedState->data()), m_SavedState->size()));
+			WARN_IF_ERR(archiveFile->Load("", {reinterpret_cast<u8*>(m_SavedState->data()), m_SavedState->size()}));
 		}
 	}
 

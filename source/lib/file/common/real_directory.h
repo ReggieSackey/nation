@@ -57,7 +57,7 @@ public:
 	{
 		return m_path;
 	}
-	Status Load(const OsPath& name, const std::shared_ptr<u8>& buf, size_t size) const override;
+	Status Load(const OsPath& name, const std::span<u8> buffer) const override;
 
 	Status Store(const OsPath& name, std::span<const u8> fileContents);
 
