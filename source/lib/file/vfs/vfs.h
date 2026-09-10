@@ -28,6 +28,7 @@
 #ifndef INCLUDED_VFS
 #define INCLUDED_VFS
 
+#include "lib/allocators/shared_ptr.h"
 #include "lib/file/file_system.h"	// CFileInfo
 #include "lib/file/vfs/vfs_path.h"
 #include "lib/os_path.h"
@@ -159,6 +160,16 @@ struct IVFS
 	 * @return Status.
 	 **/
 	virtual Status LoadFile(const VfsPath& pathname, std::shared_ptr<u8>& fileContents, size_t& size) = 0;
+
+	/**
+	 * Read an entire file into memory.
+	 *
+	 * @param pathname
+	 * @param fileContents receives a unique pointer to the contents.
+	 * @param size receives the size [bytes] of the file contents.
+	 * @return Status.
+	 **/
+	virtual Status LoadFile(const VfsPath& pathname, std::unique_ptr<u8[], AlignedDeleter>& fileContents, size_t& size) = 0;
 
 	/**
 	 * @return a string representation of all files and directories.

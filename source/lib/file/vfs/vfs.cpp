@@ -180,6 +180,29 @@ public:
 		return INFO::OK;
 	}
 
+	Status LoadFile(const VfsPath& pathname, std::unique_ptr<u8[], AlignedDeleter>& fileContents, size_t& size) final
+	{
+		std::lock_guard<std::mutex> lock(vfs_mutex);
+
+		VfsDirectory* directory; VfsFile* file;
+		// per 2010-05-01 meeting, this shouldn't raise 'scary error
+		// dialogs', which might fail to display the culprit pathname
+		// instead, callers should log the error, including pathname.
+		RETURN_STATUS_IF_ERR(vfs_Lookup(pathname, &m_rootDirectory, directory, &file));
+
+		size = file->Size();
+		fileContents.reset(reinterpret_cast<u8*>(rtl_AllocateAligned(size, maxSectorSize)));
+		if (!fileContents)
+			WARN_RETURN(ERR::NO_MEM);
+
+		RETURN_STATUS_IF_ERR(file->Loader()->Load(file->Name(), {fileContents.get(), file->Size()}));
+
+		stats_io_user_request(size);
+		m_trace->NotifyLoad(pathname, size);
+
+		return INFO::OK;
+	}
+
 	std::wstring TextRepresentation() const final
 	{
 		std::lock_guard<std::mutex> lock(vfs_mutex);

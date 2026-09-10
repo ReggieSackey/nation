@@ -1,4 +1,4 @@
-	/* Copyright (C) 2025 Wildfire Games.
+/* Copyright (C) 2026 Wildfire Games.
  * This file is part of 0 A.D.
  *
  * 0 A.D. is free software: you can redistribute it and/or modify
@@ -19,6 +19,7 @@
 #define INCLUDED_FONT
 
 #include "graphics/Texture.h"
+#include "lib/allocators/shared_ptr.h"
 #include "lib/code_annotation.h"
 #include "lib/os_path.h"
 #include "lib/types.h"
@@ -190,7 +191,7 @@ private:
 	std::reference_wrapper<const std::array<float, 256>> m_GammaCorrectionLUT;
 
 	FT_Library m_FreeType;
-	std::vector<std::shared_ptr<u8>> m_FontsData;
+	std::vector<std::unique_ptr<u8[], AlignedDeleter>> m_FontsData;
 	std::vector<UniqueFTFace> m_Faces;
 	UniqueFTStroker m_Stroker{nullptr, &ftStrokerDeleter};
 

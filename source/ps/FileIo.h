@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Wildfire Games.
+/* Copyright (C) 2026 Wildfire Games.
  * This file is part of 0 A.D.
  *
  * 0 A.D. is free software: you can redistribute it and/or modify
@@ -30,6 +30,7 @@
 #ifndef INCLUDED_FILEPACKER
 #define INCLUDED_FILEPACKER
 
+#include "lib/allocators/shared_ptr.h"
 #include "lib/file/io/write_buffer.h"
 #include "lib/file/vfs/vfs_path.h"
 #include "lib/types.h"
@@ -144,7 +145,7 @@ public:
 
 private:
 	// the data read from file and used during unpack operations
-	std::shared_ptr<u8> m_buf;
+	std::unique_ptr<u8[], AlignedDeleter> m_buf;
 	size_t m_bufSize;
 
 	size_t m_unpackPos;	/// current unpack position in stream

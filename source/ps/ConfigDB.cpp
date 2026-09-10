@@ -311,7 +311,7 @@ bool CConfigDB::Reload(EConfigNamespace ns)
 
 	std::lock_guard<std::recursive_mutex> s(m_Mutex);
 
-	std::shared_ptr<u8> buffer;
+	std::unique_ptr<u8[], AlignedDeleter> buffer;
 	size_t buflen;
 	{
 		// Handle missing files quietly

@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Wildfire Games.
+/* Copyright (C) 2026 Wildfire Games.
  * This file is part of 0 A.D.
  *
  * 0 A.D. is free software: you can redistribute it and/or modify
@@ -18,6 +18,7 @@
 #ifndef INCLUDED_PS_FILESYSTEM
 #define INCLUDED_PS_FILESYSTEM
 
+#include "lib/allocators/shared_ptr.h"
 #include "lib/file/vfs/vfs.h"
 #include "lib/file/vfs/vfs_path.h"
 #include "lib/status.h"
@@ -99,7 +100,7 @@ public:
 	CStr8 DecodeUTF8() const;
 
 private:
-	std::shared_ptr<u8> m_Buffer;
+	std::unique_ptr<u8[], AlignedDeleter> m_Buffer;
 	size_t m_BufferSize;
 };
 

@@ -629,7 +629,7 @@ void CConsole::LoadHistory()
 	if (!VfsFileExists(m_HistoryFile))
 		return;
 
-	std::shared_ptr<u8> buf; size_t buflen;
+	std::unique_ptr<u8[], AlignedDeleter> buf; size_t buflen;
 	if (g_VFS->LoadFile(m_HistoryFile, buf, buflen) < 0)
 		return;
 

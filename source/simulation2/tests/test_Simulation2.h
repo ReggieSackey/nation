@@ -39,7 +39,7 @@ class TestSimulation2 : public CxxTest::TestSuite
 {
 	void copyFile(const VfsPath& src, const VfsPath& dst)
 	{
-		std::shared_ptr<u8> data;
+		std::unique_ptr<u8[], AlignedDeleter> data;
 		size_t size = 0;
 		TS_ASSERT_OK(g_VFS->LoadFile(src, data, size));
 		TS_ASSERT_OK(g_VFS->CreateFile(dst, {data.get(), size}));

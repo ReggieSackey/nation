@@ -198,7 +198,7 @@ void CVideoMode::CCursor::SetCursor(const CStrW& name)
 	int hotspotX = 0, hotspotY = 0;
 	{
 		const VfsPath pathHotspotName = pathBaseName.ChangeExtension(L".txt");
-		std::shared_ptr<u8> buffer;
+		std::unique_ptr<u8[], AlignedDeleter> buffer;
 		size_t size;
 		if (g_VFS->LoadFile(pathHotspotName, buffer, size) != INFO::OK)
 		{

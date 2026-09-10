@@ -202,7 +202,7 @@ bool CFont::AddFontFromPath(const OsPath& fontPath)
 		return false;
 	}
 
-	std::shared_ptr<u8> fontData;
+	std::unique_ptr<u8[], AlignedDeleter> fontData;
 	size_t fontDataSize;
 	if (g_VFS->LoadFile(fontPath, fontData, fontDataSize) != 0)
 	{
@@ -223,7 +223,7 @@ bool CFont::AddFontFromPath(const OsPath& fontPath)
 	}
 
 	// Keep the font data alive.
-	m_FontsData.push_back(fontData);
+	m_FontsData.push_back(std::move(fontData));
 
 	// Set the font size.
 	if (FT_Error error{FT_Set_Char_Size(face, 0, FloatToF26Dot6(m_FontSize), 0 , 0)})
@@ -233,7 +233,7 @@ bool CFont::AddFontFromPath(const OsPath& fontPath)
 	}
 
 	// Get the height of the font.
-	if(m_Faces.empty())
+	if (m_Faces.empty())
 		m_Height = FPosF26Dot6ToFloat(face->size->metrics.height);
 
 	// Add the fallback font to the list.

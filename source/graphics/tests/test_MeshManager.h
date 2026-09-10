@@ -82,7 +82,7 @@ class TestMeshManager : public CxxTest::TestSuite
 	void copyFile(const VfsPath& src, const VfsPath& dst)
 	{
 		// Copy a file into the mod directory, so we can work on it:
-		std::shared_ptr<u8> data; size_t size = 0;
+		std::unique_ptr<u8[], AlignedDeleter> data; size_t size = 0;
 		TS_ASSERT_OK(g_VFS->LoadFile(src, data, size));
 		TS_ASSERT_OK(g_VFS->CreateFile(dst, {data.get(), size}));
 	}
