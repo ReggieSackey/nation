@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Wildfire Games.
+/* Copyright (C) 2026 Wildfire Games.
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -99,8 +99,7 @@ size_t os_cpu_QueryMemorySize();
 
 /**
  * @return the size [MB] of physical memory; caches the result of
- * os_cpu_QueryMemorySize and overrides it with a more exact value
- * if SMBIOS information is available.
+ * os_cpu_QueryMemorySize.
  **/
 size_t os_cpu_MemorySize();
 

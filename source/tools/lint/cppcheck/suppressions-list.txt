@@ -39,7 +39,6 @@ nullPointerArithmetic:source/lib/sysdep/os/win/wposix/wposix_internal.h
 nullPointerArithmetic:source/lib/sysdep/os/win/wposix/wpthread.cpp
 
 nullPointerOutOfMemory:source/lib/sysdep/os/osx/dir_watch.cpp
-nullPointerOutOfMemory:source/lib/sysdep/smbios.cpp
 nullPointerOutOfMemory:source/tools/atlas/AtlasUI/ScenarioEditor/Sections/Terrain/Terrain.cpp
 
 preprocessorErrorDirective:source/lib/sysdep/arch.h
