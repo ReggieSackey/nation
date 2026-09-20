@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Wildfire Games.
+/* Copyright (C) 2026 Wildfire Games.
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -83,24 +83,6 @@ public:
 		EQUALS(bits<u64>(0x0000FFFFFFFF0000ull, 16, 47), 0xFFFFFFFFull);
 		EQUALS(bits<u64>(0xFFFFFFFFFFFFFFFFull, 0, 63), 0xFFFFFFFFFFFFFFFFull);
 		EQUALS(bits<u64>(0xA5A5A5A5A5A5A5A5ull, 32, 63), 0xA5A5A5A5ull);
-	}
-
-	void test_PopulationCount()
-	{
-		EQUALS(PopulationCount<u8>(0), 0u);
-		EQUALS(PopulationCount<u8>(4), 1u);
-		EQUALS(PopulationCount<u8>(0x28), 2u);
-		EQUALS(PopulationCount<u8>(0xFF), 8u);
-		EQUALS(PopulationCount<u32>(0x0ul), 0u);
-		EQUALS(PopulationCount<u32>(0x8ul), 1u);
-		EQUALS(PopulationCount<u32>(0xFFFFul), 16u);
-		EQUALS(PopulationCount<u32>(0xFFFFFFFFul), 32u);
-		EQUALS(PopulationCount<u64>(0x0ull), 0u);
-		EQUALS(PopulationCount<u64>(0x10ull), 1u);
-		EQUALS(PopulationCount<u64>(0xFFFFull), 16u);
-		EQUALS(PopulationCount<u64>(0xFFFFFFFFull), 32u);
-		EQUALS(PopulationCount<u64>(0xFFFFFFFFFFFFFFFEull), 63u);
-		EQUALS(PopulationCount<u64>(0xFFFFFFFFFFFFFFFFull), 64u);
 	}
 
 	void test_is_pow2()

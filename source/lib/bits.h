@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Wildfire Games.
+/* Copyright (C) 2026 Wildfire Games.
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -127,43 +127,6 @@ inline T SetBitsTo(T num, size_t lo_idx, size_t hi_idx, size_t value)
 	result = T(result | (value << lo_idx));
 	return result;
 }
-
-
-/**
- * @return number of 1-bits in mask.
- * execution time is proportional to number of 1-bits in mask.
- **/
-template<typename T>
-inline size_t SparsePopulationCount(T mask)
-{
-	size_t num1Bits = 0;
-	while(mask)
-	{
-		mask &= mask-1; // clear least significant 1-bit
-		num1Bits++;
-	}
-
-	return num1Bits;
-}
-
-/**
- * @return number of 1-bits in mask.
- * execution time is logarithmic in the total number of bits.
- * supports up to 128-bit integers (if their arithmetic operators are defined).
- * [http://graphics.stanford.edu/~seander/bithacks.html#CountBitsSetParallel]
- **/
-template<typename T>
-static inline size_t PopulationCount(T x)
-{
-	cassert(!std::numeric_limits<T>::is_signed);
-	const T mask = T(~T(0));
-	x -= (x >> 1) & (mask/3);	// count 2 bits
-	x = (x & (mask/15*3)) + ((x >> 2) & (mask/15*3));	// count 4 bits
-	x = (x + (x >> 4)) & (mask/255*15);	// count 8 bits
-	return T(x * (mask/255)) >> ((sizeof(T)-1)*CHAR_BIT);
-}
-
-
 
 /**
  * @return whether the given number is a power of two.

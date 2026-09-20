@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Wildfire Games.
+/* Copyright (C) 2026 Wildfire Games.
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -23,7 +23,7 @@
 #include "precompiled.h"
 #include "lib/sysdep/numa.h"
 
-#include "lib/bits.h"	// PopulationCount
+#include "lib/bits.h"
 #include "lib/alignment.h"
 #include "lib/lib.h"
 #include "lib/timer.h"
@@ -35,6 +35,7 @@
 #include "lib/sysdep/os/win/wutil.h"
 #include "lib/sysdep/os/win/wcpu.h"
 
+#include <bit>
 #include <map>
 #include <Psapi.h>
 #include <utility>
@@ -117,7 +118,7 @@ static void PopulateNodes()
 		const BOOL ok = GetProcessAffinityMask(GetCurrentProcess(), &processAffinity, &systemAffinity);
 		WARN_IF_FALSE(ok);
 	}
-	ENSURE(PopulationCount(processAffinity) <= PopulationCount(systemAffinity));
+	ENSURE(std::popcount(processAffinity) <= std::popcount(systemAffinity));
 
 	for(UCHAR nodeNumber = 0; nodeNumber <= HighestNodeNumber(); nodeNumber++)
 	{

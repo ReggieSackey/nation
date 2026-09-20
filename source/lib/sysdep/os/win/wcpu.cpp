@@ -1,4 +1,4 @@
-/* Copyright (C) 2014 Wildfire Games.
+/* Copyright (C) 2026 Wildfire Games.
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -34,6 +34,8 @@
 #include "lib/sysdep/os/win/wutil.h"
 #include "lib/sysdep/arch/x86_x64/x86_x64.h"
 
+#include <bit>
+
 
 uintptr_t os_cpu_ProcessorMask()
 {
@@ -59,7 +61,7 @@ size_t os_cpu_NumProcessors()
 
 	if(!numProcessors)
 	{
-		numProcessors = PopulationCount(os_cpu_ProcessorMask());
+		numProcessors = std::popcount(os_cpu_ProcessorMask());
 
 		// sanity check
 		SYSTEM_INFO si;
