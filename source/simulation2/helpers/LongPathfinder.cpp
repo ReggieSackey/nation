@@ -20,7 +20,6 @@
 #include "LongPathfinder.h"
 
 #include "graphics/SColor.h"
-#include "lib/bits.h"
 #include "maths/Fixed.h"
 #include "maths/FixedVector2D.h"
 #include "ps/CLogger.h"
@@ -30,6 +29,7 @@
 #include "simulation2/helpers/Pathfinding.h"
 
 #include <algorithm>
+#include <bit>
 #include <cmath>
 #include <cstddef>
 #include <mutex>
@@ -249,7 +249,7 @@ class JumpPointCache
 
 			if (!data.empty())
 			{
-				size_t depth = ceil_log2(data.size() + 1);
+				size_t depth = std::bit_width(data.size());
 				tree.resize((1 << depth) - 1);
 				ConstructTree(tree, 0, data.size() / 2, data.size(), 0);
 			}

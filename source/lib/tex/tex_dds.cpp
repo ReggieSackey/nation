@@ -43,6 +43,7 @@
 #include "lib/types.h"
 
 #include <algorithm>
+#include <bit>
 #include <cstdlib>
 #include <memory>
 
@@ -570,8 +571,9 @@ static Status decode_sd(const DDS_HEADER* sd, size_t& w, size_t& h, size_t& bpp,
 		if(mipmap_count)
 		{
 			// mipmap chain is incomplete
-			// note: DDS includes the base level in its count, hence +1.
-			if(mipmap_count != ceil_log2(std::max(w,h))+1)
+			// note: we need to account the DDS base level (1x1).
+			const size_t maxSide{std::max(w, h)};
+			if(mipmap_count != static_cast<size_t>(std::bit_width(maxSide) + !std::has_single_bit(maxSide)))
 				return ERR::TEX_FMT_INVALID;
 			flags |= TEX_MIPMAPS;
 		}

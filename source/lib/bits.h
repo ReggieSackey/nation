@@ -143,58 +143,6 @@ inline T ClearLeastSignificantBit(T x)
 	return x & (x-1);
 }
 
-
-/**
- * ceil(log2(x))
- *
- * @param x (unsigned integer)
- * @return ceiling of the base-2 logarithm (i.e. rounded up) or
- * zero if the input is zero.
- **/
-template<typename T>
-inline size_t ceil_log2(T x)
-{
-	T bit = 1;
-	size_t log = 0;
-	while(bit < x && bit != 0)	// must detect overflow
-	{
-		log++;
-		bit *= 2;
-	}
-
-	return log;
-}
-
-// compile-time variant of the above
-template<size_t N>
-struct CeilLog2
-{
-	enum { value = 1 + CeilLog2<(N+1)/2>::value };
-};
-
-template<>
-struct CeilLog2<1>
-{
-	enum { value = 0 };
-};
-
-template<>
-struct CeilLog2<0>
-{
-	enum { value = 0 };
-};
-
-
-
-/**
- * floor(log2(f))
- * fast, uses the FPU normalization hardware.
- *
- * @param x (float) input; MUST be > 0, else results are undefined.
- * @return floor of the base-2 logarithm (i.e. rounded down).
- **/
-extern int floor_log2(const float x);
-
 /**
  * round number up/down to the next given multiple.
  *

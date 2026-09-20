@@ -85,22 +85,6 @@ public:
 		EQUALS(bits<u64>(0xA5A5A5A5A5A5A5A5ull, 32, 63), 0xA5A5A5A5ull);
 	}
 
-	void test_ceil_log2()
-	{
-		EQUALS(ceil_log2(3u), 2u);
-		EQUALS(ceil_log2(0xffffffffu), 32u);
-		EQUALS(ceil_log2(1u), 0u);
-		EQUALS(ceil_log2(256u), 8u);
-		EQUALS(ceil_log2(0x80000000u), 31u);
-	}
-
-	void test_floor_log2()
-	{
-		EQUALS(floor_log2(1.f), 0);
-		EQUALS(floor_log2(3.f), 1);
-		EQUALS(floor_log2(256.f), 8);
-	}
-
 	void test_round_up()
 	{
 		EQUALS(round_up( 0u, 16u), 0u);

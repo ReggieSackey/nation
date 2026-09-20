@@ -777,8 +777,9 @@ void Tex::UpdateMIPLevels()
 
 	if (m_Flags & TEX_MIPMAPS)
 	{
-		// We add one because we need to account the smallest 1x1 level.
-		m_MIPLevels.reserve(ceil_log2(std::max(m_Width, m_Height)) + 1);
+		// We need to account the smallest 1x1 level.
+		const size_t maxSide{std::max(m_Width, m_Height)};
+		m_MIPLevels.reserve(std::bit_width(maxSide) + !std::has_single_bit(maxSide));
 	}
 
 	u8* levelData = m_Data.get();
