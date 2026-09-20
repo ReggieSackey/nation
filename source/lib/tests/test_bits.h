@@ -101,23 +101,6 @@ public:
 		EQUALS(floor_log2(256.f), 8);
 	}
 
-	void test_round_up_to_pow2()
-	{
-		EQUALS(round_up_to_pow2(0u), 1u);
-		EQUALS(round_up_to_pow2(1u), 1u);
-		EQUALS(round_up_to_pow2(127u), 128u);
-		EQUALS(round_up_to_pow2(128u), 128u);
-		EQUALS(round_up_to_pow2(129u), 256u);
-	}
-
-	void test_round_down_to_pow2()
-	{
-		EQUALS(round_down_to_pow2(1u), 1u);
-		EQUALS(round_down_to_pow2(127u), 64u);
-		EQUALS(round_down_to_pow2(128u), 128u);
-		EQUALS(round_down_to_pow2(129u), 128u);
-	}
-
 	void test_round_up()
 	{
 		EQUALS(round_up( 0u, 16u), 0u);

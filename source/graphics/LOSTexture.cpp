@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Wildfire Games.
+/* Copyright (C) 2026 Wildfire Games.
  * This file is part of 0 A.D.
  *
  * 0 A.D. is free software: you can redistribute it and/or modify
@@ -47,6 +47,7 @@
 #include "simulation2/system/Entity.h"
 
 #include <array>
+#include <bit>
 #include <cstring>
 #include <iterator>
 
@@ -255,7 +256,7 @@ void CLOSTexture::ConstructTexture(Renderer::Backend::IDeviceCommandContext* dev
 
 	m_MapSize = cmpRangeManager->GetVerticesPerSide();
 
-	const size_t textureSize = round_up_to_pow2(round_up((size_t)m_MapSize + g_BlurSize - 1, g_SubTextureAlignment));
+	const size_t textureSize = std::bit_ceil(round_up((size_t)m_MapSize + g_BlurSize - 1, g_SubTextureAlignment));
 
 	Renderer::Backend::IDevice* backendDevice = deviceCommandContext->GetDevice();
 

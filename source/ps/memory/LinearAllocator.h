@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Wildfire Games.
+/* Copyright (C) 2026 Wildfire Games.
  * This file is part of 0 A.D.
  *
  * 0 A.D. is free software: you can redistribute it and/or modify
@@ -21,6 +21,7 @@
 #include "lib/bits.h"
 #include "ps/containers/StaticVector.h"
 
+#include <bit>
 #include <cstddef>
 #include <fmt/format.h>
 #include <memory>
@@ -64,7 +65,7 @@ public:
 		{
 			m_BuffersToFree.emplace_back(std::move(m_Buffer));
 			m_Size = 0;
-			m_Capacity = std::min(std::max(round_up_to_pow2(n), m_Capacity * 2), m_MaxCapacity);
+			m_Capacity = std::min(std::max(std::bit_ceil(n), m_Capacity * 2), m_MaxCapacity);
 			if (n > m_Capacity)
 			{
 				throw CapacityExceededException{fmt::format(

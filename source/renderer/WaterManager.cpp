@@ -25,7 +25,6 @@
 #include "graphics/ShaderTechniquePtr.h"
 #include "graphics/Terrain.h"
 #include "graphics/TextureManager.h"
-#include "lib/bits.h"
 #include "lib/code_annotation.h"
 #include "lib/debug.h"
 #include "lib/path.h"
@@ -56,6 +55,7 @@
 
 #include <algorithm>
 #include <array>
+#include <bit>
 #include <climits>
 #include <cmath>
 #include <cstdint>
@@ -264,7 +264,7 @@ void WaterManager::DestroyViewSizeDependentObjects()
 void WaterManager::RecreateOrLoadTexturesIfNeeded()
 {
 	// Use screen-sized textures for minimum artifacts.
-	const size_t newRefTextureSize = round_up_to_pow2(g_Renderer.GetHeight());
+	const size_t newRefTextureSize = std::bit_ceil(static_cast<uint32_t>(g_Renderer.GetHeight()));
 
 	if (m_RefTextureSize != newRefTextureSize)
 	{

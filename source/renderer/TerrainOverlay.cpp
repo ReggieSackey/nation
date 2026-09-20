@@ -26,7 +26,6 @@
 #include "graphics/ShaderManager.h"
 #include "graphics/ShaderTechnique.h"
 #include "graphics/Terrain.h"
-#include "lib/bits.h"
 #include "maths/MathUtil.h"
 #include "maths/Matrix3D.h"
 #include "maths/Vector2D.h"
@@ -50,6 +49,7 @@
 
 #include <algorithm>
 #include <array>
+#include <bit>
 #include <cstdint>
 #include <cstdlib>
 #include <iterator>
@@ -360,8 +360,8 @@ void TerrainTextureOverlay::RenderAfterWater(
 	const ssize_t w = static_cast<ssize_t>(terrain.GetTilesPerSide() * m_TexelsPerTile);
 	const ssize_t h = static_cast<ssize_t>(terrain.GetTilesPerSide() * m_TexelsPerTile);
 
-	const uint32_t requiredWidth = round_up_to_pow2(w);
-	const uint32_t requiredHeight = round_up_to_pow2(h);
+	const uint32_t requiredWidth = std::bit_ceil(static_cast<uint32_t>(w));
+	const uint32_t requiredHeight = std::bit_ceil(static_cast<uint32_t>(h));
 
 	// Recreate the texture with new size if necessary
 	if (!m_Texture || m_Texture->GetWidth() != requiredWidth || m_Texture->GetHeight() != requiredHeight)

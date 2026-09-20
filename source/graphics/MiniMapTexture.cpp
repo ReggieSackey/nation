@@ -28,7 +28,6 @@
 #include "graphics/TerrainTextureEntry.h"
 #include "graphics/TerritoryTexture.h"
 #include "graphics/TextureManager.h"
-#include "lib/bits.h"
 #include "lib/code_generation.h"
 #include "lib/debug.h"
 #include "lib/hash.h"
@@ -69,6 +68,7 @@
 
 #include <algorithm>
 #include <array>
+#include <bit>
 #include <cmath>
 #include <cstdint>
 #include <iterator>
@@ -392,7 +392,7 @@ void CMiniMapTexture::CreateTextures(
 	DestroyTextures();
 
 	m_MapSize = terrain.GetVerticesPerSide();
-	const size_t textureSize = round_up_to_pow2(static_cast<size_t>(m_MapSize));
+	const size_t textureSize = std::bit_ceil(static_cast<size_t>(m_MapSize));
 
 	const Renderer::Backend::Sampler::Desc defaultSamplerDesc =
 		Renderer::Backend::Sampler::MakeDefaultSampler(

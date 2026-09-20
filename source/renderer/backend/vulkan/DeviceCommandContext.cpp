@@ -20,7 +20,6 @@
 #include "DeviceCommandContext.h"
 
 #include "graphics/Color.h"
-#include "lib/bits.h"
 #include "lib/debug.h"
 #include "ps/CLogger.h"
 #include "ps/ConfigDB.h"
@@ -246,7 +245,7 @@ void CDeviceCommandContext::CUploadRing::ResizeIfNeeded(
 	// We need to pad the data size for uniforms because we use dynamic offsets
 	// with a fixed range.
 	const uint32_t paddedDataSize{
-		m_Type == IBuffer::Type::UNIFORM ? round_up_to_pow2(dataSize) : dataSize};
+		m_Type == IBuffer::Type::UNIFORM ? std::bit_ceil(dataSize) : dataSize};
 	const bool resizeNeeded = !m_Buffer || m_BlockOffset + paddedDataSize > m_Capacity;
 	if (!resizeNeeded)
 		return;
@@ -257,7 +256,7 @@ void CDeviceCommandContext::CUploadRing::ResizeIfNeeded(
 		ExecuteUploads(commandBuffer);
 	}
 
-	m_Capacity = std::max(m_Capacity * 2, round_up_to_pow2(dataSize));
+	m_Capacity = std::max(m_Capacity * 2, std::bit_ceil(dataSize));
 
 	m_Buffer = m_Device->CreateCBuffer(
 		"UploadRingBuffer", m_Type, m_Capacity, IBuffer::Usage::DYNAMIC | IBuffer::Usage::TRANSFER_DST);

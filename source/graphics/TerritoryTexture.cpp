@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Wildfire Games.
+/* Copyright (C) 2026 Wildfire Games.
  * This file is part of 0 A.D.
  *
  * 0 A.D. is free software: you can redistribute it and/or modify
@@ -21,7 +21,6 @@
 
 #include "graphics/Color.h"
 #include "graphics/Terrain.h"
-#include "lib/bits.h"
 #include "lib/debug.h"
 #include "ps/Profile.h"
 #include "renderer/backend/Format.h"
@@ -39,6 +38,7 @@
 #include "simulation2/system/Entity.h"
 
 #include <algorithm>
+#include <bit>
 #include <cstdint>
 #include <cstring>
 #include <vector>
@@ -93,7 +93,7 @@ void CTerritoryTexture::ConstructTexture(Renderer::Backend::IDeviceCommandContex
 	// Convert size from terrain tiles to territory tiles
 	m_MapSize = cmpTerrain->GetMapSize() * Pathfinding::NAVCELL_SIZE_INT / ICmpTerritoryManager::NAVCELLS_PER_TERRITORY_TILE;
 
-	const uint32_t textureSize = round_up_to_pow2(static_cast<uint32_t>(m_MapSize));
+	const uint32_t textureSize = std::bit_ceil(static_cast<uint32_t>(m_MapSize));
 
 	m_Texture = deviceCommandContext->GetDevice()->CreateTexture2D("TerritoryTexture",
 		Renderer::Backend::ITexture::Usage::TRANSFER_DST |

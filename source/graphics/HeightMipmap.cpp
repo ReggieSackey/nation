@@ -22,7 +22,6 @@
 #include "lib/alignment.h"
 #include "lib/allocators/dynarray.h"
 #include "lib/allocators/shared_ptr.h"
-#include "lib/bits.h"
 #include "lib/debug.h"
 #include "lib/file/vfs/vfs.h"
 #include "lib/file/vfs/vfs_path.h"
@@ -32,6 +31,7 @@
 #include "maths/MathUtil.h"
 #include "ps/Filesystem.h"
 
+#include <bit>
 #include <cmath>
 #include <cstring>
 #include <memory>
@@ -96,7 +96,7 @@ void CHeightMipmap::Initialize(size_t mapSize, const u16* ptr)
 	ReleaseData();
 
 	m_MapSize = mapSize;
-	size_t mipmapSize = round_down_to_pow2(mapSize);
+	size_t mipmapSize = std::bit_floor(mapSize);
 
 	while (mipmapSize > 1)
 	{

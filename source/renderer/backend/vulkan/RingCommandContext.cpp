@@ -32,6 +32,7 @@
 #include "renderer/backend/vulkan/Utilities.h"
 
 #include <algorithm>
+#include <bit>
 #include <cstddef>
 #include <cstring>
 #include <limits>
@@ -374,7 +375,7 @@ uint32_t CRingCommandContext::AcquireFreeSpace(
 		!m_StagingBuffer || m_StagingBuffer->GetSize() < m_MaxStagingBufferCapacity;
 	if (needsResize && canResize)
 	{
-		const uint32_t minimumRequiredCapacity = round_up_to_pow2(requiredSize);
+		const uint32_t minimumRequiredCapacity = std::bit_ceil(requiredSize);
 		const uint32_t newCapacity = std::min(
 			std::max(m_StagingBuffer ? m_StagingBuffer->GetSize() * 2 : INITIAL_STAGING_BUFFER_CAPACITY, minimumRequiredCapacity),
 			m_MaxStagingBufferCapacity);

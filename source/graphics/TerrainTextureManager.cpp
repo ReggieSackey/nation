@@ -231,7 +231,7 @@ CTerrainTextureManager::LoadAlphaMap(const VfsPath& alphaMapType)
 	// copy each alpha map (tile) into one buffer, arrayed horizontally.
 	//
 	const size_t tileWidth = 2 + base + 2;	// 2 pixel border (avoids bilinear filtering artifacts)
-	const size_t totalWidth = round_up_to_pow2(tileWidth * NUM_ALPHA_MAPS);
+	const size_t totalWidth = std::bit_ceil(tileWidth * NUM_ALPHA_MAPS);
 	const size_t totalHeight = base; ENSURE(std::has_single_bit(totalHeight));
 	std::shared_ptr<u8> data;
 	AllocateAligned(data, totalWidth * totalHeight, maxSectorSize);

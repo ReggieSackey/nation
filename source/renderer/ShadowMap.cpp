@@ -21,7 +21,6 @@
 
 #include "graphics/Camera.h"
 #include "graphics/Color.h"
-#include "lib/bits.h"
 #include "lib/config2.h"
 #include "lib/debug.h"
 #include "maths/BoundingBoxAligned.h"
@@ -50,6 +49,7 @@
 
 #include <algorithm>
 #include <array>
+#include <bit>
 #include <cmath>
 #include <cstdint>
 #include <memory>
@@ -513,7 +513,7 @@ void ShadowMapInternals::CreateTexture(const uint32_t width, const uint32_t heig
 		break;
 	// Ultra
 	case 2:
-		shadowMapSize = std::max(round_up_to_pow2(std::max(width, height)), 4096u);
+		shadowMapSize = std::max(std::bit_ceil(static_cast<uint32_t>(std::max(width, height))), 4096u);
 		break;
 	// Medium as is
 	default:

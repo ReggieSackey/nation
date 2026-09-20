@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Wildfire Games.
+/* Copyright (C) 2026 Wildfire Games.
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -32,6 +32,7 @@
 #include "lib/sysdep/rtl.h"
 
 #include <algorithm>
+#include <bit>
 #include <cstring>
 
 static const size_t BLOCK_SIZE = 512*KiB;
@@ -47,7 +48,7 @@ void WriteBuffer::EnsureSufficientCapacity(size_t size)
 {
 	if(m_size + size > m_capacity)
 	{
-		m_capacity = round_up_to_pow2(m_size + size);
+		m_capacity = std::bit_ceil(m_size + size);
 		std::shared_ptr<u8> newData;
 		AllocateAligned(newData, m_capacity, maxSectorSize);
 		memcpy(newData.get(), m_data.get(), m_size);
