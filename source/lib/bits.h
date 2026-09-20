@@ -113,37 +113,6 @@ inline T bits(T num, size_t lo_idx, size_t hi_idx)
 }
 
 /**
- * set the value of bits hi_idx:lo_idx
- *
- * @param lo_idx bit index of lowest  bit to include
- * @param hi_idx bit index of highest bit to include
- * @param value new value to be assigned to these bits
- **/
-template<typename T>
-inline T SetBitsTo(T num, size_t lo_idx, size_t hi_idx, size_t value)
-{
-	const size_t numBits = (hi_idx - lo_idx)+1;
-	ASSERT(value < (T(1) << numBits));
-	const T mask = bit_mask<T>(numBits) << lo_idx;
-	T result = num & ~mask;
-	result = T(result | (value << lo_idx));
-	return result;
-}
-
-template<typename T>
-inline T LeastSignificantBit(T x)
-{
-	const T negX = T(~x + 1);	// 2's complement (avoids 'negating unsigned type' warning)
-	return x & negX;
-}
-
-template<typename T>
-inline T ClearLeastSignificantBit(T x)
-{
-	return x & (x-1);
-}
-
-/**
  * round number up/down to the next given multiple.
  *
  * @param n Number to round.
@@ -172,21 +141,5 @@ inline T round_down(T n, T multiple)
 // evaluates to an expression suitable as an initializer
 // for constant static data members.
 #define ROUND_UP(n, multiple) (((n) + (multiple)-1) & ~((multiple)-1))
-
-
-template<typename T>
-inline T MaxPowerOfTwoDivisor(T value)
-{
-	ASSERT(value != T(0));
-
-	for(size_t log2 = 0; log2 < sizeof(T)*CHAR_BIT; log2++)
-	{
-		if(IsBitSet(value, log2))
-			return T(1) << log2;
-	}
-
-	DEBUG_WARN_ERR(ERR::LOGIC);	// unreachable (!= 0 => there is a set bit)
-	return 0;
-}
 
 #endif	// #ifndef INCLUDED_BITS
