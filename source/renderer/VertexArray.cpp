@@ -18,13 +18,14 @@
 #include "precompiled.h"
 
 #include "lib/alignment.h"
-#include "lib/bits.h"
 #include "lib/sysdep/rtl.h"
 #include "ps/CLogger.h"
 #include "renderer/Renderer.h"
 #include "renderer/VertexArray.h"
 #include "renderer/VertexBuffer.h"
 #include "renderer/VertexBufferManager.h"
+
+#include <bit>
 
 class CVector3D;
 class CVector4D;
@@ -104,7 +105,7 @@ void VertexArray::SetNumberOfVertices(const size_t numberOfVertices)
 
 void VertexArray::SetMinimumAttributeAlignment(const uint32_t minimumAttributeAlignment)
 {
-	ENSURE(minimumAttributeAlignment >= 4 || is_pow2(minimumAttributeAlignment));
+	ENSURE(minimumAttributeAlignment >= 4 || std::has_single_bit(minimumAttributeAlignment));
 	if (minimumAttributeAlignment == m_MinimumAttributeAlignment)
 		return;
 

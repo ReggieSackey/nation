@@ -31,9 +31,11 @@
 #include "lib/debug.h"
 #include "lib/status.h"
 
+#include <bit>
 #include <climits>
 #include <cstddef>
 #include <limits>
+#include <type_traits>
 
 /**
  * value of bit number \<n\>.
@@ -128,21 +130,6 @@ inline T SetBitsTo(T num, size_t lo_idx, size_t hi_idx, size_t value)
 	return result;
 }
 
-/**
- * @return whether the given number is a power of two.
- **/
-template<typename T>
-inline bool is_pow2(T n)
-{
-	// 0 would pass the test below but isn't a POT.
-	if(n == 0)
-		return false;
-	return (n & (n-1)) == 0;
-}
-
-// as above; intended for use in static_assert
-#define IS_POW2(n) (((n) != 0) && ((n) & ((n)-1)) == 0)
-
 template<typename T>
 inline T LeastSignificantBit(T x)
 {
@@ -235,7 +222,8 @@ inline T round_down_to_pow2(T x)
 template<typename T>
 inline T round_up(T n, T multiple)
 {
-	ASSERT(is_pow2(multiple));
+	ASSERT(multiple > 0);
+	ASSERT(std::has_single_bit(static_cast<std::make_unsigned_t<T>>(multiple)));
 	const T result = (n + multiple-1) & ~(multiple-1);
 	ASSERT(n <= result && result < n+multiple);
 	return result;
@@ -244,7 +232,8 @@ inline T round_up(T n, T multiple)
 template<typename T>
 inline T round_down(T n, T multiple)
 {
-	ASSERT(is_pow2(multiple));
+	ASSERT(multiple > 0);
+	ASSERT(std::has_single_bit(static_cast<std::make_unsigned_t<T>>(multiple)));
 	const T result = n & ~(multiple-1);
 	ASSERT(result <= n && n < result+multiple);
 	return result;

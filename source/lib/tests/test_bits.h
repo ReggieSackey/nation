@@ -85,15 +85,6 @@ public:
 		EQUALS(bits<u64>(0xA5A5A5A5A5A5A5A5ull, 32, 63), 0xA5A5A5A5ull);
 	}
 
-	void test_is_pow2()
-	{
-		EQUALS(is_pow2(0u), false);
-		EQUALS(is_pow2(~0u), false);
-		EQUALS(is_pow2(0x80000001), false);
-		EQUALS(is_pow2(1), true);
-		EQUALS(is_pow2(1u << 31), true);
-	}
-
 	void test_ceil_log2()
 	{
 		EQUALS(ceil_log2(3u), 2u);

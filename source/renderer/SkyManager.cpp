@@ -25,7 +25,6 @@
 #include "graphics/ShaderTechnique.h"
 #include "graphics/ShaderTechniquePtr.h"
 #include "graphics/TextureManager.h"
-#include "lib/bits.h"
 #include "lib/code_generation.h"
 #include "lib/file/file_system.h"
 #include "lib/file/vfs/vfs.h"
@@ -54,6 +53,7 @@
 
 #include <algorithm>
 #include <array>
+#include <bit>
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
@@ -130,7 +130,7 @@ void SkyManager::LoadAndUploadSkyTexturesIfNeeded(
 			return;
 		}
 
-		if (!is_pow2(textures[i].m_Width) || !is_pow2(textures[i].m_Height))
+		if (!std::has_single_bit(textures[i].m_Width) || !std::has_single_bit(textures[i].m_Height))
 		{
 			LOGERROR("Error creating sky cubemap '%s', cube textures should have power of 2 sizes.", m_SkySet.ToUTF8().c_str());
 			return;

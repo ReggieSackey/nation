@@ -33,6 +33,7 @@
 #include "lib/tex/tex_codec.h"
 
 #include <algorithm>
+#include <bit>
 #include <cstdint>
 #include <cstring>
 
@@ -253,7 +254,7 @@ static Status add_mipmaps(Tex* t, size_t w, size_t h, size_t bpp, void* newData,
 	// this code assumes the image is of POT dimension; we don't
 	// go to the trouble of implementing image scaling because
 	// the only place this is used (backend textures) requires POT anyway.
-	if(!is_pow2(w) || !is_pow2(h))
+	if(!std::has_single_bit(w) || !std::has_single_bit(h))
 		WARN_RETURN(ERR::TEX_INVALID_SIZE);
 	t->m_Flags |= TEX_MIPMAPS;	// must come before tex_img_size!
 	const size_t mipmap_size = t->img_size();

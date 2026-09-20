@@ -44,6 +44,7 @@
 #include "lib/types.h"
 
 #include <algorithm>
+#include <bit>
 #include <cstddef>
 #include <cstdint>
 #include <fcntl.h>
@@ -73,7 +74,7 @@ using BufferPtr = std::unique_ptr<u8, FreeAligned>;
 // never reused (avoids displacing other items).
 static inline io::BufferPtr Allocate(size_t size, size_t alignment = maxSectorSize)
 {
-	ENSURE(is_pow2(alignment));
+	ENSURE(std::has_single_bit(alignment));
 	alignment = std::max(alignment, allocationAlignment);
 
 	u8* p = static_cast<u8*>(rtl_AllocateAligned(round_up(size, alignment), alignment));
@@ -141,12 +142,12 @@ struct Parameters
 
 	void Validate(const Operation& op) const
 	{
-		ENSURE(is_pow2(alignment));
 		ENSURE(alignment > 0);
+		ENSURE(std::has_single_bit(static_cast<uint64_t>(alignment)));
 
 		if(blockSize != 0)
 		{
-			ENSURE(is_pow2(blockSize));
+			ENSURE(std::has_single_bit(blockSize));
 			ENSURE(g_PageSize <= blockSize);	// (don't bother checking an upper bound)
 		}
 

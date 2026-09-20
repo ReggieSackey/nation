@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Wildfire Games.
+/* Copyright (C) 2026 Wildfire Games.
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -44,6 +44,7 @@
 # include "lib/sysdep/os/win/wutil.h"
 #endif
 
+#include <bit>
 #include <cinttypes>
 #include <cstdlib>
 #include <cstring>
@@ -492,7 +493,7 @@ std::string StringFromEnum(Enum /*field*/)
 #define ENUM(enumerator, VALUE)\
 	if(field.value == VALUE) /* single bit flag or matching enumerator */\
 		return #enumerator;\
-	if(!is_pow2(VALUE)) /* these aren't bit flags */\
+	if(!std::has_single_bit(static_cast<uint64_t>(VALUE))) /* these aren't bit flags */\
 	{\
 		allowFlags = false;\
 		string.clear();\

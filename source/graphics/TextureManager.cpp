@@ -22,7 +22,6 @@
 #include "graphics/Color.h"
 #include "graphics/SColor.h"
 #include "graphics/TextureConverter.h"
-#include "lib/bits.h"
 #include "lib/debug.h"
 #include "lib/hash.h"
 #include "lib/path.h"
@@ -43,6 +42,7 @@
 
 #include <algorithm>
 #include <array>
+#include <bit>
 #include <boost/iterator/iterator_facade.hpp>
 #include <chrono>
 #include <filesystem>
@@ -498,7 +498,7 @@ public:
 			return;
 		}
 
-		if (!is_pow2(textureData.m_Width) || !is_pow2(textureData.m_Height))
+		if (!std::has_single_bit(textureData.m_Width) || !std::has_single_bit(textureData.m_Height))
 		{
 			LOGERROR("Texture should have width and height be power of two; \"%s\" %zux%zu",
 				texture->m_Properties.m_Path.string8(), textureData.m_Width, textureData.m_Height);

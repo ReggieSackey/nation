@@ -21,7 +21,6 @@
 
 #include "lib/alignment.h"
 #include "lib/allocators/shared_ptr.h"
-#include "lib/bits.h"
 #include "lib/debug.h"
 #include "lib/path.h"
 #include "lib/regex.h"
@@ -40,6 +39,7 @@
 #include "ps/XMB/XMBStorage.h"
 #include "ps/XML/Xeromyces.h"
 
+#include <bit>
 #include <cstring>
 #include <utility>
 
@@ -343,7 +343,7 @@ bool CTextureConverter::ConvertTexture(const CTexturePtr& texture, const VfsPath
 		return false;
 	}
 
-	if (!is_pow2(tex.m_Width) || !is_pow2(tex.m_Height))
+	if (!std::has_single_bit(tex.m_Width) || !std::has_single_bit(tex.m_Height))
 	{
 		LOGERROR("Texture to convert \"%s\" should have width and height be power of two: %zux%zu",
 			src.string8(), tex.m_Width, tex.m_Height);

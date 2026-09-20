@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Wildfire Games.
+/* Copyright (C) 2026 Wildfire Games.
  * This file is part of 0 A.D.
  *
  * 0 A.D. is free software: you can redistribute it and/or modify
@@ -23,7 +23,6 @@
 #include "graphics/TerrainTextureEntry.h"
 #include "lib/alignment.h"
 #include "lib/allocators/shared_ptr.h"
-#include "lib/bits.h"
 #include "lib/debug.h"
 #include "lib/file/vfs/vfs.h"
 #include "lib/file/vfs/vfs_util.h"
@@ -41,6 +40,7 @@
 #include "renderer/backend/Sampler.h"
 
 #include <algorithm>
+#include <bit>
 #include <cstdint>
 #include <utility>
 #include <vector>
@@ -232,7 +232,7 @@ CTerrainTextureManager::LoadAlphaMap(const VfsPath& alphaMapType)
 	//
 	const size_t tileWidth = 2 + base + 2;	// 2 pixel border (avoids bilinear filtering artifacts)
 	const size_t totalWidth = round_up_to_pow2(tileWidth * NUM_ALPHA_MAPS);
-	const size_t totalHeight = base; ENSURE(is_pow2(totalHeight));
+	const size_t totalHeight = base; ENSURE(std::has_single_bit(totalHeight));
 	std::shared_ptr<u8> data;
 	AllocateAligned(data, totalWidth * totalHeight, maxSectorSize);
 	// for each tile on row

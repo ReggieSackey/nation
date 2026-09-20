@@ -46,6 +46,7 @@
 #include "renderer/backend/vulkan/Utilities.h"
 
 #include <algorithm>
+#include <bit>
 #include <cstddef>
 #include <cstring>
 #include <iterator>
@@ -275,7 +276,7 @@ uint32_t CDeviceCommandContext::CUploadRing::ScheduleUpload(
 	const uint32_t alignment)
 {
 	ENSURE(data.size() > 0);
-	ENSURE(is_pow2(alignment));
+	ENSURE(std::has_single_bit(alignment));
 
 	m_BlockOffset = (m_BlockOffset + alignment - 1) & ~(alignment - 1);
 
