@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Wildfire Games.
+/* Copyright (C) 2026 Wildfire Games.
  * This file is part of 0 A.D.
  *
  * 0 A.D. is free software: you can redistribute it and/or modify
@@ -21,7 +21,6 @@
 
 #include "graphics/SkeletonAnimDef.h"
 #include "lib/debug.h"
-#include "lib/sysdep/arch/x86_x64/simd.h"
 #include "lib/sysdep/compiler.h"
 #include "maths/Vector2D.h"
 #include "ps/FileIo.h"
@@ -29,6 +28,7 @@
 
 #include <algorithm>
 #include <memory>
+#include <SDL_cpuinfo.h>
 #include <string>
 #include <utility>
 
@@ -533,7 +533,7 @@ CModelDefRPrivate* CModelDef::GetRenderData(const void* key) const
 void ModelDefActivateFastImpl()
 {
 #if COMPILER_HAS_SSE
-	if (HostHasSSE())
+	if (SDL_HasSSE())
 	{
 		CModelDef::SkinPointsAndNormals = SkinPointsAndNormalsSSE;
 		return;

@@ -1,4 +1,4 @@
-/* Copyright (C) 2025 Wildfire Games.
+/* Copyright (C) 2026 Wildfire Games.
  * This file is part of 0 A.D.
  *
  * 0 A.D. is free software: you can redistribute it and/or modify
@@ -20,12 +20,12 @@
 #include "Color.h"
 
 #include "graphics/SColor.h"
-#include "lib/sysdep/arch/x86_x64/simd.h"
 #include "lib/sysdep/compiler.h"
 #include "maths/MathUtil.h"
 #include "ps/CLogger.h"
 #include "ps/CStr.h"
 
+#include <SDL_cpuinfo.h>
 #include <sstream>
 
 #if COMPILER_HAS_SSE
@@ -81,7 +81,7 @@ static SColor4ub ConvertRGBColorTo4ubSSE(const RGBColor& src)
 void ColorActivateFastImpl()
 {
 #if COMPILER_HAS_SSE
-	if (HostHasSSE())
+	if (SDL_HasSSE())
 	{
 		ConvertRGBColorTo4ub = ConvertRGBColorTo4ubSSE;
 		return;
