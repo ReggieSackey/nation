@@ -126,28 +126,27 @@ class CParticleVarUniform : public IParticleVar
 {
 public:
 	CParticleVarUniform(float min, float max) :
-		m_Min(min), m_Max(max)
+		m_Distribution{min, max}
 	{
 	}
 
 	float Compute(const CParticleEmitterType& type, const CParticleEmitter&) override
 	{
-		return std::uniform_real_distribution<float>(m_Min, m_Max)(type.m_Manager.m_RNG);
+		return m_Distribution(type.m_Manager.m_RNG);
 	}
 
 	float Min(const CParticleEmitterType&) override
 	{
-		return m_Min;
+		return m_Distribution.a();
 	}
 
 	float Max(const CParticleEmitterType&) override
 	{
-		return m_Max;
+		return m_Distribution.b();
 	}
 
 private:
-	float m_Min;
-	float m_Max;
+	std::uniform_real_distribution<float> m_Distribution;
 };
 
 /**
