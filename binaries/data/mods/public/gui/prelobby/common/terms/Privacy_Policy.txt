@@ -5,7 +5,7 @@
 [font="sans-bold-16"]Personal data processed by Wildfire Games and purposes of processing:[/font]
 [font="sans-bold-14"]1. Player name[/font]
 The player is identified by a name that the player chooses at the time of registration.
-Having a unique player name is a requirement to gain a rating, to allow players, moderators and developers to identify players they met before, communicate about the game, coordinate matches and enables moderators to enforce the Terms of Use.
+Having a unique player name is a requirement to gain a rating, to allow players, moderators and developers to identify players they met before, communicate about the game, coordinate matches and enables moderators to enforce the Terms of Service.
 The player name serves as a pseudonym. The identity (natural person) of players is not known to Wildfire Games, except where personally identifiable information (such as the real name) was disclosed on the Lobby Chat, other services of Wildfire Games or elsewhere in the public, or when the IP address is used to bring criminal proceedings.
 
 [font="sans-bold-14"]2. Password[/font]
@@ -15,7 +15,7 @@ Wildfire Games only receives an encrypted version of the password, so that the p
 [font="sans-bold-14"]3. IP address[/font]
 When a player hosts a match in the Multiplayer Lobby, the IP address of that player is sent to every player who is online, so that other players can join that game.
 Wildfire Games stores players IP addresses and may infer publicly available geolocation and internet service provider data (for example "geolite2") from the IP address in order to:
- 1. Enforce the Terms of Use where persons create multiple accounts without Wildfire Games permission, in particular after having been banned from the service for violating the Terms of Use.
+ 1. Enforce the Terms of Service where persons create multiple accounts without Wildfire Games permission, in particular after having been banned from the service for violating the Terms of Service.
     IP addresses will not be saved for longer than three years for this purpose.
  2. Make it possible to bring criminal proceedings in case of a cyberattack (EU Court of Justice Press Release No 112/16).
 Wildfire Games will not use the IP address logs for any other purpose, in particular not for marketing, not otherwise disclose IP addresses to the public or third parties and erase IP addresses if they are not relevant for the stated purposes anymore.
@@ -26,7 +26,7 @@ Which players are currently connected to the Multiplayer Lobby and which match t
 [font="sans-bold-14"]5. Chat messages[/font]
 The Multiplayer Lobby features a public chat room that enables players to discuss the game and organize multiplayer matches.
 Wildfire Games stores a log of the public chat messages and online presence to meet the following purposes:
- 1. Moderators may screen chat messages to enforce the Terms of Use.
+ 1. Moderators may screen chat messages to enforce the Terms of Service.
  2. Wildfire Games may address or resolve bug reports, balancing issues or feature proposals indicated by players in the chat room.
  3. Wildfire Games may assess trends amongst discussed topics, the growth of the active community and use these indicators as feedback to assess, improve and direct development of the game and the service.
 
@@ -35,7 +35,7 @@ Players can gain a rating on the Multiplayer Lobby that reflects their skill at 
 The rating of all players is published by Wildfire Games and allows players to focus on competitive or balanced matchmaking if they wish to.
 During a rated match, players send data relating to the game (such as the number of units trained, resources gathered and the winner of the match) to Wildfire Games, so that Wildfire Games can adapt the players ratings based on these statistics.
 Wildfire Games stores match statistics to:
- 1. Verify the accuracy of the rating score and identify and enforce Terms of Use violations relating to that.
+ 1. Verify the accuracy of the rating score and identify and enforce Terms of Service violations relating to that.
  2. Compute and publish community statistics to improve the game and the service, for example to improve the balancing of the game or to make certain aspects of the game more appealing.
 
 [font="sans-bold-14"]Security of processing:[/font]
@@ -47,7 +47,7 @@ Wildfire Games reserves the right to delete any service data (including personal
 
 [font="sans-bold-16"]Legal basis for the processing:[/font]
 1. The processing is necessary for the performance of the service defined in the terms (GDPR 6.1.b).
-2. Wildfire Games has legitimate interests in providing the Multiplayer Lobby, in the development and improvement of 0 A.D. and the Multiplayer Lobby, in enforcing the Terms of Use and in the protection against cyberattacks (GDPR 6.1.f).
+2. Wildfire Games has legitimate interests in providing the Multiplayer Lobby, in the development and improvement of 0 A.D. and the Multiplayer Lobby, in enforcing the Terms of Service and in the protection against cyberattacks (GDPR 6.1.f).
 3. Wildfire Games does not process any further data for the Multiplayer Lobby and does not ask for consent to process data (GDPR 6.1.a, GDPR 7, GDPR 8, GDPR 13.2.c).
 
 [font="sans-bold-16"]User rights:[/font]
