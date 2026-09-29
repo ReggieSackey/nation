@@ -99,25 +99,25 @@ std::filesystem::perms ModeTToPerms(mode_t mode)
 	using std::filesystem::perms;
 	perms perm{perms::none};
 
-	if (mode | S_IRUSR)
+	if (mode & S_IRUSR)
 		perm |= perms::owner_read;
-	if (mode | S_IWUSR)
+	if (mode & S_IWUSR)
 		perm |= perms::owner_write;
-	if (mode | S_IXUSR)
+	if (mode & S_IXUSR)
 		perm |= perms::owner_exec;
 
-	if (mode | S_IRGRP)
+	if (mode & S_IRGRP)
 		perm |= perms::group_read;
-	if (mode | S_IWGRP)
+	if (mode & S_IWGRP)
 		perm |= perms::group_write;
-	if (mode | S_IXGRP)
+	if (mode & S_IXGRP)
 		perm |= perms::group_exec;
 
-	if (mode | S_IROTH)
+	if (mode & S_IROTH)
 		perm |= perms::others_read;
-	if (mode | S_IWOTH)
+	if (mode & S_IWOTH)
 		perm |= perms::others_write;
-	if (mode | S_IXOTH)
+	if (mode & S_IXOTH)
 		perm |= perms::others_exec;
 
 	return perm;
