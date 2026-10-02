@@ -1674,7 +1674,7 @@ CStrW CNetServerWorker::DeduplicatePlayerName(const CStrW& original)
 		if (unique)
 			return name;
 
-		name = fmt::format(L"{}({})", original, id++);
+		name = fmt::format(L"{} ({})", original, id++);
 	}
 }
 
