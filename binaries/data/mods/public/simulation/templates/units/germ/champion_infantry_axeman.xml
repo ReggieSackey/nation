@@ -13,7 +13,7 @@
     <Civ>germ</Civ>
     <GenericName>Cimbri Raider</GenericName>
     <SpecificName>Slōgijanōz</SpecificName>
-    <VisibleClasses datatype="tokens">Guerilla</VisibleClasses>
+    <VisibleClasses datatype="tokens">Guerrilla</VisibleClasses>
     <Icon>units/germ/champion_infantry_axeman.png</Icon>
     <Requirements>
       <Techs datatype="tokens">
