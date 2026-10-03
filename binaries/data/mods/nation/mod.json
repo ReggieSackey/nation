@@ -1,0 +1,7 @@
+{
+	"name": "nation",
+	"version": "0.1.0",
+	"label": "Nation",
+	"description": "A post-colonial African nation-building strategy game built on Pyrogenesis.",
+	"dependencies": ["0ad=0.29.0"]
+}

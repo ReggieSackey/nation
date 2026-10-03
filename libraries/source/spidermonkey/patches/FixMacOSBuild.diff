@@ -31,16 +31,18 @@ diff --git a/build/moz.configure/toolchain.configure b/build/moz.configure/toolc
          cmd_base = c_compiler.wrapper + [c_compiler.compiler] + c_compiler.flags
  
          def try_linker(linker):
-@@ -1906,7 +1906,16 @@ def select_linker_tmpl(host_or_target):
+@@ -1906,7 +1906,18 @@ def select_linker_tmpl(host_or_target):
                  kind = "ld64"
  
              elif retcode != 0:
 -                return None
-+                # macOS 15 fallback: try `-Wl,-v` if --version failed
++                # macOS fallback: `-Wl,--version` is not an ld64 option. `-Wl,-v`
++                # prints the linker banner, then fails to link because there is
++                # no input file, so the exit status is nonzero on newer Xcode.
 +                if target.kernel == "Darwin":
 +                    fallback_cmd = cmd_base + linker_flag + ["-Wl,-v"]
 +                    retcode2, stdout2, stderr2 = get_cmd_output(*fallback_cmd, env=env)
-+                    if retcode2 == 0 and "@(#)PROGRAM:ld" in stderr2:
++                    if "@(#)PROGRAM:ld" in stderr2 or "@(#)PROGRAM:ld" in stdout2:
 +                        kind = "ld64"
 +                    else:
 +                        return None
