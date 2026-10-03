@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<Scenario version="7">
+	<Terrain patches="8" texture="african_savanna_grass_dirt_01" priority="0" height="16384"/>
+	<Environment>
+		<SkySet>default</SkySet>
+		<SunColor r="0.74902" g="0.74902" b="0.74902"/>
+		<SunElevation angle="0.785398"/>
+		<SunRotation angle="-0.785396"/>
+		<AmbientColor r="0.501961" g="0.501961" b="0.501961"/>
+		<Fog>
+			<FogFactor>0</FogFactor>
+			<FogThickness>0.5</FogThickness>
+			<FogColor r="0.8" g="0.8" b="0.894118"/>
+		</Fog>
+		<Water>
+			<WaterBody>
+				<Type>ocean</Type>
+				<Color r="0.294118" g="0.34902" b="0.694118"/>
+				<Tint r="0.27451" g="0.294118" b="0.584314"/>
+				<Height>5</Height>
+				<Waviness>4</Waviness>
+				<Murkiness>0.45</Murkiness>
+				<WindAngle>0</WindAngle>
+			</WaterBody>
+		</Water>
+		<Postproc>
+			<Brightness>0</Brightness>
+			<Contrast>1</Contrast>
+			<Saturation>0.99</Saturation>
+			<Bloom>0.1999</Bloom>
+			<PostEffect>default</PostEffect>
+		</Postproc>
+	</Environment>
+	<Camera>
+		<Position x="256" y="340" z="70"/>
+		<Rotation angle="0"/>
+		<Declination angle="0.610865"/>
+	</Camera>
+	<ScriptSettings><![CDATA[
+{
+  "CircularMap": false,
+  "Description": "A minimal development map for the Nation vertical slice.",
+  "Keywords": [],
+  "LockTeams": false,
+  "Name": "Nation 1961 Sandbox",
+  "PlayerData": [
+    null,
+    {
+      "Civ": "athen",
+      "Name": "Nation"
+    },
+    {
+      "Civ": "spart",
+      "Name": "Neighbor"
+    }
+  ],
+  "RevealMap": true,
+  "VictoryConditions": [
+    "conquest"
+  ]
+}
+]]></ScriptSettings>
+	<Entities>
+		<Entity uid="10">
+			<Template>structures/athen/civil_centre</Template>
+			<Player>1</Player>
+			<Position x="140" z="380"/>
+			<Orientation y="2.35621"/>
+		</Entity>
+		<Entity uid="11">
+			<Template>units/athen/infantry_spearman_b</Template>
+			<Player>1</Player>
+			<Position x="118" z="356"/>
+			<Orientation y="0.4"/>
+		</Entity>
+		<Entity uid="12">
+			<Template>units/athen/infantry_spearman_b</Template>
+			<Player>1</Player>
+			<Position x="148" z="348"/>
+			<Orientation y="0.2"/>
+		</Entity>
+		<Entity uid="13">
+			<Template>units/athen/infantry_spearman_b</Template>
+			<Player>1</Player>
+			<Position x="168" z="366"/>
+			<Orientation y="0.8"/>
+		</Entity>
+		<Entity uid="20">
+			<Template>structures/spart/civil_centre</Template>
+			<Player>2</Player>
+			<Position x="380" z="140"/>
+			<Orientation y="-0.785398"/>
+		</Entity>
+		<Entity uid="21">
+			<Template>units/spart/infantry_spearman_b</Template>
+			<Player>2</Player>
+			<Position x="358" z="162"/>
+			<Orientation y="2.4"/>
+		</Entity>
+		<Entity uid="22">
+			<Template>units/spart/infantry_spearman_b</Template>
+			<Player>2</Player>
+			<Position x="388" z="168"/>
+			<Orientation y="2.8"/>
+		</Entity>
+		<Entity uid="23">
+			<Template>units/spart/infantry_spearman_b</Template>
+			<Player>2</Player>
+			<Position x="402" z="132"/>
+			<Orientation y="2.2"/>
+		</Entity>
+	</Entities>
+	<Paths/>
+</Scenario>
