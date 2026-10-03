@@ -56,6 +56,26 @@
     }
   ],
   "RevealMap": true,
+  "Sovereignty": [
+    {
+      "owner": 1,
+      "points": [
+        { "x": 0, "z": 0 },
+        { "x": 256, "z": 0 },
+        { "x": 256, "z": 512 },
+        { "x": 0, "z": 512 }
+      ]
+    },
+    {
+      "owner": 2,
+      "points": [
+        { "x": 256, "z": 0 },
+        { "x": 512, "z": 0 },
+        { "x": 512, "z": 512 },
+        { "x": 256, "z": 512 }
+      ]
+    }
+  ],
   "VictoryConditions": [
     "conquest"
   ]

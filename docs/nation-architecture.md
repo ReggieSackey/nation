@@ -1,6 +1,6 @@
 # Nation architecture
 
-This document records how this Pyrogenesis tree is structured and where Nation code should go. It describes the repository as inspected on branch `nation-dev`. It does not define gameplay systems.
+This document records how this Pyrogenesis tree is structured and where Nation code should go. It describes the repository as inspected on branch `nation-dev`. A gameplay system is described here only after it exists in the tree.
 
 ## Upstream architecture
 
@@ -177,7 +177,13 @@ An engine change is justified only by a limitation the simulation and mod APIs c
 
 These are constraints on future design. They are not systems to build now.
 
-**Territory.** `CCmpTerritoryManager` stores one player id per tile in five bits (`TERRITORY_PLAYER_MASK` is `0x1F`), plus connected and blinking flags. Connected means the tile reaches a root influence entity such as a civic centre. That is building-influence territory for placement and borders drawn by the engine. Sovereignty, state control, and occupation need their own data. They can start as JavaScript state, queried by gameplay code, without writing into that grid. Painting a legal border with the influence renderer, or teaching the pathfinder that a border is a political fact, would be an engine question later.
+**Territory.** `CCmpTerritoryManager` stores one player id per tile in five bits (`TERRITORY_PLAYER_MASK` is `0x1F`), plus connected and blinking flags. Connected means the tile reaches a root influence entity such as a civic centre. That is building-influence territory for placement and borders drawn by the engine. State control and occupation still need their own data. Painting a legal border with the influence renderer, or teaching the pathfinder that a border is a political fact, would be an engine question later.
+
+### Sovereignty
+
+`Sovereignty` is a Nation system component. It answers which player legally owns a world position. It does not read or write `CCmpTerritoryManager`.
+
+V1 regions are static polygons in world coordinates, stored on the scenario as `ScriptSettings.Sovereignty`. A gamesettings attribute copies that array into `InitAttributes.settings`. On `InitGame` the component stores it. `GetSovereignOwner({x, z})` returns the player id of the first containing region, or `INVALID_PLAYER` (-1) when the point is unclaimed. A point on a polygon edge is inside that polygon. The loaded regions are ordinary component state, so a save or replay keeps them. Regions do not change during a match. Border crossing, state control, and occupation can query this owner later without becoming it.
 
 **Economy.** Player resources are already quantities. A cocoa JSON resource can be added under `simulation/data/resources/` when that slice starts. Transport can be a quantity moving between entities, with a truck as the visible agent. The loop to prove is settlement production, a road, an export node, foreign exchange, and a treasury. `Market` and `Barter` are ancient trade. Use them only if a slice genuinely fits; otherwise add a small Nation component.
 
