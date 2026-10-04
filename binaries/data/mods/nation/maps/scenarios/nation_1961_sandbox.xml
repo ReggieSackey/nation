@@ -49,7 +49,10 @@
     {
       "Civ": "athen",
       "Name": "Nation",
-      "Diplomacy": [-1, 1, 0]
+      "Diplomacy": [-1, 1, 0],
+      "Resources": {
+        "food": 1000
+      }
     },
     {
       "Civ": "spart",
@@ -190,6 +193,18 @@
 			<Player>1</Player>
 			<Position x="80" z="445"/>
 			<Orientation y="-0.380506377"/>
+		</Entity>
+		<Entity uid="50">
+			<Template>structures/nation/grain_field</Template>
+			<Player>1</Player>
+			<Position x="230" z="60"/>
+			<Orientation y="0"/>
+		</Entity>
+		<Entity uid="51">
+			<Template>units/nation/farmer</Template>
+			<Player>1</Player>
+			<Position x="214" z="60"/>
+			<Orientation y="0"/>
 		</Entity>
 	</Entities>
 	<Paths/>

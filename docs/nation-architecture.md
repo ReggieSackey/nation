@@ -277,13 +277,44 @@ Construction does not call `ChangeStateIntegration`. Western Village stays at 20
 
 Construction spends treasury only. It does not consume food, wood, stone, or metal. That treasury-only cost is prototype scaffolding until Nation's physical resource economy is integrated. Construction is instantaneous. There is no crew, no duration, and no material bill.
 
-**Economy.** Player resources remain upstream commodity quantities. Government cash is `GovernmentFinance`. Cocoa here is aggregate settlement output, not a gatherable resource type. Transport can be a quantity moving between entities, with a truck as the visible agent, when that slice starts. `Market` and `Barter` are ancient trade. Use them only if a slice genuinely fits.
+### Physical resources, commodities, and the treasury
+
+Nation keeps three separate stocks.
+
+```text
+PHYSICAL NATIONAL RESOURCES
+food
+wood
+stone
+metal
+
+TRADE COMMODITIES
+cocoa
+future coffee/cotton/etc.
+
+GOVERNMENT FINANCE
+treasury
+```
+
+Food, wood, stone, and metal are the upstream `Player` resource counts. `Player.Init` starts each of them at 300. A scenario `PlayerData.Resources` entry replaces only the named counts. The 1961 sandbox sets Player 1 food to 1000 and leaves wood, stone, and metal at 300. Player 2 is unchanged, so those four counts stay 300. `GovernmentFinance` does not read them. Cocoa is not one of them.
+
+The session resource panel already shows `resourceCounts.food`. There is no Nation food panel.
+
+### Food production
+
+A field is a `ResourceSupply` of `food.grain`. The public field template supplies an infinite amount, so the crop does not run out. A worker with `ResourceGatherer` takes one unit per gather tick into a carry capacity. At a `ResourceDropsite` that accepts food, `CommitResources` calls `Player.AddResources` for the worker's owner. The stockpile does not change until that deposit. Destroying the field or stopping the worker ends the gathering. Population does not remove food. The treasury does not receive it. `CommodityProducer` is not involved.
+
+The 1961 sandbox places one grain field, entity 50, at (230, 60), owned by Player 1, beside Southern Village. The actor is the upstream tropical field. The resource is grain, used here as the first staple. One farmer, entity 51, stands at (214, 60). The template is the Athenian woman citizen, so the gather rate for `food.grain` is 0.5 per second and the food capacity is 10. `InitialGather` orders that farmer to gather entity 50 on the first simulation turn. The player can still select the farmer and issue the normal gather command. Southern Village accepts food deposits and is not shared. The Athenian civic centre also accepts food, and it is farther away, so the farmer returns to the village.
+
+A full load is 10 food and takes 20 seconds of gathering, plus the walk to the field and back to the village. In the sandbox the stockpile is still 1000 at 21 seconds, with 10 food in hand, and 1010 once that load is deposited. Destroying the field stops new gathering. Food already in hand is still deposited. Aggregate settlement population stays 33500 and does not consume food. That consumption is the next layer.
+
+**Economy.** Government cash is `GovernmentFinance`. Cocoa is aggregate settlement output, sold through `CommodityExportManager`. It is not a gatherable `Player` resource. Transport can be a quantity moving between entities, with a truck as the visible agent, when that slice starts. `Market` and `Barter` are ancient trade. Use them only if a slice genuinely fits.
 
 **Diplomacy.** `Diplomacy` stores ally, enemy, and neutral stances on each player. That stance is not permission to enter sovereign land. `MilitaryAccess` is a separate directional grant, and a missing grant is denial, including between neutrals. The 1961 sandbox starts Nation and Neighbor neutral toward each other and grants military access in neither direction, so a crossing is still unauthorized. Trade rights, transit rights, customs, investment, and loans are further agreements. Crossing a tile can remain physically legal in the pathfinder while a Nation component records it as unauthorized.
 
 **Foreign powers.** A power with no map presence can be a player entity with no units, or a small system component. The first slice needs one power and one loan. It does not need the United States, the USSR, Britain, France, and China as content.
 
-**Population.** `Population` in upstream code is a housing bonus. Nation population, employment, income, food, healthcare, education, services, prosperity, and unrest belong on settlement data. Visible civilians are representative entities, not one entity per person.
+**Population.** `Population` in upstream code is a housing bonus. Nation population is aggregate settlement data. It does not consume Player food yet. Employment, healthcare, education, services, prosperity, and unrest are later settlement concerns. Visible civilians are representative entities, not one entity per person.
 
 **War.** Keep `Attack`, `Health`, `UnitAI`, and the pathfinder. Feed them from the same roads, stocks, and treasury used in peacetime. Occupied land stays a different fact from sovereign land.
 

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Entity parent="units/athen/support_female_citizen">
+  <Identity>
+    <GenericName>Farmer</GenericName>
+    <SpecificName>Farmer</SpecificName>
+  </Identity>
+  <InitialGather>
+    <Target>50</Target>
+  </InitialGather>
+</Entity>

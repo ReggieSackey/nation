@@ -13,4 +13,8 @@
     <ProductionPerTick>100</ProductionPerTick>
     <Stock>0</Stock>
   </CommodityProducer>
+  <ResourceDropsite>
+    <Types>food</Types>
+    <Sharable>false</Sharable>
+  </ResourceDropsite>
 </Entity>
