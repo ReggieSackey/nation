@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <object>
-	<object name="nationFoodStatus" type="text" style="resourceText" size="8 38 980 58" z="40"/>
+	<object name="nationFoodStatus" type="text" style="resourceText" size="8 38 1020 58" z="40"/>
 	<object name="nationFoodImportLabel" type="text" style="resourceText" size="8 58 420 148" z="40"/>
 	<object name="nationFoodImport" type="button" style="StoneButton" size="8 150 168 178" z="40" tooltip_style="sessionToolTip">
 		<translatableAttribute id="caption">Import food</translatableAttribute>

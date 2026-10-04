@@ -107,6 +107,9 @@ SettlementDiscontent.prototype.OnGlobalFoodConsumptionCompleted = function()
 				cmpSettlement.ChangeDiscontent(delta);
 		}
 	}
+
+	if (Engine.BroadcastMessage)
+		Engine.BroadcastMessage(MT_SettlementDiscontentCompleted, {});
 };
 
 /**
@@ -188,6 +191,8 @@ function AttachDiscontentToSimulationState()
 		wrapped.nationFoodWrapped = true;
 	if (original.nationFoodImportWrapped)
 		wrapped.nationFoodImportWrapped = true;
+	if (original.nationRebellionWrapped)
+		wrapped.nationRebellionWrapped = true;
 	GuiInterface.prototype.GetSimulationState = wrapped;
 }
 
@@ -218,6 +223,8 @@ function AttachSettlementDiscontentToEntityState()
 	wrapped.nationSettlementWrapped = true;
 	if (original.nationRepairWrapped)
 		wrapped.nationRepairWrapped = true;
+	if (original.nationRebellionWrapped)
+		wrapped.nationRebellionWrapped = true;
 	GuiInterface.prototype.GetEntityState = wrapped;
 }
 

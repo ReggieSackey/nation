@@ -22,12 +22,20 @@ function updateNationSettlementStatus()
 		return;
 	}
 
+	const rebellion = state.nationRebellion;
+	let rebellionLine = "Rebellion: None";
+	if (rebellion && rebellion.active)
+		rebellionLine = "Rebellion: Active";
+	else if (rebellion && rebellion.extreme)
+		rebellionLine = "Rebellion risk: Extreme";
+
 	label.hidden = false;
 	label.caption =
 		settlement.name + "\n" +
 		"Population: " + nationSettlementAmount(settlement.population) + "\n" +
 		"State integration: " + settlement.integration + "\n" +
-		"Discontent: " + settlement.discontent;
+		"Discontent: " + settlement.discontent + "\n" +
+		rebellionLine;
 }
 
 registerSimulationUpdateHandler(updateNationSettlementStatus);

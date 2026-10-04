@@ -375,7 +375,31 @@ Discontent is an integer from 0 to 100 on each `NationSettlement`. The sandbox s
 
 Food pressure is `round(shortageBps * 10 / 10000)`, so a full shortage is 10 points and about half a shortage is 5. Integration vulnerability is `floor((100 - stateIntegration) / 20)`, read live. It is added only when food pressure is greater than 0. A fed settlement with low integration does not become discontented. A full shortage therefore adds 10 at the capital, whose integration is 90, and 14 at Western Village, whose integration is 20. When the latest shortage is 0, each settlement loses 5, clamped at 0. `cumulativeUnmet` is not used. The score is intensity, not a larger number for a larger settlement.
 
-Roads change this only by changing integration. A destroyed road does not add discontent by itself. Discontent does not lower integration, treasury, cocoa, farming, or imports. `FoodImportManager` does not write it. An import changes Player food. The next consumption interval clears the shortage. That same completion then starts the recovery of 5. Nothing spawns at 100. A later rebellion system will read this state. The session line shows the derived national discontent. Selecting one settlement shows that settlement's population, integration, and discontent from `GetEntityState`. The GUI does not calculate either number.
+Roads change this only by changing integration. A destroyed road does not add discontent by itself. Discontent does not lower integration, treasury, cocoa, farming, or imports. `FoodImportManager` does not write it. An import changes Player food. The next consumption interval clears the shortage. That same completion then starts the recovery of 5. Discontent does not spawn units and does not damage roads. After the settlements have been updated, `SettlementDiscontent` broadcasts `SettlementDiscontentCompleted`. The session line shows the derived national discontent and the count of active rebellions. Selecting one settlement shows that settlement's population, integration, discontent, and rebellion status from `GetEntityState`. The GUI does not calculate those numbers.
+
+### Physical rebellion
+
+```text
+food shortage
+→ settlement discontent
+→ sustained extreme discontent
+→ physical rebel entities
+→ ordinary RTS combat
+→ physical infrastructure damage
+→ existing connectivity and economic consequences
+```
+
+`RebellionManager` listens for `SettlementDiscontentCompleted`. It does not read the food stockpile and it does not calculate discontent. A settlement is in an extreme interval when its discontent is at least 80. Two consecutive completed evaluations are required. Dropping below 80 clears that count before a group exists. The count, the active flag, and the associated entity ids are serialized.
+
+The first qualifying pair spawns exactly three `units/nation/rebel_fighter` entities. They inherit an upstream spearman, so they move and fight through `UnitAI`, `Attack`, and `Health`. Placeholder ancient visuals are intentional. The template removes `ConquestCritical` and sets population cost to 0, so destroying the group does not defeat the rebel player and does not change aggregate settlement population. The three entities are representative agents, not one-to-one members of the settlement population.
+
+Spawn positions are fixed offsets from the settlement: `(x + 8, z)`, `(x - 6, z + 6)`, and `(x - 6, z - 6)`. The opposed government is `GetSovereignOwner`. Entity `Ownership` is not consulted. The sandbox rebel slot is player 3. Nation's diplomacy toward that slot is enemy, and the rebel slot's diplomacy toward Nation is enemy. Neighbor stays neutral with both. Hostility is `Diplomacy`, not `TradeAccess` or `DiplomaticAccess`. V1 has one rebel player. A settlement whose sovereign is the neighbor still records that neighbor as the opponent, and its fighters are still owned by player 3. They are not given a separate hostility toward the neighbor.
+
+One settlement has one active V1 group. Further extreme intervals do not spawn another group while any associated rebel is alive. When the last associated rebel is dead, or no longer owned by the rebel player, the group becomes inactive and the extreme count returns to 0. That same evaluation does not count as a new extreme interval. Two later qualifying evaluations can create another group. Killing rebels does not reduce the settlement's discontent. If rebels already exist and discontent later falls below 80, they stay in the world until normal gameplay removes them.
+
+Rebellion does not directly modify economic or state variables. Its initial consequences emerge from physical entities acting on the RTS world. A rebel attack uses the ordinary damage path: `Attack` to `Health.TakeDamage`, then `HealthChanged`, then `InfrastructureLink` copies hitpoints into condition. Rebellion code does not call `SetCondition`. Nation roads already inherit `Resistance` and `Health` from `template_structure`, with maximum hitpoints 100 and `DeathType` remain, so an enemy melee unit can damage them without a special attack. At condition 0 the existing graph drops that physical edge. Connectivity, transport efficiency, cocoa exports, and repair then behave as they already do. The existing repair action is what restores a ruined road.
+
+The 1961 sandbox builds no rebel base, rebel economy, or rebel territory. Rebels do not change legal sovereignty.
 
 **Economy.** Government cash is `GovernmentFinance`. Cocoa is aggregate settlement output, sold through `CommodityExportManager`. It is not a gatherable `Player` resource. Transport can be a quantity moving between entities, with a truck as the visible agent, when that slice starts. `Market` and `Barter` are ancient trade. Use them only if a slice genuinely fits.
 

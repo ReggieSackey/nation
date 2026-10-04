@@ -382,6 +382,8 @@ function AttachInfrastructureRepairToEntityState()
 	wrapped.nationRepairWrapped = true;
 	if (original.nationSettlementWrapped)
 		wrapped.nationSettlementWrapped = true;
+	if (original.nationRebellionWrapped)
+		wrapped.nationRebellionWrapped = true;
 	GuiInterface.prototype.GetEntityState = wrapped;
 }
 
