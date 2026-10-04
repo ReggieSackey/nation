@@ -23,11 +23,13 @@ function updateNationFoodStatus()
 
 	const seconds = status.interval / 1000;
 	const shortage = Math.round(status.shortageBps / 100);
+	const discontent = Number.isInteger(state.nationDiscontent) ? state.nationDiscontent : 0;
 	label.hidden = false;
 	label.caption =
 		"Population: " + nationFoodAmount(status.population) +
 		"    Food demand: " + nationFoodAmount(status.required) + " / " + seconds + "s" +
-		"    Food shortage: " + shortage + "%";
+		"    Food shortage: " + shortage + "%" +
+		"    National discontent: " + discontent + "%";
 }
 
 registerSimulationUpdateHandler(updateNationFoodStatus);

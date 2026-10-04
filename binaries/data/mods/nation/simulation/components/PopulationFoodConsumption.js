@@ -195,6 +195,10 @@ PopulationFoodConsumption.prototype.ConsumeFood = function()
 			"cumulativeUnmet": previous + unmet
 		};
 	}
+
+	// After every status write, so a listener sees this interval and not the previous one.
+	if (Engine.BroadcastMessage)
+		Engine.BroadcastMessage(MT_FoodConsumptionCompleted, {});
 };
 
 Engine.RegisterSystemComponentType(IID_PopulationFoodConsumption, "PopulationFoodConsumption", PopulationFoodConsumption);
@@ -229,6 +233,8 @@ function AttachPopulationFoodToSimulationState()
 	wrapped.nationFoodWrapped = true;
 	if (original.nationFoodImportWrapped)
 		wrapped.nationFoodImportWrapped = true;
+	if (original.nationDiscontentWrapped)
+		wrapped.nationDiscontentWrapped = true;
 	GuiInterface.prototype.GetSimulationState = wrapped;
 }
 

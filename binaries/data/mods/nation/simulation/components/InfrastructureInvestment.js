@@ -380,6 +380,8 @@ function AttachInfrastructureRepairToEntityState()
 		return state;
 	};
 	wrapped.nationRepairWrapped = true;
+	if (original.nationSettlementWrapped)
+		wrapped.nationSettlementWrapped = true;
 	GuiInterface.prototype.GetEntityState = wrapped;
 }
 

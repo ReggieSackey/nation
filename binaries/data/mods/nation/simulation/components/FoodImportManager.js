@@ -255,6 +255,8 @@ function AttachFoodImportToSimulationState()
 	wrapped.nationFoodImportWrapped = true;
 	if (original.nationFoodWrapped)
 		wrapped.nationFoodWrapped = true;
+	if (original.nationDiscontentWrapped)
+		wrapped.nationDiscontentWrapped = true;
 	GuiInterface.prototype.GetSimulationState = wrapped;
 }
 

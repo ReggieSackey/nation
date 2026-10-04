@@ -47,12 +47,18 @@ TS_ASSERT_EQUALS(capital.GetPopulation(), 18000);
 TS_ASSERT_EQUALS(capital.GetStateIntegration(), 90);
 TS_ASSERT_EQUALS(capital.GetIsCapital(), true);
 TS_ASSERT_EQUALS(capital.GetSovereignOwner(), 1);
+TS_ASSERT_EQUALS(capital.GetDiscontent(), 0);
+TS_ASSERT_EQUALS(capital.ChangeDiscontent(10), 10);
+TS_ASSERT_EQUALS(capital.SetDiscontent(150), 100);
+TS_ASSERT_EQUALS(capital.ChangeDiscontent(-1000), 0);
+TS_ASSERT_EQUALS(capital.SetDiscontent(42), 42);
 
 const restored = SerializationCycle(capital);
 TS_ASSERT_EQUALS(restored.GetName(), "Capital");
 TS_ASSERT_EQUALS(restored.GetPopulation(), 18000);
 TS_ASSERT_EQUALS(restored.GetStateIntegration(), 90);
 TS_ASSERT_EQUALS(restored.GetIsCapital(), true);
+TS_ASSERT_EQUALS(restored.GetDiscontent(), 42);
 
 g_Errors.length = 0;
 const negative = settlement(11, "Bad", "-300", "10", 10, 10, 1);

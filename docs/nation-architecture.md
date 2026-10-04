@@ -355,6 +355,28 @@ Those steps meet only through the treasury and the Player food stockpile. `Commo
 
 Food imports currently abstract international transport and seller inventory. Trade permission and treasury are sufficient. Physical international logistics will be added later.
 
+### Settlement discontent
+
+```text
+FOOD SHORTAGE
+      ↓
+national food pressure
+      ↓
+each sovereign settlement
+      ↓
+state integration modifies vulnerability
+      ↓
+settlement discontent
+```
+
+Discontent is an integer from 0 to 100 on each `NationSettlement`. The sandbox starts every settlement at 0. `SettlementDiscontent` does not keep a second national total. `GetNationalDiscontent` is the population-weighted mean, rounded, and is 0 when a sovereign has no settlement population.
+
+`PopulationFoodConsumption` broadcasts `FoodConsumptionCompleted` after it has stored the interval. `SettlementDiscontent` listens and reads `GetFoodStatus`. There is no second timer, so the evaluation cannot run before that interval or twice for one interval. A loaded game keeps the settlement number and the existing food timer. The listener is the component method, not another scheduled callback.
+
+Food pressure is `round(shortageBps * 10 / 10000)`, so a full shortage is 10 points and about half a shortage is 5. Integration vulnerability is `floor((100 - stateIntegration) / 20)`, read live. It is added only when food pressure is greater than 0. A fed settlement with low integration does not become discontented. A full shortage therefore adds 10 at the capital, whose integration is 90, and 14 at Western Village, whose integration is 20. When the latest shortage is 0, each settlement loses 5, clamped at 0. `cumulativeUnmet` is not used. The score is intensity, not a larger number for a larger settlement.
+
+Roads change this only by changing integration. A destroyed road does not add discontent by itself. Discontent does not lower integration, treasury, cocoa, farming, or imports. `FoodImportManager` does not write it. An import changes Player food. The next consumption interval clears the shortage. That same completion then starts the recovery of 5. Nothing spawns at 100. A later rebellion system will read this state. The session line shows the derived national discontent. Selecting one settlement shows that settlement's population, integration, and discontent from `GetEntityState`. The GUI does not calculate either number.
+
 **Economy.** Government cash is `GovernmentFinance`. Cocoa is aggregate settlement output, sold through `CommodityExportManager`. It is not a gatherable `Player` resource. Transport can be a quantity moving between entities, with a truck as the visible agent, when that slice starts. `Market` and `Barter` are ancient trade. Use them only if a slice genuinely fits.
 
 **Diplomacy.** `Diplomacy` stores ally, enemy, and neutral stances on each player. That stance is not permission to enter sovereign land, and it is not permission to trade. `MilitaryAccess` is a separate directional grant, and a missing grant is denial, including between neutrals. The 1961 sandbox starts Nation and Neighbor neutral toward each other and grants military access in neither direction, so a crossing is still unauthorized. `TradeAccess` is the separate grant that allows a government food purchase. Transit rights, customs, investment, and loans are further agreements. Crossing a tile can remain physically legal in the pathfinder while a Nation component records it as unauthorized.

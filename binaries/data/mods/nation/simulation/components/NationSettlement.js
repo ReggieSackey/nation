@@ -46,6 +46,8 @@ NationSettlement.prototype.DataIsValid = function(name, population, integration,
 
 NationSettlement.prototype.Init = function()
 {
+	// Runtime political state. Templates do not set a historical starting unrest.
+	this.discontent = 0;
 	const name = this.template && this.template.Name != null ? String(this.template.Name) : "";
 	const population = this.template ? +this.template.Population : NaN;
 	const integration = this.template ? +this.template.StateIntegration : NaN;
@@ -117,6 +119,48 @@ NationSettlement.prototype.ChangeStateIntegration = function(delta)
 		next = 100;
 	this.stateIntegration = next;
 	return next;
+};
+
+/**
+ * @return {number} - Political instability from 0 to 100. 0 is calm.
+ */
+NationSettlement.prototype.GetDiscontent = function()
+{
+	return this.discontent;
+};
+
+/**
+ * Store an integer discontent and keep it inside 0–100.
+ * @return {number} - The clamped value.
+ */
+NationSettlement.prototype.SetDiscontent = function(value)
+{
+	if (!Number.isInteger(value))
+	{
+		error("NationSettlement.SetDiscontent: value must be an integer");
+		return this.discontent;
+	}
+
+	if (value < 0)
+		value = 0;
+	if (value > 100)
+		value = 100;
+	this.discontent = value;
+	return this.discontent;
+};
+
+/**
+ * Move discontent by an integer delta and keep it inside 0–100.
+ * @return {number} - The clamped value.
+ */
+NationSettlement.prototype.ChangeDiscontent = function(delta)
+{
+	if (!Number.isInteger(delta))
+	{
+		error("NationSettlement.ChangeDiscontent: delta must be an integer");
+		return this.discontent;
+	}
+	return this.SetDiscontent(this.discontent + delta);
 };
 
 /**
