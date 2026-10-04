@@ -249,7 +249,33 @@ Partial infrastructure damage reduces economic throughput before it breaks state
 
 `InfrastructureInvestment` is the transaction between the treasury and a physical link. The session button does not change either one. It posts `nation-repair-infrastructure` through `Engine.PostNetworkCommand`. `ProcessCommand` runs that entry in `g_Commands`, and the simulation calculates the cost again. A quote from `GetRepairQuote` is attached to `GetEntityState` for display. The GUI does not have its own cost formula.
 
-The issuing player may repair a link only when both endpoint settlements stand in that player's sovereign territory. Entity `Ownership` is not the test. The cost is `floor(1000000 * (100 - condition) / 100)`. Condition 100 costs 0 and is refused, so a healthy road is not charged. The repair spends that cost with `GovernmentFinance.Spend` and then calls `SetCondition(100)`. If the spend cannot be made, the road stays as it is. Repair is instantaneous. There is no crew, no duration, and no new road. Cocoa that accumulated while the road was closed stays in stock and can be sold on a later export, because the export manager still reads `TransportEfficiency` and is not told about the repair. Integration growth returns only because the physical edge is operational again. The repair does not add export income. Any later income is a separate export.
+The issuing player may repair a link only when both endpoint settlements stand in that player's sovereign territory. Entity `Ownership` is not the test. The cost is `floor(1000000 * (100 - condition) / 100)`. Condition 100 costs 0 and is refused, so a healthy road is not charged. The repair spends that cost with `GovernmentFinance.Spend` and then calls `SetCondition(100)`. If the spend cannot be made, the road stays as it is. Repair is instantaneous. There is no crew and no duration. Cocoa that accumulated while the road was closed stays in stock and can be sold on a later export, because the export manager still reads `TransportEfficiency` and is not told about the repair. Integration growth returns only because the physical edge is operational again. The repair does not add export income. Any later income is a separate export. A road created later uses this same repair.
+
+### Infrastructure construction
+
+A new road is a predefined scenario investment, not a drawn route. `ScriptSettings.InfrastructureProjects` lists each project: id, the two settlement entity ids, the treasury cost, the road template, and the placement. A gamesettings attribute copies that list into `InitAttributes.settings`. `InfrastructureInvestment` reads it in `InitGame` and keeps it as component state, so a save still knows the offer without running `InitGame` again. The 1961 sandbox offers one project, `capital-western-road`, joining Capital entity 30 to Western Village entity 32 for 2000000. Western Village starts with no link.
+
+```text
+GovernmentFinance
+        ↓
+InfrastructureInvestment
+        ↓
+physical InfrastructureLink creation
+        ↓
+SettlementConnectivity
+        ↓
+state integration eligibility
+```
+
+The session button appears when Western Village is selected. It shows `GetConstructionQuote`: the cost, whether the treasury can pay, population, integration, and whether the settlement is already capital-connected. The button posts `nation-construct-infrastructure` with the project id through `Engine.PostNetworkCommand`. It does not spend money and it does not create an entity. The simulation reads the stored project again. It accepts the command only when the issuer is a real player, both endpoints currently stand in that player's sovereign territory, no usable `InfrastructureLink` already joins the pair, and `GovernmentFinance.CanAfford` accepts the stored cost. Entity `Ownership` is not the authority test. A project that crosses into another sovereign state is refused.
+
+`Construct` then calls `Spend` and `Engine.AddEntity`. The new entity must be a usable link at condition 100 between those two settlements, with a position that can be placed. If it is not, the entity is destroyed and `AddFunds` returns the cost. The project record supplies `JumpTo` and `SetYRotation`. The 1961 road is placed at the midpoint (65, 320). One dirt-road decal marks that connection. It does not pave the full distance, about 206 metres. Gameplay uses the single `InfrastructureLink`, not the length of the decal.
+
+The spawned component's `Init` calls `SettlementConnectivity.RefreshPhysicalLink`. The graph is not rebuilt on later turns. Condition above 0 keeps the edge, condition 0 drops it, and destroying the entity drops it. Repair of that road is the existing `nation-repair-infrastructure` command. `TransportEfficiency` sees the new path, so Western Village to the capital is efficiency 1 while the link is open. Western Village still produces no cocoa, so the road does not create export income.
+
+Construction does not call `ChangeStateIntegration`. Western Village stays at 20 until the existing integration timer sees the new capital path and adds 1. A second command finds the link and spends nothing. Condition 0 still counts as built: the road is repaired, not purchased again. Completion is that link's existence, so it survives save and load with the entity.
+
+Construction spends treasury only. It does not consume food, wood, stone, or metal. That treasury-only cost is prototype scaffolding until Nation's physical resource economy is integrated. Construction is instantaneous. There is no crew, no duration, and no material bill.
 
 **Economy.** Player resources remain upstream commodity quantities. Government cash is `GovernmentFinance`. Cocoa here is aggregate settlement output, not a gatherable resource type. Transport can be a quantity moving between entities, with a truck as the visible agent, when that slice starts. `Market` and `Barter` are ancient trade. Use them only if a slice genuinely fits.
 

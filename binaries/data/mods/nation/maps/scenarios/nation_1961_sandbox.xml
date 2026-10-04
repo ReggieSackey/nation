@@ -85,6 +85,18 @@
   "SettlementConnectivity": [
     { "from": 31, "to": 33 }
   ],
+  "InfrastructureProjects": [
+    {
+      "id": "capital-western-road",
+      "from": 30,
+      "to": 32,
+      "cost": 2000000,
+      "template": "structures/nation/capital_western_road",
+      "x": 65,
+      "z": 320,
+      "angle": -2.896613990462929
+    }
+  ],
   "GovernmentFinance": [
     { "player": 1, "treasury": 10000000 },
     { "player": 2, "treasury": 5000000 }
