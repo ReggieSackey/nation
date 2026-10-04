@@ -61,4 +61,17 @@ BorderWarningManager.prototype.OnGlobalBorderIncidentStarted = function(msg)
 	});
 };
 
+/**
+ * True only when this warning is active and the offender has no tracked units
+ * left inside the defender. The warning record itself stays active.
+ * @return {boolean}
+ */
+BorderWarningManager.prototype.IsWarningCompliedWith = function(offender, defender)
+{
+	if (!this.HasActiveWarning(offender, defender))
+		return false;
+	const cmpPresence = Engine.QueryInterface(SYSTEM_ENTITY, IID_ForeignMilitaryPresence);
+	return !!cmpPresence && !cmpPresence.HasForeignMilitaryPresence(offender, defender);
+};
+
 Engine.RegisterSystemComponentType(IID_BorderWarningManager, "BorderWarningManager", BorderWarningManager);
