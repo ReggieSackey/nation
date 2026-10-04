@@ -56,6 +56,10 @@
     }
   ],
   "RevealMap": true,
+  "MilitaryAccess": [
+    { "from": 1, "to": 2, "military": false },
+    { "from": 2, "to": 1, "military": false }
+  ],
   "Sovereignty": [
     {
       "owner": 1,
