@@ -11,6 +11,7 @@
   </Footprint>
   <Health>
     <Max>100</Max>
+    <DeathType>remain</DeathType>
   </Health>
   <Identity>
     <GenericName>Road</GenericName>

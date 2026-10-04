@@ -108,9 +108,23 @@ CommodityExportManager.prototype.RecordExport = function(playerId, commodity, am
 };
 
 /**
- * Sell each producer's whole stock to an abstract buyer.
+ * Units that can leave on this tick. Transport condition is an integer 0–100.
+ * Unexported stock stays on the producer.
+ * @return {number}
+ */
+CommodityExportManager.prototype.ExportAmount = function(ent, stock)
+{
+	const cmpTransport = Engine.QueryInterface(SYSTEM_ENTITY, IID_TransportEfficiency);
+	const condition = cmpTransport ? cmpTransport.GetRouteCondition(ent) : 0;
+	if (condition <= 0)
+		return 0;
+	return Math.floor(stock * condition / 100);
+};
+
+/**
+ * Sell the transport-limited share of each producer's stock to an abstract buyer.
  * Proceeds go to the sovereign of the producer's position through GovernmentFinance.AddFunds.
- * A producer with no stock is skipped. A commodity with no prototype price is left in stock.
+ * A producer with no stock, or with no usable route, is skipped. The price stays fixed.
  */
 CommodityExportManager.prototype.ApplyExports = function()
 {
@@ -140,15 +154,19 @@ CommodityExportManager.prototype.ApplyExports = function()
 		if (!Number.isInteger(owner) || owner <= 0)
 			continue;
 
-		const revenue = stock * price;
-		if (!cmpProducer.RemoveStock(stock))
+		const amount = this.ExportAmount(ent, stock);
+		if (amount <= 0)
+			continue;
+
+		const revenue = amount * price;
+		if (!cmpProducer.RemoveStock(amount))
 			continue;
 		if (!cmpFinance.AddFunds(owner, revenue))
 		{
 			error("CommodityExportManager: failed to pay player " + owner);
 			continue;
 		}
-		this.RecordExport(owner, commodity, stock, revenue);
+		this.RecordExport(owner, commodity, amount, revenue);
 	}
 };
 

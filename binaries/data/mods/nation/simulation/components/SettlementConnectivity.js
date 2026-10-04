@@ -16,8 +16,10 @@ SettlementConnectivity.prototype.IntegrationGain = 1;
 
 SettlementConnectivity.prototype.Init = function()
 {
-	// Undirected edges {a, b} with a < b. Entity ids, not settlement names.
-	this.edges = [];
+	// Scenario edges stay for the match. Physical edges follow InfrastructureLink condition.
+	// Both store undirected pairs {a, b} with a < b. Entity ids, not settlement names.
+	this.scenarioEdges = [];
+	this.physicalEdges = {};
 	// Timer id. Zero means no update is scheduled. Load restores this with Timer.
 	this.timer = 0;
 	// Sovereigns whose duplicate capitals were already reported.
@@ -25,17 +27,17 @@ SettlementConnectivity.prototype.Init = function()
 };
 
 /**
- * Remember one undirected edge. A second copy of the same pair is ignored.
+ * Remember one undirected scenario edge. A second copy of the same pair is ignored.
  */
-SettlementConnectivity.prototype.AddEdge = function(from, to)
+SettlementConnectivity.prototype.AddScenarioEdge = function(from, to)
 {
 	const a = Math.min(from, to);
 	const b = Math.max(from, to);
-	for (let i = 0; i < this.edges.length; ++i)
-		if (this.edges[i].a === a && this.edges[i].b === b)
+	for (let i = 0; i < this.scenarioEdges.length; ++i)
+		if (this.scenarioEdges[i].a === a && this.scenarioEdges[i].b === b)
 			return;
 
-	this.edges.push({ "a": a, "b": b });
+	this.scenarioEdges.push({ "a": a, "b": b });
 };
 
 /**
@@ -84,16 +86,47 @@ SettlementConnectivity.prototype.ReadScenarioEdges = function(links)
 	}
 
 	for (let i = 0; i < edges.length; ++i)
-		this.AddEdge(edges[i].from, edges[i].to);
+		this.AddScenarioEdge(edges[i].from, edges[i].to);
 	return true;
 };
 
 /**
- * Physical InfrastructureLink entities contribute the same kind of edge as scenario data.
- * A bad link is skipped. The graph is not rebuilt when a link is later destroyed.
+ * Add or drop one physical edge from the link's current condition.
+ * Condition above 0 contributes. Condition 0 does not. A scenario edge for the same pair is left in place.
+ */
+SettlementConnectivity.prototype.RefreshPhysicalLink = function(ent)
+{
+	delete this.physicalEdges[ent];
+	const cmpLink = Engine.QueryInterface(ent, IID_InfrastructureLink);
+	if (!cmpLink || !cmpLink.IsUsable() || !cmpLink.IsOperational())
+		return;
+
+	const from = cmpLink.GetFrom();
+	const to = cmpLink.GetTo();
+	if (!this.EndpointsAreSettlements(from, to))
+		return;
+
+	this.physicalEdges[ent] = {
+		"a": Math.min(from, to),
+		"b": Math.max(from, to)
+	};
+};
+
+/**
+ * Drop a physical edge when its entity is gone. Scenario edges are untouched.
+ */
+SettlementConnectivity.prototype.RemovePhysicalLink = function(ent)
+{
+	delete this.physicalEdges[ent];
+};
+
+/**
+ * Physical InfrastructureLink entities contribute edges beside scenario data.
+ * A bad link is skipped. Later condition changes call RefreshPhysicalLink directly.
  */
 SettlementConnectivity.prototype.ReadPhysicalEdges = function()
 {
+	this.physicalEdges = {};
 	for (const ent of Engine.GetEntitiesWithInterface(IID_InfrastructureLink))
 	{
 		const cmpLink = Engine.QueryInterface(ent, IID_InfrastructureLink);
@@ -107,13 +140,14 @@ SettlementConnectivity.prototype.ReadPhysicalEdges = function()
 			error("SettlementConnectivity: infrastructure link " + ent + " must join NationSettlement entities");
 			continue;
 		}
-		this.AddEdge(from, to);
+		this.RefreshPhysicalLink(ent);
 	}
 };
 
 SettlementConnectivity.prototype.OnInitGame = function()
 {
-	this.edges = [];
+	this.scenarioEdges = [];
+	this.physicalEdges = {};
 	const settings = typeof InitAttributes !== "undefined" && InitAttributes.settings;
 	this.ReadScenarioEdges(settings ? settings.SettlementConnectivity : undefined);
 	this.ReadPhysicalEdges();
@@ -173,43 +207,57 @@ SettlementConnectivity.prototype.GetCapitalForSovereign = function(playerId)
 };
 
 /**
- * @return {number[]} - The other end of each stored edge. Order follows the edge list.
+ * Scenario edges first, in stored order, then physical edges by ascending link entity id.
+ * A pair named by both sources appears once.
+ * @return {number[]}
  */
 SettlementConnectivity.prototype.Neighbors = function(ent)
 {
 	const next = [];
-	for (let i = 0; i < this.edges.length; ++i)
+	const seen = {};
+	const edges = this.scenarioEdges.slice();
+	const ids = Object.keys(this.physicalEdges).sort((left, right) => +left - +right);
+	for (let i = 0; i < ids.length; ++i)
+		edges.push(this.physicalEdges[ids[i]]);
+
+	for (let i = 0; i < edges.length; ++i)
 	{
-		const edge = this.edges[i];
+		const edge = edges[i];
+		let other = 0;
 		if (edge.a === ent)
-			next.push(edge.b);
+			other = edge.b;
 		else if (edge.b === ent)
-			next.push(edge.a);
+			other = edge.a;
+		if (!other || seen[other])
+			continue;
+		seen[other] = true;
+		next.push(other);
 	}
 	return next;
 };
 
 /**
- * True when a same-sovereign path reaches that state's single capital.
- * The capital itself is not treated as connected. An edge into another sovereign state does not count.
- * A state with no capital, or with a rejected duplicate capital, connects nothing.
- * @return {boolean}
+ * Shortest same-sovereign path from the settlement to its capital, including both ends.
+ * Neighbor order is deterministic: scenario edges, then physical links by entity id.
+ * An empty array means there is no usable path. The capital is not a path to itself.
+ * @return {number[]}
  */
-SettlementConnectivity.prototype.IsConnectedToCapital = function(settlement)
+SettlementConnectivity.prototype.GetPathToCapital = function(settlement)
 {
 	const cmpSettlement = Engine.QueryInterface(settlement, IID_NationSettlement);
 	if (!cmpSettlement)
-		return false;
+		return [];
 
 	const owner = cmpSettlement.GetSovereignOwner();
 	if (owner === INVALID_PLAYER)
-		return false;
+		return [];
 
 	const capital = this.GetCapitalForSovereign(owner);
 	if (capital === INVALID_ENTITY || capital === settlement)
-		return false;
+		return [];
 
 	const seen = {};
+	const parent = {};
 	const queue = [settlement];
 	seen[settlement] = true;
 	while (queue.length)
@@ -224,18 +272,71 @@ SettlementConnectivity.prototype.IsConnectedToCapital = function(settlement)
 			const cmpNext = Engine.QueryInterface(next, IID_NationSettlement);
 			if (!cmpNext || cmpNext.GetSovereignOwner() !== owner)
 				continue;
+			parent[next] = current;
 			if (next === capital)
-				return true;
+			{
+				const path = [];
+				let node = capital;
+				while (node !== undefined)
+				{
+					path.push(node);
+					if (node === settlement)
+						break;
+					node = parent[node];
+				}
+				path.reverse();
+				return path;
+			}
 			seen[next] = true;
 			queue.push(next);
 		}
 	}
-	return false;
+	return [];
+};
+
+/**
+ * True when a same-sovereign path reaches that state's single capital.
+ * The capital itself is not treated as connected. An edge into another sovereign state does not count.
+ * A state with no capital, or with a rejected duplicate capital, connects nothing.
+ * @return {boolean}
+ */
+SettlementConnectivity.prototype.IsConnectedToCapital = function(settlement)
+{
+	return this.GetPathToCapital(settlement).length > 0;
+};
+
+/**
+ * Best condition on one hop, from 0 to 100. A scenario edge is 100.
+ * A physical hop uses the best operational link on that pair. Null means the hop is absent.
+ * @return {number|null}
+ */
+SettlementConnectivity.prototype.GetHopCondition = function(from, to)
+{
+	const a = Math.min(from, to);
+	const b = Math.max(from, to);
+	for (let i = 0; i < this.scenarioEdges.length; ++i)
+		if (this.scenarioEdges[i].a === a && this.scenarioEdges[i].b === b)
+			return 100;
+
+	let best = null;
+	const ids = Object.keys(this.physicalEdges);
+	for (let i = 0; i < ids.length; ++i)
+	{
+		const edge = this.physicalEdges[ids[i]];
+		if (!edge || edge.a !== a || edge.b !== b)
+			continue;
+		const cmpLink = Engine.QueryInterface(+ids[i], IID_InfrastructureLink);
+		const condition = cmpLink ? cmpLink.GetCondition() : 0;
+		if (best === null || condition > best)
+			best = condition;
+	}
+	return best;
 };
 
 /**
  * Connected non-capital settlements gain IntegrationGain, clamped by the settlement.
  * The capital does not gain from being connected to itself.
+ * Partial road damage does not change this. Only a missing path does.
  */
 SettlementConnectivity.prototype.ApplyConnectivityGrowth = function()
 {

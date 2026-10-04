@@ -83,7 +83,7 @@
     }
   ],
   "SettlementConnectivity": [
-    { "from": 30, "to": 33 }
+    { "from": 31, "to": 33 }
   ],
   "GovernmentFinance": [
     { "player": 1, "treasury": 10000000 },
