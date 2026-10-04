@@ -8,4 +8,9 @@
     <Population>7000</Population>
     <StateIntegration>55</StateIntegration>
   </NationSettlement>
+  <CommodityProducer>
+    <Commodity>cocoa</Commodity>
+    <ProductionPerTick>100</ProductionPerTick>
+    <Stock>0</Stock>
+  </CommodityProducer>
 </Entity>
