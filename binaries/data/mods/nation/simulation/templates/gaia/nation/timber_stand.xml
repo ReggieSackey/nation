@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Entity parent="gaia/tree/teak">
+  <Identity>
+    <GenericName>Timber</GenericName>
+    <SpecificName>Timber Stand</SpecificName>
+  </Identity>
+</Entity>

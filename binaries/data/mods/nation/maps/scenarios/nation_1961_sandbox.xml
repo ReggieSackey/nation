@@ -227,6 +227,60 @@
 			<Position x="214" z="60"/>
 			<Orientation y="0"/>
 		</Entity>
+		<Entity uid="60">
+			<Template>gaia/nation/timber_stand</Template>
+			<Player>0</Player>
+			<Position x="140" z="310"/>
+			<Orientation y="0"/>
+		</Entity>
+		<Entity uid="61">
+			<Template>structures/nation/logging_camp</Template>
+			<Player>1</Player>
+			<Position x="172" z="310"/>
+			<Orientation y="0"/>
+		</Entity>
+		<Entity uid="62">
+			<Template>units/nation/logger</Template>
+			<Player>1</Player>
+			<Position x="156" z="310"/>
+			<Orientation y="0"/>
+		</Entity>
+		<Entity uid="63">
+			<Template>gaia/nation/stone_deposit</Template>
+			<Player>0</Player>
+			<Position x="140" z="200"/>
+			<Orientation y="0"/>
+		</Entity>
+		<Entity uid="64">
+			<Template>structures/nation/quarry</Template>
+			<Player>1</Player>
+			<Position x="172" z="200"/>
+			<Orientation y="0"/>
+		</Entity>
+		<Entity uid="65">
+			<Template>units/nation/quarry_worker</Template>
+			<Player>1</Player>
+			<Position x="156" z="200"/>
+			<Orientation y="0"/>
+		</Entity>
+		<Entity uid="66">
+			<Template>gaia/nation/metal_deposit</Template>
+			<Player>0</Player>
+			<Position x="140" z="140"/>
+			<Orientation y="0"/>
+		</Entity>
+		<Entity uid="67">
+			<Template>structures/nation/mine</Template>
+			<Player>1</Player>
+			<Position x="172" z="140"/>
+			<Orientation y="0"/>
+		</Entity>
+		<Entity uid="68">
+			<Template>units/nation/miner</Template>
+			<Player>1</Player>
+			<Position x="156" z="140"/>
+			<Orientation y="0"/>
+		</Entity>
 	</Entities>
 	<Paths/>
 </Scenario>

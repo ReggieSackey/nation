@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Entity parent="gaia/ore/savanna_small_01">
+  <Identity>
+    <GenericName>Metal Deposit</GenericName>
+    <SpecificName>Metal Deposit</SpecificName>
+  </Identity>
+</Entity>

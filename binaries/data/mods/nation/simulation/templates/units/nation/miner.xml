@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Entity parent="units/nation/extraction_worker">
+  <Identity>
+    <GenericName>Miner</GenericName>
+    <SpecificName>Miner</SpecificName>
+  </Identity>
+  <InitialGather>
+    <Target>66</Target>
+  </InitialGather>
+</Entity>

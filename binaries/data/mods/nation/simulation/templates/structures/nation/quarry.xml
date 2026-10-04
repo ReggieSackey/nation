@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Entity parent="structures/athen/storehouse">
+  <Capturable disable=""/>
+  <Identity>
+    <GenericName>Quarry</GenericName>
+    <SpecificName>Quarry</SpecificName>
+  </Identity>
+  <ProductionQueue disable=""/>
+  <Researcher disable=""/>
+  <ResourceDropsite>
+    <Types>stone</Types>
+    <Sharable>false</Sharable>
+  </ResourceDropsite>
+  <TerritoryInfluence disable=""/>
+</Entity>

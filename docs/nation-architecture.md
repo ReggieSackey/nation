@@ -308,6 +308,51 @@ The 1961 sandbox places one grain field, entity 50, at (230, 60), owned by Playe
 
 A full load is 10 food and takes 20 seconds of gathering, plus the walk to the field and back to the village. Population consumption and that deposit use the same stockpile. With the farmer working, the first load of 10 arrives between the 20-second and 30-second consumption ticks, so the 30-second tick spends 335 from 340 and leaves 5. Destroying the field stops new gathering. Food already in hand is still deposited.
 
+### Forestry, quarrying, and mining
+
+```text
+PHYSICAL RESOURCE ECONOMY
+food  → agriculture
+wood  → forestry
+stone → quarrying
+metal → mining
+```
+
+All four use the same upstream path:
+
+```text
+physical source
+→ representative worker
+→ ResourceGatherer
+→ carried inventory
+→ ResourceDropsite
+→ Player resource stockpile
+```
+
+Wood, stone, and metal are not `CommodityProducer` output and they are not treasury. Gathering them does not create export income. Construction still spends treasury only. The workers are representative agents. Their population cost is 0, and they are not subtracted from settlement population.
+
+A deposit is not the facility. The timber stand, stone deposit, and metal deposit are finite `ResourceSupply` entities. The logging camp, quarry, and mine are player-owned dropsites. A facility does not generate resources on a timer. Upstream exhaustion destroys a finite supply at amount 0, and Nation does not respawn it.
+
+The inherited worker is the Athenian woman citizen, so one gatherer can cut `wood.tree` at 0.7 per second, and quarry `stone.rock` or mine `metal.ore` at 0.35 per second. Carry capacity is 10 for each. `InitialGather` was already a per-entity target, not a farmer-specific order. The logger, quarry worker, and miner templates each name their own supply. `OnInitGame` schedules that one gather order. A loaded game does not run it again.
+
+The 1961 sandbox places the three industries in Player 1 land, clear of the settlements, the farm, and the roads:
+
+```text
+Timber stand 60 at (140, 310), Gaia, teak, 500 wood
+Logging camp 61 at (172, 310), Player 1, wood dropsite
+Logger 62 at (156, 310)
+
+Stone deposit 63 at (140, 200), Gaia, 1000 stone
+Quarry 64 at (172, 200), Player 1, stone dropsite
+Quarry worker 65 at (156, 200)
+
+Metal deposit 66 at (140, 140), Gaia, 1000 metal
+Mine 67 at (172, 140), Player 1, metal dropsite
+Miner 68 at (156, 140)
+```
+
+The camp, quarry, and mine inherit the storehouse, including `Health` and `Resistance`, and accept only their own resource. They are not shared. `CommitResources` credits the worker's owner. A neighbor cannot use the normal return check on these dropsites. Destroying the facility removes that dropsite. Resources already in hand stay on the worker. Upstream orders may then look for another dropsite that accepts the type. The civic centre accepts all four resources, so it can become that fallback. The deposit itself is left in place. A rebel damages a facility through ordinary `Health.TakeDamage`. There is no extraction-specific attack.
+
 ### Population food consumption
 
 ```text

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Entity parent="units/nation/extraction_worker">
+  <Identity>
+    <GenericName>Quarry Worker</GenericName>
+    <SpecificName>Quarry Worker</SpecificName>
+  </Identity>
+  <InitialGather>
+    <Target>63</Target>
+  </InitialGather>
+</Entity>
