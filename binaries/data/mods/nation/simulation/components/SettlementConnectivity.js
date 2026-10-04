@@ -25,21 +25,42 @@ SettlementConnectivity.prototype.Init = function()
 };
 
 /**
- * @param {Object[]|undefined} links - {from, to} settlement entity ids. Undefined means no links.
- * @return {boolean} - False when the list is present but malformed. Malformed data stores no links.
+ * Remember one undirected edge. A second copy of the same pair is ignored.
  */
-SettlementConnectivity.prototype.ReadEdges = function(links)
+SettlementConnectivity.prototype.AddEdge = function(from, to)
+{
+	const a = Math.min(from, to);
+	const b = Math.max(from, to);
+	for (let i = 0; i < this.edges.length; ++i)
+		if (this.edges[i].a === a && this.edges[i].b === b)
+			return;
+
+	this.edges.push({ "a": a, "b": b });
+};
+
+/**
+ * @param {number} from
+ * @param {number} to
+ * @return {boolean}
+ */
+SettlementConnectivity.prototype.EndpointsAreSettlements = function(from, to)
+{
+	return !!Engine.QueryInterface(from, IID_NationSettlement) &&
+		!!Engine.QueryInterface(to, IID_NationSettlement);
+};
+
+/**
+ * @param {Object[]|undefined} links - {from, to} settlement entity ids. Undefined means no links.
+ * @return {boolean} - False when the list is present but malformed. Malformed data adds no scenario edges.
+ */
+SettlementConnectivity.prototype.ReadScenarioEdges = function(links)
 {
 	if (links === undefined || links === null)
-	{
-		this.edges = [];
 		return true;
-	}
 
 	if (!Array.isArray(links))
 	{
 		error("SettlementConnectivity: expected an array of links");
-		this.edges = [];
 		return false;
 	}
 
@@ -52,34 +73,50 @@ SettlementConnectivity.prototype.ReadEdges = function(links)
 		if (!Number.isInteger(from) || from <= 0 || !Number.isInteger(to) || to <= 0 || from === to)
 		{
 			error("SettlementConnectivity: link " + i + " needs two different settlement entity ids");
-			this.edges = [];
 			return false;
 		}
-		if (!Engine.QueryInterface(from, IID_NationSettlement) || !Engine.QueryInterface(to, IID_NationSettlement))
+		if (!this.EndpointsAreSettlements(from, to))
 		{
 			error("SettlementConnectivity: link " + i + " must join NationSettlement entities");
-			this.edges = [];
 			return false;
 		}
-
-		const a = Math.min(from, to);
-		const b = Math.max(from, to);
-		let duplicate = false;
-		for (let j = 0; j < edges.length; ++j)
-			if (edges[j].a === a && edges[j].b === b)
-				duplicate = true;
-		if (!duplicate)
-			edges.push({ "a": a, "b": b });
+		edges.push({ "from": from, "to": to });
 	}
 
-	this.edges = edges;
+	for (let i = 0; i < edges.length; ++i)
+		this.AddEdge(edges[i].from, edges[i].to);
 	return true;
+};
+
+/**
+ * Physical InfrastructureLink entities contribute the same kind of edge as scenario data.
+ * A bad link is skipped. The graph is not rebuilt when a link is later destroyed.
+ */
+SettlementConnectivity.prototype.ReadPhysicalEdges = function()
+{
+	for (const ent of Engine.GetEntitiesWithInterface(IID_InfrastructureLink))
+	{
+		const cmpLink = Engine.QueryInterface(ent, IID_InfrastructureLink);
+		if (!cmpLink || !cmpLink.IsUsable())
+			continue;
+
+		const from = cmpLink.GetFrom();
+		const to = cmpLink.GetTo();
+		if (!this.EndpointsAreSettlements(from, to))
+		{
+			error("SettlementConnectivity: infrastructure link " + ent + " must join NationSettlement entities");
+			continue;
+		}
+		this.AddEdge(from, to);
+	}
 };
 
 SettlementConnectivity.prototype.OnInitGame = function()
 {
+	this.edges = [];
 	const settings = typeof InitAttributes !== "undefined" && InitAttributes.settings;
-	this.ReadEdges(settings ? settings.SettlementConnectivity : undefined);
+	this.ReadScenarioEdges(settings ? settings.SettlementConnectivity : undefined);
+	this.ReadPhysicalEdges();
 	this.StartUpdate();
 };
 

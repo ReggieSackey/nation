@@ -7,6 +7,8 @@ Engine.LoadComponentScript("interfaces/NationSettlementManager.js");
 Engine.LoadComponentScript("NationSettlementManager.js");
 Engine.LoadComponentScript("interfaces/SettlementConnectivity.js");
 Engine.LoadComponentScript("SettlementConnectivity.js");
+Engine.LoadComponentScript("interfaces/InfrastructureLink.js");
+Engine.LoadComponentScript("InfrastructureLink.js");
 
 INVALID_ENTITY = 0;
 
@@ -18,6 +20,7 @@ error = function(message)
 
 const g_Positions = {};
 let g_SettlementIds = [];
+let g_LinkIds = [];
 
 AddMock(SYSTEM_ENTITY, IID_Sovereignty, {
 	"GetSovereignOwner": pos => pos.x <= 256 ? 1 : pos.x <= 512 ? 2 : INVALID_PLAYER
@@ -25,9 +28,11 @@ AddMock(SYSTEM_ENTITY, IID_Sovereignty, {
 
 Engine.GetEntitiesWithInterface = function(iid)
 {
-	if (iid !== IID_NationSettlement)
-		return [];
-	return g_SettlementIds.slice();
+	if (iid === IID_NationSettlement)
+		return g_SettlementIds.slice();
+	if (iid === IID_InfrastructureLink)
+		return g_LinkIds.slice();
+	return [];
 };
 
 function place(entity, x, z)
@@ -56,6 +61,7 @@ function start(links)
 	ResetState();
 	g_Errors.length = 0;
 	g_SettlementIds = [];
+	g_LinkIds = [];
 	AddMock(SYSTEM_ENTITY, IID_Sovereignty, {
 		"GetSovereignOwner": pos => pos.x <= 256 ? 1 : pos.x <= 512 ? 2 : INVALID_PLAYER
 	});
@@ -70,6 +76,14 @@ function start(links)
 	};
 }
 
+function link(entity, from, to)
+{
+	g_LinkIds.push(entity);
+	return ConstructComponent(entity, "InfrastructureLink", {
+		"From": String(from),
+		"To": String(to)
+	});
+}
 function begin(world)
 {
 	global.InitAttributes = {
@@ -146,11 +160,9 @@ begin(world);
 TS_ASSERT(g_Errors.length > 0);
 TS_ASSERT_EQUALS(world.cmpConnectivity.IsConnectedToCapital(2), false);
 
-// Connected settlements gain one point. The capital, the disconnected village, and the foreign village do not.
+// Connected settlements gain one point. Northern's edge is physical. Southern's edge is scenario data.
 world = start([
-	{ "from": 1, "to": 2 },
-	{ "from": 2, "to": 4 },
-	{ "from": 1, "to": 5 },
+	{ "from": 1, "to": 4 },
 	{ "from": 1, "to": 6 },
 	{ "from": 1, "to": 7 }
 ]);
@@ -162,6 +174,14 @@ const eastern = settlement(5, "Eastern Village", 4000, 40, 400, false);
 const nearMax = settlement(6, "Near Max", 0, 99.5, 60, false);
 const atMax = settlement(7, "At Max", 0, 100, 70, false);
 begin(world);
+TS_ASSERT_EQUALS(world.cmpConnectivity.IsConnectedToCapital(2), false);
+const road = link(8, 1, 2);
+const borderRoad = link(9, 1, 5);
+world.cmpConnectivity.OnInitGame();
+TS_ASSERT_EQUALS(world.cmpConnectivity.IsConnectedToCapital(2), true);
+TS_ASSERT_EQUALS(world.cmpConnectivity.IsConnectedToCapital(4), true);
+TS_ASSERT_EQUALS(world.cmpConnectivity.IsConnectedToCapital(3), false);
+TS_ASSERT_EQUALS(world.cmpConnectivity.IsConnectedToCapital(5), false);
 TS_ASSERT_EQUALS(world.cmpTimer.timers.size, 1);
 const weightedBefore = (18000 * 90 + 5000 * 35 + 3500 * 20 + 7000 * 55) / 33500;
 TS_ASSERT_EQUALS(world.cmpManager.GetPopulationWeightedIntegration(1), weightedBefore);
@@ -171,6 +191,7 @@ TS_ASSERT_EQUALS(northern.GetStateIntegration(), 35);
 
 world.cmpTimer = SerializationCycle(world.cmpTimer);
 world.cmpConnectivity = SerializationCycle(world.cmpConnectivity);
+const restoredRoad = SerializationCycle(road);
 const restoredNorthern = SerializationCycle(northern);
 const restoredCapital = SerializationCycle(capital);
 SerializationCycle(western);
@@ -182,6 +203,8 @@ SerializationCycle(atMax);
 TS_ASSERT_EQUALS(world.cmpTimer.timers.size, 1);
 TS_ASSERT_EQUALS(restoredCapital.GetStateIntegration(), 90);
 TS_ASSERT_EQUALS(restoredCapital.GetIsCapital(), true);
+TS_ASSERT_EQUALS(restoredRoad.GetFrom(), 1);
+TS_ASSERT_EQUALS(restoredRoad.GetTo(), 2);
 TS_ASSERT_EQUALS(restoredNorthern.GetStateIntegration(), 35);
 TS_ASSERT_EQUALS(world.cmpConnectivity.IsConnectedToCapital(2), true);
 TS_ASSERT_EQUALS(world.cmpConnectivity.IsConnectedToCapital(4), true);
@@ -204,3 +227,37 @@ advance(world.cmpTimer, 10);
 TS_ASSERT_EQUALS(Engine.QueryInterface(2, IID_NationSettlement).GetStateIntegration(), 37);
 TS_ASSERT_EQUALS(Engine.QueryInterface(1, IID_NationSettlement).GetStateIntegration(), 90);
 TS_ASSERT_EQUALS(Engine.QueryInterface(3, IID_NationSettlement).GetStateIntegration(), 20);
+
+// A physical link and an abstract edge for the same pair are one edge.
+world = start([{ "from": 1, "to": 2 }]);
+settlement(1, "Capital", 1000, 90, 100, true);
+const doubled = settlement(2, "Northern Village", 1000, 35, 80, false);
+link(8, 1, 2);
+begin(world);
+TS_ASSERT_EQUALS(world.cmpConnectivity.Neighbors(1).length, 1);
+advance(world.cmpTimer, 10);
+TS_ASSERT_EQUALS(doubled.GetStateIntegration(), 36);
+
+// An abstract hop continues past a physical link.
+world = start([{ "from": 2, "to": 4 }]);
+settlement(1, "Capital", 1000, 90, 100, true);
+settlement(2, "Northern Village", 1000, 35, 80, false);
+settlement(4, "Southern Village", 1000, 55, 180, false);
+link(8, 1, 2);
+begin(world);
+TS_ASSERT_EQUALS(world.cmpConnectivity.IsConnectedToCapital(2), true);
+TS_ASSERT_EQUALS(world.cmpConnectivity.IsConnectedToCapital(4), true);
+
+// A missing endpoint, a non-settlement, and a self-link add no edge.
+world = start([]);
+settlement(1, "Capital", 1000, 90, 100, true);
+settlement(2, "Northern Village", 1000, 35, 80, false);
+g_Errors.length = 0;
+link(8, 1, 99);
+link(9, 1, 50);
+link(10, 1, 1);
+begin(world);
+TS_ASSERT(g_Errors.length > 0);
+TS_ASSERT_EQUALS(world.cmpConnectivity.IsConnectedToCapital(2), false);
+TS_ASSERT_EQUALS(world.cmpConnectivity.Neighbors(1).length, 0);
+TS_ASSERT_EQUALS(Engine.QueryInterface(10, IID_InfrastructureLink).IsUsable(), false);

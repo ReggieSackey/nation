@@ -83,7 +83,6 @@
     }
   ],
   "SettlementConnectivity": [
-    { "from": 30, "to": 31 },
     { "from": 30, "to": 33 }
   ],
   "VictoryConditions": [
@@ -169,6 +168,12 @@
 			<Player>2</Player>
 			<Position x="420" z="400"/>
 			<Orientation y="0"/>
+		</Entity>
+		<Entity uid="40">
+			<Template>structures/nation/capital_northern_road</Template>
+			<Player>1</Player>
+			<Position x="80" z="445"/>
+			<Orientation y="-0.380506377"/>
 		</Entity>
 	</Entities>
 	<Paths/>
