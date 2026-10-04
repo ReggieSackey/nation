@@ -48,11 +48,13 @@
     null,
     {
       "Civ": "athen",
-      "Name": "Nation"
+      "Name": "Nation",
+      "Diplomacy": [-1, 1, 0]
     },
     {
       "Civ": "spart",
-      "Name": "Neighbor"
+      "Name": "Neighbor",
+      "Diplomacy": [-1, 0, 1]
     }
   ],
   "RevealMap": true,

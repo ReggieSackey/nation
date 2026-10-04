@@ -27,6 +27,9 @@ global.InitAttributes = {
 cmpAccess.OnInitGame();
 TS_ASSERT_EQUALS(cmpAccess.HasMilitaryAccess(1, 2), false);
 TS_ASSERT_EQUALS(cmpAccess.HasMilitaryAccess(2, 1), false);
+// A neutral stance does not grant military access.
+TS_ASSERT_EQUALS(g_Stance, "neutral");
+TS_ASSERT_EQUALS(cmpAccess.HasMilitaryAccess(1, 2), false);
 
 g_Stance = "ally";
 TS_ASSERT_EQUALS(cmpAccess.HasMilitaryAccess(1, 2), false);
