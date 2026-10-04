@@ -165,25 +165,25 @@
 		<Entity uid="20">
 			<Template>structures/nation/neighbor_civil_centre</Template>
 			<Player>2</Player>
-			<Position x="380" z="140"/>
+			<Position x="400" z="360"/>
 			<Orientation y="-0.785398"/>
 		</Entity>
 		<Entity uid="21">
 			<Template>units/spart/infantry_spearman_b</Template>
 			<Player>2</Player>
-			<Position x="358" z="162"/>
+			<Position x="378" z="348"/>
 			<Orientation y="2.4"/>
 		</Entity>
 		<Entity uid="22">
 			<Template>units/spart/infantry_spearman_b</Template>
 			<Player>2</Player>
-			<Position x="388" z="168"/>
+			<Position x="412" z="348"/>
 			<Orientation y="2.8"/>
 		</Entity>
 		<Entity uid="23">
 			<Template>units/spart/infantry_spearman_b</Template>
 			<Player>2</Player>
-			<Position x="402" z="132"/>
+			<Position x="390" z="378"/>
 			<Orientation y="2.2"/>
 		</Entity>
 		<Entity uid="30">

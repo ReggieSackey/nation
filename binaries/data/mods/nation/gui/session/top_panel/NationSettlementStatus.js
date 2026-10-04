@@ -35,6 +35,8 @@ function updateNationSettlementStatus()
 		"Population: " + nationSettlementAmount(settlement.population) + "\n" +
 		"State integration: " + settlement.integration + "\n" +
 		"Discontent: " + settlement.discontent + "\n" +
+		"Legal sovereignty: " + (settlement.legalSovereignty || "Unclaimed") + "\n" +
+		"Effective control: " + (settlement.effectiveControl || "Uncontrolled") + "\n" +
 		rebellionLine;
 }
 

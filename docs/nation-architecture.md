@@ -177,7 +177,44 @@ An engine change is justified only by a limitation the simulation and mod APIs c
 
 These are constraints on future design. They are not systems to build now.
 
-**Territory.** `CCmpTerritoryManager` stores one player id per tile in five bits (`TERRITORY_PLAYER_MASK` is `0x1F`), plus connected and blinking flags. Connected means the tile reaches a root influence entity such as a civic centre. That is building-influence territory for placement and borders drawn by the engine. State control and occupation still need their own data. Painting a legal border with the influence renderer, or teaching the pathfinder that a border is a political fact, would be an engine question later.
+### Territorial model
+
+These four layers stay separate. Do not collapse them, copy one into another, or treat a change in one as a change in another.
+
+```text
+LEGAL SOVEREIGNTY
+Nation Sovereignty component
+fixed scenario-defined international borders
+answers who legally owns land
+
+EFFECTIVE STATE CONTROL
+Pyrogenesis TerritoryManager / TerritoryInfluence
+dynamic physical administrative dominance
+answers who actually projects state authority
+
+MILITARY OCCUPATION
+future/physical military presence
+separate from both
+
+STATE INTEGRATION
+NationSettlement metric
+how deeply population is incorporated into state
+separate from all three
+```
+
+Legal sovereignty is `Sovereignty.GetSovereignOwner`. Effective control is `TerritoryManager.GetOwner` at a world position. A tile with no influence returns 0, which Nation reads as uncontrolled. The two answers are queried when needed. Nation does not store a second controller, and a territory change does not rewrite a sovereignty polygon.
+
+`CCmpTerritoryManager` keeps one player id per tile in five bits (`TERRITORY_PLAYER_MASK` is `0x1F`), plus a connected bit and a blinking flag. The grid is not serialized. It is rebuilt from `TerritoryInfluence` entities. Each of those entities has a root flag, a weight, and a radius. Radius is the approximate reach in world units: influence falls by about `weight * 8 / radius` on each passable territory tile, and a tile about one radius away has no influence left. Weight decides which source wins where two areas overlap. It does not shorten the radius. A root is the source of the connected bit. `GetOwner` still reports a player for non-root influence. Gaia and other non-positive owners are ignored, so land with no influence is uncontrolled rather than owned by Gaia. Diplomacy is not an input. Phase technologies do not modify influence.
+
+Destroying an influence entity, or changing its owner or position, marks the grid dirty. The next query recalculates. There is no Nation cleanup step. Capturing the structure makes its influence follow the new owner through that same update. The upstream territory overlay draws this effective-control grid in player colors. The fixed international border is not drawn as its own layer. Legal sovereignty is visible in the settlement readout and in simulation queries.
+
+A root structure standing on territory it owns is connected to itself, so `TerritoryDecay` does not remove it. A non-root structure in otherwise uncontrolled land can blink and decay. The regional office is therefore a root, as a civic centre is. Its radius and weight are still smaller than the capital civic centre.
+
+Influence is geometric. It is not clipped to sovereignty polygons. A control area can cross the legal border, and a legal border can cross uncontrolled land. That difference is intentional. Step 11 does not treat cross-border influence as authorized foreign administration.
+
+Domestic regional administration is authorized by legal sovereignty. `DomesticAdministration.MayPlace` allows `structures/nation/regional_administration` only where `GetSovereignOwner` is the builder. The construct command checks that before the upstream command runs, so a rejected site never spends resources or creates a foundation. The GUI is not consulted. The structure's build restriction is `own neutral`, which lets the upstream check accept the builder's own effective control and uncontrolled land. It does not accept foreign effective control. The sovereignty check is what rejects a site that is legally foreign even when Nation influence has spilled onto it.
+
+Effective control does not, in this step, change state integration, food production, food consumption, food imports, discontent, or representative population. Connectivity still changes integration on its own. Rebellion does not read or write `TerritoryManager`. Rebels damage a regional office through ordinary attack and `Health`. If the office is destroyed, its influence is gone and the grid recalculates.
 
 ### Sovereignty
 
@@ -207,9 +244,9 @@ V1 regions are static polygons in world coordinates, stored on the scenario as `
 
 ### Settlements
 
-`NationSettlement` is an entity component for a populated place. It stores a name, an aggregate demographic population, `stateIntegration` from 0 to 100, and `isCapital`. The template supplies the initial values. Nothing in the match grows or shrinks that population by itself. `SetPopulation` is the explicit replacement, used when a later system or a test changes the count. Integration can change. Demographic population is how many people live in the place. It is not the 0 A.D. population cap, and the settlement templates disable that cap component. Zero integration is almost no state reach. One hundred is deep integration. The component does not store a sovereign owner and does not read `TerritoryManager`.
+`NationSettlement` is an entity component for a populated place. It stores a name, an aggregate demographic population, `stateIntegration` from 0 to 100, and `isCapital`. The template supplies the initial values. Nothing in the match grows or shrinks that population by itself. `SetPopulation` is the explicit replacement, used when a later system or a test changes the count. Integration can change. Demographic population is how many people live in the place. It is not the 0 A.D. population cap, and the settlement templates disable that cap component. Zero integration is almost no state reach. One hundred is deep integration. The component does not store a sovereign owner and does not store an effective controller. `GetEffectiveController` reads `TerritoryManager.GetOwner` at the settlement position when asked. `GetPosition2D` stores map z in `y`.
 
-`GetSovereignOwner` asks `Sovereignty` for the owner of the settlement's position. `NationSettlementManager` uses `GetEntitiesWithInterface` and groups by that result. Entity `Ownership` is not the grouping key, so a settlement entity owned by one player can still count for the state whose land it stands on. `GetTotalPopulation` sums the populations in one sovereign territory, or returns 0 when there are none. `GetPopulationWeightedIntegration` is `sum(population * integration) / sum(population)`, or `null` when that population sum is 0. It reads the current settlement values, so a later change in integration changes the national figure without a second store. A settlement can stand in Nation's recognized territory and still have low integration. The 1961 sandbox places Capital, Northern Village, Western Village, and Southern Village in Nation's half, and Eastern Village in Neighbor's half. Their visuals are disposable house templates with territory influence removed.
+`GetSovereignOwner` asks `Sovereignty` for the owner of the settlement's position. The selected-settlement readout shows that legal sovereign and the effective controller by name, or "Uncontrolled" when `GetOwner` is 0. Both lines are read when the panel is drawn. `NationSettlementManager` uses `GetEntitiesWithInterface` and groups by that result. Entity `Ownership` is not the grouping key, so a settlement entity owned by one player can still count for the state whose land it stands on. `GetTotalPopulation` sums the populations in one sovereign territory, or returns 0 when there are none. `GetPopulationWeightedIntegration` is `sum(population * integration) / sum(population)`, or `null` when that population sum is 0. It reads the current settlement values, so a later change in integration changes the national figure without a second store. A settlement can stand in Nation's recognized territory and still have low integration. The 1961 sandbox places Capital, Northern Village, Western Village, and Southern Village in Nation's half, and Eastern Village in Neighbor's half. Their visuals are disposable house templates with territory influence removed.
 
 `IsCapital` marks at most one settlement as the capital of the sovereign state whose land it stands on. `SettlementConnectivity` finds that settlement by position. Two capitals in the same sovereign territory are rejected, and that state then has no capital for connectivity. There is no capital relocation.
 
@@ -483,7 +520,7 @@ The Athenian team bonus halves research time at a civil centre. The Nation civil
 
 The research command checks `CanResearch` before queueing. If a required structure is gone, the command does not start and nothing is spent. `Technology.Progress` does not check requirements again. A structure destroyed during the 30 or 60 seconds does not cancel the program. That is upstream behavior.
 
-New construction of `structures/nation/construction_materials_factory` requires `phase_town`. The sandbox factory, entity 70, is already placed, so it exists and produces during Consolidation. That avoids a loop where the first factory both requires Development and is required to research it. Farmers and extraction workers can place another factory only after Development. A second factory is another `IndustrialProduction` entity with the same template recipe. Regional administration, `structures/nation/regional_administration`, requires `phase_city`. It is a placeholder office. It has no territory influence, no population bonus, and no integration effect.
+New construction of `structures/nation/construction_materials_factory` requires `phase_town`. The sandbox factory, entity 70, is already placed, so it exists and produces during Consolidation. That avoids a loop where the first factory both requires Development and is required to research it. Farmers and extraction workers can place another factory only after Development. A second factory is another `IndustrialProduction` entity with the same template recipe. Regional administration, `structures/nation/regional_administration`, requires `phase_city`. It is a root `TerritoryInfluence` with radius 72 and weight 4000, weaker and smaller than the capital civic centre (radius 140, weight 10000). It has no population bonus, costs 0 population, and does not change integration. The neighbor civic centre stands near Eastern Neighbor Village and uses radius 90 and weight 10000. That covers the village. A circle large enough to reach the village from the old southern site would also have covered Nation's factory and Southern Village, so the centre is placed near the village instead.
 
 Phase research does not change settlement population, representative capacity, integration, or discontent. The phase files have no `modifications`.
 

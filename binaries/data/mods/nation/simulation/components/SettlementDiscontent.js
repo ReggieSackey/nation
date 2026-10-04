@@ -157,9 +157,25 @@ SettlementDiscontent.prototype.GetSettlementView = function(entity)
 		"name": cmpSettlement.GetName(),
 		"population": cmpSettlement.GetPopulation(),
 		"integration": cmpSettlement.GetStateIntegration(),
-		"discontent": cmpSettlement.GetDiscontent()
+		"discontent": cmpSettlement.GetDiscontent(),
+		"legalSovereignty": nationControllerName(cmpSettlement.GetSovereignOwner(), "Unclaimed"),
+		"effectiveControl": nationControllerName(cmpSettlement.GetEffectiveController(), "Uncontrolled")
 	};
 };
+
+/**
+ * Player display name for a sovereignty or territory id.
+ * Non-positive ids are uncontrolled or unclaimed land.
+ */
+function nationControllerName(playerId, emptyLabel)
+{
+	if (!Number.isInteger(playerId) || playerId <= 0)
+		return emptyLabel;
+
+	const playerEnt = Engine.QueryInterface(SYSTEM_ENTITY, IID_PlayerManager)?.GetPlayerByID(playerId);
+	const name = playerEnt && Engine.QueryInterface(playerEnt, IID_Identity)?.GetName();
+	return name || emptyLabel;
+}
 
 Engine.RegisterSystemComponentType(IID_SettlementDiscontent, "SettlementDiscontent", SettlementDiscontent);
 

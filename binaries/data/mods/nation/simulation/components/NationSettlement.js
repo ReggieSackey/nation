@@ -199,4 +199,22 @@ NationSettlement.prototype.GetSovereignOwner = function()
 	return cmpSovereignty.GetSovereignOwner({ "x": pos.x, "z": pos.y });
 };
 
+/**
+ * Effective controller at this settlement. Read from TerritoryManager when asked.
+ * Zero is uncontrolled. This is not stored.
+ * @return {number}
+ */
+NationSettlement.prototype.GetEffectiveController = function()
+{
+	const cmpPosition = Engine.QueryInterface(this.entity, IID_Position);
+	if (!cmpPosition || !cmpPosition.IsInWorld())
+		return 0;
+	const pos = cmpPosition.GetPosition2D();
+	const cmpTerritory = Engine.QueryInterface(SYSTEM_ENTITY, IID_TerritoryManager);
+	if (!pos || !cmpTerritory)
+		return 0;
+
+	return cmpTerritory.GetOwner(pos.x, pos.y);
+};
+
 Engine.RegisterComponentType(IID_NationSettlement, "NationSettlement", NationSettlement);

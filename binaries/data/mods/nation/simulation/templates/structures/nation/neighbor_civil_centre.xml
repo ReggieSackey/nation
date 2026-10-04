@@ -1,4 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Entity parent="structures/spart/civil_centre">
   <Population disable=""/>
+  <TerritoryInfluence>
+    <Root>true</Root>
+    <Radius>90</Radius>
+    <Weight>10000</Weight>
+  </TerritoryInfluence>
 </Entity>
