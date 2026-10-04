@@ -207,7 +207,7 @@ V1 regions are static polygons in world coordinates, stored on the scenario as `
 
 ### Settlements
 
-`NationSettlement` is an entity component for a populated place. It stores a name, an aggregate population, `stateIntegration` from 0 to 100, and `isCapital`. The template supplies the initial values. Population does not change during the match. Integration can change. Population here is how many people live in the place. It is not the 0 A.D. population cap, and the settlement templates disable that cap component. Zero integration is almost no state reach. One hundred is deep integration. The component does not store a sovereign owner and does not read `TerritoryManager`.
+`NationSettlement` is an entity component for a populated place. It stores a name, an aggregate demographic population, `stateIntegration` from 0 to 100, and `isCapital`. The template supplies the initial values. Nothing in the match grows or shrinks that population by itself. `SetPopulation` is the explicit replacement, used when a later system or a test changes the count. Integration can change. Demographic population is how many people live in the place. It is not the 0 A.D. population cap, and the settlement templates disable that cap component. Zero integration is almost no state reach. One hundred is deep integration. The component does not store a sovereign owner and does not read `TerritoryManager`.
 
 `GetSovereignOwner` asks `Sovereignty` for the owner of the settlement's position. `NationSettlementManager` uses `GetEntitiesWithInterface` and groups by that result. Entity `Ownership` is not the grouping key, so a settlement entity owned by one player can still count for the state whose land it stands on. `GetTotalPopulation` sums the populations in one sovereign territory, or returns 0 when there are none. `GetPopulationWeightedIntegration` is `sum(population * integration) / sum(population)`, or `null` when that population sum is 0. It reads the current settlement values, so a later change in integration changes the national figure without a second store. A settlement can stand in Nation's recognized territory and still have low integration. The 1961 sandbox places Capital, Northern Village, Western Village, and Southern Village in Nation's half, and Eastern Village in Neighbor's half. Their visuals are disposable house templates with territory influence removed.
 
@@ -222,6 +222,43 @@ In the 1961 sandbox the physical road joins Capital and Northern Village. An abs
 A settlement is connected when a path of those edges reaches the single capital of the same sovereign owner. The walk does not enter a settlement standing in another sovereign state, so an edge across the border does not make a foreign settlement part of Nation's capital network, and it does not bridge two Nation settlements through foreign land. The capital is not treated as connected to itself. A state with no capital connects nothing.
 
 Every `UpdatePeriod` of 10000 simulation milliseconds, one `Timer.SetInterval` adds `IntegrationGain` of 1 to each connected non-capital settlement. `ChangeStateIntegration` clamps the result to 0–100. Disconnected settlements and the capital stay at their current values. The timer id is component state and `Timer` serializes the callback, so a save keeps the remaining interval. This growth is prototype timing, not a finished balance, and it is the only integration driver so far.
+
+### Demographic population and representative capacity
+
+Two population numbers stay distinct.
+
+```text
+DEMOGRAPHIC POPULATION
+NationSettlement.population
+= actual simulated people
+
+        ↓ derived capacity
+
+REPRESENTATIVE POPULATION
+upstream Pyrogenesis population primitive
+= physical-agent capacity
+```
+
+`NationSettlement.population` is the only demographic store. `RepresentativeCapacity` does not keep a copy. It reads `NationSettlementManager.GetTotalPopulation`, which sums settlements by `Sovereignty`, not by entity `Ownership`. A settlement standing in Nation's land counts for Nation even when its `Ownership` component says otherwise.
+
+The prototype ratio is gameplay tuning, stored once as `RepresentativeCapacity.PeoplePerSlot`:
+
+```text
+100 demographic people → 1 representative capacity
+representativeCapacity = floor(totalDemographicPopulation / 100)
+```
+
+Player 1's 33500 people derive 335 slots. Neighbor's 4000 derive 40. One visible unit is not a claim that the unit is exactly 100 humans. Later modifiers may include state integration, mobilization, institutions, recruitment, employment, age structure, legitimacy, occupation, or conscription. None of those change the ratio yet. Integration, food shortage, and discontent do not.
+
+The native limit is `min(maximum, population bonuses)`. Houses and civic centres normally add bonuses. The gamesetup default maximum is 300, so a derivation of 335 would be hidden if only the bonus were set, and a leftover building bonus would raise the limit if the maximum were left higher. `RepresentativeCapacity` therefore writes the derivation into both fields. It does that once, from a zero-delay timer started in `OnInitGame`, because `Sovereignty` loads its regions in its own `OnInitGame` and the handler order is not fixed. A population change broadcasts `NationPopulationChanged` and the same write runs again. It does not poll. The current count is still the sum of unit population costs. Training uses `Player.TryReservePopulationSlots`, which is what `Trainer` already calls. A batch that would pass the limit is rejected and the count does not increase. If demographic population falls so the limit is below the current count, existing units stay. The display can read above the limit, and further population-cost training stays rejected until the count drops. Destroying a unit still subtracts its cost. Creating or destroying a unit does not add or remove demographic people.
+
+Nation settlement templates already disable the house population bonus. The sandbox civic centres are Nation children of the Athenian and Spartan civic centres with that bonus disabled. An Athenian civic centre would otherwise add 20, and destroying it later would subtract 20 from a bonus total that had already been replaced. Logging camps, the quarry, the mine, the grain field, and roads do not carry a population bonus. After the derivation is written, the maximum equals it, so a later building bonus cannot raise the limit above that maximum.
+
+Government workers and soldiers use the inherited unit population cost of 1 and therefore take one representative slot each. The logger, quarry worker, and miner inherit that cost from the woman citizen. Rebel fighters stay at population cost 0. They belong to the rebel player. They do not spend Nation's representative capacity, and spawning them does not reduce `NationSettlement.population`.
+
+The session line keeps demographic population as `Population`. A second line, `Representative units`, shows the native count and limit. That label is provisional. The native count includes civilian workers and soldiers, so it is not a mobilization pool and it is not the country's population. The stock population counter remains the upstream readout.
+
+The derived maximum, the derived bonus, and the current count live on the `Player` component, which already serializes them. `RepresentativeCapacity` stores nothing of its own. A loaded game does not run `OnInitGame` again, so the saved values are not applied a second time. Another refresh writes the same capacity.
 
 ### Government finance
 
@@ -329,7 +366,7 @@ physical source
 → Player resource stockpile
 ```
 
-Wood, stone, and metal are not `CommodityProducer` output and they are not treasury. Gathering them does not create export income. Construction still spends treasury only. The workers are representative agents. Their population cost is 0, and they are not subtracted from settlement population.
+Wood, stone, and metal are not `CommodityProducer` output and they are not treasury. Gathering them does not create export income. Construction still spends treasury only. The workers are representative agents. Their native population cost is the inherited unit cost of 1, so each one uses one representative slot. They are not subtracted from settlement population.
 
 A deposit is not the facility. The timber stand, stone deposit, and metal deposit are finite `ResourceSupply` entities. The logging camp, quarry, and mine are player-owned dropsites. A facility does not generate resources on a timer. Upstream exhaustion destroys a finite supply at amount 0, and Nation does not respawn it.
 

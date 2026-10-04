@@ -85,6 +85,24 @@ NationSettlement.prototype.GetPopulation = function()
 };
 
 /**
+ * Replace the demographic population. This does not create or remove physical units.
+ * @return {number} - The stored population, or the previous value when the input is rejected.
+ */
+NationSettlement.prototype.SetPopulation = function(value)
+{
+	if (!Number.isInteger(value) || value < 0)
+	{
+		error("NationSettlement.SetPopulation: value must be a non-negative integer");
+		return this.population;
+	}
+
+	this.population = value;
+	if (Engine.BroadcastMessage)
+		Engine.BroadcastMessage(MT_NationPopulationChanged, { "entity": this.entity });
+	return this.population;
+};
+
+/**
  * @return {number} - Integration from 0 to 100.
  */
 NationSettlement.prototype.GetStateIntegration = function()

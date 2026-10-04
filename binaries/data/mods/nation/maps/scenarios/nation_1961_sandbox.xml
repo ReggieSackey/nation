@@ -132,7 +132,7 @@
 ]]></ScriptSettings>
 	<Entities>
 		<Entity uid="10">
-			<Template>structures/athen/civil_centre</Template>
+			<Template>structures/nation/civil_centre</Template>
 			<Player>1</Player>
 			<Position x="140" z="380"/>
 			<Orientation y="2.35621"/>
@@ -156,7 +156,7 @@
 			<Orientation y="0.8"/>
 		</Entity>
 		<Entity uid="20">
-			<Template>structures/spart/civil_centre</Template>
+			<Template>structures/nation/neighbor_civil_centre</Template>
 			<Player>2</Player>
 			<Position x="380" z="140"/>
 			<Orientation y="-0.785398"/>
