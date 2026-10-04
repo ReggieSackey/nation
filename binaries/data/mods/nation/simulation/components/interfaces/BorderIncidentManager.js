@@ -7,3 +7,10 @@ Engine.RegisterInterface("BorderIncidentManager");
  * and do not send this message again. This is not a declaration of war.
  */
 Engine.RegisterMessageType("BorderIncidentStarted");
+
+/**
+ * Message of the form { "offender": number, "defender": number, "entity": number }
+ * sent when another unauthorized entry is added to an incident that already exists.
+ * The incident record is not replaced.
+ */
+Engine.RegisterMessageType("BorderIncursionContinued");

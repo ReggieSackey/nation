@@ -62,8 +62,45 @@ BorderWarningManager.prototype.OnGlobalBorderIncidentStarted = function(msg)
 };
 
 /**
- * True only when this warning is active and the offender has no tracked units
- * left inside the defender. The warning record itself stays active.
+ * A later incursion can open a new warning cycle only after the previous one
+ * was completed. An open cycle is left alone, so continuous presence does not
+ * issue another warning.
+ */
+BorderWarningManager.prototype.OnGlobalBorderIncursionContinued = function(msg)
+{
+	if (!Number.isInteger(msg.offender) || msg.offender <= 0)
+		return;
+	if (!Number.isInteger(msg.defender) || msg.defender <= 0 || msg.offender === msg.defender)
+		return;
+
+	const warning = this.FindWarning(msg.offender, msg.defender);
+	if (!warning || warning.active)
+		return;
+
+	warning.active = true;
+	Engine.BroadcastMessage(MT_BorderWarningIssued, {
+		"issuer": msg.defender,
+		"recipient": msg.offender
+	});
+};
+
+/**
+ * Close the open cycle after its deadline has seen the troops leave.
+ * The warning record stays. IsWarningCompliedWith is only meaningful while the cycle is open.
+ */
+BorderWarningManager.prototype.CompleteWarningCycle = function(offender, defender)
+{
+	const warning = this.FindWarning(offender, defender);
+	if (!warning || !warning.active)
+		return;
+	if (!this.IsWarningCompliedWith(offender, defender))
+		return;
+	warning.active = false;
+};
+
+/**
+ * True only while this warning cycle is open and the offender has no tracked
+ * units left inside the defender.
  * @return {boolean}
  */
 BorderWarningManager.prototype.IsWarningCompliedWith = function(offender, defender)

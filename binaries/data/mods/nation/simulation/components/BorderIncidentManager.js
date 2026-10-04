@@ -65,6 +65,11 @@ BorderIncidentManager.prototype.OnGlobalSovereignEntryClassified = function(msg)
 	if (existing)
 	{
 		++existing.incursions;
+		Engine.BroadcastMessage(MT_BorderIncursionContinued, {
+			"offender": msg.entityOwner,
+			"defender": msg.to,
+			"entity": msg.entity
+		});
 		return;
 	}
 

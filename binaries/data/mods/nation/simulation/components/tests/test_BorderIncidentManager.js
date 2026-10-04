@@ -9,10 +9,13 @@ AddMock(SYSTEM_ENTITY, IID_Diplomacy, {
 });
 
 const g_Started = [];
+const g_Continued = [];
 Engine.BroadcastMessage = function(type, message)
 {
 	if (type === MT_BorderIncidentStarted)
 		g_Started.push(message);
+	else if (type === MT_BorderIncursionContinued)
+		g_Continued.push(message);
 };
 
 var cmpIncidents = ConstructComponent(SYSTEM_ENTITY, "BorderIncidentManager");
@@ -46,11 +49,16 @@ TS_ASSERT_EQUALS(cmpIncidents.GetIncident(1, 2).incursions, 1);
 entry(12, 1, 1, 2, false);
 TS_ASSERT_EQUALS(cmpIncidents.GetIncident(1, 2).incursions, 2);
 TS_ASSERT_EQUALS(g_Started.length, 1);
+TS_ASSERT_EQUALS(g_Continued.length, 1);
+TS_ASSERT_EQUALS(g_Continued[0].offender, 1);
+TS_ASSERT_EQUALS(g_Continued[0].defender, 2);
+TS_ASSERT_EQUALS(g_Continued[0].entity, 12);
 TS_ASSERT_EQUALS(cmpIncidents.GetActiveIncidents().length, 1);
 
 entry(13, 1, 1, 2, true);
 TS_ASSERT_EQUALS(cmpIncidents.GetIncident(1, 2).incursions, 2);
 TS_ASSERT_EQUALS(g_Started.length, 1);
+TS_ASSERT_EQUALS(g_Continued.length, 1);
 
 entry(21, 2, 2, 1, false);
 TS_ASSERT_EQUALS(cmpIncidents.HasActiveIncident(2, 1), true);

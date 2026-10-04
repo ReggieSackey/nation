@@ -1,21 +1,21 @@
-function BorderWarningEscalation() {}
+function BorderUltimatumEscalation() {}
 
-BorderWarningEscalation.prototype.Schema =
+BorderUltimatumEscalation.prototype.Schema =
 	"<a:component type='system'/><empty/>";
 
 /**
  * Prototype grace period in simulation milliseconds.
  * This is sandbox timing, not a final gameplay duration and not a calendar date.
  */
-BorderWarningEscalation.prototype.GracePeriod = 10000;
+BorderUltimatumEscalation.prototype.GracePeriod = 10000;
 
-BorderWarningEscalation.prototype.Init = function()
+BorderUltimatumEscalation.prototype.Init = function()
 {
 	// One pending deadline per offender-defender pair. timer is a Timer id.
 	this.deadlines = [];
 };
 
-BorderWarningEscalation.prototype.Find = function(offender, defender)
+BorderUltimatumEscalation.prototype.Find = function(offender, defender)
 {
 	for (let i = 0; i < this.deadlines.length; ++i)
 	{
@@ -27,14 +27,14 @@ BorderWarningEscalation.prototype.Find = function(offender, defender)
 };
 
 /**
- * @return {boolean} - True while this pair is waiting for its grace period to end.
+ * @return {boolean} - True while this pair is waiting for its ultimatum period to end.
  */
-BorderWarningEscalation.prototype.HasPendingDeadline = function(offender, defender)
+BorderUltimatumEscalation.prototype.HasPendingDeadline = function(offender, defender)
 {
 	return !!this.Find(offender, defender);
 };
 
-BorderWarningEscalation.prototype.ClearDeadline = function(offender, defender)
+BorderUltimatumEscalation.prototype.ClearDeadline = function(offender, defender)
 {
 	for (let i = 0; i < this.deadlines.length; ++i)
 	{
@@ -46,7 +46,7 @@ BorderWarningEscalation.prototype.ClearDeadline = function(offender, defender)
 	}
 };
 
-BorderWarningEscalation.prototype.OnGlobalBorderWarningIssued = function(msg)
+BorderUltimatumEscalation.prototype.OnGlobalBorderUltimatumIssued = function(msg)
 {
 	const offender = msg.recipient;
 	const defender = msg.issuer;
@@ -63,7 +63,7 @@ BorderWarningEscalation.prototype.OnGlobalBorderWarningIssued = function(msg)
 
 	const timer = cmpTimer.SetTimeout(
 		SYSTEM_ENTITY,
-		IID_BorderWarningEscalation,
+		IID_BorderUltimatumEscalation,
 		"DeadlineReached",
 		this.GracePeriod,
 		{
@@ -79,25 +79,21 @@ BorderWarningEscalation.prototype.OnGlobalBorderWarningIssued = function(msg)
 };
 
 /**
- * The grace period elapsed. Compliance is read now, not from when the warning was issued.
- * A met warning closes that cycle and sends nothing. An unmet warning becomes an ultimatum.
+ * The ultimatum period elapsed. Presence is read now.
+ * Withdrawal sends nothing and leaves the ultimatum recorded.
+ * Remaining forces open one escalated crisis. That crisis is not war.
  */
-BorderWarningEscalation.prototype.DeadlineReached = function(data)
+BorderUltimatumEscalation.prototype.DeadlineReached = function(data)
 {
 	this.ClearDeadline(data.offender, data.defender);
 
-	const cmpWarnings = Engine.QueryInterface(SYSTEM_ENTITY, IID_BorderWarningManager);
-	if (!cmpWarnings)
+	const cmpPresence = Engine.QueryInterface(SYSTEM_ENTITY, IID_ForeignMilitaryPresence);
+	if (!cmpPresence || !cmpPresence.HasForeignMilitaryPresence(data.offender, data.defender))
 		return;
-	if (cmpWarnings.IsWarningCompliedWith(data.offender, data.defender))
-	{
-		cmpWarnings.CompleteWarningCycle(data.offender, data.defender);
-		return;
-	}
 
-	const cmpUltimatums = Engine.QueryInterface(SYSTEM_ENTITY, IID_BorderUltimatumManager);
-	if (cmpUltimatums)
-		cmpUltimatums.IssueUltimatum(data.offender, data.defender);
+	const cmpCrises = Engine.QueryInterface(SYSTEM_ENTITY, IID_BorderCrisisManager);
+	if (cmpCrises)
+		cmpCrises.EscalateCrisis(data.offender, data.defender);
 };
 
-Engine.RegisterSystemComponentType(IID_BorderWarningEscalation, "BorderWarningEscalation", BorderWarningEscalation);
+Engine.RegisterSystemComponentType(IID_BorderUltimatumEscalation, "BorderUltimatumEscalation", BorderUltimatumEscalation);
