@@ -1,0 +1,10 @@
+{
+	"code": "construction_materials",
+	"name": "Construction Materials",
+	"description": "Processed lumber, cement inputs, and fabricated metal used for building.",
+	"order": 5,
+	"subtypes": {},
+	"properties": [],
+	"truePrice": 100,
+	"aiAnalysisInfluenceGroup": "ignore"
+}

@@ -390,6 +390,39 @@ Miner 68 at (156, 140)
 
 The camp, quarry, and mine inherit the storehouse, including `Health` and `Resistance`, and accept only their own resource. They are not shared. `CommitResources` credits the worker's owner. A neighbor cannot use the normal return check on these dropsites. Destroying the facility removes that dropsite. Resources already in hand stay on the worker. Upstream orders may then look for another dropsite that accepts the type. The civic centre accepts all four resources, so it can become that fallback. The deposit itself is left in place. A rebel damages a facility through ordinary `Health.TakeDamage`. There is no extraction-specific attack.
 
+### Industrial production
+
+```text
+PRIMARY PHYSICAL RESOURCES
+
+food
+wood
+stone
+metal
+
+        ↓
+
+INDUSTRIAL TRANSFORMATION
+
+wood + stone + metal
+→ construction materials factory
+→ construction_materials
+
+        ↓ future
+
+construction / development
+```
+
+`construction_materials` is a Player resource, registered by `simulation/data/resources/construction_materials.json`. It is a broad stand-in for milled lumber, cement inputs, and fabricated metal, not one literal substance. It is not treasury and it is not a `CommodityProducer` output. Cocoa export does not know about it, and the factory does not know about cocoa. Nothing spends it yet. Roads, buildings, and other construction still cost treasury only.
+
+Extraction and industry meet in the national stockpile. A logger, quarry worker, or miner still carries a load to a dropsite, and that dropsite credits the owner's Player resources. `IndustrialProduction` then reads that same stockpile. The factory does not keep a local inventory, and the output is not carried out of the building. That is a V1 abstraction. Later logistics can require a physical delivery. The recipe is template data, so another industry can be a new entity template rather than a new component.
+
+The 1961 sandbox has one factory, entity 70, `structures/nation/construction_materials_factory`, owned by Player 1 at (210, 250). The actor is the Hellenic forge. The forge template writes a maximum of 2000 hitpoints; in the sandbox the entity reports 2200. Population cost is 0. Every 10000 simulation milliseconds the recipe requires 10 wood, 10 stone, and 5 metal, and it adds 10 construction materials. All three inputs must be present. Otherwise the cycle changes nothing. The next interval tries again without a restart. The owner is read when the cycle runs, so a later capture spends the new owner's stockpile. Gaia and an invalid owner produce nothing. Damage does not slow the recipe. Destroying the factory cancels the timer, and a later tick cannot find the component. The factory does not change demographic population or representative capacity.
+
+Both players, and the rebel player, start with 0 construction materials. The stock resource bar has five slots, four resources and population, so the manufactured resource is not given a sixth icon. The Nation status line shows `Construction materials`.
+
+The timer id is component state and `Timer` serializes the callback. A loaded game does not run `OnInitGame` again, so the interval is not scheduled twice.
+
 ### Population food consumption
 
 ```text

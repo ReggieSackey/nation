@@ -51,20 +51,27 @@
       "Name": "Nation",
       "Diplomacy": [-1, 1, 0, -1],
       "Resources": {
-        "food": 1000
+        "food": 1000,
+        "construction_materials": 0
       }
     },
     {
       "Civ": "spart",
       "Name": "Neighbor",
-      "Diplomacy": [-1, 0, 1, 0]
+      "Diplomacy": [-1, 0, 1, 0],
+      "Resources": {
+        "construction_materials": 0
+      }
     },
     {
       "Civ": "athen",
       "Name": "Rebels",
       "AI": "",
       "Color": { "r": 120, "g": 32, "b": 32 },
-      "Diplomacy": [-1, -1, 0, 1]
+      "Diplomacy": [-1, -1, 0, 1],
+      "Resources": {
+        "construction_materials": 0
+      }
     }
   ],
   "RebelPlayer": 3,
@@ -279,6 +286,12 @@
 			<Template>units/nation/miner</Template>
 			<Player>1</Player>
 			<Position x="156" z="140"/>
+			<Orientation y="0"/>
+		</Entity>
+		<Entity uid="70">
+			<Template>structures/nation/construction_materials_factory</Template>
+			<Player>1</Player>
+			<Position x="210" z="250"/>
 			<Orientation y="0"/>
 		</Entity>
 	</Entities>

@@ -27,6 +27,8 @@ function updateNationFoodStatus()
 	const rebellions = Number.isInteger(state.nationActiveRebellions) ? state.nationActiveRebellions : 0;
 	const units = Number.isFinite(state.popCount) ? state.popCount : 0;
 	const slots = Number.isFinite(state.popLimit) ? state.popLimit : 0;
+	const materials = state.resourceCounts && Number.isFinite(state.resourceCounts.construction_materials) ?
+		state.resourceCounts.construction_materials : 0;
 	label.hidden = false;
 	label.caption =
 		"Population: " + nationFoodAmount(status.population) +
@@ -34,7 +36,8 @@ function updateNationFoodStatus()
 		"    Food shortage: " + shortage + "%" +
 		"    National discontent: " + discontent + "%" +
 		"    Active rebellions: " + rebellions +
-		"\nRepresentative units: " + nationFoodAmount(units) + " / " + nationFoodAmount(slots);
+		"\nRepresentative units: " + nationFoodAmount(units) + " / " + nationFoodAmount(slots) +
+		"    Construction materials: " + nationFoodAmount(Math.floor(materials));
 }
 
 registerSimulationUpdateHandler(updateNationFoodStatus);
