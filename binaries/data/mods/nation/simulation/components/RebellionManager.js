@@ -67,6 +67,14 @@ RebellionManager.prototype.ReadRebelPlayer = function(playerId)
 	this.rebelPlayer = Number.isInteger(playerId) && playerId > 0 ? playerId : 0;
 };
 
+/**
+ * @return {number} - Player slot that owns rebel entities, or 0 when none is configured.
+ */
+RebellionManager.prototype.GetRebelPlayer = function()
+{
+	return this.rebelPlayer;
+};
+
 RebellionManager.prototype.OnInitGame = function()
 {
 	const settings = typeof InitAttributes !== "undefined" && InitAttributes.settings;

@@ -159,7 +159,10 @@ SettlementDiscontent.prototype.GetSettlementView = function(entity)
 		"integration": cmpSettlement.GetStateIntegration(),
 		"discontent": cmpSettlement.GetDiscontent(),
 		"legalSovereignty": nationControllerName(cmpSettlement.GetSovereignOwner(), "Unclaimed"),
-		"effectiveControl": nationControllerName(cmpSettlement.GetEffectiveController(), "Uncontrolled")
+		"effectiveControl": nationControllerName(cmpSettlement.GetEffectiveController(), "Uncontrolled"),
+		"militaryOccupation": nationControllerName(
+			Engine.QueryInterface(SYSTEM_ENTITY, IID_MilitaryOccupation)?.GetOccupier(entity) || 0,
+			"None")
 	};
 };
 

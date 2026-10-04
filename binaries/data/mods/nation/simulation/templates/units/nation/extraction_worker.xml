@@ -4,6 +4,7 @@
     <Entities datatype="tokens">
       structures/nation/construction_materials_factory
       structures/nation/regional_administration
+      structures/nation/foreign_administration
     </Entities>
   </Builder>
   <Identity>

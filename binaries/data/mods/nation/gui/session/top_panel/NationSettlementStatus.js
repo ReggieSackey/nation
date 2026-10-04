@@ -37,6 +37,7 @@ function updateNationSettlementStatus()
 		"Discontent: " + settlement.discontent + "\n" +
 		"Legal sovereignty: " + (settlement.legalSovereignty || "Unclaimed") + "\n" +
 		"Effective control: " + (settlement.effectiveControl || "Uncontrolled") + "\n" +
+		"Military occupation: " + (settlement.militaryOccupation || "None") + "\n" +
 		rebellionLine;
 }
 

@@ -193,7 +193,8 @@ dynamic physical administrative dominance
 answers who actually projects state authority
 
 MILITARY OCCUPATION
-future/physical military presence
+Nation MilitaryOccupation
+local foreign hostile military dominance around a settlement
 separate from both
 
 STATE INTEGRATION
@@ -210,7 +211,21 @@ Destroying an influence entity, or changing its owner or position, marks the gri
 
 A root structure standing on territory it owns is connected to itself, so `TerritoryDecay` does not remove it. A non-root structure in otherwise uncontrolled land can blink and decay. The regional office is therefore a root, as a civic centre is. Its radius and weight are still smaller than the capital civic centre.
 
-Influence is geometric. It is not clipped to sovereignty polygons. A control area can cross the legal border, and a legal border can cross uncontrolled land. That difference is intentional. Step 11 does not treat cross-border influence as authorized foreign administration.
+Influence is geometric. It is not clipped to sovereignty polygons. A control area can cross the legal border, and a legal border can cross uncontrolled land. That difference is intentional. A tile such as (270, 380) can be legally Neighbor and effectively Nation because the capital's radius crosses x=256. That spill does not authorize a foreign office.
+
+`MilitaryOccupation` answers which hostile foreign state currently has enough soldiers around a settlement. It stores nothing. `GetOccupier` asks `RangeManager.ExecuteQueryAroundPos` for that settlement when something needs the answer, then counts living mobile entities with the `Soldier` class inside 60 world units. Support workers do not have that class. The configured rebel player is skipped, and so is the sovereign's own army. Both players must regard the other as an enemy; a neutral or military-access garrison does not occupy. Three soldiers are required. If two foreign states both qualify, the larger count wins, and an equal count uses the lower player id. The player loop is numeric, so the result does not depend on object order. There is no occupation grid and no per-turn scan.
+
+`structures/nation/foreign_administration` is the office built from that occupation. It requires `phase_city`. `MayPlace` allows it only on land sovereign to someone else, within 80 world units of a settlement that is sovereign to that state and currently occupied by the builder. Domestic `regional_administration` is unchanged and still requires the builder's own sovereignty. The construct command applies both checks before the upstream command, and it also requires `CanProduce`, because a zero-cost building would otherwise continue after a failed technology check. Once the foreign office exists, it keeps its `TerritoryInfluence` if the soldiers leave. Destroying the office removes that influence and leaves any soldiers' occupation in place. Neither event rewrites `Sovereignty`.
+
+The foreign office is a root with radius 72 and weight 16000. Radius 72 is the same local reach as a regional office. Weight 16000 is higher than a regional office's 4000 because the neighbor civic centre still has several thousand influence left at Eastern Neighbor Village, and 4000 cannot take that tile. The office does not change integration, discontent, food, resources, or the treasury.
+
+These states are all valid, and none of them is annexation:
+
+```text
+Sovereign P2, control P2, occupation P1
+Sovereign P2, control P1, occupation P1
+Sovereign P2, control P1, occupation none
+```
 
 Domestic regional administration is authorized by legal sovereignty. `DomesticAdministration.MayPlace` allows `structures/nation/regional_administration` only where `GetSovereignOwner` is the builder. The construct command checks that before the upstream command runs, so a rejected site never spends resources or creates a foundation. The GUI is not consulted. The structure's build restriction is `own neutral`, which lets the upstream check accept the builder's own effective control and uncontrolled land. It does not accept foreign effective control. The sovereignty check is what rejects a site that is legally foreign even when Nation influence has spilled onto it.
 

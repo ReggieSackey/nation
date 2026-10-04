@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Entity parent="structures/athen/storehouse">
+  <Cost>
+    <Population>0</Population>
+    <Resources>
+      <food>0</food>
+      <wood>0</wood>
+      <stone>0</stone>
+      <metal>0</metal>
+    </Resources>
+  </Cost>
+  <Identity>
+    <GenericName>Foreign Administration</GenericName>
+    <SpecificName>Foreign Administration</SpecificName>
+    <Tooltip>An occupation office in another state's land. It extends effective control around itself and does not move the legal border.</Tooltip>
+    <Classes datatype="tokens">NationForeignAdministration</Classes>
+    <Requirements>
+      <Techs datatype="tokens">phase_city</Techs>
+    </Requirements>
+  </Identity>
+  <BuildRestrictions>
+    <Territory>own neutral enemy</Territory>
+  </BuildRestrictions>
+  <ProductionQueue disable=""/>
+  <Researcher disable=""/>
+  <ResourceDropsite disable=""/>
+  <TerritoryInfluence>
+    <Root>true</Root>
+    <Radius>72</Radius>
+    <Weight>16000</Weight>
+  </TerritoryInfluence>
+</Entity>

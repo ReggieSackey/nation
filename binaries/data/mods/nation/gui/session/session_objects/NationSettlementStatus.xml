@@ -1,2 +1,2 @@
 <?xml version="1.0" encoding="utf-8"?>
-<object name="nationSettlementStatus" type="text" style="resourceText" size="50%-220 100%-360 50%+220 100%-210" z="40" hidden="true"/>
+<object name="nationSettlementStatus" type="text" style="resourceText" size="50%-220 100%-384 50%+220 100%-210" z="40" hidden="true"/>
