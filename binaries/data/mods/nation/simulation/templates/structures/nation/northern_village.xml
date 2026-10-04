@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Entity parent="template_nation_settlement">
+  <Identity>
+    <SpecificName>Northern Village</SpecificName>
+  </Identity>
+  <NationSettlement>
+    <Name>Northern Village</Name>
+    <Population>5000</Population>
+    <StateIntegration>35</StateIntegration>
+  </NationSettlement>
+</Entity>

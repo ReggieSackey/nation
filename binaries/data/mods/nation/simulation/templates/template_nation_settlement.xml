@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Entity parent="structures/athen/house">
+  <Identity>
+    <GenericName>Settlement</GenericName>
+  </Identity>
+  <Population disable=""/>
+  <ProductionQueue disable=""/>
+  <Researcher disable=""/>
+  <TerritoryInfluence disable=""/>
+  <Trainer disable=""/>
+  <NationSettlement>
+    <Name>Settlement</Name>
+    <Population>0</Population>
+    <StateIntegration>0</StateIntegration>
+  </NationSettlement>
+</Entity>

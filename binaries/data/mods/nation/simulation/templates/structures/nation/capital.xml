@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Entity parent="template_nation_settlement">
+  <Identity>
+    <SpecificName>Capital</SpecificName>
+  </Identity>
+  <NationSettlement>
+    <Name>Capital</Name>
+    <Population>18000</Population>
+    <StateIntegration>90</StateIntegration>
+  </NationSettlement>
+</Entity>

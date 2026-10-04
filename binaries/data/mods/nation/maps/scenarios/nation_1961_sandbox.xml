@@ -136,6 +136,36 @@
 			<Position x="402" z="132"/>
 			<Orientation y="2.2"/>
 		</Entity>
+		<Entity uid="30">
+			<Template>structures/nation/capital</Template>
+			<Player>1</Player>
+			<Position x="90" z="420"/>
+			<Orientation y="0"/>
+		</Entity>
+		<Entity uid="31">
+			<Template>structures/nation/northern_village</Template>
+			<Player>1</Player>
+			<Position x="70" z="470"/>
+			<Orientation y="0"/>
+		</Entity>
+		<Entity uid="32">
+			<Template>structures/nation/western_village</Template>
+			<Player>1</Player>
+			<Position x="40" z="220"/>
+			<Orientation y="0"/>
+		</Entity>
+		<Entity uid="33">
+			<Template>structures/nation/southern_village</Template>
+			<Player>1</Player>
+			<Position x="190" z="60"/>
+			<Orientation y="0"/>
+		</Entity>
+		<Entity uid="34">
+			<Template>structures/nation/eastern_village</Template>
+			<Player>2</Player>
+			<Position x="420" z="400"/>
+			<Orientation y="0"/>
+		</Entity>
 	</Entities>
 	<Paths/>
 </Scenario>
