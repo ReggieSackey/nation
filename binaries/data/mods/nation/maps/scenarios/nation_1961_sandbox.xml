@@ -85,6 +85,10 @@
   "SettlementConnectivity": [
     { "from": 30, "to": 33 }
   ],
+  "GovernmentFinance": [
+    { "player": 1, "treasury": 10000000 },
+    { "player": 2, "treasury": 5000000 }
+  ],
   "VictoryConditions": [
     "conquest"
   ]
