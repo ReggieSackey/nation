@@ -328,7 +328,7 @@ One `Timer.SetInterval` of `RevenueInterval`, 10000 simulation milliseconds, cal
 
 The 1961 sandbox attaches cocoa production only to Southern Village: 100 units each interval, starting from an empty stock. The capital and the other villages do not produce. Production does not read population, state integration, or connectivity.
 
-`CommodityProductionManager` runs one `Timer.SetInterval` of 10000 simulation milliseconds and calls `Produce` on every `CommodityProducer`. `CommodityExportManager` runs one interval of 25000 simulation milliseconds. It sells to an abstract buyer at a fixed prototype price, 10 currency units per cocoa unit. The quantity is `floor(stock * routeCondition / 100)`, where `TransportEfficiency` reads the path to the capital. Unsold stock stays on the producer. A producer with no stock, or with route condition 0, adds no money. A commodity with no price stays in stock. The buyer is not a port, a neighbor, or a trade route. Prices do not move, and foreign exchange is not modeled. Population-based government revenue remains temporary scaffolding beside this. It does not read road condition.
+`CommodityProductionManager` runs one `Timer.SetInterval` of 10000 simulation milliseconds and calls `Produce` on every `CommodityProducer`. `CommodityExportManager` runs one interval of 25000 simulation milliseconds. It sells to an abstract buyer at a fixed prototype price, 10 currency units per cocoa unit. The quantity is `floor(stock * routeCondition / 100)`, where `TransportEfficiency` reads the path to the capital. Unsold stock stays on the producer. A producer with no stock, or with route condition 0, adds no money. A commodity with no price stays in stock. The buyer is not a port, a neighbor, or a trade route. That abstract world buyer is scaffolding. A later bilateral commodity agreement and a physical trade route should be able to replace it. Prices do not move, and foreign exchange is not modeled. Population-based government revenue remains temporary scaffolding beside this. It does not read road condition.
 
 The government that is paid is the sovereign owner of the producer's position, from `Sovereignty.GetSovereignOwner`. Entity `Ownership` is not consulted. `CommodityExportManager` calls `GovernmentFinance.AddFunds` with `exported quantity * price`. It does not write the treasury itself, and it does not subtract a penalty for a damaged road. It remembers units actually exported and the revenue from those units. The production timer is started before the export timer. When both deadlines fall on the same simulation time, production runs first and that output is included in the sale. On a healthy road the first export, at 25 seconds, sells 200 cocoa for 2000 and stock returns to 0. At condition 50 the same stock sells 100 and keeps 100.
 
@@ -641,6 +641,128 @@ The 1961 sandbox builds no rebel base, rebel economy, or rebel territory. Rebels
 **Population.** `Population` in upstream code is a housing bonus. Nation population is aggregate settlement data and is the demand for Player food. It does not fall when food runs out. Employment, healthcare, education, services, prosperity, and unrest are later settlement concerns. Visible civilians are representative entities, not one entity per person.
 
 **War.** Keep `Attack`, `Health`, `UnitAI`, and the pathfinder. Feed them from the same roads, stocks, and treasury used in peacetime. Occupied land stays a different fact from sovereign land.
+
+## Diplomacy, Trade, and Agreement Primitives
+
+This is the audit of the upstream pieces a bilateral agreement can sit on. The labels are what Nation should do with each one.
+
+### Diplomacy — REUSE DIRECTLY for stance, NOT SUITABLE as the agreement
+
+`Diplomacy` stores one stance per other player: ally `1`, neutral `0`, enemy `-1`. `Ally`, `SetNeutral`, and `SetEnemy` write that player's row only. Mutual hostility is two writes. A change broadcasts `DiplomacyChanged`. Allies can share line of sight and dropsites after the techs named on the component. Teams force mutual alliance. The `diplomacy` command refuses changes during an active ceasefire and refuses them when the team is locked.
+
+There is no structured offer. `diplomacy-request` and `tribute-request` only push an event into `AIInterface`. Petra may answer. A human receives chat, not a package that the simulation can accept. Stance stays the war/peace fact. It does not grant military access, trade access, cash, or resources.
+
+### Tribute — ADAPT the stockpile write, do not call the tribute command
+
+`Player.TributeResource` moves a map of resource amounts immediately. The command is `tribute`. The diplomacy panel sends it. Amounts must be non-negative integers, and every code must be in `Resources.GetTributableCodes()`. Food, wood, stone, and metal are tributable. `construction_materials` is a registered Player resource with no tributable property, so tribute rejects it. Tribute does not read diplomacy. It does not move treasury. It notifies, counts statistics, and broadcasts `TributeExchanged`. If any code is invalid, or the payer cannot afford the whole map, it returns before `AddResources`. That is one-way and immediate. It cannot express "P2 also pays metal, and both grants happen, or nothing does."
+
+Agreements therefore call `TrySubtractResources` and `AddResource` on the same `Player` stockpiles. Those calls work for every code in `Resources.GetCodes()`, including construction materials. The agreement component decides whether the whole package may run.
+
+### Barter — NOT SUITABLE
+
+`Barter.ExchangeResources` sells one of a player's resources for another of the same player's resources. Prices are global, move after each deal, and only exist for `GetBarterableCodes()`. The seller and the buyer are the same player. A market with the `Barter` class is a permission to use that desk, not a foreign partner. Construction materials are not barterable. The panel looks like an exchange. It is not a bilateral agreement.
+
+### Trade — ADAPT later for physical routes, do not use it for the agreement
+
+`Trader` on `template_unit_support_trader` walks between two `Market` entities. `CanTrade` requires a finished market, a matching land or naval type, and a trader who is not an enemy of the market owner. `PerformTrade` calls `GetNextTradingGoods` and `CalculateGain`, then `AddResource` creates new stock for the trader's owner and sometimes the market owners. It does not remove stock from the other country. Destroying a market drops the route. The merchant ship is `template_unit_ship_merchant` with the same `Trader` behavior at sea.
+
+That is the physical-route primitive:
+
+```text
+TRADE ACCESS     legal permission, TradeAccess
+TRADE ROUTE      two Markets and a Trader path
+TRADE CAPACITY   gain multipliers and how many traders are running
+AGREEMENT        what the governments promised
+```
+
+None of those four is the others. A signed agreement does not move goods down a road. A trader's generated income is not fulfillment of a resource term.
+
+### Merchant, spy, and hero — NOT SUITABLE as a diplomat
+
+The reusable unit is the trader, class `Trader`, plus the merchant ship. `special/spy` is a bribable vision unit. `Hero` is a class that puts a portrait on the panel and changes Petra's targeting. There is no envoy, diplomat, ambassador, or emissary template, and no unit command that opens a negotiation.
+
+### Embassy — NOT SUITABLE as built
+
+Carthaginian `embassy_celtic`, `embassy_iberian`, and `embassy_italic`, and the Kush camps, parent `template_structure_military_embassy`. That template is a phase-town military building: garrison, production queue, trainer, and `TerritoryInfluence` radius 25. Petra treats those templates as unit-production buildings. An embassy that paints territory would be read as effective control. Nation should not reuse that template for diplomacy.
+
+A later Nation embassy should be an ordinary structure with Health and ownership, and without `TerritoryInfluence`. Its job is a persistent negotiation channel in a foreign capital. It must not move legal sovereignty and it must not project effective control. That building is not in this step.
+
+### GUI — CLONE / REBUILD as a Nation screen
+
+`DiplomacyDialog` is a fixed row per player: name, civ, team, stance buttons, and one tribute button per tributable resource. Tribute amounts are 100, or 500 steps while a hotkey is held. `BarterButton` is a self-exchange desk. Neither widget can compose an offer list and a request list, and neither can carry cash or an access grant. Replacing the public dialog would fork a file Nation does not otherwise need to own.
+
+The negotiation screen is Nation XML and JS included by the session directories `gui/session/session_objects/` and `gui/session/top_panel/`. It uses the existing image, text, button, and input widgets. It posts `nation-propose-agreement`, `nation-accept-agreement`, and `nation-reject-agreement`. It does not write simulation state itself.
+
+### AI — do not reuse Petra's decisions
+
+`DiplomacyManager` sends tribute to allies, asks allies for tribute, and answers `DiplomacyRequest` by demanding a single resource. The demand amount and the timers use `randFloat`. Cooperative personality drifts when tribute arrives. `tradeManager.js` builds markets and trains traders for generated trade income. Those are ancient skirmish heuristics. They are not a valuation of a package, and the random timers are not acceptable inside Nation simulation.
+
+The later evaluator should be a Nation function that receives one `AgreementProposal` and the current simulation state and returns accept, reject, or a new proposal. It should not live inside Petra. This step does not call an evaluator. Nothing in the sandbox accepts a deal because a personality score said so.
+
+## Bilateral agreements
+
+`AgreementManager` is the one store for proposals. A proposal is a proposer, a recipient, the items the proposer provides, the items the recipient provides, a status, and a deterministic id. The id starts at 1 and increases by 1. Status is `pending`, `accepted`, `rejected`, or `invalidated`.
+
+An item is one of four shapes. `resource` names a code from `Resources.GetCodes()` and a positive integer amount. `cash` is a positive integer of `GovernmentFinance` treasury, not a Player resource. `military_access` and `trade_access` have no amount. Each stored item records `provider` and `beneficiary`. Items the proposer offers have provider = proposer and beneficiary = recipient. Items the proposer requests are the other way around.
+
+```text
+P1 offers military access
+    DiplomaticAccess.GrantMilitaryAccess(P2, P1)
+    P2's units may enter land sovereign to P1
+
+P2 offers trade access
+    TradeAccess.GrantTrade(P1, P2)
+    P1 may buy from P2
+```
+
+`HasMilitaryAccess(from, to)` means `from` may enter `to`'s sovereign land. The provider of a military-access item is `to`. The beneficiary is `from`. `CanTrade(from, to)` means `from` may buy from `to`. The provider of a trade-access item is `to`. The beneficiary is `from`. Granting either right twice sets the existing row to true. It does not add a second row and it does not turn the right off.
+
+Two resource rows for the same code on the same side are stored as one summed amount. Two cash rows on the same side are one sum. The sum is what must be in the stockpile or the treasury. Checking each row against the same balance is not enough, because 200 and 200 would both pass against 300.
+
+Creating a proposal validates the shape and the current balances, then stores it. It does not subtract anything. Accepting checks the status, checks the balances again, and only then writes. There is no reservation. If food was 1000 when the proposal was made and consumption has since left 300, a 500 food term does not execute and the status becomes `invalidated`. A rejected or invalidated proposal cannot execute later. An accepted proposal cannot execute again.
+
+Execution is atomic. The component builds the outgoing totals, refuses the whole proposal when any total does not fit, and only then subtracts every outgoing resource, adds every incoming resource, spends and pays treasury, and grants rights. Rights run last. If a write returns false after that point, resource counts and treasury balances are put back from a snapshot taken before the first write. Validation uses the same totals as execution, so that restore is the guard for an unexpected refusal rather than the normal path. A normal shortfall never starts the writes.
+
+V1 resource and cash terms settle immediately, inside the player stockpile and the treasury. That is not the long-term meaning of a signature.
+
+```text
+AGREEMENT SIGNED
+        ≠
+OBLIGATION FULFILLED
+```
+
+A later item can still live in the same proposal arrays and mean "deliver 2000 food" by road, rail, port, or trader, instead of `AddResource` at the moment of acceptance. The proposal envelope does not have to change to allow that. It also does not have to change to allow a loan, debt forgiveness, or restructuring:
+
+```text
+loan
+    principal, interestRate, maturity, repaymentSchedule, gracePeriod
+
+debt_forgiveness
+    debtId, amount
+
+debt_restructuring
+    the same debt, with new terms
+```
+
+Those types are not accepted yet. A counteroffer, when it exists, should be a new proposal whose `parentProposal` is the earlier id. It should not be a second object model. Duration and unilateral revocation are not implemented. Revocation can later be an item that sets an existing `DiplomaticAccess` or `TradeAccess` row to false. Until then, a grant stays until some later system changes it.
+
+The session screen lets the local player pick another country, add resource, cash, military-access, and trade-access rows to "we offer" or "we request", and post the proposal. Resource buttons use `nationAgreementResources` from the simulation, which is `Resources.GetCodes()` plus each resource's name. The amount field is a convenience. The simulation parses the command again and ignores the GUI's opinion of the balance. Accept is enabled only for a pending proposal whose recipient is the controlled player. The 1961 sandbox has one human, so Neighbor cannot click Accept. Tests and a simulation command cover that path. The screen does not show whether a deal is likely to be accepted. There is no valuation yet.
+
+A future evaluator should score a proposal from the simulation, not from a fixed table of equivalents:
+
+```text
+utility(received) - utility(given) + strategic modifiers
+```
+
+Food is worth more in a shortage. Metal is worth more when industry is short of it. Cash is worth more when the treasury is tight. Military access costs more when the other army is already a threat. Trade access is worth more when a route could actually carry goods. Construction materials are worth more when a phase or a project needs them. Debt relief, once debt exists, is worth more when the burden is heavy. The result is accept, reject, or a new proposal. It has to be deterministic. Petra's `randFloat` timers are the thing not to copy.
+
+```text
+AGREEMENT          what the two states put in the proposal
+TRADE ACCESS       TradeAccess, a legal permission
+PHYSICAL TRADE     Trader and Market, movement and gain
+INFRASTRUCTURE     whether a route can carry anything
+TREASURY           GovernmentFinance, government money
+```
 
 ## Build and run
 

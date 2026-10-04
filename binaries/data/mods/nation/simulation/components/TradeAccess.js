@@ -77,4 +77,36 @@ TradeAccess.prototype.CanTrade = function(fromPlayer, toPlayer)
 	return false;
 };
 
+/**
+ * Grant fromPlayer permission to buy from toPlayer.
+ * An existing row for that pair is set true. A second grant does not add another row and does not revoke.
+ * @return {boolean}
+ */
+TradeAccess.prototype.GrantTrade = function(fromPlayer, toPlayer)
+{
+	const cmpPlayerManager = Engine.QueryInterface(SYSTEM_ENTITY, IID_PlayerManager);
+	const numPlayers = cmpPlayerManager ? cmpPlayerManager.GetNumPlayers() : 0;
+	if (!Number.isInteger(fromPlayer) || !Number.isInteger(toPlayer) ||
+		fromPlayer < 0 || toPlayer < 0 || fromPlayer >= numPlayers || toPlayer >= numPlayers ||
+		fromPlayer === toPlayer)
+		return false;
+
+	for (let i = 0; i < this.grants.length; ++i)
+	{
+		const grant = this.grants[i];
+		if (grant.from === fromPlayer && grant.to === toPlayer)
+		{
+			grant.trade = true;
+			return true;
+		}
+	}
+
+	this.grants.push({
+		"from": fromPlayer,
+		"to": toPlayer,
+		"trade": true
+	});
+	return true;
+};
+
 Engine.RegisterSystemComponentType(IID_TradeAccess, "TradeAccess", TradeAccess);

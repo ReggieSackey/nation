@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<object>
+	<object name="nationAgreementOpen" type="button" style="StoneButton" size="176 168 320 196" z="40" tooltip_style="sessionToolTip">
+		<translatableAttribute id="caption">Negotiate</translatableAttribute>
+	</object>
+
+	<object name="nationAgreementDialog" type="image" sprite="ModernDialog" size="50%-280 40 50%+280 100%-40" hidden="true" z="200">
+		<object name="nationAgreementTitle" type="text" style="resourceText" size="16 8 100%-16 32"/>
+		<object name="nationAgreementClose" type="button" style="StoneButton" size="100%-92 8 100%-12 32">
+			<translatableAttribute id="caption">Close</translatableAttribute>
+		</object>
+		<object name="nationAgreementPartnerButton" type="button" style="StoneButton" size="16 36 220 60">
+			<translatableAttribute id="caption">Next country</translatableAttribute>
+		</object>
+		<object name="nationAgreementSideOffer" type="button" style="StoneButton" size="228 36 360 60">
+			<translatableAttribute id="caption">Add to offer</translatableAttribute>
+		</object>
+		<object name="nationAgreementSideRequest" type="button" style="StoneButton" size="368 36 520 60">
+			<translatableAttribute id="caption">Add to request</translatableAttribute>
+		</object>
+
+		<object name="nationAgreementAvailable" type="text" style="resourceText" size="16 64 280 88"/>
+		<object name="nationAgreementAmount" type="input" style="ModernInput" size="288 64 460 88"/>
+
+		<object name="nationAgreementType0" type="button" style="StoneButton" size="16 96 120 120"/>
+		<object name="nationAgreementType1" type="button" style="StoneButton" size="128 96 232 120"/>
+		<object name="nationAgreementType2" type="button" style="StoneButton" size="240 96 344 120"/>
+		<object name="nationAgreementType3" type="button" style="StoneButton" size="352 96 456 120"/>
+		<object name="nationAgreementType4" type="button" style="StoneButton" size="16 124 160 148"/>
+		<object name="nationAgreementType5" type="button" style="StoneButton" size="168 124 272 148"/>
+		<object name="nationAgreementType6" type="button" style="StoneButton" size="280 124 384 148"/>
+		<object name="nationAgreementType7" type="button" style="StoneButton" size="392 124 496 148"/>
+		<object name="nationAgreementCash" type="button" style="StoneButton" size="16 152 120 176">
+			<translatableAttribute id="caption">Cash</translatableAttribute>
+		</object>
+		<object name="nationAgreementMilitary" type="button" style="StoneButton" size="128 152 280 176">
+			<translatableAttribute id="caption">Military access</translatableAttribute>
+		</object>
+		<object name="nationAgreementTrade" type="button" style="StoneButton" size="288 152 440 176">
+			<translatableAttribute id="caption">Trade access</translatableAttribute>
+		</object>
+
+		<object name="nationAgreementLists" type="text" style="resourceText" size="16 184 100%-16 100%-80"/>
+		<object name="nationAgreementPropose" type="button" style="StoneButton" size="16 100%-72 140 100%-48">
+			<translatableAttribute id="caption">Propose</translatableAttribute>
+		</object>
+		<object name="nationAgreementAccept" type="button" style="StoneButton" size="148 100%-72 272 100%-48">
+			<translatableAttribute id="caption">Accept</translatableAttribute>
+		</object>
+		<object name="nationAgreementReject" type="button" style="StoneButton" size="280 100%-72 404 100%-48">
+			<translatableAttribute id="caption">Reject</translatableAttribute>
+		</object>
+	</object>
+</object>
