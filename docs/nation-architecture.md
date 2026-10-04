@@ -306,7 +306,35 @@ A field is a `ResourceSupply` of `food.grain`. The public field template supplie
 
 The 1961 sandbox places one grain field, entity 50, at (230, 60), owned by Player 1, beside Southern Village. The actor is the upstream tropical field. The resource is grain, used here as the first staple. One farmer, entity 51, stands at (214, 60). The template is the Athenian woman citizen, so the gather rate for `food.grain` is 0.5 per second and the food capacity is 10. `InitialGather` orders that farmer to gather entity 50 on the first simulation turn. The player can still select the farmer and issue the normal gather command. Southern Village accepts food deposits and is not shared. The Athenian civic centre also accepts food, and it is farther away, so the farmer returns to the village.
 
-A full load is 10 food and takes 20 seconds of gathering, plus the walk to the field and back to the village. In the sandbox the stockpile is still 1000 at 21 seconds, with 10 food in hand, and 1010 once that load is deposited. Destroying the field stops new gathering. Food already in hand is still deposited. Aggregate settlement population stays 33500 and does not consume food. That consumption is the next layer.
+A full load is 10 food and takes 20 seconds of gathering, plus the walk to the field and back to the village. Population consumption and that deposit use the same stockpile. With the farmer working, the first load of 10 arrives between the 20-second and 30-second consumption ticks, so the 30-second tick spends 335 from 340 and leaves 5. Destroying the field stops new gathering. Food already in hand is still deposited.
+
+### Population food consumption
+
+```text
+NationSettlement population
+        ↓
+NationSettlementManager
+        ↓
+PopulationFoodConsumption
+        ↓
+existing Player food resource
+```
+
+One `Timer.SetInterval` of 10000 simulation milliseconds runs `ConsumeFood` for every real player. Gaia is skipped. A player with no Nation population has a requirement of 0 and loses no food. The population is `GetTotalPopulation`, which sums settlements by `Sovereignty`, not by entity `Ownership`. There is one national stockpile. Roads do not decide which settlement receives food, and the tick does not change population, integration, or the treasury.
+
+The prototype rate is 1 food per 100 people per tick:
+
+```text
+required = ceil(population / 100)
+consumed = min(required, floor(available food))
+unmet = required - consumed
+```
+
+Player 1's 33500 people require 335. Neighbor's 4000 require 40. This is gameplay tuning, not a caloric conversion. `TrySubtractResources` removes only `consumed`. The call is not made for zero, and it is never asked for more food than the stockpile holds, so the count does not go negative. A deposit from a farmer between ticks is ordinary player food and is available to the next tick.
+
+The latest interval is the current shortage. Fulfillment is `Math.round(consumed * 10000 / required)` basis points, and shortage basis points are the remainder to 10000. A country with no requirement is fulfillment 10000 and shortage 0. Before the first tick the requirement is already the live population and the shortage is 0. `cumulativeUnmet` adds each interval's unmet food and is not cleared when a later interval is fully fed. Nothing in the game reads that total yet.
+
+The session line under the resource counters reads `nationFood` from `GetSimulationState`. It shows population, food demand per interval, and food shortage as a percent. It does not compute the requirement itself. One farmer at half a food per second does not cover 335 food every ten seconds. The sandbox is expected to reach a shortage. The treasury does not buy food.
 
 **Economy.** Government cash is `GovernmentFinance`. Cocoa is aggregate settlement output, sold through `CommodityExportManager`. It is not a gatherable `Player` resource. Transport can be a quantity moving between entities, with a truck as the visible agent, when that slice starts. `Market` and `Barter` are ancient trade. Use them only if a slice genuinely fits.
 
@@ -314,7 +342,7 @@ A full load is 10 food and takes 20 seconds of gathering, plus the walk to the f
 
 **Foreign powers.** A power with no map presence can be a player entity with no units, or a small system component. The first slice needs one power and one loan. It does not need the United States, the USSR, Britain, France, and China as content.
 
-**Population.** `Population` in upstream code is a housing bonus. Nation population is aggregate settlement data. It does not consume Player food yet. Employment, healthcare, education, services, prosperity, and unrest are later settlement concerns. Visible civilians are representative entities, not one entity per person.
+**Population.** `Population` in upstream code is a housing bonus. Nation population is aggregate settlement data and is the demand for Player food. It does not fall when food runs out. Employment, healthcare, education, services, prosperity, and unrest are later settlement concerns. Visible civilians are representative entities, not one entity per person.
 
 **War.** Keep `Attack`, `Health`, `UnitAI`, and the pathfinder. Feed them from the same roads, stocks, and treasury used in peacetime. Occupied land stays a different fact from sovereign land.
 
