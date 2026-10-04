@@ -4,6 +4,7 @@
   <Identity>
     <GenericName>Logging Camp</GenericName>
     <SpecificName>Logging Camp</SpecificName>
+    <Classes datatype="tokens">NationLoggingCamp</Classes>
   </Identity>
   <ProductionQueue disable=""/>
   <Researcher disable=""/>

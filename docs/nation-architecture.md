@@ -413,7 +413,7 @@ wood + stone + metal
 construction / development
 ```
 
-`construction_materials` is a Player resource, registered by `simulation/data/resources/construction_materials.json`. It is a broad stand-in for milled lumber, cement inputs, and fabricated metal, not one literal substance. It is not treasury and it is not a `CommodityProducer` output. Cocoa export does not know about it, and the factory does not know about cocoa. Nothing spends it yet. Roads, buildings, and other construction still cost treasury only.
+`construction_materials` is a Player resource, registered by `simulation/data/resources/construction_materials.json`. It is a broad stand-in for milled lumber, cement inputs, and fabricated metal, not one literal substance. It is not treasury and it is not a `CommodityProducer` output. Cocoa export does not know about it, and the factory does not know about cocoa. State-capacity research spends it. Roads, buildings, and other construction still cost treasury only.
 
 Extraction and industry meet in the national stockpile. A logger, quarry worker, or miner still carries a load to a dropsite, and that dropsite credits the owner's Player resources. `IndustrialProduction` then reads that same stockpile. The factory does not keep a local inventory, and the output is not carried out of the building. That is a V1 abstraction. Later logistics can require a physical delivery. The recipe is template data, so another industry can be a new entity template rather than a new component.
 
@@ -422,6 +422,70 @@ The 1961 sandbox has one factory, entity 70, `structures/nation/construction_mat
 Both players, and the rebel player, start with 0 construction materials. The stock resource bar has five slots, four resources and population, so the manufactured resource is not given a sixth icon. The Nation status line shows `Construction materials`.
 
 The timer id is component state and `Timer` serializes the callback. A loaded game does not run `OnInitGame` again, so the interval is not scheduled twice.
+
+### State capacity progression
+
+```text
+CONSOLIDATION
+new/weak state
+basic agriculture
+basic extraction
+inherited basic industry
+
+        ↓
+productive foundation
++ manufactured materials
++ phase research
+
+DEVELOPMENT
+expanded industrial/development capability
+
+        ↓
+greater industrial foundation
++ manufactured materials
++ phase research
+
+ADVANCED STATE
+high-capacity state
+future major projects / administration
+```
+
+Phase state remains authoritative in Pyrogenesis's existing technology system. There is no Nation phase counter.
+
+The player-facing names are Consolidation, Development, and Advanced State. They are levels of state capacity, not historical ages. The internal ids stay the upstream phase ids because templates, the session GUI, and `replaces` already speak those ids:
+
+```text
+phase_village                         Consolidation
+phase_town_athen / phase_town_generic Development
+phase_town                            Development, marked by replaces
+phase_city_athen / phase_city_generic Advanced State
+phase_city                            Advanced State, marked by replaces
+```
+
+`phase_village` is `autoResearch`, so every player, including the neighbor and the rebels, starts in Consolidation on the first simulation update. The civil centre already offers `phase_town_{civ}` and `phase_city_{civ}`. Athen uses the athen files. Spart has no civ file, so the neighbor uses the generic files. Nation replaces those JSON files. The dummy `phase_town` and `phase_city` files keep their ids and carry the player-facing names, because build requirements and `GuiInterface` ask about those ids. When Development finishes, `replaces` marks `phase_town` researched. Advanced State does the same for `phase_city`.
+
+`GuiInterface` still reports `village`, `town`, or `city`. The Nation status line maps those to Consolidation, Development, and Advanced State. The research button uses the technology `genericName`, cost, requirements tooltip, and the normal progress bar.
+
+Future systems should ask the player's `TechnologyManager`:
+
+```text
+IsTechnologyResearched("phase_town")    at least Development
+IsTechnologyResearched("phase_city")    Advanced State
+```
+
+Template gates use the same ids in `Identity/Requirements/Techs`. Do not store a second phase.
+
+Development requires one logging camp, one quarry, one mine, and one construction-materials factory, counted by class: `NationLoggingCamp`, `NationQuarry`, `NationMine`, `NationConstructionMaterialsFactory`. Foundations do not count. The research cost is 20 construction materials, paid by `TrySubtractResources` when the research is queued. It takes 30 seconds. Advanced State requires Development, because it supersedes `phase_town_athen` or `phase_town_generic`, plus two construction-materials factories, plus 50 construction materials, over 60 seconds. Food, wood, stone, and metal are not phase costs. The vanilla gather, attack, and territory modifications are not copied.
+
+The treasury is not part of this cost. Technology costs subtract Player resources. `GovernmentFinance` is a separate stock. Charging it from research would need a second payment beside `TrySubtractResources`, including a refund if the player cancels, and it would couple the treasury to the upstream queue. That hook is omitted.
+
+The Athenian team bonus halves research time at a civil centre. The Nation civil centre sets `Researcher/TechCostMultiplier/time` to 2, so that bonus cancels and the program takes the template time: 30 seconds, then 60. The material cost is not food, wood, stone, or metal, so the same bonus does not change it. The neighbor is Spart and does not have that bonus. Rebels have no researcher.
+
+The research command checks `CanResearch` before queueing. If a required structure is gone, the command does not start and nothing is spent. `Technology.Progress` does not check requirements again. A structure destroyed during the 30 or 60 seconds does not cancel the program. That is upstream behavior.
+
+New construction of `structures/nation/construction_materials_factory` requires `phase_town`. The sandbox factory, entity 70, is already placed, so it exists and produces during Consolidation. That avoids a loop where the first factory both requires Development and is required to research it. Farmers and extraction workers can place another factory only after Development. A second factory is another `IndustrialProduction` entity with the same template recipe. Regional administration, `structures/nation/regional_administration`, requires `phase_city`. It is a placeholder office. It has no territory influence, no population bonus, and no integration effect.
+
+Phase research does not change settlement population, representative capacity, integration, or discontent. The phase files have no `modifications`.
 
 ### Population food consumption
 

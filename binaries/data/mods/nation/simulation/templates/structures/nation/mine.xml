@@ -4,6 +4,7 @@
   <Identity>
     <GenericName>Mine</GenericName>
     <SpecificName>Mine</SpecificName>
+    <Classes datatype="tokens">NationMine</Classes>
   </Identity>
   <ProductionQueue disable=""/>
   <Researcher disable=""/>

@@ -1,0 +1,11 @@
+{
+	"genericName": "Consolidation",
+	"specificName": {
+		"athen": "Consolidation",
+		"spart": "Consolidation"
+	},
+	"description": "A newly independent state with basic settlements, agriculture, extraction, and a small inherited industry.",
+	"tooltip": "The state can administer its existing settlements and run its initial industries. Larger programs come later.",
+	"autoResearch": true,
+	"icon": "village_phase.png"
+}

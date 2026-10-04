@@ -2,12 +2,22 @@
 <Entity parent="structures/athen/forge">
   <Cost>
     <Population>0</Population>
+    <Resources>
+      <food>0</food>
+      <wood>0</wood>
+      <stone>0</stone>
+      <metal>0</metal>
+    </Resources>
   </Cost>
   <GarrisonHolder disable=""/>
   <Identity>
     <GenericName>Construction Materials Factory</GenericName>
     <SpecificName>Construction Materials Factory</SpecificName>
     <Tooltip>Turns wood, stone, and metal into construction materials.</Tooltip>
+    <Classes datatype="tokens">NationConstructionMaterialsFactory</Classes>
+    <Requirements>
+      <Techs datatype="tokens">phase_town</Techs>
+    </Requirements>
   </Identity>
   <IndustrialProduction>
     <Interval>10000</Interval>

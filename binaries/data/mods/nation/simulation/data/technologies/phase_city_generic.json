@@ -1,0 +1,20 @@
+{
+	"genericName": "Advanced State",
+	"specificName": {
+		"spart": "Advanced State"
+	},
+	"description": "A high-capacity state able to take on major administrative projects.",
+	"cost": {
+		"construction_materials": 50
+	},
+	"requirements": {
+		"entity": { "class": "NationConstructionMaterialsFactory", "number": 2 }
+	},
+	"requirementsTooltip": "Requires the development program and two construction-materials factories.",
+	"supersedes": "phase_town_generic",
+	"replaces": ["phase_city"],
+	"icon": "city_phase.png",
+	"researchTime": 60,
+	"tooltip": "Research the advanced-state program at the civil centre. Costs 50 construction materials and takes 60 seconds. Unlocks regional administration.",
+	"soundComplete": "interface/alarm/alarm_phase.xml"
+}

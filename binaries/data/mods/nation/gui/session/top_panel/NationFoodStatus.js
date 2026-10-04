@@ -29,6 +29,12 @@ function updateNationFoodStatus()
 	const slots = Number.isFinite(state.popLimit) ? state.popLimit : 0;
 	const materials = state.resourceCounts && Number.isFinite(state.resourceCounts.construction_materials) ?
 		state.resourceCounts.construction_materials : 0;
+	const phaseNames = {
+		"village": "Consolidation",
+		"town": "Development",
+		"city": "Advanced State"
+	};
+	const phase = phaseNames[state.phase] || "Consolidation";
 	label.hidden = false;
 	label.caption =
 		"Population: " + nationFoodAmount(status.population) +
@@ -36,7 +42,8 @@ function updateNationFoodStatus()
 		"    Food shortage: " + shortage + "%" +
 		"    National discontent: " + discontent + "%" +
 		"    Active rebellions: " + rebellions +
-		"\nRepresentative units: " + nationFoodAmount(units) + " / " + nationFoodAmount(slots) +
+		"\nState capacity: " + phase +
+		"    Representative units: " + nationFoodAmount(units) + " / " + nationFoodAmount(slots) +
 		"    Construction materials: " + nationFoodAmount(Math.floor(materials));
 }
 

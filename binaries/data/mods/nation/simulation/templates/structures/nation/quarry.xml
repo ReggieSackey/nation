@@ -4,6 +4,7 @@
   <Identity>
     <GenericName>Quarry</GenericName>
     <SpecificName>Quarry</SpecificName>
+    <Classes datatype="tokens">NationQuarry</Classes>
   </Identity>
   <ProductionQueue disable=""/>
   <Researcher disable=""/>

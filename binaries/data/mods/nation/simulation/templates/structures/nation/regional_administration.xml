@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Entity parent="structures/athen/storehouse">
+  <Cost>
+    <Population>0</Population>
+    <Resources>
+      <food>0</food>
+      <wood>0</wood>
+      <stone>0</stone>
+      <metal>0</metal>
+    </Resources>
+  </Cost>
+  <Identity>
+    <GenericName>Regional Administration</GenericName>
+    <SpecificName>Regional Administration</SpecificName>
+    <Tooltip>A placeholder office for later territorial administration. It does not change territory, integration, or population.</Tooltip>
+    <Classes datatype="tokens">NationRegionalAdministration</Classes>
+    <Requirements>
+      <Techs datatype="tokens">phase_city</Techs>
+    </Requirements>
+  </Identity>
+  <ProductionQueue disable=""/>
+  <Researcher disable=""/>
+  <ResourceDropsite disable=""/>
+  <TerritoryInfluence disable=""/>
+</Entity>

@@ -1,5 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Entity parent="units/athen/support_female_citizen">
+  <Builder>
+    <Entities datatype="tokens">
+      structures/nation/construction_materials_factory
+      structures/nation/regional_administration
+    </Entities>
+  </Builder>
   <Identity>
     <GenericName>Farmer</GenericName>
     <SpecificName>Farmer</SpecificName>
