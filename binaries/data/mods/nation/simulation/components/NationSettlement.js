@@ -15,16 +15,33 @@ NationSettlement.prototype.Schema =
 			"<param name='minInclusive'>0</param>" +
 			"<param name='maxInclusive'>100</param>" +
 		"</data>" +
+	"</element>" +
+	"<element name='IsCapital' a:help='Whether this settlement is the capital of its sovereign state.'>" +
+		"<data type='boolean'/>" +
 	"</element>";
 
 /**
- * @return {boolean} - True when name, population, and integration are usable.
+ * Template booleans arrive as the strings "true" and "false".
+ * @return {boolean|undefined}
  */
-NationSettlement.prototype.DataIsValid = function(name, population, integration)
+NationSettlement.prototype.ReadFlag = function(value)
+{
+	if (value === true || value === "true")
+		return true;
+	if (value === false || value === "false")
+		return false;
+	return undefined;
+};
+
+/**
+ * @return {boolean} - True when name, population, integration, and the capital flag are usable.
+ */
+NationSettlement.prototype.DataIsValid = function(name, population, integration, isCapital)
 {
 	return typeof name === "string" && name.trim().length > 0 &&
 		Number.isInteger(population) && population >= 0 &&
-		Number.isFinite(integration) && integration >= 0 && integration <= 100;
+		Number.isFinite(integration) && integration >= 0 && integration <= 100 &&
+		(isCapital === true || isCapital === false);
 };
 
 NationSettlement.prototype.Init = function()
@@ -32,18 +49,21 @@ NationSettlement.prototype.Init = function()
 	const name = this.template && this.template.Name != null ? String(this.template.Name) : "";
 	const population = this.template ? +this.template.Population : NaN;
 	const integration = this.template ? +this.template.StateIntegration : NaN;
-	if (!this.DataIsValid(name, population, integration))
+	const isCapital = this.ReadFlag(this.template ? this.template.IsCapital : undefined);
+	if (!this.DataIsValid(name, population, integration, isCapital))
 	{
 		error("Invalid NationSettlement data on entity " + this.entity);
 		this.name = "";
 		this.population = 0;
 		this.stateIntegration = 0;
+		this.isCapital = false;
 		return;
 	}
 
 	this.name = name;
 	this.population = population;
 	this.stateIntegration = integration;
+	this.isCapital = isCapital;
 };
 
 /**
@@ -68,6 +88,35 @@ NationSettlement.prototype.GetPopulation = function()
 NationSettlement.prototype.GetStateIntegration = function()
 {
 	return this.stateIntegration;
+};
+
+/**
+ * @return {boolean}
+ */
+NationSettlement.prototype.GetIsCapital = function()
+{
+	return this.isCapital;
+};
+
+/**
+ * Move integration by delta and keep it inside 0–100.
+ * @return {number} - The clamped value.
+ */
+NationSettlement.prototype.ChangeStateIntegration = function(delta)
+{
+	if (!Number.isFinite(delta))
+	{
+		error("NationSettlement.ChangeStateIntegration: delta must be a finite number");
+		return this.stateIntegration;
+	}
+
+	let next = this.stateIntegration + delta;
+	if (next < 0)
+		next = 0;
+	if (next > 100)
+		next = 100;
+	this.stateIntegration = next;
+	return next;
 };
 
 /**

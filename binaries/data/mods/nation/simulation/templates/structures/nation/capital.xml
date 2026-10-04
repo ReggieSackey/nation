@@ -7,5 +7,6 @@
     <Name>Capital</Name>
     <Population>18000</Population>
     <StateIntegration>90</StateIntegration>
+    <IsCapital>true</IsCapital>
   </NationSettlement>
 </Entity>

@@ -12,5 +12,6 @@
     <Name>Settlement</Name>
     <Population>0</Population>
     <StateIntegration>0</StateIntegration>
+    <IsCapital>false</IsCapital>
   </NationSettlement>
 </Entity>

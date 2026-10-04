@@ -30,26 +30,29 @@ function place(entity, x, z, owner)
 	});
 }
 
-function settlement(entity, name, population, integration, x, z, owner)
+function settlement(entity, name, population, integration, x, z, owner, isCapital)
 {
 	place(entity, x, z, owner);
 	return ConstructComponent(entity, "NationSettlement", {
 		"Name": name,
 		"Population": population,
-		"StateIntegration": integration
+		"StateIntegration": integration,
+		"IsCapital": isCapital ? "true" : "false"
 	});
 }
 
-const capital = settlement(1, "Capital", "18000", "90", 100, 420, 1);
+const capital = settlement(1, "Capital", "18000", "90", 100, 420, 1, true);
 TS_ASSERT_EQUALS(capital.GetName(), "Capital");
 TS_ASSERT_EQUALS(capital.GetPopulation(), 18000);
 TS_ASSERT_EQUALS(capital.GetStateIntegration(), 90);
+TS_ASSERT_EQUALS(capital.GetIsCapital(), true);
 TS_ASSERT_EQUALS(capital.GetSovereignOwner(), 1);
 
 const restored = SerializationCycle(capital);
 TS_ASSERT_EQUALS(restored.GetName(), "Capital");
 TS_ASSERT_EQUALS(restored.GetPopulation(), 18000);
 TS_ASSERT_EQUALS(restored.GetStateIntegration(), 90);
+TS_ASSERT_EQUALS(restored.GetIsCapital(), true);
 
 g_Errors.length = 0;
 const negative = settlement(11, "Bad", "-300", "10", 10, 10, 1);
@@ -72,9 +75,22 @@ const blank = settlement(14, "   ", "10", "10", 10, 10, 1);
 TS_ASSERT_EQUALS(blank.GetName(), "");
 TS_ASSERT(g_Errors.length > 0);
 
-const edges = settlement(15, "Edge", "0", "100", 10, 10, 1);
+const edges = settlement(15, "Edge", "0", "100", 10, 10, 1, false);
 TS_ASSERT_EQUALS(edges.GetPopulation(), 0);
 TS_ASSERT_EQUALS(edges.GetStateIntegration(), 100);
+TS_ASSERT_EQUALS(edges.ChangeStateIntegration(1), 100);
+TS_ASSERT_EQUALS(edges.ChangeStateIntegration(-1), 99);
+TS_ASSERT_EQUALS(edges.ChangeStateIntegration(-1000), 0);
+
+g_Errors.length = 0;
+const flagged = ConstructComponent(16, "NationSettlement", {
+	"Name": "Bad",
+	"Population": "10",
+	"StateIntegration": "10",
+	"IsCapital": "nope"
+});
+TS_ASSERT_EQUALS(flagged.GetName(), "");
+TS_ASSERT(g_Errors.length > 0);
 
 settlement(2, "Northern Village", "5000", "35", 80, 470, 1);
 settlement(3, "Western Village", "3500", "20", 40, 220, 1);
