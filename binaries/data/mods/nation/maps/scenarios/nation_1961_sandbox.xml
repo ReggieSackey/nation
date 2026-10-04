@@ -65,6 +65,19 @@
     { "from": 1, "to": 2, "military": false },
     { "from": 2, "to": 1, "military": false }
   ],
+  "TradeAccess": [
+    { "from": 1, "to": 2, "trade": true }
+  ],
+  "FoodImports": [
+    {
+      "id": "neighbor-food-import",
+      "buyer": 1,
+      "seller": 2,
+      "resource": "food",
+      "amount": 1000,
+      "cost": 500000
+    }
+  ],
   "Sovereignty": [
     {
       "owner": 1,

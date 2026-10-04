@@ -189,7 +189,7 @@ V1 regions are static polygons in world coordinates, stored on the scenario as `
 
 `ForeignMilitaryPresence` listens for that crossing and for destruction and ownership changes. It records which mobile player units are currently inside land sovereign to a different player. The pair is directional: foreign owner, then host sovereign. The first unit broadcasts `ForeignMilitaryPresenceStarted`. The last unit to leave or be destroyed broadcasts `ForeignMilitaryPresenceEnded`. Presence is geographical, so an authorized entry still counts. V1 uses the same mobile units the border tracker reports. A border crossing is an event. Foreign presence is current state. Do not infer a continued violation from the historical incident.
 
-`DiplomaticAccess` answers whether units owned by one player may enter land sovereign to another. V1 stores only directional `MilitaryAccess` grants, `{from, to, military}`, copied from scenario `ScriptSettings` through a gamesettings attribute into `InitAttributes.settings`. `HasMilitaryAccess(fromPlayer, toPlayer)` returns the first matching grant. A missing grant is denial. A grant from 1 to 2 does not grant 2 to 1. Ally, enemy, and neutral stance are not consulted. The grants are ordinary component state, so a save keeps them.
+`DiplomaticAccess` answers whether units owned by one player may enter land sovereign to another. V1 stores only directional `MilitaryAccess` grants, `{from, to, military}`, copied from scenario `ScriptSettings` through a gamesettings attribute into `InitAttributes.settings`. `HasMilitaryAccess(fromPlayer, toPlayer)` returns the first matching grant. A missing grant is denial. A grant from 1 to 2 does not grant 2 to 1. Ally, enemy, and neutral stance are not consulted. The grants are ordinary component state, so a save keeps them. `TradeAccess` is a different grant and is not read here.
 
 `SovereignEntryClassifier` listens for `SovereignBorderCrossed`. It reads the unit owner from `Ownership`. Entry into `INVALID_PLAYER` is not classified. A unit entering land sovereign to its own owner is authorized. Any other entry is authorized only when `HasMilitaryAccess(entityOwner, destination)` is true. The result is `SovereignEntryClassified` with `{entity, entityOwner, from, to, authorized}`. Unauthorized does not mean war. The unit is not stopped. V1 applies this military rule to every tracked unit. A later civilian, trade, or diplomatic category check belongs in the classifier.
 
@@ -334,11 +334,30 @@ Player 1's 33500 people require 335. Neighbor's 4000 require 40. This is gamepla
 
 The latest interval is the current shortage. Fulfillment is `Math.round(consumed * 10000 / required)` basis points, and shortage basis points are the remainder to 10000. A country with no requirement is fulfillment 10000 and shortage 0. Before the first tick the requirement is already the live population and the shortage is 0. `cumulativeUnmet` adds each interval's unmet food and is not cleared when a later interval is fully fed. Nothing in the game reads that total yet.
 
-The session line under the resource counters reads `nationFood` from `GetSimulationState`. It shows population, food demand per interval, and food shortage as a percent. It does not compute the requirement itself. One farmer at half a food per second does not cover 335 food every ten seconds. The sandbox is expected to reach a shortage. The treasury does not buy food.
+The session line under the resource counters reads `nationFood` from `GetSimulationState`. It shows population, food demand per interval, and food shortage as a percent. It does not compute the requirement itself. One farmer at half a food per second does not cover 335 food every ten seconds. The sandbox is expected to reach a shortage. The treasury does not buy food by itself.
+
+### Food imports
+
+```text
+COCOA
+→ exports
+→ TREASURY
+→ food imports
+→ FOOD
+→ population consumption
+```
+
+Those steps meet only through the treasury and the Player food stockpile. `CommodityExportManager` does not know about imports. `FoodImportManager` does not know about cocoa. `PopulationFoodConsumption` does not know an import happened. A purchase does not write shortage state. The next consumption tick is what decides whether the new food covers demand.
+
+`TradeAccess` is a separate directional grant, `{from, to, trade}`, copied from scenario `ScriptSettings` the same way as `MilitaryAccess`. `CanTrade(fromPlayer, toPlayer)` returns the first matching grant. A missing grant is denial. A grant from Nation to Neighbor does not grant Neighbor to Nation. It does not read `Diplomacy`, `DiplomaticAccess`, roads, or distance. The 1961 sandbox grants trade from player 1 to player 2 only. Military access stays false in both directions.
+
+`FoodImportManager` stores repeatable offers. The sandbox offer is `neighbor-food-import`: buyer 1, seller 2, 1000 food, treasury cost 500000. Those two numbers are prototype gameplay values, not a currency conversion. The session button posts `{type: "nation-purchase-import", offer: "neighbor-food-import"}`. The simulation recomputes the buyer, the seller, trade permission, the cost, and the amount. A command that also carries a price or a quantity is ignored. The buyer must be the issuing player and the offer's buyer. `CanAfford` and `Spend` use `GovernmentFinance`. `AddResource("food", amount)` uses the same Player stockpile as a farm deposit. If the food count does not rise by the purchased amount, the treasury spend is returned. The seller's food and treasury are not changed. Neighbor is treated as an external commercial supply. The purchase does not require a shortage, a road, a port, a market, or a cocoa export. It can be bought again while permission and treasury remain.
+
+Food imports currently abstract international transport and seller inventory. Trade permission and treasury are sufficient. Physical international logistics will be added later.
 
 **Economy.** Government cash is `GovernmentFinance`. Cocoa is aggregate settlement output, sold through `CommodityExportManager`. It is not a gatherable `Player` resource. Transport can be a quantity moving between entities, with a truck as the visible agent, when that slice starts. `Market` and `Barter` are ancient trade. Use them only if a slice genuinely fits.
 
-**Diplomacy.** `Diplomacy` stores ally, enemy, and neutral stances on each player. That stance is not permission to enter sovereign land. `MilitaryAccess` is a separate directional grant, and a missing grant is denial, including between neutrals. The 1961 sandbox starts Nation and Neighbor neutral toward each other and grants military access in neither direction, so a crossing is still unauthorized. Trade rights, transit rights, customs, investment, and loans are further agreements. Crossing a tile can remain physically legal in the pathfinder while a Nation component records it as unauthorized.
+**Diplomacy.** `Diplomacy` stores ally, enemy, and neutral stances on each player. That stance is not permission to enter sovereign land, and it is not permission to trade. `MilitaryAccess` is a separate directional grant, and a missing grant is denial, including between neutrals. The 1961 sandbox starts Nation and Neighbor neutral toward each other and grants military access in neither direction, so a crossing is still unauthorized. `TradeAccess` is the separate grant that allows a government food purchase. Transit rights, customs, investment, and loans are further agreements. Crossing a tile can remain physically legal in the pathfinder while a Nation component records it as unauthorized.
 
 **Foreign powers.** A power with no map presence can be a player entity with no units, or a small system component. The first slice needs one power and one loan. It does not need the United States, the USSR, Britain, France, and China as content.
 

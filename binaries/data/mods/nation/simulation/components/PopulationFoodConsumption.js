@@ -227,6 +227,8 @@ function AttachPopulationFoodToSimulationState()
 		return state;
 	};
 	wrapped.nationFoodWrapped = true;
+	if (original.nationFoodImportWrapped)
+		wrapped.nationFoodImportWrapped = true;
 	GuiInterface.prototype.GetSimulationState = wrapped;
 }
 

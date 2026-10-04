@@ -1,4 +1,7 @@
+Engine.RegisterInterface("Diplomacy");
 Engine.LoadComponentScript("interfaces/DiplomaticAccess.js");
+
+error = () => {};
 Engine.LoadComponentScript("DiplomaticAccess.js");
 
 AddMock(SYSTEM_ENTITY, IID_PlayerManager, {
