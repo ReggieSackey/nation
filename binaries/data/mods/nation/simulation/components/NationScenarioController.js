@@ -8,6 +8,12 @@ NationScenarioController.prototype.Schema =
  */
 NationScenarioController.prototype.ObserveInterval = 1000;
 
+/**
+ * Infrastructure below this condition is named on the map.
+ * Healthy infrastructure is left unlabeled. Repair and transport are unchanged.
+ */
+NationScenarioController.prototype.CriticalCondition = 50;
+
 NationScenarioController.prototype.Init = function()
 {
 	this.active = false;
@@ -191,12 +197,17 @@ NationScenarioController.prototype.ReadWorld = function()
 		if (active)
 			++activeRebellions;
 		const integration = cmpSettlement.GetStateIntegration();
+		const discontent = cmpSettlement.GetDiscontent();
 		settlements.push({
 			"id": ent,
 			"name": cmpSettlement.GetName(),
 			"population": cmpSettlement.GetPopulation(),
 			"integration": integration,
-			"discontent": cmpSettlement.GetDiscontent(),
+			"discontent": discontent,
+			"mood": this.Mood(discontent),
+			"isCapital": !!(cmpSettlement.GetIsCapital && cmpSettlement.GetIsCapital()),
+			"owner": this.EntityOwner(ent),
+			"position": this.EntityPosition(ent),
 			"rebellion": active,
 			"foodPressure": cmpDiscontent && cmpDiscontent.FoodPressure ?
 				cmpDiscontent.FoodPressure(status.shortageBps) : 0,
@@ -265,6 +276,106 @@ NationScenarioController.prototype.CreditorName = function(creditor)
 };
 
 /**
+ * Same words as the crisis HUD. The number stays beside the word.
+ * @return {string}
+ */
+NationScenarioController.prototype.Mood = function(discontent)
+{
+	if (discontent >= 80)
+		return "Rebellion risk";
+	if (discontent >= 70)
+		return "Volatile";
+	if (discontent >= 50)
+		return "Restive";
+	if (discontent >= 25)
+		return "Uneasy";
+	return "Calm";
+};
+
+/**
+ * Map position from the entity. y on the 2D position is map z.
+ * @return {{x: number, z: number}|null}
+ */
+NationScenarioController.prototype.EntityPosition = function(entity)
+{
+	const cmpPosition = Engine.QueryInterface(entity, IID_Position);
+	if (!cmpPosition || !cmpPosition.GetPosition2D)
+		return null;
+	if (cmpPosition.IsInWorld && !cmpPosition.IsInWorld())
+		return null;
+	const point = cmpPosition.GetPosition2D();
+	if (!point || !Number.isFinite(point.x) || !Number.isFinite(point.y))
+		return null;
+	return { "x": point.x, "z": point.y };
+};
+
+/**
+ * @return {number}
+ */
+NationScenarioController.prototype.EntityOwner = function(entity)
+{
+	const ownership = Engine.QueryInterface(entity, IID_Ownership);
+	if (!ownership || !ownership.GetOwner)
+		return -1;
+	return ownership.GetOwner();
+};
+
+/**
+ * SpecificName is the authored place name. A blank name is not labeled.
+ * @return {string}
+ */
+NationScenarioController.prototype.LinkName = function(entity)
+{
+	const identity = Engine.QueryInterface(entity, IID_Identity);
+	if (!identity || !identity.template || !identity.template.SpecificName)
+		return "";
+	return identity.template.SpecificName;
+};
+
+/**
+ * Scenario player's infrastructure that is damaged enough to mark.
+ * @return {Object[]}
+ */
+NationScenarioController.prototype.CriticalInfrastructure = function()
+{
+	const cmpRange = Engine.QueryInterface(SYSTEM_ENTITY, IID_RangeManager);
+	if (!cmpRange || !cmpRange.GetEntitiesByPlayer)
+		return [];
+	const ids = cmpRange.GetEntitiesByPlayer(this.player);
+	if (!ids)
+		return [];
+	const found = [];
+	for (let i = 0; i < ids.length; ++i)
+	{
+		const ent = ids[i];
+		const link = Engine.QueryInterface(ent, IID_InfrastructureLink);
+		if (!link || !link.GetCondition)
+			continue;
+		const condition = link.GetCondition();
+		if (!(condition < this.CriticalCondition))
+			continue;
+		const owner = this.EntityOwner(ent);
+		if (owner !== this.player)
+			continue;
+		const name = this.LinkName(ent);
+		if (!name)
+			continue;
+		const position = this.EntityPosition(ent);
+		if (!position)
+			continue;
+		found.push({
+			"id": ent,
+			"name": name,
+			"condition": condition,
+			"position": position,
+			"owner": owner
+		});
+	}
+	found.sort((left, right) => left.id - right.id);
+	return found;
+};
+
+/**
  * @return {Object|null}
  */
 NationScenarioController.prototype.GetView = function()
@@ -300,6 +411,7 @@ NationScenarioController.prototype.GetView = function()
 		"debt": world.debt,
 		"debtCreditor": world.debtCreditor,
 		"settlements": world.settlements,
+		"criticalInfrastructure": this.CriticalInfrastructure(),
 		"activeRebellions": world.activeRebellions,
 		"rebellionsSuppressed": this.rebellionsSuppressed,
 		"highest": highest,
@@ -435,7 +547,7 @@ NationScenarioController.prototype.Observe = function()
 
 		const wasActive = !!this.previousActive[settlement.id];
 		if (settlement.rebellion && !wasActive)
-			this.Notify("Armed rebels have appeared near " + settlement.name + ".");
+			this.Notify("Rebels have appeared near " + settlement.name + ".");
 		if (!settlement.rebellion && wasActive)
 		{
 			++this.rebellionsSuppressed;

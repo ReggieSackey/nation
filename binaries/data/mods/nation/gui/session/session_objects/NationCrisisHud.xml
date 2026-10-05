@@ -5,7 +5,31 @@
 	</object>
 
 	<object name="nationCrisisPlaces" type="image" sprite="color: 18 16 14 176" size="8 244 312 360" hidden="true" z="40">
-		<object name="nationCrisisPlacesText" type="text" style="resourceText" text_valign="top" size="12 6 100%-12 100%-6"/>
+		<object name="nationCrisisPlace0" type="button" style="StoneButton" font="sans-bold-stroke-13" size="6 4 100%-6 28" hidden="true"/>
+		<object name="nationCrisisPlace1" type="button" style="StoneButton" font="sans-bold-stroke-13" size="6 30 100%-6 54" hidden="true"/>
+		<object name="nationCrisisPlace2" type="button" style="StoneButton" font="sans-bold-stroke-13" size="6 56 100%-6 80" hidden="true"/>
+		<object name="nationCrisisPlace3" type="button" style="StoneButton" font="sans-bold-stroke-13" size="6 82 100%-6 106" hidden="true"/>
+	</object>
+
+	<object name="nationMapLabels" size="0 0 100% 100%" ghost="true" z="25">
+		<object name="nationMapLabel0" type="image" sprite="color: 18 16 14 176" ghost="true" hidden="true" size="0 0 172 36">
+			<object name="nationMapLabelText0" type="text" style="resourceText" font="sans-bold-stroke-13" text_align="center" text_valign="center" ghost="true" size="4 1 100%-4 100%-1"/>
+		</object>
+		<object name="nationMapLabel1" type="image" sprite="color: 18 16 14 176" ghost="true" hidden="true" size="0 0 172 36">
+			<object name="nationMapLabelText1" type="text" style="resourceText" font="sans-bold-stroke-13" text_align="center" text_valign="center" ghost="true" size="4 1 100%-4 100%-1"/>
+		</object>
+		<object name="nationMapLabel2" type="image" sprite="color: 18 16 14 176" ghost="true" hidden="true" size="0 0 172 36">
+			<object name="nationMapLabelText2" type="text" style="resourceText" font="sans-bold-stroke-13" text_align="center" text_valign="center" ghost="true" size="4 1 100%-4 100%-1"/>
+		</object>
+		<object name="nationMapLabel3" type="image" sprite="color: 18 16 14 176" ghost="true" hidden="true" size="0 0 172 36">
+			<object name="nationMapLabelText3" type="text" style="resourceText" font="sans-bold-stroke-13" text_align="center" text_valign="center" ghost="true" size="4 1 100%-4 100%-1"/>
+		</object>
+		<object name="nationMapLabel4" type="image" sprite="color: 18 16 14 176" ghost="true" hidden="true" size="0 0 172 36">
+			<object name="nationMapLabelText4" type="text" style="resourceText" font="sans-bold-stroke-13" text_align="center" text_valign="center" ghost="true" size="4 1 100%-4 100%-1"/>
+		</object>
+		<object name="nationMapLabel5" type="image" sprite="color: 18 16 14 176" ghost="true" hidden="true" size="0 0 172 36">
+			<object name="nationMapLabelText5" type="text" style="resourceText" font="sans-bold-stroke-13" text_align="center" text_valign="center" ghost="true" size="4 1 100%-4 100%-1"/>
+		</object>
 	</object>
 
 	<object name="nationCrisisActions" type="image" sprite="color: 18 16 14 176" size="100%-196 44 100%-8 214" hidden="true" z="40">

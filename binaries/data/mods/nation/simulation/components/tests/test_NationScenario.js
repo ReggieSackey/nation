@@ -11,6 +11,8 @@ Engine.RegisterInterface("Health");
 Engine.RegisterInterface("Identity");
 Engine.RegisterInterface("GuiInterface");
 Engine.RegisterInterface("NationScenarioController");
+Engine.RegisterInterface("RangeManager");
+Engine.RegisterInterface("InfrastructureLink");
 Engine.LoadComponentScript("NationScenarioController.js");
 
 const g = {
@@ -28,10 +30,16 @@ const g = {
 	"debts": [],
 	"notes": [],
 	"settlements": [
-		{ "id": 30, "name": "Capital", "population": 18000, "integration": 90, "discontent": 0, "rebellion": false },
-		{ "id": 31, "name": "Northern Village", "population": 5000, "integration": 35, "discontent": 0, "rebellion": false },
-		{ "id": 32, "name": "Western Village", "population": 3500, "integration": 20, "discontent": 0, "rebellion": false },
-		{ "id": 33, "name": "Southern Village", "population": 7000, "integration": 55, "discontent": 0, "rebellion": false }
+		{ "id": 30, "name": "Capital", "population": 18000, "integration": 90, "discontent": 0, "rebellion": false, "owner": 1, "isCapital": true, "x": 90, "z": 420 },
+		{ "id": 31, "name": "Northern Village", "population": 5000, "integration": 35, "discontent": 0, "rebellion": false, "owner": 1, "isCapital": false, "x": 70, "z": 470 },
+		{ "id": 32, "name": "Western Village", "population": 3500, "integration": 20, "discontent": 0, "rebellion": false, "owner": 1, "isCapital": false, "x": 80, "z": 280 },
+		{ "id": 33, "name": "Southern Village", "population": 7000, "integration": 55, "discontent": 0, "rebellion": false, "owner": 1, "isCapital": false, "x": 210, "z": 300 }
+	],
+	"links": [
+		{ "id": 40, "name": "Northern Road", "condition": 42, "owner": 1, "x": 80, "z": 445, "inWorld": true },
+		{ "id": 41, "name": "Western Road", "condition": 100, "owner": 1, "x": 120, "z": 300, "inWorld": true },
+		{ "id": 42, "name": "Border Road", "condition": 20, "owner": 2, "x": 300, "z": 300, "inWorld": true },
+		{ "id": 43, "name": "", "condition": 10, "owner": 1, "x": 10, "z": 10, "inWorld": true }
 	]
 };
 
@@ -108,6 +116,9 @@ function installWorld()
 	AddMock(10, IID_Health, {
 		"GetHitpoints": () => g.capitalHp
 	});
+	AddMock(SYSTEM_ENTITY, IID_RangeManager, {
+		"GetEntitiesByPlayer": () => g.links.map(item => item.id)
+	});
 	for (let i = 0; i < g.settlements.length; ++i)
 	{
 		const id = g.settlements[i].id;
@@ -115,9 +126,42 @@ function installWorld()
 			"GetName": () => row(id).name,
 			"GetPopulation": () => row(id).population,
 			"GetStateIntegration": () => row(id).integration,
-			"GetDiscontent": () => row(id).discontent
+			"GetDiscontent": () => row(id).discontent,
+			"GetIsCapital": () => row(id).isCapital
+		});
+		AddMock(id, IID_Ownership, {
+			"GetOwner": () => row(id).owner
+		});
+		AddMock(id, IID_Position, {
+			"IsInWorld": () => true,
+			"GetPosition2D": () => ({ "x": row(id).x, "y": row(id).z })
 		});
 	}
+	for (let i = 0; i < g.links.length; ++i)
+	{
+		const id = g.links[i].id;
+		AddMock(id, IID_InfrastructureLink, {
+			"GetCondition": () => linkRow(id).condition
+		});
+		AddMock(id, IID_Ownership, {
+			"GetOwner": () => linkRow(id).owner
+		});
+		AddMock(id, IID_Position, {
+			"IsInWorld": () => linkRow(id).inWorld,
+			"GetPosition2D": () => ({ "x": linkRow(id).x, "y": linkRow(id).z })
+		});
+		AddMock(id, IID_Identity, {
+			"template": { "SpecificName": g.links[i].name }
+		});
+	}
+}
+
+function linkRow(id)
+{
+	for (let i = 0; i < g.links.length; ++i)
+		if (g.links[i].id === id)
+			return g.links[i];
+	return null;
 }
 
 function fresh()
@@ -135,7 +179,12 @@ function fresh()
 	{
 		g.settlements[i].discontent = 0;
 		g.settlements[i].rebellion = false;
+		g.settlements[i].owner = 1;
 	}
+	g.links[0].condition = 42;
+	g.links[1].condition = 100;
+	g.links[2].condition = 20;
+	g.links[3].condition = 10;
 	installWorld();
 	const cmp = ConstructComponent(SYSTEM_ENTITY, "NationScenarioController");
 	TS_ASSERT_EQUALS(cmp.ReadConfig(config), true);
@@ -279,8 +328,8 @@ row(32).rebellion = true;
 row(31).rebellion = true;
 cmp.Observe();
 TS_ASSERT_EQUALS(cmp.outcome, "");
-TS_ASSERT(g.notes.indexOf("Armed rebels have appeared near Western Village.") !== -1);
-TS_ASSERT(g.notes.indexOf("Armed rebels have appeared near Northern Village.") !== -1);
+	TS_ASSERT(g.notes.indexOf("Rebels have appeared near Western Village.") !== -1);
+	TS_ASSERT(g.notes.indexOf("Rebels have appeared near Northern Village.") !== -1);
 g.time = 10000 + 180000;
 cmp.Observe();
 TS_ASSERT_EQUALS(cmp.outcome, "loss");
@@ -453,3 +502,107 @@ TS_ASSERT_EQUALS(cmpImport.Purchase(1, "neighbor-food-import"), true);
 TS_ASSERT_EQUALS(g_Stock.food, 2200);
 TS_ASSERT_EQUALS(cmpFinance.GetTreasury(1), 2000000);
 TS_ASSERT_EQUALS(cmpLedger.GetDebts()[0].principalOutstanding, 2000000);
+
+cmp = fresh();
+view = cmp.GetView();
+TS_ASSERT_EQUALS(view.settlements[0].name, "Capital");
+TS_ASSERT_EQUALS(view.settlements[0].isCapital, true);
+TS_ASSERT_EQUALS(view.settlements[0].mood, "Calm");
+TS_ASSERT_EQUALS(view.settlements[0].position.x, 90);
+TS_ASSERT_EQUALS(view.settlements[0].position.z, 420);
+TS_ASSERT_EQUALS(view.settlements[0].owner, 1);
+TS_ASSERT_EQUALS(cmp.Mood(24), "Calm");
+TS_ASSERT_EQUALS(cmp.Mood(25), "Uneasy");
+TS_ASSERT_EQUALS(cmp.Mood(49), "Uneasy");
+TS_ASSERT_EQUALS(cmp.Mood(50), "Restive");
+TS_ASSERT_EQUALS(cmp.Mood(69), "Restive");
+TS_ASSERT_EQUALS(cmp.Mood(70), "Volatile");
+TS_ASSERT_EQUALS(cmp.Mood(79), "Volatile");
+TS_ASSERT_EQUALS(cmp.Mood(80), "Rebellion risk");
+row(32).discontent = 49;
+view = cmp.GetView();
+TS_ASSERT_EQUALS(view.settlements[2].discontent, 49);
+TS_ASSERT_EQUALS(view.settlements[2].mood, "Uneasy");
+row(32).discontent = 50;
+view = cmp.GetView();
+TS_ASSERT_EQUALS(view.settlements[2].mood, "Restive");
+row(32).discontent = 70;
+view = cmp.GetView();
+TS_ASSERT_EQUALS(view.settlements[2].mood, "Volatile");
+row(32).discontent = 80;
+view = cmp.GetView();
+TS_ASSERT_EQUALS(view.settlements[2].mood, "Rebellion risk");
+row(32).discontent = 72;
+const foodBefore = g.food;
+const treasuryBefore = g.treasury;
+const outcomeBefore = cmp.outcome;
+view = cmp.GetView();
+TS_ASSERT_EQUALS(g.food, foodBefore);
+TS_ASSERT_EQUALS(g.treasury, treasuryBefore);
+TS_ASSERT_EQUALS(row(32).discontent, 72);
+TS_ASSERT_EQUALS(cmp.outcome, outcomeBefore);
+TS_ASSERT_EQUALS(view.settlements[2].discontent, 72);
+TS_ASSERT_EQUALS(view.settlements[2].mood, "Volatile");
+TS_ASSERT_EQUALS(view.criticalInfrastructure.length, 1);
+TS_ASSERT_EQUALS(view.criticalInfrastructure[0].id, 40);
+TS_ASSERT_EQUALS(view.criticalInfrastructure[0].name, "Northern Road");
+TS_ASSERT_EQUALS(view.criticalInfrastructure[0].condition, 42);
+TS_ASSERT_EQUALS(view.criticalInfrastructure[0].position.z, 445);
+g.links[0].condition = 100;
+view = cmp.GetView();
+TS_ASSERT_EQUALS(view.criticalInfrastructure.length, 0);
+g.links[0].condition = 42;
+row(32).owner = 2;
+view = cmp.GetView();
+TS_ASSERT_EQUALS(view.settlements[2].owner, 2);
+TS_ASSERT_EQUALS(view.criticalInfrastructure[0].owner, 1);
+cmp = SerializationCycle(cmp);
+view = cmp.GetView();
+TS_ASSERT_EQUALS(view.settlements[2].discontent, 72);
+TS_ASSERT_EQUALS(view.settlements[2].mood, "Volatile");
+TS_ASSERT_EQUALS(view.criticalInfrastructure[0].name, "Northern Road");
+TS_ASSERT_EQUALS(view.criticalInfrastructure[0].condition, 42);
+TS_ASSERT_EQUALS(cmp.labels, undefined);
+
+eval(fs.readFileSync("/Users/reg/Documents/GitHub/nation/binaries/data/mods/nation/gui/session/top_panel/NationCrisisHud.js", "utf8"));
+TS_ASSERT_EQUALS(nationCrisisMood(49), "Uneasy");
+TS_ASSERT_EQUALS(nationCrisisMood(50), "Restive");
+TS_ASSERT_EQUALS(nationCrisisMood(70), "Volatile");
+TS_ASSERT_EQUALS(nationCrisisMood(80), "Rebellion risk");
+const caption = nationCrisisSettlementCaption(view.settlements[2]);
+TS_ASSERT_EQUALS(caption, "WESTERN VILLAGE\n72 · VOLATILE");
+TS_ASSERT_EQUALS(nationCrisisSettlementCaption(view.settlements[0]), "CAPITAL\n0 · CALM");
+TS_ASSERT_EQUALS(nationCrisisRoadCaption(view.criticalInfrastructure[0]), "NORTHERN ROAD\n42%");
+const visible = nationCrisisForViewer(view.settlements, 1);
+TS_ASSERT_EQUALS(visible.length, 3);
+TS_ASSERT_EQUALS(visible[0].id, 30);
+const ordered = nationCrisisOrderedSettlements(view.settlements);
+TS_ASSERT_EQUALS(ordered[0].id, 32);
+TS_ASSERT_EQUALS(ordered[0].name, "Western Village");
+const items = nationCrisisMapItems(view, 1);
+TS_ASSERT_EQUALS(items.length, 4);
+TS_ASSERT_EQUALS(items[3].caption, "NORTHERN ROAD\n42%");
+const none = nationCrisisNewRebellions(null, view.settlements);
+TS_ASSERT_EQUALS(none.started.length, 0);
+row(32).rebellion = true;
+view = cmp.GetView();
+const started = nationCrisisNewRebellions(none.known, view.settlements);
+TS_ASSERT_EQUALS(started.started.length, 1);
+TS_ASSERT_EQUALS(started.started[0], 32);
+const projected = nationCrisisProject(
+	(sx, sy) => ({ "x": sx * 2 + 10, "z": sy * 3 + 20 }),
+	210,
+	320,
+	null,
+	800,
+	600);
+TS_ASSERT(projected);
+TS_ASSERT(Math.abs(projected.x - 100) < 1);
+TS_ASSERT(Math.abs(projected.y - 100) < 1);
+TS_ASSERT_EQUALS(nationCrisisProject(
+	() => ({ "x": 0, "z": 0 }),
+	500,
+	500,
+	null,
+	800,
+	600), null);
