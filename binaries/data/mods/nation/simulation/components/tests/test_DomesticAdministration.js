@@ -36,6 +36,23 @@ AddMock(SYSTEM_ENTITY, IID_TerritoryManager, {
 	}
 });
 
+// Native grid for the two test rectangles. Cell centers at x=4..252 are player 1.
+// The shared edge x=256 is cell 32, center 260, player 2.
+AddMock(SYSTEM_ENTITY, IID_SovereigntyManager, {
+	"GetOwner": (x, z) =>
+	{
+		const i = Math.floor(x / 8);
+		const j = Math.floor(z / 8);
+		if (i < 0 || j < 0)
+			return INVALID_PLAYER;
+		if (i < 32)
+			return 1;
+		if (i < 64)
+			return 2;
+		return INVALID_PLAYER;
+	}
+});
+
 const g_Regions = [
 	{
 		"owner": 1,
@@ -71,15 +88,16 @@ const cmpAdmin = ConstructComponent(SYSTEM_ENTITY, "DomesticAdministration");
 TS_ASSERT_EQUALS(cmpAdmin.MayPlace(1, 96, 230), true);
 TS_ASSERT_EQUALS(cmpSovereignty.GetSovereignOwner({ "x": 96, "z": 230 }), 1);
 
-// Foreign sovereignty is rejected, including the shared edge for the later polygon.
+// Foreign sovereignty is rejected.
 TS_ASSERT_EQUALS(cmpAdmin.MayPlace(1, 400, 400), false);
 TS_ASSERT_EQUALS(cmpAdmin.MayPlace(1, 270, 380), false);
 TS_ASSERT_EQUALS(cmpAdmin.MayPlace(2, 96, 230), false);
 
-// The shared edge belongs to the earlier polygon, player 1.
-TS_ASSERT_EQUALS(cmpSovereignty.GetSovereignOwner({ "x": 256, "z": 256 }), 1);
-TS_ASSERT_EQUALS(cmpAdmin.MayPlace(1, 256, 256), true);
-TS_ASSERT_EQUALS(cmpAdmin.MayPlace(2, 256, 256), false);
+// x=256 is the shared polygon edge. The old ray cast gave that point to player 1.
+// The native cell is (32, 32), center (260, 260), player 2.
+TS_ASSERT_EQUALS(cmpSovereignty.GetSovereignOwner({ "x": 256, "z": 256 }), 2);
+TS_ASSERT_EQUALS(cmpAdmin.MayPlace(1, 256, 256), false);
+TS_ASSERT_EQUALS(cmpAdmin.MayPlace(2, 256, 256), true);
 
 TS_ASSERT_EQUALS(cmpAdmin.MayPlace(0, 96, 230), false);
 TS_ASSERT_EQUALS(cmpAdmin.MayPlace(1, NaN, 230), false);

@@ -123,6 +123,11 @@ AddMock(SYSTEM_ENTITY, IID_PlayerManager, {
 const cmpSovereignty = ConstructComponent(SYSTEM_ENTITY, "Sovereignty");
 global.InitAttributes = { "settings": { "Sovereignty": enlarged } };
 cmpSovereignty.OnInitGame();
+// These anchors sit well inside a sovereign cell. The audit found no entity whose
+// polygon owner and cell-center owner disagree. The mock is the native grid.
+AddMock(SYSTEM_ENTITY, IID_SovereigntyManager, {
+	"GetOwner": (x, z) => x < 1100 ? 1 : 2
+});
 
 const esika = settlement(30, "Esika", 18000, 90, 520, 800, true);
 const bontuku = settlement(31, "Bontuku", 5000, 35, 480, 1360, false);

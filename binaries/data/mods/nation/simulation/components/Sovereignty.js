@@ -5,51 +5,9 @@ Sovereignty.prototype.Schema =
 
 Sovereignty.prototype.Init = function()
 {
-	// Static regions for this match. Plain data so the engine can serialize it.
+	// Loaded-gate data for SovereignBorderTracker. Not an ownership authority.
 	this.regions = [];
 };
-
-/**
- * A point on a segment, including the endpoints, belongs to that segment.
- * Coordinates used here are exact map values, so equality is exact.
- */
-function pointOnSegment(x, z, ax, az, bx, bz)
-{
-	const cross = (z - az) * (bx - ax) - (x - ax) * (bz - az);
-	if (cross !== 0)
-		return false;
-
-	const dot = (x - ax) * (bx - ax) + (z - az) * (bz - az);
-	if (dot < 0)
-		return false;
-
-	const lengthSquared = (bx - ax) * (bx - ax) + (bz - az) * (bz - az);
-	return dot <= lengthSquared;
-}
-
-/**
- * Even-odd ray cast along +x. Boundary points are inside.
- */
-function pointInPolygon(x, z, points)
-{
-	const count = points.length;
-	for (let i = 0, j = count - 1; i < count; j = i++)
-		if (pointOnSegment(x, z, points[j].x, points[j].z, points[i].x, points[i].z))
-			return true;
-
-	let inside = false;
-	for (let i = 0, j = count - 1; i < count; j = i++)
-	{
-		const xi = points[i].x;
-		const zi = points[i].z;
-		const xj = points[j].x;
-		const zj = points[j].z;
-		const crossesZ = (zi > z) !== (zj > z);
-		if (crossesZ && x < (xj - xi) * (z - zi) / (zj - zi) + xi)
-			inside = !inside;
-	}
-	return inside;
-}
 
 function isFiniteNumber(value)
 {
@@ -57,6 +15,8 @@ function isFiniteNumber(value)
 }
 
 /**
+ * Remember the authored regions so callers can tell that InitGame has loaded them.
+ * Ownership is not decided here. SovereigntyManager rasterizes the same settings.
  * @param {Object[]|undefined} regions - ScriptSettings.Sovereignty, or undefined when the map defines none.
  * @return {boolean} - False after reporting malformed data. The caller then stores no regions.
  */
@@ -122,9 +82,10 @@ Sovereignty.prototype.OnInitGame = function()
 };
 
 /**
- * First matching region wins, so a shared edge belongs to the earlier region.
+ * Legal owner of a world position.
+ * The native grid answers. A missing manager is unclaimed, the same as byte 0.
  * @param {{x: number, z: number}} position - World position in map coordinates.
- * @return {number} - Player id, or INVALID_PLAYER when the point is unclaimed.
+ * @return {number} - Player id, or INVALID_PLAYER when the cell is unclaimed or the manager is absent.
  */
 Sovereignty.prototype.GetSovereignOwner = function(position)
 {
@@ -134,15 +95,15 @@ Sovereignty.prototype.GetSovereignOwner = function(position)
 		return INVALID_PLAYER;
 	}
 
-	for (let i = 0; i < this.regions.length; ++i)
-		if (pointInPolygon(position.x, position.z, this.regions[i].points))
-			return this.regions[i].owner;
+	const cmpNative = Engine.QueryInterface(SYSTEM_ENTITY, IID_SovereigntyManager);
+	if (!cmpNative)
+		return INVALID_PLAYER;
 
-	return INVALID_PLAYER;
+	return cmpNative.GetOwner(position.x, position.z);
 };
 
 /**
- * @return {Object[]} - Copy of the loaded regions.
+ * @return {Object[]} - Copy of the loaded regions. Empty until OnInitGame.
  */
 Sovereignty.prototype.GetRegions = function()
 {

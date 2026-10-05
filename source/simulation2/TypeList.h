@@ -217,3 +217,8 @@ COMPONENT(VisualActor) // must be after Ownership (dependency in Deserialize) an
 
 INTERFACE(WaterManager)
 COMPONENT(WaterManager)
+
+// Appended so existing component and interface ids do not move.
+// Legal ownership. Not territory, visibility, or the scripted Sovereignty component.
+INTERFACE(SovereigntyManager)
+COMPONENT(SovereigntyManager)
