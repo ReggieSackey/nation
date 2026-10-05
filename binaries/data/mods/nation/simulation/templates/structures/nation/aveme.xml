@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Entity parent="template_nation_settlement">
+  <Identity>
+    <Civ>spart</Civ>
+    <SpecificName>Avémé</SpecificName>
+  </Identity>
+  <NationSettlement>
+    <Name>Avémé</Name>
+    <Population>12000</Population>
+    <StateIntegration>70</StateIntegration>
+    <IsCapital>true</IsCapital>
+  </NationSettlement>
+</Entity>

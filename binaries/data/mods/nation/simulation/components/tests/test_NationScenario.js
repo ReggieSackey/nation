@@ -119,6 +119,7 @@ function installWorld()
 	AddMock(SYSTEM_ENTITY, IID_RangeManager, {
 		"GetEntitiesByPlayer": () => g.links.map(item => item.id)
 	});
+	Engine.GetEntitiesWithInterface = () => [];
 	for (let i = 0; i < g.settlements.length; ++i)
 	{
 		const id = g.settlements[i].id;
@@ -582,6 +583,33 @@ TS_ASSERT_EQUALS(ordered[0].name, "Sefira");
 const items = nationCrisisMapItems(view, 1);
 TS_ASSERT_EQUALS(items.length, 4);
 TS_ASSERT_EQUALS(items[3].caption, "BONTUKU ROAD\n42%");
+TS_ASSERT_EQUALS(view.places.length, 0);
+AddMock(34, IID_NationSettlement, {
+	"GetName": () => "Avémé",
+	"GetSovereignOwner": () => 2,
+	"GetPopulation": () => 12000,
+	"GetStateIntegration": () => 70,
+	"GetDiscontent": () => 0
+});
+AddMock(34, IID_Position, {
+	"IsInWorld": () => true,
+	"GetPosition2D": () => ({ "x": 1312, "y": 820 })
+});
+Engine.GetEntitiesWithInterface = iid => iid === IID_NationSettlement ? [34] : [];
+view = cmp.GetView();
+TS_ASSERT_EQUALS(view.places.length, 1);
+TS_ASSERT_EQUALS(view.places[0].name, "Avémé");
+TS_ASSERT_EQUALS(view.places[0].population, undefined);
+TS_ASSERT_EQUALS(view.places[0].discontent, undefined);
+TS_ASSERT_EQUALS(view.places[0].integration, undefined);
+TS_ASSERT_EQUALS(view.settlements.length, 4);
+for (let i = 0; i < view.settlements.length; ++i)
+	TS_ASSERT(view.settlements[i].name !== "Avémé");
+const labeled = nationCrisisMapItems(view, 1);
+TS_ASSERT_EQUALS(labeled.length, 5);
+TS_ASSERT_EQUALS(labeled[3].caption, "AVÉMÉ");
+TS_ASSERT_EQUALS(labeled[4].caption, "BONTUKU ROAD\n42%");
+TS_ASSERT_EQUALS(nationCrisisForViewer(view.settlements, 1).length, 3);
 const none = nationCrisisNewRebellions(null, view.settlements);
 TS_ASSERT_EQUALS(none.started.length, 0);
 row(32).rebellion = true;

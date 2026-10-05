@@ -276,3 +276,14 @@ const savedAdapter = SerializationCycle(world.cmp);
 savedAdapter.RefreshAll();
 TS_ASSERT_EQUALS(QueryPlayerIDInterface(1).GetPopulationLimit(), 335);
 TS_ASSERT_EQUALS(Engine.QueryInterface(30, IID_NationSettlement).GetPopulation(), 18000);
+
+const adome = start();
+settlement(30, 18000, 90, 1);
+settlement(31, 5000, 70, 1);
+settlement(32, 3500, 40, 1);
+settlement(33, 7000, 190, 1);
+settlement(35, 12000, 420, 2);
+adome.cmp.RefreshAll();
+TS_ASSERT_EQUALS(adome.p1.GetPopulationLimit(), 335);
+TS_ASSERT_EQUALS(adome.p2.GetPopulationLimit(), 120);
+TS_ASSERT_EQUALS(adome.p3.GetPopulationLimit(), 0);

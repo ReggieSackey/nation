@@ -266,3 +266,21 @@ TS_ASSERT_EQUALS(world.p1.GetResourceCounts().food, 0);
 TS_ASSERT_EQUALS(world.cmpFood.GetFoodStatus(1).unmet, 335);
 TS_ASSERT_EQUALS(world.cmpFood.GetFoodStatus(1).cumulativeUnmet, 235 + 335);
 TS_ASSERT_EQUALS(world.cmpTimer.timers.size, savedTimers);
+
+// Avémé's population is Adomé's demand. It does not raise Densira's.
+world = start(4200, 30000, 0);
+settlement(30, 18000, 90, 1);
+settlement(31, 5000, 70, 1);
+settlement(32, 3500, 40, 1);
+settlement(33, 7000, 180, 1);
+settlement(35, 12000, 420, 2);
+TS_ASSERT_EQUALS(world.cmpFood.Interval, 10000);
+TS_ASSERT_EQUALS(world.cmpFood.GetFoodStatus(1).population, 33500);
+TS_ASSERT_EQUALS(world.cmpFood.GetFoodStatus(1).required, 335);
+TS_ASSERT_EQUALS(world.cmpFood.GetFoodStatus(2).population, 12000);
+TS_ASSERT_EQUALS(world.cmpFood.GetFoodStatus(2).required, 120);
+world.cmpFood.ConsumeFood();
+TS_ASSERT_EQUALS(world.p1.GetResourceCounts().food, 4200 - 335);
+TS_ASSERT_EQUALS(world.p2.GetResourceCounts().food, 30000 - 120);
+TS_ASSERT_EQUALS(world.cmpFood.GetFoodStatus(1).shortageBps, 0);
+TS_ASSERT_EQUALS(world.cmpFood.GetFoodStatus(2).shortageBps, 0);

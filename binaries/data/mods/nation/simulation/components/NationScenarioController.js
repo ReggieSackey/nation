@@ -321,6 +321,44 @@ NationScenarioController.prototype.EntityOwner = function(entity)
 };
 
 /**
+ * Settlements of other sovereigns, for a name-only map label.
+ * Population, integration, and discontent stay off this list.
+ * @return {Object[]}
+ */
+NationScenarioController.prototype.PlaceNames = function()
+{
+	if (!Engine.GetEntitiesWithInterface)
+		return [];
+	const found = Engine.GetEntitiesWithInterface(IID_NationSettlement);
+	if (!found)
+		return [];
+
+	const places = [];
+	for (let i = 0; i < found.length; ++i)
+	{
+		const ent = found[i];
+		const cmpSettlement = Engine.QueryInterface(ent, IID_NationSettlement);
+		if (!cmpSettlement || !cmpSettlement.GetSovereignOwner || !cmpSettlement.GetName)
+			continue;
+		if (cmpSettlement.GetSovereignOwner() === this.player)
+			continue;
+		const name = cmpSettlement.GetName();
+		if (!name)
+			continue;
+		const position = this.EntityPosition(ent);
+		if (!position)
+			continue;
+		places.push({
+			"id": ent,
+			"name": name,
+			"position": position
+		});
+	}
+	places.sort((left, right) => left.id - right.id);
+	return places;
+};
+
+/**
  * SpecificName is the authored place name. A blank name is not labeled.
  * @return {string}
  */
@@ -411,6 +449,7 @@ NationScenarioController.prototype.GetView = function()
 		"debt": world.debt,
 		"debtCreditor": world.debtCreditor,
 		"settlements": world.settlements,
+		"places": this.PlaceNames(),
 		"criticalInfrastructure": this.CriticalInfrastructure(),
 		"activeRebellions": world.activeRebellions,
 		"rebellionsSuppressed": this.rebellionsSuppressed,

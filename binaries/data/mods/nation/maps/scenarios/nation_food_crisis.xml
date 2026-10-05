@@ -65,7 +65,7 @@
       "Name": "Adomé",
       "Diplomacy": [-1, 0, 1, 0],
       "Resources": {
-        "food": 300,
+        "food": 30000,
         "wood": 300,
         "stone": 300,
         "metal": 300,
@@ -531,6 +531,12 @@
 			<Player>2</Player>
 			<Position x="1280" z="830"/>
 			<Orientation y="-0.8"/>
+		</Entity>
+		<Entity uid="34">
+			<Template>structures/nation/aveme</Template>
+			<Player>2</Player>
+			<Position x="1312" z="820"/>
+			<Orientation y="0.2"/>
 		</Entity>
 		<Entity uid="255">
 			<Template>structures/nation/neighbor_house</Template>

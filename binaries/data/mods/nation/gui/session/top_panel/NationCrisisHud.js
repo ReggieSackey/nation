@@ -88,7 +88,8 @@ function nationCrisisRoadCaption(link)
 }
 
 /**
- * At most four settlement labels and two damaged-road labels.
+ * At most four local settlement labels, then foreign place names, then damaged roads.
+ * Six labels in total. A foreign caption is the place name only.
  */
 function nationCrisisMapItems(view, viewedPlayer)
 {
@@ -101,6 +102,18 @@ function nationCrisisMapItems(view, viewedPlayer)
 			"id": settlement.id,
 			"caption": nationCrisisSettlementCaption(settlement),
 			"position": settlement.position
+		});
+	}
+	const places = view && view.places || [];
+	for (let i = 0; i < places.length && items.length < 6; ++i)
+	{
+		const place = places[i];
+		if (!place || !place.position)
+			continue;
+		items.push({
+			"id": place.id,
+			"caption": String(place.name || "").toUpperCase(),
+			"position": place.position
 		});
 	}
 	const roads = nationCrisisForViewer(view && view.criticalInfrastructure, viewedPlayer);
