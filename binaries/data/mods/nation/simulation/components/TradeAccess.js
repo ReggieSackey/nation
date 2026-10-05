@@ -109,4 +109,22 @@ TradeAccess.prototype.GrantTrade = function(fromPlayer, toPlayer)
 	return true;
 };
 
+/**
+ * Withdraw permission to buy. A missing row is already a denial.
+ * @return {boolean}
+ */
+TradeAccess.prototype.RevokeTrade = function(fromPlayer, toPlayer)
+{
+	for (let i = 0; i < this.grants.length; ++i)
+	{
+		const grant = this.grants[i];
+		if (grant.from === fromPlayer && grant.to === toPlayer)
+		{
+			grant.trade = false;
+			return true;
+		}
+	}
+	return true;
+};
+
 Engine.RegisterSystemComponentType(IID_TradeAccess, "TradeAccess", TradeAccess);

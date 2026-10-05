@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Entity parent="units/athen/support_trader">
+  <Identity>
+    <GenericName>Merchant</GenericName>
+    <SpecificName>Merchant</SpecificName>
+    <Tooltip>A representative commercial flow between two trade depots. One merchant stands for a shipment, not one vehicle carrying the national economy.</Tooltip>
+    <Icon>units/hele/support_trader.png</Icon>
+  </Identity>
+</Entity>

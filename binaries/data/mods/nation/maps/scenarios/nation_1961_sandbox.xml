@@ -304,6 +304,24 @@
 			<Position x="210" z="250"/>
 			<Orientation y="0"/>
 		</Entity>
+		<Entity uid="80">
+			<Template>structures/nation/trade_depot</Template>
+			<Player>1</Player>
+			<Position x="200" z="80"/>
+			<Orientation y="0"/>
+		</Entity>
+		<Entity uid="81">
+			<Template>structures/nation/trade_depot</Template>
+			<Player>2</Player>
+			<Position x="320" z="80"/>
+			<Orientation y="0"/>
+		</Entity>
+		<Entity uid="82">
+			<Template>units/nation/merchant</Template>
+			<Player>1</Player>
+			<Position x="210" z="90"/>
+			<Orientation y="0"/>
+		</Entity>
 	</Entities>
 	<Paths/>
 </Scenario>

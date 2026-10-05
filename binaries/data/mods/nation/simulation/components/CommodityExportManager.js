@@ -154,6 +154,14 @@ CommodityExportManager.prototype.ApplyExports = function()
 		if (!Number.isInteger(owner) || owner <= 0)
 			continue;
 
+		// An open bilateral contract already claims this commodity. Do not sell it twice.
+		if (typeof IID_TradeContractManager !== "undefined")
+		{
+			const cmpContracts = Engine.QueryInterface(SYSTEM_ENTITY, IID_TradeContractManager);
+			if (cmpContracts && cmpContracts.HasOpenObligation(owner, commodity))
+				continue;
+		}
+
 		const amount = this.ExportAmount(ent, stock);
 		if (amount <= 0)
 			continue;

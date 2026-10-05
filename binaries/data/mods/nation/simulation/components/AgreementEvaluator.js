@@ -388,6 +388,116 @@ AgreementEvaluator.prototype.BeneficiaryOccupiesProvider = function(beneficiary,
 };
 
 /**
+ * A same-package trade grant counts. The contract does not require the right to exist beforehand.
+ * @return {boolean}
+ */
+AgreementEvaluator.prototype.SaleLegallyOpen = function(seller, buyer)
+{
+	const cmpTrade = typeof IID_TradeAccess !== "undefined" &&
+		Engine.QueryInterface(SYSTEM_ENTITY, IID_TradeAccess);
+	if (cmpTrade && cmpTrade.CanTrade(buyer, seller))
+		return true;
+	const proposal = this.scoringProposal;
+	if (!proposal)
+		return false;
+	const items = (proposal.offer || []).concat(proposal.request || []);
+	for (let i = 0; i < items.length; ++i)
+	{
+		const item = items[i];
+		if (item && item.type === "trade_access" && item.provider === seller && item.beneficiary === buyer)
+			return true;
+	}
+	return false;
+};
+
+/**
+ * Both states have a living market. This is the physical endpoint, not the legal right.
+ * @return {boolean}
+ */
+AgreementEvaluator.prototype.PlayerHasMarket = function(playerId)
+{
+	if (typeof IID_Market === "undefined")
+		return false;
+	const markets = Engine.GetEntitiesWithInterface(IID_Market);
+	for (let i = 0; i < markets.length; ++i)
+	{
+		const cmpOwnership = Engine.QueryInterface(markets[i], IID_Ownership);
+		if (!cmpOwnership || cmpOwnership.GetOwner() !== playerId)
+			continue;
+		if (typeof IID_Health !== "undefined")
+		{
+			const cmpHealth = Engine.QueryInterface(markets[i], IID_Health);
+			if (cmpHealth && cmpHealth.GetHitpoints && cmpHealth.GetHitpoints() <= 0)
+				continue;
+		}
+		return true;
+	}
+	return false;
+};
+
+/**
+ * Legal permission, both endpoints, and a corridor that can still carry goods.
+ * @return {boolean}
+ */
+AgreementEvaluator.prototype.SaleRouteOpen = function(item)
+{
+	if (!this.SaleLegallyOpen(item.provider, item.beneficiary))
+		return false;
+	if (!this.PlayerHasMarket(item.provider) || !this.PlayerHasMarket(item.beneficiary))
+		return false;
+	if (typeof IID_TradeContractManager === "undefined")
+		return false;
+	const cmpContracts = Engine.QueryInterface(SYSTEM_ENTITY, IID_TradeContractManager);
+	return !!(cmpContracts && cmpContracts.LotCapacity(item.provider, item.commodity) > 0);
+};
+
+/**
+ * Buyer benefit is the commodity. Buyer cost is the promised payment.
+ * Seller benefit is the payment. Seller cost is the commodity.
+ * A missing route shrinks a wanted deal and worsens an unwanted one.
+ * @return {number}
+ */
+AgreementEvaluator.prototype.CommoditySaleUtility = function(item, evaluatingPlayer, treasury, received)
+{
+	if (typeof IID_CommodityInventory === "undefined")
+		return 0;
+	const cmpInventory = Engine.QueryInterface(SYSTEM_ENTITY, IID_CommodityInventory);
+	const spec = cmpInventory && cmpInventory.Get(item.commodity);
+	if (!spec)
+		return 0;
+
+	const stock = cmpInventory.GetStock(evaluatingPlayer, item.commodity);
+	const pivot = spec.referenceStock;
+	const factor = received ?
+		(pivot + item.quantity) / (pivot + stock) :
+		(pivot + item.quantity) / (pivot + Math.max(stock - item.quantity, 0));
+	const worth = Math.max(1, Math.round(spec.referenceValue * item.quantity * factor));
+	const commodityPoints = Math.round(this.CashMagnitude(0, worth));
+
+	let pricePoints = 0;
+	if (received)
+	{
+		if (treasury < item.totalPrice)
+			pricePoints = this.ImpossibleCost;
+		else
+			pricePoints = Math.round(this.CashScale * Math.log(
+				(this.CashReference + treasury) / (this.CashReference + treasury - item.totalPrice)));
+	}
+	else
+		pricePoints = Math.round(this.CashMagnitude(treasury, item.totalPrice));
+
+	let utility = received ? commodityPoints - pricePoints : pricePoints - commodityPoints;
+	if (!this.SaleRouteOpen(item))
+	{
+		if (utility > 0)
+			utility = Math.round(utility * 0.25);
+		else
+			utility -= 40;
+	}
+	return utility;
+};
+
+/**
  * Score one item from the working stock and treasury. Does not read other items.
  * @return {Object}
  */
@@ -414,8 +524,18 @@ AgreementEvaluator.prototype.ScoreItem = function(item, evaluatingPlayer, stock,
 
 	const foreign = NationParticipantKey(item.provider).indexOf("foreign_actor:") === 0 ||
 		NationParticipantKey(item.beneficiary).indexOf("foreign_actor:") === 0;
-	if (foreign && (item.type === "resource" || item.type === "military_access" || item.type === "trade_access"))
+	if (foreign && (item.type === "resource" || item.type === "military_access" ||
+		item.type === "trade_access" || item.type === "commodity_sale"))
 		return row;
+
+	if (item.type === "commodity_sale")
+	{
+		row.commodity = item.commodity;
+		row.quantity = item.quantity;
+		row.totalPrice = item.totalPrice;
+		row.utility = this.CommoditySaleUtility(item, evaluatingPlayer, treasury, received);
+		return row;
+	}
 
 	if (item.type === "loan")
 	{
@@ -528,13 +648,13 @@ AgreementEvaluator.prototype.SortItems = function(items)
 			return -1;
 		if (left.type > right.type)
 			return 1;
-		const leftCode = left.resource || "";
-		const rightCode = right.resource || "";
+		const leftCode = left.resource || left.commodity || "";
+		const rightCode = right.resource || right.commodity || "";
 		if (leftCode < rightCode)
 			return -1;
 		if (leftCode > rightCode)
 			return 1;
-		return (left.amount || 0) - (right.amount || 0);
+		return (left.amount || left.quantity || 0) - (right.amount || right.quantity || 0);
 	});
 };
 
@@ -578,6 +698,7 @@ AgreementEvaluator.prototype.EvaluateProposalData = function(proposal, evaluatin
 			received.push(item);
 	}
 
+	this.scoringProposal = proposal;
 	const rows = [];
 	const ordered = this.SortItems(given).concat(this.SortItems(received));
 	for (let i = 0; i < ordered.length; ++i)
@@ -624,6 +745,7 @@ AgreementEvaluator.prototype.EvaluateProposalData = function(proposal, evaluatin
 	else if (!hardReject && totalUtility >= this.CounterAt)
 		decision = "counter";
 
+	this.scoringProposal = null;
 	return {
 		"totalUtility": totalUtility,
 		"receivedUtility": receivedUtility,

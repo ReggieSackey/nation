@@ -78,6 +78,18 @@ CommodityProducer.prototype.Produce = function()
 };
 
 /**
+ * Put units back onto this producer. Used when a delivery is rolled back.
+ * @return {boolean}
+ */
+CommodityProducer.prototype.AddStock = function(amount)
+{
+	if (!Number.isInteger(amount) || amount <= 0)
+		return false;
+	this.stock += amount;
+	return true;
+};
+
+/**
  * Remove a positive integer amount. Failure leaves stock unchanged.
  * @return {boolean}
  */

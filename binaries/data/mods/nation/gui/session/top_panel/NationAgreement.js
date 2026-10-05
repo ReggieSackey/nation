@@ -175,6 +175,21 @@ function nationAgreementAdd(type, resource)
 		return;
 	}
 
+	if (type === "commodity_sale")
+	{
+		const price = nationAgreementField("nationAgreementPrice", 0, false);
+		const commodity = "cocoa";
+		if (!price)
+			return;
+		list.push({
+			"type": "commodity_sale",
+			"commodity": commodity,
+			"quantity": amount,
+			"totalPrice": price
+		});
+		return;
+	}
+
 	if (type === "debt_forgiveness")
 	{
 		const claims = nationAgreementClaims(provider, provider === g_ViewedPlayer ? g_NationAgreementDraft.recipient : g_ViewedPlayer);
@@ -227,6 +242,9 @@ function nationAgreementDescribe(items, provider, beneficiary)
 				" bps, " + item.installments + " installments, grace " + item.graceIntervals);
 		else if (item.type === "debt_forgiveness")
 			lines.push("    forgive " + item.amount + " of debt #" + item.debtId);
+		else if (item.type === "commodity_sale")
+			lines.push("    " + nationAgreementName(provider) + " sells " + nationAgreementName(beneficiary) +
+				" " + item.quantity + " " + item.commodity + " for " + item.totalPrice);
 	}
 	return lines.join("\n");
 }
@@ -289,6 +307,10 @@ function nationAgreementBind()
 	Engine.GetGUIObjectByName("nationAgreementForgive").onPress = function()
 	{
 		nationAgreementAdd("debt_forgiveness");
+	};
+	Engine.GetGUIObjectByName("nationAgreementCommodity").onPress = function()
+	{
+		nationAgreementAdd("commodity_sale");
 	};
 	Engine.GetGUIObjectByName("nationAgreementDebtPick").onPress = function()
 	{
@@ -397,6 +419,7 @@ function updateNationAgreement()
 	}
 	Engine.GetGUIObjectByName("nationAgreementMilitary").hidden = foreign;
 	Engine.GetGUIObjectByName("nationAgreementTrade").hidden = foreign;
+	Engine.GetGUIObjectByName("nationAgreementCommodity").hidden = foreign;
 
 	const provider = g_NationAgreementDraft.side === "request" ? partner : g_ViewedPlayer;
 	const beneficiary = g_NationAgreementDraft.side === "request" ? g_ViewedPlayer : partner;
@@ -418,9 +441,13 @@ function updateNationAgreement()
 		pick.caption = "Debt #" + selected.id + "  " + selected.principalOutstanding + " left";
 
 	const treasury = provider ? nationAgreementTreasury(provider) : 0;
+	const seller = g_NationAgreementDraft.side === "offer" ? g_ViewedPlayer : partner;
+	const sellerState = !foreign && seller && g_SimState.players[seller];
+	const cocoaStock = sellerState && sellerState.nationCommodityStock && sellerState.nationCommodityStock.cocoa || 0;
 	Engine.GetGUIObjectByName("nationAgreementAvailable").caption =
 		(g_NationAgreementDraft.side === "request" ? "Requesting from " : "Offering from ") +
-		nationAgreementName(provider) + "   treasury " + treasury;
+		nationAgreementName(provider) + "   treasury " + treasury +
+		"   Current stock: " + cocoaStock;
 
 	const debtLines = [];
 	const debts = g_SimState.nationDebts || [];
@@ -491,9 +518,24 @@ function updateNationAgreement()
 		}
 	}
 
+	const contractLines = [];
+	const contracts = g_SimState.nationTradeContracts || [];
+	for (let i = 0; i < contracts.length; ++i)
+	{
+		const contract = contracts[i];
+		if (contract.seller !== us && contract.buyer !== us && contract.seller !== them && contract.buyer !== them)
+			continue;
+		contractLines.push("Contract " + contract.id + ": " + nationAgreementName(contract.seller) +
+			" -> " + nationAgreementName(contract.buyer) + " " + contract.commodity +
+			" " + contract.quantityDelivered + "/" + contract.quantityAgreed +
+			" paid " + contract.amountPaid + "/" + contract.totalPrice +
+			" (" + contract.status + ")");
+	}
+
 	Engine.GetGUIObjectByName("nationAgreementLists").caption =
 		"WE OFFER\n" + nationAgreementDescribe(g_NationAgreementDraft.offer, us, them) + "\n" +
 		"WE REQUEST\n" + nationAgreementDescribe(g_NationAgreementDraft.request, them, us) + "\n\n" +
+		(contractLines.length ? contractLines.join("\n") + "\n\n" : "") +
 		(outcome ? outcome + "\n\n" : "") +
 		pendingLines.join("\n");
 
