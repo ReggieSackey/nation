@@ -130,8 +130,11 @@ function nationAgreementDraftTotal(list, type, resource)
 function nationAgreementAdd(type, resource)
 {
 	const list = g_NationAgreementDraft.side === "request" ? g_NationAgreementDraft.request : g_NationAgreementDraft.offer;
-	if (type === "military_access" || type === "trade_access")
+	if (type === "military_access" || type === "trade_access" || type === "transit_rights")
 	{
+		if (type === "transit_rights" &&
+			(nationAgreementForeign(g_ViewedPlayer) || nationAgreementForeign(g_NationAgreementDraft.recipient)))
+			return;
 		for (let i = 0; i < list.length; ++i)
 			if (list[i].type === type)
 				return;
@@ -237,6 +240,8 @@ function nationAgreementDescribe(items, provider, beneficiary)
 			lines.push("    " + nationAgreementName(provider) + " grants " + nationAgreementName(beneficiary) + " military access");
 		else if (item.type === "trade_access")
 			lines.push("    " + nationAgreementName(provider) + " grants " + nationAgreementName(beneficiary) + " trade access");
+		else if (item.type === "transit_rights")
+			lines.push("    " + nationAgreementName(provider) + " grants " + nationAgreementName(beneficiary) + " transit rights");
 		else if (item.type === "loan")
 			lines.push("    loan " + item.principal + " at " + item.interestRateBps +
 				" bps, " + item.installments + " installments, grace " + item.graceIntervals);
@@ -299,6 +304,10 @@ function nationAgreementBind()
 	Engine.GetGUIObjectByName("nationAgreementTrade").onPress = function()
 	{
 		nationAgreementAdd("trade_access");
+	};
+	Engine.GetGUIObjectByName("nationAgreementTransit").onPress = function()
+	{
+		nationAgreementAdd("transit_rights");
 	};
 	Engine.GetGUIObjectByName("nationAgreementLoan").onPress = function()
 	{
@@ -525,11 +534,20 @@ function updateNationAgreement()
 		const contract = contracts[i];
 		if (contract.seller !== us && contract.buyer !== us && contract.seller !== them && contract.buyer !== them)
 			continue;
+		let block = "";
+		if (contract.blockReason === "missing_transit")
+		{
+			const names = [];
+			const missing = contract.missingTransit || [];
+			for (let m = 0; m < missing.length; ++m)
+				names.push(nationAgreementName(missing[m]));
+			block = " — Missing transit rights through " + (names.length ? names.join(", ") : "another state");
+		}
 		contractLines.push("Contract " + contract.id + ": " + nationAgreementName(contract.seller) +
 			" -> " + nationAgreementName(contract.buyer) + " " + contract.commodity +
 			" " + contract.quantityDelivered + "/" + contract.quantityAgreed +
 			" paid " + contract.amountPaid + "/" + contract.totalPrice +
-			" (" + contract.status + ")");
+			" (" + contract.status + ")" + block);
 	}
 
 	Engine.GetGUIObjectByName("nationAgreementLists").caption =

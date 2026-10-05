@@ -82,25 +82,15 @@ TransportEfficiency.prototype.RouteBetter = function(candidate, current)
 };
 
 /**
- * Widest physical path between two commercial endpoints.
- * Recomputed from live link condition. Nothing is cached or serialized.
- * Condition 0 and a destroyed link are absent, so a severed corridor is disconnected.
- * The result condition is the worst remaining link. Ownership and sovereignty are ignored.
- * @return {{connected: boolean, condition: number, links: number[]}}
+ * Operational commercial edges. Ownership and sovereignty are not filters.
+ * @return {Object}
  */
-TransportEfficiency.prototype.GetCommercialRoute = function(origin, destination)
+TransportEfficiency.prototype.CommercialAdjacency = function()
 {
-	const empty = { "connected": false, "condition": 0, "links": [] };
-	if (!Number.isInteger(origin) || !Number.isInteger(destination) ||
-		origin <= 0 || destination <= 0 || origin === destination)
-		return empty;
-	if (!this.IsGraphNode(origin) || !this.IsGraphNode(destination))
-		return empty;
-	if (typeof IID_InfrastructureLink === "undefined")
-		return empty;
-
-	const ids = Engine.GetEntitiesWithInterface(IID_InfrastructureLink).slice().sort((a, b) => a - b);
 	const adj = {};
+	if (typeof IID_InfrastructureLink === "undefined")
+		return adj;
+	const ids = Engine.GetEntitiesWithInterface(IID_InfrastructureLink).slice().sort((a, b) => a - b);
 	for (let i = 0; i < ids.length; ++i)
 	{
 		const link = Engine.QueryInterface(ids[i], IID_InfrastructureLink);
@@ -122,7 +112,23 @@ TransportEfficiency.prototype.GetCommercialRoute = function(origin, destination)
 	}
 	for (const ent in adj)
 		adj[ent].sort((a, b) => a.link - b.link);
+	return adj;
+};
 
+/**
+ * Widest path. allowLink, when set, drops edges the caller may not use.
+ * @return {{connected: boolean, condition: number, links: number[]}}
+ */
+TransportEfficiency.prototype.WidestPath = function(origin, destination, allowLink)
+{
+	const empty = { "connected": false, "condition": 0, "links": [] };
+	if (!Number.isInteger(origin) || !Number.isInteger(destination) ||
+		origin <= 0 || destination <= 0 || origin === destination)
+		return empty;
+	if (!this.IsGraphNode(origin) || !this.IsGraphNode(destination))
+		return empty;
+
+	const adj = this.CommercialAdjacency();
 	const best = {};
 	best[origin] = { "condition": 100, "hops": 0, "links": [] };
 	const queue = [origin];
@@ -141,6 +147,8 @@ TransportEfficiency.prototype.GetCommercialRoute = function(origin, destination)
 		for (let i = 0; i < edges.length; ++i)
 		{
 			const edge = edges[i];
+			if (allowLink && !allowLink(edge.link))
+				continue;
 			if (here.links.indexOf(edge.link) !== -1)
 				continue;
 			const candidate = {
@@ -166,6 +174,151 @@ TransportEfficiency.prototype.GetCommercialRoute = function(origin, destination)
 		"connected": true,
 		"condition": found.condition,
 		"links": found.links.slice()
+	};
+};
+
+/**
+ * Sovereign of an entity's position. Zero when the entity has no place in a region.
+ * Position.y is the map z coordinate.
+ * @return {number}
+ */
+TransportEfficiency.prototype.SovereignAt = function(ent)
+{
+	if (!Number.isInteger(ent) || ent <= 0 || typeof IID_Position === "undefined" ||
+		typeof IID_Sovereignty === "undefined")
+		return 0;
+	const cmpPosition = Engine.QueryInterface(ent, IID_Position);
+	if (!cmpPosition || !cmpPosition.GetPosition2D)
+		return 0;
+	if (cmpPosition.IsInWorld && !cmpPosition.IsInWorld())
+		return 0;
+	const cmpSovereignty = Engine.QueryInterface(SYSTEM_ENTITY, IID_Sovereignty);
+	if (!cmpSovereignty || !cmpSovereignty.GetSovereignOwner)
+		return 0;
+	const pos = cmpPosition.GetPosition2D();
+	const owner = cmpSovereignty.GetSovereignOwner({ "x": pos.x, "z": pos.y });
+	return Number.isInteger(owner) && owner > 0 ? owner : 0;
+};
+
+/**
+ * Sovereigns touched by a link: its own position and both endpoints.
+ * Entity ownership is not a sovereign.
+ * @return {number[]}
+ */
+TransportEfficiency.prototype.LinkSovereigns = function(linkId)
+{
+	const found = [];
+	const add = owner =>
+	{
+		if (owner > 0 && found.indexOf(owner) === -1)
+			found.push(owner);
+	};
+	add(this.SovereignAt(linkId));
+	const link = typeof IID_InfrastructureLink !== "undefined" &&
+		Engine.QueryInterface(linkId, IID_InfrastructureLink);
+	if (link)
+	{
+		add(this.SovereignAt(link.GetFrom()));
+		add(this.SovereignAt(link.GetTo()));
+	}
+	found.sort((a, b) => a - b);
+	return found;
+};
+
+/**
+ * Third countries whose permission this commercial user needs for these links.
+ * The seller and the buyer are not transit states for their own bilateral legs.
+ * @return {number[]}
+ */
+TransportEfficiency.prototype.TransitStates = function(links, seller, buyer)
+{
+	const states = [];
+	for (let i = 0; i < links.length; ++i)
+	{
+		const sovereigns = this.LinkSovereigns(links[i]);
+		for (let s = 0; s < sovereigns.length; ++s)
+		{
+			const state = sovereigns[s];
+			if (state === seller || state === buyer || states.indexOf(state) !== -1)
+				continue;
+			states.push(state);
+		}
+	}
+	states.sort((a, b) => a - b);
+	return states;
+};
+
+/**
+ * @param {number[]|undefined} assumed - Grantors treated as already permitting user.
+ * @return {number[]}
+ */
+TransportEfficiency.prototype.MissingTransit = function(states, user, assumed)
+{
+	const missing = [];
+	const cmpTransit = typeof IID_TransitAccess !== "undefined" &&
+		Engine.QueryInterface(SYSTEM_ENTITY, IID_TransitAccess);
+	for (let i = 0; i < states.length; ++i)
+	{
+		const state = states[i];
+		if (assumed && assumed.indexOf(state) !== -1)
+			continue;
+		if (cmpTransit && cmpTransit.CanTransit(user, state))
+			continue;
+		missing.push(state);
+	}
+	return missing;
+};
+
+/**
+ * Widest physical path between two commercial endpoints.
+ * Recomputed from live link condition. Nothing is cached or serialized.
+ * Condition 0 and a destroyed link are absent, so a severed corridor is disconnected.
+ * The result condition is the worst remaining link. Ownership and sovereignty are ignored.
+ * @return {{connected: boolean, condition: number, links: number[]}}
+ */
+TransportEfficiency.prototype.GetCommercialRoute = function(origin, destination)
+{
+	return this.WidestPath(origin, destination, null);
+};
+
+/**
+ * The widest physical path, plus whether this seller may legally use it.
+ * A missing transit right leaves the physical path visible.
+ * @return {Object}
+ */
+TransportEfficiency.prototype.DescribeCommercialRoute = function(origin, destination, seller, buyer, assumed)
+{
+	const physical = this.GetCommercialRoute(origin, destination);
+	const transitStates = physical.connected ? this.TransitStates(physical.links, seller, buyer) : [];
+	const missingTransit = this.MissingTransit(transitStates, seller, assumed);
+	return {
+		"connected": physical.connected,
+		"condition": physical.condition,
+		"links": physical.links,
+		"transitStates": transitStates,
+		"missingTransit": missingTransit,
+		"legallyUsable": physical.connected && missingTransit.length === 0
+	};
+};
+
+/**
+ * Widest path the seller may legally use. Illegal edges are left out of the search,
+ * so a legal lower-capacity route is chosen over a wider route that lacks transit rights.
+ * @return {Object}
+ */
+TransportEfficiency.prototype.GetUsableCommercialRoute = function(seller, origin, destination, buyer, assumed)
+{
+	const self = this;
+	const path = this.WidestPath(origin, destination, linkId =>
+		self.MissingTransit(self.TransitStates([linkId], seller, buyer), seller, assumed).length === 0);
+	const transitStates = path.connected ? this.TransitStates(path.links, seller, buyer) : [];
+	return {
+		"connected": path.connected,
+		"condition": path.condition,
+		"links": path.links,
+		"transitStates": transitStates,
+		"missingTransit": [],
+		"legallyUsable": path.connected
 	};
 };
 

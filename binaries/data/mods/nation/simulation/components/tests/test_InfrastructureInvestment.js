@@ -100,6 +100,7 @@ function start(treasury)
 		"From": "30",
 		"To": "31"
 	});
+	place(40, 80);
 	cmpConnectivity.OnInitGame();
 	return {
 		"cmpConnectivity": cmpConnectivity,
@@ -141,16 +142,18 @@ TS_ASSERT_EQUALS(world.cmpInvestment.Repair(1, 40), false);
 TS_ASSERT_EQUALS(world.cmpFinance.GetTreasury(1), 9500000);
 TS_ASSERT_EQUALS(world.road.GetCondition(), 100);
 
-// Ownership does not grant or deny the repair. Sovereignty does.
+// The link owner repairs it. Another state cannot, even inside its own settlements' territory.
 world = start(10000000);
 g_RoadOwner = 2;
 place(40, 80);
 TS_ASSERT_EQUALS(world.road.SetCondition(40), true);
-TS_ASSERT_EQUALS(world.cmpInvestment.GetRepairQuote(1, 40).authorized, true);
-TS_ASSERT_EQUALS(world.cmpInvestment.Repair(1, 40), true);
+TS_ASSERT_EQUALS(world.cmpInvestment.GetRepairQuote(1, 40).authorized, false);
+TS_ASSERT_EQUALS(world.cmpInvestment.Repair(1, 40), false);
+TS_ASSERT_EQUALS(world.road.GetCondition(), 40);
+TS_ASSERT_EQUALS(world.cmpFinance.GetTreasury(1), 10000000);
+TS_ASSERT_EQUALS(world.cmpInvestment.Repair(2, 40), true);
 TS_ASSERT_EQUALS(world.road.GetCondition(), 100);
-TS_ASSERT_EQUALS(world.cmpFinance.GetTreasury(1), 9400000);
-TS_ASSERT_EQUALS(world.cmpFinance.GetTreasury(2), 10000000);
+TS_ASSERT_EQUALS(world.cmpFinance.GetTreasury(2), 9400000);
 
 world = start(10000000);
 TS_ASSERT_EQUALS(world.road.SetCondition(50), true);
@@ -169,6 +172,14 @@ const foreignRoad = ConstructComponent(41, "InfrastructureLink", {
 TS_ASSERT_EQUALS(foreignRoad.SetCondition(20), true);
 TS_ASSERT_EQUALS(world.cmpInvestment.Repair(1, 41), false);
 TS_ASSERT_EQUALS(foreignRoad.GetCondition(), 20);
+TS_ASSERT_EQUALS(world.cmpFinance.GetTreasury(1), 10000000);
+g_RoadOwner = 4;
+place(41, 300);
+world.cmpFinance.AddFunds(4, 2000000);
+TS_ASSERT_EQUALS(world.cmpInvestment.Repair(1, 41), false);
+TS_ASSERT_EQUALS(world.cmpInvestment.Repair(4, 41), true);
+TS_ASSERT_EQUALS(foreignRoad.GetCondition(), 100);
+TS_ASSERT_EQUALS(world.cmpFinance.GetTreasury(4), 1200000);
 TS_ASSERT_EQUALS(world.cmpFinance.GetTreasury(1), 10000000);
 
 world = start(200000);

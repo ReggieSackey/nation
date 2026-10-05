@@ -82,6 +82,52 @@ TradeContractManager.prototype.LotCapacity = function(origin, destination)
 };
 
 /**
+ * Physical path between the contract's markets, including transit legality.
+ * @return {Object}
+ */
+TradeContractManager.prototype.DescribedCorridor = function(contract)
+{
+	const empty = {
+		"connected": false,
+		"condition": 0,
+		"links": [],
+		"transitStates": [],
+		"missingTransit": [],
+		"legallyUsable": false
+	};
+	if (typeof IID_TransportEfficiency === "undefined")
+		return empty;
+	const cmpTransport = Engine.QueryInterface(SYSTEM_ENTITY, IID_TransportEfficiency);
+	if (!cmpTransport || !cmpTransport.DescribeCommercialRoute)
+		return empty;
+	return cmpTransport.DescribeCommercialRoute(
+		contract.sellerMarket, contract.buyerMarket, contract.seller, contract.buyer);
+};
+
+/**
+ * Widest corridor the seller may legally use for this contract.
+ * @return {Object}
+ */
+TradeContractManager.prototype.UsableCorridor = function(contract)
+{
+	const empty = {
+		"connected": false,
+		"condition": 0,
+		"links": [],
+		"transitStates": [],
+		"missingTransit": [],
+		"legallyUsable": false
+	};
+	if (typeof IID_TransportEfficiency === "undefined")
+		return empty;
+	const cmpTransport = Engine.QueryInterface(SYSTEM_ENTITY, IID_TransportEfficiency);
+	if (!cmpTransport || !cmpTransport.GetUsableCommercialRoute)
+		return empty;
+	return cmpTransport.GetUsableCommercialRoute(
+		contract.seller, contract.sellerMarket, contract.buyerMarket, contract.buyer);
+};
+
+/**
  * Acceptance records the promise. Stock and treasury stay where they are.
  * @return {number}
  */
@@ -110,6 +156,7 @@ TradeContractManager.prototype.Create = function(agreementId, item)
 		"amountPaid": 0,
 		"status": "active",
 		"blockReason": "",
+		"missingTransit": [],
 		"trader": 0,
 		"sellerMarket": 0,
 		"buyerMarket": 0
@@ -241,9 +288,10 @@ TradeContractManager.prototype.TryDeliver = function(contractId)
 		return none;
 	}
 
-	const refuse = reason =>
+	const refuse = (reason, missing) =>
 	{
 		contract.blockReason = reason;
+		contract.missingTransit = missing ? missing.slice() : [];
 		return { "delivered": 0, "paid": 0, "reason": reason };
 	};
 
@@ -261,7 +309,15 @@ TradeContractManager.prototype.TryDeliver = function(contractId)
 	if (this.Enemies(contract.seller, contract.buyer))
 		return refuse("enemies");
 
-	const lot = this.LotCapacity(contract.sellerMarket, contract.buyerMarket);
+	const usable = this.UsableCorridor(contract);
+	if (!usable.connected)
+	{
+		const described = this.DescribedCorridor(contract);
+		if (described.connected && described.missingTransit.length)
+			return refuse("missing_transit", described.missingTransit);
+		return refuse("no_route");
+	}
+	const lot = Math.floor(this.LotSize * usable.condition / 100);
 	if (lot <= 0)
 		return refuse("no_route");
 
@@ -317,6 +373,7 @@ TradeContractManager.prototype.TryDeliver = function(contractId)
 	else
 		contract.status = "active";
 	contract.blockReason = "";
+	contract.missingTransit = [];
 	return { "delivered": qty, "paid": payment, "reason": "settled" };
 };
 

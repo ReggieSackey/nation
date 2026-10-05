@@ -49,7 +49,7 @@
     {
       "Civ": "athen",
       "Name": "Nation",
-      "Diplomacy": [-1, 1, 0, -1],
+      "Diplomacy": [-1, 1, 0, -1, 0],
       "Resources": {
         "food": 1000,
         "construction_materials": 0
@@ -58,7 +58,7 @@
     {
       "Civ": "spart",
       "Name": "Neighbor",
-      "Diplomacy": [-1, 0, 1, 0],
+      "Diplomacy": [-1, 0, 1, 0, 0],
       "Resources": {
         "construction_materials": 0
       }
@@ -68,7 +68,16 @@
       "Name": "Rebels",
       "AI": "",
       "Color": { "r": 120, "g": 32, "b": 32 },
-      "Diplomacy": [-1, -1, 0, 1],
+      "Diplomacy": [-1, -1, 0, 1, 0],
+      "Resources": {
+        "construction_materials": 0
+      }
+    },
+    {
+      "Civ": "athen",
+      "Name": "Transit State",
+      "Color": { "r": 40, "g": 90, "b": 140 },
+      "Diplomacy": [-1, 0, 0, -1, 1],
       "Resources": {
         "construction_materials": 0
       }
@@ -80,7 +89,7 @@
     { "from": 1, "to": 2, "military": false },
     { "from": 2, "to": 1, "military": false }
   ],
-  "AgreementResponders": [2],
+  "AgreementResponders": [2, 4],
   "ForeignActors": [
     {
       "id": "ussr",
@@ -91,7 +100,8 @@
     }
   ],
   "TradeAccess": [
-    { "from": 1, "to": 2, "trade": true }
+    { "from": 1, "to": 2, "trade": true },
+    { "from": 2, "to": 1, "trade": true }
   ],
   "FoodImports": [
     {
@@ -109,8 +119,21 @@
       "points": [
         { "x": 0, "z": 0 },
         { "x": 256, "z": 0 },
+        { "x": 256, "z": 70 },
+        { "x": 248, "z": 70 },
+        { "x": 248, "z": 110 },
+        { "x": 256, "z": 110 },
         { "x": 256, "z": 512 },
         { "x": 0, "z": 512 }
+      ]
+    },
+    {
+      "owner": 4,
+      "points": [
+        { "x": 248, "z": 70 },
+        { "x": 292, "z": 70 },
+        { "x": 292, "z": 110 },
+        { "x": 248, "z": 110 }
       ]
     },
     {
@@ -140,7 +163,8 @@
   ],
   "GovernmentFinance": [
     { "player": 1, "treasury": 10000000 },
-    { "player": 2, "treasury": 5000000 }
+    { "player": 2, "treasury": 5000000 },
+    { "player": 4, "treasury": 2000000 }
   ],
   "VictoryConditions": [
     "conquest"
@@ -325,32 +349,38 @@
 		<Entity uid="83">
 			<Template>structures/nation/trade_junction</Template>
 			<Player>1</Player>
-			<Position x="240" z="80"/>
+			<Position x="228" z="80"/>
 			<Orientation y="0"/>
 		</Entity>
 		<Entity uid="84">
 			<Template>structures/nation/trade_junction</Template>
 			<Player>2</Player>
-			<Position x="280" z="80"/>
+			<Position x="308" z="80"/>
 			<Orientation y="0"/>
 		</Entity>
 		<Entity uid="85">
 			<Template>structures/nation/trade_link_nation</Template>
 			<Player>1</Player>
-			<Position x="220" z="80"/>
+			<Position x="214" z="80"/>
 			<Orientation y="1.570796"/>
 		</Entity>
 		<Entity uid="86">
 			<Template>structures/nation/trade_link_border</Template>
-			<Player>1</Player>
-			<Position x="260" z="80"/>
+			<Player>4</Player>
+			<Position x="268" z="80"/>
 			<Orientation y="1.570796"/>
 		</Entity>
 		<Entity uid="87">
 			<Template>structures/nation/trade_link_neighbor</Template>
 			<Player>2</Player>
-			<Position x="300" z="80"/>
+			<Position x="314" z="80"/>
 			<Orientation y="1.570796"/>
+		</Entity>
+		<Entity uid="88">
+			<Template>units/athen/infantry_spearman_b</Template>
+			<Player>4</Player>
+			<Position x="268" z="108"/>
+			<Orientation y="0"/>
 		</Entity>
 	</Entities>
 	<Paths/>

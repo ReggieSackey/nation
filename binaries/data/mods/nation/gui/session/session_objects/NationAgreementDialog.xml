@@ -36,8 +36,12 @@
 		<object name="nationAgreementMilitary" type="button" style="StoneButton" size="128 152 280 176">
 			<translatableAttribute id="caption">Military access</translatableAttribute>
 		</object>
-		<object name="nationAgreementTrade" type="button" style="StoneButton" size="288 152 440 176">
+		<object name="nationAgreementTrade" type="button" style="StoneButton" size="288 152 400 176">
 			<translatableAttribute id="caption">Trade access</translatableAttribute>
+		</object>
+		<object name="nationAgreementTransit" type="button" style="StoneButton" size="408 152 544 176" tooltip_style="sessionToolTip">
+			<translatableAttribute id="caption">Transit rights</translatableAttribute>
+			<translatableAttribute id="tooltip">Commercial permission to cross the grantor's territory. This is not military access and it is not trade access.</translatableAttribute>
 		</object>
 
 		<object name="nationAgreementLoan" type="button" style="StoneButton" size="16 180 120 204">

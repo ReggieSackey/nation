@@ -3,7 +3,7 @@
   <TerritoryDecay disable=""/>
   <Identity>
     <GenericName>Road</GenericName>
-    <SpecificName>Border Trade Road</SpecificName>
+    <SpecificName>Transit Road</SpecificName>
   </Identity>
   <InfrastructureLink>
     <From>83</From>

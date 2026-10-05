@@ -51,6 +51,16 @@ AgreementEvaluator.prototype.TradeReceive = 15;
 AgreementEvaluator.prototype.TradeGrant = 8;
 
 /**
+ * Receiving transit that opens an otherwise closed commercial route.
+ * A route that only improves capacity is worth less. An existing legal
+ * route of equal capacity is worth nothing more.
+ */
+AgreementEvaluator.prototype.TransitUnlock = 120;
+AgreementEvaluator.prototype.TransitImprove = 40;
+AgreementEvaluator.prototype.TransitGrantBase = 25;
+AgreementEvaluator.prototype.TransitGrantCorridor = 70;
+
+/**
  * Each prototype interval keeps 9/10 of a future payment's present weight.
  * Integer thousandths. Long enough grace stays better for the borrower
  * even though interest accrues during grace.
@@ -362,6 +372,12 @@ AgreementEvaluator.prototype.RightAlreadyHeld = function(item)
 		const cmpTrade = Engine.QueryInterface(SYSTEM_ENTITY, IID_TradeAccess);
 		return !!(cmpTrade && cmpTrade.CanTrade(item.beneficiary, item.provider));
 	}
+	if (item.type === "transit_rights")
+	{
+		const cmpTransit = typeof IID_TransitAccess !== "undefined" &&
+			Engine.QueryInterface(SYSTEM_ENTITY, IID_TransitAccess);
+		return !!(cmpTransit && cmpTransit.CanTransit(item.beneficiary, item.provider));
+	}
 	return false;
 };
 
@@ -487,6 +503,172 @@ AgreementEvaluator.prototype.BestCommercialRoute = function(seller, buyer)
 };
 
 /**
+ * Transit grants in the proposal currently being scored. The right does not have to exist yet.
+ * @return {number[]}
+ */
+AgreementEvaluator.prototype.AssumedTransit = function(user)
+{
+	const extra = [];
+	const proposal = this.scoringProposal;
+	if (!proposal)
+		return extra;
+	const items = (proposal.offer || []).concat(proposal.request || []);
+	for (let i = 0; i < items.length; ++i)
+	{
+		const item = items[i];
+		if (!item || item.type !== "transit_rights" || item.beneficiary !== user)
+			continue;
+		if (!Number.isInteger(item.provider) || extra.indexOf(item.provider) !== -1)
+			continue;
+		extra.push(item.provider);
+	}
+	extra.sort((a, b) => a - b);
+	return extra;
+};
+
+/**
+ * Best legally usable corridor. assumed grantors count as already permitting the seller.
+ * @return {Object}
+ */
+AgreementEvaluator.prototype.BestUsableCommercialRoute = function(seller, buyer, assumed)
+{
+	const empty = {
+		"connected": false,
+		"condition": 0,
+		"links": [],
+		"origin": 0,
+		"destination": 0
+	};
+	if (typeof IID_TransportEfficiency === "undefined")
+		return empty;
+	const cmpTransport = Engine.QueryInterface(SYSTEM_ENTITY, IID_TransportEfficiency);
+	if (!cmpTransport || !cmpTransport.GetUsableCommercialRoute)
+		return empty;
+
+	const origins = this.LivingMarkets(seller);
+	const destinations = this.LivingMarkets(buyer);
+	let best = empty;
+	for (let i = 0; i < origins.length; ++i)
+	{
+		for (let j = 0; j < destinations.length; ++j)
+		{
+			const route = cmpTransport.GetUsableCommercialRoute(
+				seller, origins[i], destinations[j], buyer, assumed);
+			if (!route.connected || route.condition <= 0)
+				continue;
+			const better = !best.connected || route.condition > best.condition ||
+				(route.condition === best.condition &&
+					(origins[i] < best.origin || (origins[i] === best.origin && destinations[j] < best.destination)));
+			if (!better)
+				continue;
+			best = {
+				"connected": true,
+				"condition": route.condition,
+				"links": route.links,
+				"origin": origins[i],
+				"destination": destinations[j]
+			};
+		}
+	}
+	return best;
+};
+
+/**
+ * Highest usable capacity from seller to buyer, or 0.
+ * @return {number}
+ */
+AgreementEvaluator.prototype.CommercialCapacity = function(seller, buyer, assumed)
+{
+	return this.BestUsableCommercialRoute(seller, buyer, assumed).condition;
+};
+
+/**
+ * True when some physical route from the beneficiary crosses the grantor's territory.
+ * @return {boolean}
+ */
+AgreementEvaluator.prototype.GrantorOnCorridor = function(beneficiary, grantor)
+{
+	if (typeof IID_TransportEfficiency === "undefined" || typeof IID_PlayerManager === "undefined")
+		return false;
+	const cmpTransport = Engine.QueryInterface(SYSTEM_ENTITY, IID_TransportEfficiency);
+	const cmpPlayers = Engine.QueryInterface(SYSTEM_ENTITY, IID_PlayerManager);
+	if (!cmpTransport || !cmpTransport.DescribeCommercialRoute || !cmpPlayers)
+		return false;
+	const origins = this.LivingMarkets(beneficiary);
+	const numPlayers = cmpPlayers.GetNumPlayers();
+	for (let buyer = 1; buyer < numPlayers; ++buyer)
+	{
+		if (buyer === beneficiary)
+			continue;
+		const destinations = this.LivingMarkets(buyer);
+		for (let i = 0; i < origins.length; ++i)
+			for (let j = 0; j < destinations.length; ++j)
+			{
+				const route = cmpTransport.DescribeCommercialRoute(
+					origins[i], destinations[j], beneficiary, buyer);
+				if (route.transitStates && route.transitStates.indexOf(grantor) !== -1)
+					return true;
+			}
+	}
+	return false;
+};
+
+/**
+ * Value to the state that receives the right. Compared with and without this grant.
+ * @return {number}
+ */
+AgreementEvaluator.prototype.TransitBenefit = function(item)
+{
+	const user = item.beneficiary;
+	const grantor = item.provider;
+	if (!Number.isInteger(user) || !Number.isInteger(grantor))
+		return 0;
+	const assumed = this.AssumedTransit(user);
+	const without = [];
+	for (let i = 0; i < assumed.length; ++i)
+		if (assumed[i] !== grantor)
+			without.push(assumed[i]);
+	const withGrant = without.slice();
+	withGrant.push(grantor);
+	withGrant.sort((a, b) => a - b);
+
+	if (typeof IID_PlayerManager === "undefined")
+		return 0;
+	const cmpPlayers = Engine.QueryInterface(SYSTEM_ENTITY, IID_PlayerManager);
+	if (!cmpPlayers)
+		return 0;
+	let kind = 0;
+	const numPlayers = cmpPlayers.GetNumPlayers();
+	for (let buyer = 1; buyer < numPlayers; ++buyer)
+	{
+		if (buyer === user)
+			continue;
+		const before = this.CommercialCapacity(user, buyer, without);
+		const after = this.CommercialCapacity(user, buyer, withGrant);
+		if (before === 0 && after > 0)
+			kind = 2;
+		else if (after > before && kind < 2)
+			kind = 1;
+	}
+	if (kind === 2)
+		return this.TransitUnlock;
+	if (kind === 1)
+		return this.TransitImprove;
+	return 0;
+};
+
+/**
+ * Cost to the state that gives the right. Higher when their territory is on a real corridor.
+ * @return {number}
+ */
+AgreementEvaluator.prototype.TransitGrantCost = function(item)
+{
+	if (this.GrantorOnCorridor(item.beneficiary, item.provider))
+		return -this.TransitGrantCorridor;
+	return -this.TransitGrantBase;
+};
+
+/**
  * Legal permission and a physical corridor that can still carry goods.
  * @return {boolean}
  */
@@ -534,16 +716,25 @@ AgreementEvaluator.prototype.CommoditySaleUtility = function(item, evaluatingPla
 
 	let utility = received ? commodityPoints - pricePoints : pricePoints - commodityPoints;
 	const legal = this.SaleLegallyOpen(item.provider, item.beneficiary);
-	const route = this.BestCommercialRoute(item.provider, item.beneficiary);
-	if (!legal || !route.connected)
+	const physical = this.BestCommercialRoute(item.provider, item.beneficiary);
+	const usable = this.BestUsableCommercialRoute(
+		item.provider, item.beneficiary, this.AssumedTransit(item.provider));
+	if (!legal || !physical.connected)
 	{
 		if (utility > 0)
 			utility = Math.round(utility * 0.25);
 		else
 			utility -= 40;
 	}
-	else if (route.condition < 100 && utility > 0)
-		utility = Math.round(utility * (100 + route.condition) / 200);
+	else if (!usable.connected)
+	{
+		if (utility > 0)
+			utility = Math.round(utility * 0.5);
+		else
+			utility -= 20;
+	}
+	else if (usable.condition < 100 && utility > 0)
+		utility = Math.round(utility * (100 + usable.condition) / 200);
 	return utility;
 };
 
@@ -575,7 +766,7 @@ AgreementEvaluator.prototype.ScoreItem = function(item, evaluatingPlayer, stock,
 	const foreign = NationParticipantKey(item.provider).indexOf("foreign_actor:") === 0 ||
 		NationParticipantKey(item.beneficiary).indexOf("foreign_actor:") === 0;
 	if (foreign && (item.type === "resource" || item.type === "military_access" ||
-		item.type === "trade_access" || item.type === "commodity_sale"))
+		item.type === "trade_access" || item.type === "transit_rights" || item.type === "commodity_sale"))
 		return row;
 
 	if (item.type === "commodity_sale")
@@ -640,6 +831,20 @@ AgreementEvaluator.prototype.ScoreItem = function(item, evaluatingPlayer, stock,
 		}
 
 		row.utility = received ? this.TradeReceive : -this.TradeGrant;
+		return row;
+	}
+
+	if (item.type === "transit_rights")
+	{
+		if (this.RightAlreadyHeld(item))
+			return row;
+		if (!received && this.MutuallyHostile(item.provider, item.beneficiary))
+		{
+			row.utility = -this.MilitaryHostile;
+			row.hardReject = true;
+			return row;
+		}
+		row.utility = received ? this.TransitBenefit(item) : this.TransitGrantCost(item);
 		return row;
 	}
 

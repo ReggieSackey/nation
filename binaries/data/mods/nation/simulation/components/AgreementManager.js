@@ -24,6 +24,7 @@ AgreementManager.prototype.ItemTypes = {
 	"cash": true,
 	"military_access": true,
 	"trade_access": true,
+	"transit_rights": true,
 	"loan": true,
 	"debt_forgiveness": true,
 	"commodity_sale": true
@@ -335,7 +336,8 @@ AgreementManager.prototype.Normalize = function(proposer, recipient, offer, requ
 		const items = normalizedOffer.concat(normalizedRequest);
 		for (let i = 0; i < items.length; ++i)
 			if (items[i].type === "resource" || items[i].type === "military_access" ||
-				items[i].type === "trade_access" || items[i].type === "commodity_sale")
+				items[i].type === "trade_access" || items[i].type === "transit_rights" ||
+				items[i].type === "commodity_sale")
 				return null;
 	}
 
@@ -375,6 +377,7 @@ AgreementManager.prototype.Duties = function(proposal)
 	const moneyIn = {};
 	const military = [];
 	const trade = [];
+	const transit = [];
 	const loans = [];
 	const forgiveness = [];
 	const sales = [];
@@ -411,10 +414,13 @@ AgreementManager.prototype.Duties = function(proposal)
 			military.push({ "from": item.beneficiary, "to": item.provider });
 		else if (item.type === "trade_access")
 			trade.push({ "from": item.beneficiary, "to": item.provider });
+		else if (item.type === "transit_rights")
+			transit.push({ "from": item.beneficiary, "to": item.provider });
 	}
 
 	military.sort((a, b) => a.from - b.from || a.to - b.to);
 	trade.sort((a, b) => a.from - b.from || a.to - b.to);
+	transit.sort((a, b) => a.from - b.from || a.to - b.to);
 	loans.sort((left, right) =>
 	{
 		const leftKey = NationParticipantKey(left.provider);
@@ -443,6 +449,7 @@ AgreementManager.prototype.Duties = function(proposal)
 		"moneyIn": moneyIn,
 		"military": military,
 		"trade": trade,
+		"transit": transit,
 		"loans": loans,
 		"forgiveness": forgiveness,
 		"sales": sales
@@ -501,6 +508,9 @@ AgreementManager.prototype.CanExecute = function(proposal)
 	if (duties.military.length && !Engine.QueryInterface(SYSTEM_ENTITY, IID_DiplomaticAccess))
 		return false;
 	if (duties.trade.length && !Engine.QueryInterface(SYSTEM_ENTITY, IID_TradeAccess))
+		return false;
+	if (duties.transit.length && (typeof IID_TransitAccess === "undefined" ||
+		!Engine.QueryInterface(SYSTEM_ENTITY, IID_TransitAccess)))
 		return false;
 	if (duties.sales.length && (typeof IID_TradeContractManager === "undefined" ||
 		!Engine.QueryInterface(SYSTEM_ENTITY, IID_TradeContractManager)))
@@ -664,6 +674,22 @@ AgreementManager.prototype.Execute = function(proposal)
 	for (let i = 0; i < duties.trade.length; ++i)
 		if (!cmpTrade.GrantTrade(duties.trade[i].from, duties.trade[i].to))
 			return fail();
+
+	const cmpTransit = typeof IID_TransitAccess !== "undefined" &&
+		Engine.QueryInterface(SYSTEM_ENTITY, IID_TransitAccess);
+	const grantedTransit = [];
+	for (let i = 0; i < duties.transit.length; ++i)
+	{
+		const grant = duties.transit[i];
+		if (!cmpTransit || !cmpTransit.GrantTransit(grant.from, grant.to))
+		{
+			if (cmpTransit)
+				for (let g = 0; g < grantedTransit.length; ++g)
+					cmpTransit.RevokeTransit(grantedTransit[g].from, grantedTransit[g].to);
+			return fail();
+		}
+		grantedTransit.push(grant);
+	}
 
 	if (duties.sales.length)
 	{

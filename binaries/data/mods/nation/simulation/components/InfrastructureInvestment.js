@@ -122,13 +122,8 @@ InfrastructureInvestment.prototype.RepairCost = function(condition)
 };
 
 /**
- * Both endpoints must stand in the issuing player's sovereign territory.
- * Entity Ownership is not consulted.
- * @return {boolean}
- */
-/**
  * Both settlements must stand in the issuing player's sovereign territory.
- * Entity Ownership is not consulted.
+ * Construction still uses this. Repair uses the link's owner instead.
  * @return {boolean}
  */
 InfrastructureInvestment.prototype.EndpointsAuthorized = function(playerId, fromId, toId)
@@ -144,11 +139,16 @@ InfrastructureInvestment.prototype.EndpointsAuthorized = function(playerId, from
 	return from.GetSovereignOwner() === playerId && to.GetSovereignOwner() === playerId;
 };
 
+/**
+ * V1 maintenance follows the link entity's owner. Sovereignty does not grant a repair.
+ * @return {boolean}
+ */
 InfrastructureInvestment.prototype.HasAuthority = function(playerId, cmpLink)
 {
-	if (!cmpLink)
+	if (!cmpLink || !Number.isInteger(playerId) || playerId <= 0)
 		return false;
-	return this.EndpointsAuthorized(playerId, cmpLink.GetFrom(), cmpLink.GetTo());
+	const cmpOwnership = Engine.QueryInterface(cmpLink.entity, IID_Ownership);
+	return !!(cmpOwnership && cmpOwnership.GetOwner() === playerId);
 };
 
 /**
