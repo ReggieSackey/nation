@@ -1,5 +1,21 @@
 function AgreementAI() {}
 
+var NationParticipantKey = typeof NationParticipantKey === "function" ? NationParticipantKey : function(participant)
+{
+	if (typeof participant === "number" && Number.isInteger(participant) && participant > 0)
+		return "player:" + participant;
+	if (participant && participant.type === "foreign_actor" &&
+		typeof participant.id === "string" && /^[a-z][a-z0-9_]*$/.test(participant.id))
+		return "foreign_actor:" + participant.id;
+	return "";
+};
+
+var NationSameParticipant = typeof NationSameParticipant === "function" ? NationSameParticipant : function(left, right)
+{
+	const key = NationParticipantKey(left);
+	return key !== "" && key === NationParticipantKey(right);
+};
+
 AgreementAI.prototype.Schema =
 	"<a:component type='system'/><empty/>";
 
@@ -43,17 +59,26 @@ AgreementAI.prototype.OnInitGame = function()
  * A missing list still answers IsAI players, so an off-map actor does not need Petra.
  * @return {boolean}
  */
-AgreementAI.prototype.ShouldRespond = function(playerId)
+AgreementAI.prototype.ShouldRespond = function(participant)
 {
+	if (NationParticipantKey(participant).indexOf("foreign_actor:") === 0)
+	{
+		if (typeof IID_ForeignActorManager === "undefined")
+			return false;
+		const cmpActors = Engine.QueryInterface(SYSTEM_ENTITY, IID_ForeignActorManager);
+		const actor = cmpActors && cmpActors.Get(participant.id);
+		return !!(actor && actor.responds);
+	}
+
 	const cmpRebellion = typeof IID_RebellionManager !== "undefined" &&
 		Engine.QueryInterface(SYSTEM_ENTITY, IID_RebellionManager);
-	if (cmpRebellion && cmpRebellion.GetRebelPlayer && cmpRebellion.GetRebelPlayer() === playerId)
+	if (cmpRebellion && cmpRebellion.GetRebelPlayer && cmpRebellion.GetRebelPlayer() === participant)
 		return false;
 
-	if (this.responders.indexOf(playerId) !== -1)
+	if (this.responders.indexOf(participant) !== -1)
 		return true;
 
-	const cmpPlayer = QueryPlayerIDInterface(playerId);
+	const cmpPlayer = QueryPlayerIDInterface(participant);
 	return !!(cmpPlayer && cmpPlayer.IsAI && cmpPlayer.IsAI());
 };
 
@@ -149,7 +174,8 @@ AgreementAI.prototype.Candidate = function(original, offer, request)
 AgreementAI.prototype.BuildCounter = function(original, evaluation)
 {
 	const cmpEvaluator = Engine.QueryInterface(SYSTEM_ENTITY, IID_AgreementEvaluator);
-	const cmpPlayer = QueryPlayerIDInterface(original.proposer);
+	const proposerIsPlayer = typeof original.proposer === "number";
+	const cmpPlayer = proposerIsPlayer ? QueryPlayerIDInterface(original.proposer) : null;
 	const counts = cmpPlayer && cmpPlayer.GetResourceCounts() || {};
 	const treasury = cmpEvaluator.Treasury(original.proposer);
 	const offer = clone(original.request);
@@ -200,7 +226,9 @@ AgreementAI.prototype.BuildCounter = function(original, evaluation)
 		}
 	}
 
-	const codes = Object.keys(counts).filter(code => counts[code] > 0).sort();
+	const foreignDeal = NationParticipantKey(original.proposer).indexOf("foreign_actor:") === 0 ||
+		NationParticipantKey(ai).indexOf("foreign_actor:") === 0;
+	const codes = foreignDeal ? [] : Object.keys(counts).filter(code => counts[code] > 0).sort();
 	codes.sort((left, right) =>
 	{
 		const leftValue = cmpEvaluator.EvaluateItem({

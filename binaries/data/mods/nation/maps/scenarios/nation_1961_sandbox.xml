@@ -81,6 +81,15 @@
     { "from": 2, "to": 1, "military": false }
   ],
   "AgreementResponders": [2],
+  "ForeignActors": [
+    {
+      "id": "ussr",
+      "name": "Soviet Union",
+      "type": "foreign_power",
+      "treasury": 100000000,
+      "responds": true
+    }
+  ],
   "TradeAccess": [
     { "from": 1, "to": 2, "trade": true }
   ],

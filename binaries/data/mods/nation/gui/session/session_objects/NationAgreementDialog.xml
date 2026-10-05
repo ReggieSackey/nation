@@ -40,7 +40,27 @@
 			<translatableAttribute id="caption">Trade access</translatableAttribute>
 		</object>
 
-		<object name="nationAgreementLists" type="text" style="resourceText" size="16 184 100%-16 100%-80"/>
+		<object name="nationAgreementLoan" type="button" style="StoneButton" size="16 180 120 204">
+			<translatableAttribute id="caption">Loan</translatableAttribute>
+		</object>
+		<object name="nationAgreementForgive" type="button" style="StoneButton" size="128 180 280 204">
+			<translatableAttribute id="caption">Forgive debt</translatableAttribute>
+		</object>
+		<object name="nationAgreementDebtPick" type="button" style="StoneButton" size="288 180 540 204">
+			<translatableAttribute id="caption">Select debt</translatableAttribute>
+		</object>
+		<object name="nationAgreementInterest" type="input" style="ModernInput" size="16 208 150 232" tooltip_style="sessionToolTip">
+			<translatableAttribute id="tooltip">Interest in basis points per prototype interval. 400 is 4 percent.</translatableAttribute>
+		</object>
+		<object name="nationAgreementInstallments" type="input" style="ModernInput" size="158 208 292 232" tooltip_style="sessionToolTip">
+			<translatableAttribute id="tooltip">Number of principal installments.</translatableAttribute>
+		</object>
+		<object name="nationAgreementGrace" type="input" style="ModernInput" size="300 208 434 232" tooltip_style="sessionToolTip">
+			<translatableAttribute id="tooltip">Grace intervals. Interest accrues. No payment is collected.</translatableAttribute>
+		</object>
+		<object name="nationAgreementDebt" type="text" style="resourceText" size="16 236 100%-16 280"/>
+
+		<object name="nationAgreementLists" type="text" style="resourceText" size="16 284 100%-16 100%-80"/>
 		<object name="nationAgreementPropose" type="button" style="StoneButton" size="16 100%-72 140 100%-48">
 			<translatableAttribute id="caption">Propose</translatableAttribute>
 		</object>

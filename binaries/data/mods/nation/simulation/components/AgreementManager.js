@@ -3,11 +3,29 @@ function AgreementManager() {}
 AgreementManager.prototype.Schema =
 	"<a:component type='system'/><empty/>";
 
+var NationParticipantKey = typeof NationParticipantKey === "function" ? NationParticipantKey : function(participant)
+{
+	if (typeof participant === "number" && Number.isInteger(participant) && participant > 0)
+		return "player:" + participant;
+	if (participant && participant.type === "foreign_actor" &&
+		typeof participant.id === "string" && /^[a-z][a-z0-9_]*$/.test(participant.id))
+		return "foreign_actor:" + participant.id;
+	return "";
+};
+
+var NationSameParticipant = typeof NationSameParticipant === "function" ? NationSameParticipant : function(left, right)
+{
+	const key = NationParticipantKey(left);
+	return key !== "" && key === NationParticipantKey(right);
+};
+
 AgreementManager.prototype.ItemTypes = {
 	"resource": true,
 	"cash": true,
 	"military_access": true,
-	"trade_access": true
+	"trade_access": true,
+	"loan": true,
+	"debt_forgiveness": true
 };
 
 AgreementManager.prototype.Init = function()
@@ -34,6 +52,85 @@ AgreementManager.prototype.IsPlayer = function(playerId)
 	const numPlayers = cmpPlayerManager ? cmpPlayerManager.GetNumPlayers() : 0;
 	return Number.isInteger(playerId) && playerId > 0 && playerId < numPlayers &&
 		!!QueryPlayerIDInterface(playerId);
+};
+
+AgreementManager.prototype.ForeignActors = function()
+{
+	if (typeof IID_ForeignActorManager === "undefined")
+		return null;
+	return Engine.QueryInterface(SYSTEM_ENTITY, IID_ForeignActorManager);
+};
+
+AgreementManager.prototype.Ledger = function()
+{
+	if (typeof IID_DebtLedger === "undefined")
+		return null;
+	return Engine.QueryInterface(SYSTEM_ENTITY, IID_DebtLedger);
+};
+
+/**
+ * A registered off-map actor. A plain object with the right shape is not enough.
+ * @return {boolean}
+ */
+AgreementManager.prototype.IsForeign = function(participant)
+{
+	const actors = this.ForeignActors();
+	return !!(actors && participant && participant.type === "foreign_actor" && actors.Get(participant.id));
+};
+
+/**
+ * @return {boolean}
+ */
+AgreementManager.prototype.IsParticipant = function(participant)
+{
+	return this.IsPlayer(participant) || this.IsForeign(participant);
+};
+
+/**
+ * Player treasuries stay in GovernmentFinance. Actor treasuries stay on the actor.
+ */
+AgreementManager.prototype.TreasuryOf = function(participant)
+{
+	if (this.IsPlayer(participant))
+	{
+		const cmpFinance = Engine.QueryInterface(SYSTEM_ENTITY, IID_GovernmentFinance);
+		return cmpFinance ? cmpFinance.GetTreasury(participant) : 0;
+	}
+	const actors = this.ForeignActors();
+	return actors && participant ? actors.GetTreasury(participant.id) : 0;
+};
+
+AgreementManager.prototype.CanAfford = function(participant, amount)
+{
+	if (this.IsPlayer(participant))
+	{
+		const cmpFinance = Engine.QueryInterface(SYSTEM_ENTITY, IID_GovernmentFinance);
+		return !!(cmpFinance && cmpFinance.CanAfford(participant, amount));
+	}
+	const actors = this.ForeignActors();
+	return !!(actors && participant && actors.CanAfford(participant.id, amount));
+};
+
+AgreementManager.prototype.Spend = function(participant, amount)
+{
+	if (this.IsPlayer(participant))
+	{
+		const cmpFinance = Engine.QueryInterface(SYSTEM_ENTITY, IID_GovernmentFinance);
+		return !!(cmpFinance && cmpFinance.Spend(participant, amount));
+	}
+	const actors = this.ForeignActors();
+	return !!(actors && participant && actors.Spend(participant.id, amount));
+};
+
+AgreementManager.prototype.AddMoney = function(participant, amount)
+{
+	if (this.IsPlayer(participant))
+	{
+		const cmpFinance = Engine.QueryInterface(SYSTEM_ENTITY, IID_GovernmentFinance);
+		return !!(cmpFinance && cmpFinance.AddFunds(participant, amount));
+	}
+	const actors = this.ForeignActors();
+	return !!(actors && participant && actors.AddFunds(participant.id, amount));
 };
 
 /**
@@ -70,6 +167,9 @@ AgreementManager.prototype.NormalizeSide = function(items, provider, beneficiary
 
 	const resources = {};
 	const rights = {};
+	const loans = [];
+	const forgiveness = [];
+	const forgivenessIds = {};
 	let cash = 0;
 	let sawCash = false;
 
@@ -96,6 +196,40 @@ AgreementManager.prototype.NormalizeSide = function(items, provider, beneficiary
 			if (!this.IsPositiveInt(cash))
 				return null;
 			sawCash = true;
+		}
+		else if (item.type === "loan")
+		{
+			// paymentInterval is not part of the item. The ledger owns that clock.
+			if (item.amount !== undefined || !this.IsPositiveInt(item.principal) ||
+				!Number.isInteger(item.interestRateBps) || item.interestRateBps < 0 || item.interestRateBps > 10000 ||
+				!this.IsPositiveInt(item.installments) || item.installments > 60 ||
+				item.principal < item.installments ||
+				!Number.isInteger(item.graceIntervals) || item.graceIntervals < 0 || item.graceIntervals > 24)
+				return null;
+			loans.push({
+				"type": "loan",
+				"principal": item.principal,
+				"interestRateBps": item.interestRateBps,
+				"installments": item.installments,
+				"graceIntervals": item.graceIntervals,
+				"provider": provider,
+				"beneficiary": beneficiary
+			});
+		}
+		else if (item.type === "debt_forgiveness")
+		{
+			if (!this.IsPositiveInt(item.debtId) || !this.IsPositiveInt(item.amount))
+				return null;
+			if (forgivenessIds[item.debtId])
+				return null;
+			forgivenessIds[item.debtId] = true;
+			forgiveness.push({
+				"type": "debt_forgiveness",
+				"debtId": item.debtId,
+				"amount": item.amount,
+				"provider": provider,
+				"beneficiary": beneficiary
+			});
 		}
 		else if (item.amount !== undefined)
 			return null;
@@ -130,6 +264,17 @@ AgreementManager.prototype.NormalizeSide = function(items, provider, beneficiary
 			"beneficiary": beneficiary
 		});
 
+	loans.sort((left, right) => left.principal - right.principal ||
+		left.interestRateBps - right.interestRateBps ||
+		left.installments - right.installments ||
+		left.graceIntervals - right.graceIntervals);
+	for (let i = 0; i < loans.length; ++i)
+		normalized.push(loans[i]);
+
+	forgiveness.sort((left, right) => left.debtId - right.debtId);
+	for (let i = 0; i < forgiveness.length; ++i)
+		normalized.push(forgiveness[i]);
+
 	return normalized;
 };
 
@@ -138,13 +283,21 @@ AgreementManager.prototype.NormalizeSide = function(items, provider, beneficiary
  */
 AgreementManager.prototype.Normalize = function(proposer, recipient, offer, request)
 {
-	if (!this.IsPlayer(proposer) || !this.IsPlayer(recipient) || proposer === recipient)
+	if (!this.IsParticipant(proposer) || !this.IsParticipant(recipient) || NationSameParticipant(proposer, recipient))
 		return null;
 
 	const normalizedOffer = this.NormalizeSide(offer, proposer, recipient);
 	const normalizedRequest = this.NormalizeSide(request, recipient, proposer);
 	if (!normalizedOffer || !normalizedRequest || (!normalizedOffer.length && !normalizedRequest.length))
 		return null;
+
+	if (this.IsForeign(proposer) || this.IsForeign(recipient))
+	{
+		const items = normalizedOffer.concat(normalizedRequest);
+		for (let i = 0; i < items.length; ++i)
+			if (items[i].type === "resource" || items[i].type === "military_access" || items[i].type === "trade_access")
+				return null;
+	}
 
 	return {
 		"proposer": proposer,
@@ -154,17 +307,36 @@ AgreementManager.prototype.Normalize = function(proposer, recipient, offer, requ
 	};
 };
 
+AgreementManager.prototype.AddMoneyDuty = function(map, participant, amount)
+{
+	const key = NationParticipantKey(participant);
+	if (!key)
+		return;
+	if (!map[key])
+		map[key] = {
+			"participant": typeof participant === "number" ? participant : {
+				"type": participant.type,
+				"id": participant.id
+			},
+			"amount": 0
+		};
+	map[key].amount += amount;
+};
+
 /**
- * Outgoing totals per provider. Incoming totals are applied only after every outgoing total fits.
+ * Outgoing totals per provider. Cash and loan principal share one treasury total.
+ * Incoming totals are applied only after every outgoing total fits.
  */
 AgreementManager.prototype.Duties = function(proposal)
 {
 	const resourcesOut = {};
 	const resourcesIn = {};
-	const cashOut = {};
-	const cashIn = {};
+	const moneyOut = {};
+	const moneyIn = {};
 	const military = [];
 	const trade = [];
+	const loans = [];
+	const forgiveness = [];
 	const items = proposal.offer.concat(proposal.request);
 
 	for (let i = 0; i < items.length; ++i)
@@ -181,9 +353,17 @@ AgreementManager.prototype.Duties = function(proposal)
 		}
 		else if (item.type === "cash")
 		{
-			cashOut[item.provider] = item.amount;
-			cashIn[item.beneficiary] = item.amount;
+			this.AddMoneyDuty(moneyOut, item.provider, item.amount);
+			this.AddMoneyDuty(moneyIn, item.beneficiary, item.amount);
 		}
+		else if (item.type === "loan")
+		{
+			this.AddMoneyDuty(moneyOut, item.provider, item.principal);
+			this.AddMoneyDuty(moneyIn, item.beneficiary, item.principal);
+			loans.push(item);
+		}
+		else if (item.type === "debt_forgiveness")
+			forgiveness.push(item);
 		else if (item.type === "military_access")
 			military.push({ "from": item.beneficiary, "to": item.provider });
 		else if (item.type === "trade_access")
@@ -192,13 +372,27 @@ AgreementManager.prototype.Duties = function(proposal)
 
 	military.sort((a, b) => a.from - b.from || a.to - b.to);
 	trade.sort((a, b) => a.from - b.from || a.to - b.to);
+	loans.sort((left, right) =>
+	{
+		const leftKey = NationParticipantKey(left.provider);
+		const rightKey = NationParticipantKey(right.provider);
+		if (leftKey < rightKey)
+			return -1;
+		if (leftKey > rightKey)
+			return 1;
+		return left.principal - right.principal || left.interestRateBps - right.interestRateBps ||
+			left.installments - right.installments || left.graceIntervals - right.graceIntervals;
+	});
+	forgiveness.sort((left, right) => left.debtId - right.debtId);
 	return {
 		"resourcesOut": resourcesOut,
 		"resourcesIn": resourcesIn,
-		"cashOut": cashOut,
-		"cashIn": cashIn,
+		"moneyOut": moneyOut,
+		"moneyIn": moneyIn,
 		"military": military,
-		"trade": trade
+		"trade": trade,
+		"loans": loans,
+		"forgiveness": forgiveness
 	};
 };
 
@@ -226,15 +420,29 @@ AgreementManager.prototype.CanExecute = function(proposal)
 				return false;
 	}
 
-	if (this.SortedIds(duties.cashOut).length || this.SortedIds(duties.cashIn).length)
-	{
-		const cmpFinance = Engine.QueryInterface(SYSTEM_ENTITY, IID_GovernmentFinance);
-		if (!cmpFinance)
+	const moneyPayers = Object.keys(duties.moneyOut).sort();
+	for (let i = 0; i < moneyPayers.length; ++i)
+		if (!this.CanAfford(duties.moneyOut[moneyPayers[i]].participant, duties.moneyOut[moneyPayers[i]].amount))
 			return false;
-		const payersCash = this.SortedIds(duties.cashOut);
-		for (let i = 0; i < payersCash.length; ++i)
-			if (!cmpFinance.CanAfford(payersCash[i], duties.cashOut[payersCash[i]]))
+
+	if (duties.loans.length || duties.forgiveness.length)
+	{
+		const ledger = this.Ledger();
+		if (!ledger)
+			return false;
+		const claimed = {};
+		for (let i = 0; i < duties.forgiveness.length; ++i)
+		{
+			const item = duties.forgiveness[i];
+			const debt = ledger.Find(item.debtId);
+			if (!debt || debt.status !== "active" ||
+				!NationSameParticipant(debt.creditor, item.provider) ||
+				!NationSameParticipant(debt.debtor, item.beneficiary))
 				return false;
+			claimed[item.debtId] = (claimed[item.debtId] || 0) + item.amount;
+			if (claimed[item.debtId] > debt.principalOutstanding)
+				return false;
+		}
 	}
 
 	if (duties.military.length && !Engine.QueryInterface(SYSTEM_ENTITY, IID_DiplomaticAccess))
@@ -244,59 +452,92 @@ AgreementManager.prototype.CanExecute = function(proposal)
 	return true;
 };
 
-AgreementManager.prototype.Snapshot = function(playerIds)
+AgreementManager.prototype.Snapshot = function(parties)
 {
 	const resources = {};
 	const treasury = {};
-	const cmpFinance = Engine.QueryInterface(SYSTEM_ENTITY, IID_GovernmentFinance);
-	for (let i = 0; i < playerIds.length; ++i)
+	const keys = Object.keys(parties).sort();
+	for (let i = 0; i < keys.length; ++i)
 	{
-		const cmpPlayer = QueryPlayerIDInterface(playerIds[i]);
-		resources[playerIds[i]] = clone(cmpPlayer.GetResourceCounts());
-		treasury[playerIds[i]] = cmpFinance ? cmpFinance.GetTreasury(playerIds[i]) : 0;
+		const participant = parties[keys[i]];
+		if (this.IsPlayer(participant))
+		{
+			const cmpPlayer = QueryPlayerIDInterface(participant);
+			resources[participant] = clone(cmpPlayer.GetResourceCounts());
+		}
+		treasury[keys[i]] = this.TreasuryOf(participant);
 	}
 	return {
 		"resources": resources,
-		"treasury": treasury
+		"treasury": treasury,
+		"parties": parties
 	};
 };
 
 AgreementManager.prototype.Restore = function(snapshot)
 {
-	const cmpFinance = Engine.QueryInterface(SYSTEM_ENTITY, IID_GovernmentFinance);
 	const playerIds = this.SortedIds(snapshot.resources);
 	for (let i = 0; i < playerIds.length; ++i)
+		QueryPlayerIDInterface(playerIds[i]).SetResourceCounts(snapshot.resources[playerIds[i]]);
+
+	const keys = Object.keys(snapshot.treasury).sort();
+	for (let i = 0; i < keys.length; ++i)
 	{
-		const playerId = playerIds[i];
-		QueryPlayerIDInterface(playerId).SetResourceCounts(snapshot.resources[playerId]);
-		if (!cmpFinance)
-			continue;
-		const now = cmpFinance.GetTreasury(playerId);
-		const target = snapshot.treasury[playerId];
+		const participant = snapshot.parties[keys[i]];
+		const now = this.TreasuryOf(participant);
+		const target = snapshot.treasury[keys[i]];
 		if (now > target)
-			cmpFinance.Spend(playerId, now - target);
+			this.Spend(participant, now - target);
 		else if (target > now)
-			cmpFinance.AddFunds(playerId, target - now);
+			this.AddMoney(participant, target - now);
 	}
 };
 
 /**
- * Subtract every outgoing total, then add every incoming total, then grant rights.
- * A failed write restores the resource and treasury snapshot. Rights run last.
+ * Subtract every outgoing total, pay principal, create debt, forgive, then grant rights.
+ * A failed write restores resources, treasuries, and the debt ledger. Rights run last.
  * @return {boolean}
  */
 AgreementManager.prototype.Execute = function(proposal)
 {
 	const duties = this.Duties(proposal);
-	const involved = {};
-	for (const group of [duties.resourcesOut, duties.resourcesIn, duties.cashOut, duties.cashIn])
+	const parties = {};
+	const remember = participant =>
 	{
-		const ids = this.SortedIds(group);
-		for (let i = 0; i < ids.length; ++i)
-			involved[ids[i]] = true;
+		const key = NationParticipantKey(participant);
+		if (!key || parties[key])
+			return;
+		parties[key] = typeof participant === "number" ? participant : {
+			"type": participant.type,
+			"id": participant.id
+		};
+	};
+	const resourceIds = this.SortedIds(duties.resourcesOut).concat(this.SortedIds(duties.resourcesIn));
+	for (let i = 0; i < resourceIds.length; ++i)
+		remember(resourceIds[i]);
+	const moneyKeys = Object.keys(duties.moneyOut).concat(Object.keys(duties.moneyIn));
+	for (let i = 0; i < moneyKeys.length; ++i)
+	{
+		const row = duties.moneyOut[moneyKeys[i]] || duties.moneyIn[moneyKeys[i]];
+		if (row)
+			remember(row.participant);
 	}
-	const playerIds = this.SortedIds(involved);
-	const snapshot = this.Snapshot(playerIds);
+
+	const ledger = this.Ledger();
+	const debtBefore = ledger ? ledger.Capture() : null;
+	const createdTimers = [];
+	const snapshot = this.Snapshot(parties);
+	const fail = () =>
+	{
+		const cmpTimer = Engine.QueryInterface(SYSTEM_ENTITY, IID_Timer);
+		if (cmpTimer)
+			for (let i = 0; i < createdTimers.length; ++i)
+				cmpTimer.CancelTimer(createdTimers[i]);
+		if (ledger && debtBefore)
+			ledger.Restore(debtBefore);
+		this.Restore(snapshot);
+		return false;
+	};
 
 	const payers = this.SortedIds(duties.resourcesOut);
 	for (let i = 0; i < payers.length; ++i)
@@ -306,10 +547,7 @@ AgreementManager.prototype.Execute = function(proposal)
 			if (!QueryPlayerIDInterface(payers[i]).TrySubtractResources({
 				[codes[c]]: duties.resourcesOut[payers[i]][codes[c]]
 			}))
-			{
-				this.Restore(snapshot);
-				return false;
-			}
+				return fail();
 	}
 
 	const receivers = this.SortedIds(duties.resourcesIn);
@@ -320,38 +558,48 @@ AgreementManager.prototype.Execute = function(proposal)
 			QueryPlayerIDInterface(receivers[i]).AddResource(codes[c], duties.resourcesIn[receivers[i]][codes[c]]);
 	}
 
-	const cmpFinance = Engine.QueryInterface(SYSTEM_ENTITY, IID_GovernmentFinance);
-	const cashPayers = this.SortedIds(duties.cashOut);
-	for (let i = 0; i < cashPayers.length; ++i)
-		if (!cmpFinance.Spend(cashPayers[i], duties.cashOut[cashPayers[i]]))
-		{
-			this.Restore(snapshot);
-			return false;
-		}
+	const moneyPayers = Object.keys(duties.moneyOut).sort();
+	for (let i = 0; i < moneyPayers.length; ++i)
+		if (!this.Spend(duties.moneyOut[moneyPayers[i]].participant, duties.moneyOut[moneyPayers[i]].amount))
+			return fail();
 
-	const cashReceivers = this.SortedIds(duties.cashIn);
-	for (let i = 0; i < cashReceivers.length; ++i)
-		if (!cmpFinance.AddFunds(cashReceivers[i], duties.cashIn[cashReceivers[i]]))
-		{
-			this.Restore(snapshot);
-			return false;
-		}
+	const moneyReceivers = Object.keys(duties.moneyIn).sort();
+	for (let i = 0; i < moneyReceivers.length; ++i)
+		if (!this.AddMoney(duties.moneyIn[moneyReceivers[i]].participant, duties.moneyIn[moneyReceivers[i]].amount))
+			return fail();
+
+	for (let i = 0; i < duties.loans.length; ++i)
+	{
+		const item = duties.loans[i];
+		const debtId = ledger.Create(item.provider, item.beneficiary, {
+			"principal": item.principal,
+			"interestRateBps": item.interestRateBps,
+			"installments": item.installments,
+			"graceIntervals": item.graceIntervals
+		});
+		if (!debtId)
+			return fail();
+		const debt = ledger.Find(debtId);
+		if (debt && debt.timer)
+			createdTimers.push(debt.timer);
+	}
+
+	for (let i = 0; i < duties.forgiveness.length; ++i)
+	{
+		const item = duties.forgiveness[i];
+		if (!ledger.Forgive(item.provider, item.beneficiary, item.debtId, item.amount))
+			return fail();
+	}
 
 	const cmpAccess = Engine.QueryInterface(SYSTEM_ENTITY, IID_DiplomaticAccess);
 	for (let i = 0; i < duties.military.length; ++i)
 		if (!cmpAccess.GrantMilitaryAccess(duties.military[i].from, duties.military[i].to))
-		{
-			this.Restore(snapshot);
-			return false;
-		}
+			return fail();
 
 	const cmpTrade = Engine.QueryInterface(SYSTEM_ENTITY, IID_TradeAccess);
 	for (let i = 0; i < duties.trade.length; ++i)
 		if (!cmpTrade.GrantTrade(duties.trade[i].from, duties.trade[i].to))
-		{
-			this.Restore(snapshot);
-			return false;
-		}
+			return fail();
 
 	return true;
 };
@@ -397,7 +645,7 @@ AgreementManager.prototype.Find = function(id)
 AgreementManager.prototype.Accept = function(player, id)
 {
 	const proposal = this.Find(id);
-	if (!proposal || proposal.status !== "pending" || proposal.recipient !== player)
+	if (!proposal || proposal.status !== "pending" || !NationSameParticipant(proposal.recipient, player))
 		return false;
 
 	if (!this.CanExecute(proposal) || !this.Execute(proposal))
@@ -418,7 +666,7 @@ AgreementManager.prototype.Reject = function(player, id)
 	const proposal = this.Find(id);
 	if (!proposal || proposal.status !== "pending")
 		return false;
-	if (player !== proposal.proposer && player !== proposal.recipient)
+	if (!NationSameParticipant(player, proposal.proposer) && !NationSameParticipant(player, proposal.recipient))
 		return false;
 	proposal.status = "rejected";
 	return true;
@@ -431,7 +679,7 @@ AgreementManager.prototype.Reject = function(player, id)
 AgreementManager.prototype.MarkCountered = function(player, id)
 {
 	const proposal = this.Find(id);
-	if (!proposal || proposal.status !== "pending" || proposal.recipient !== player)
+	if (!proposal || proposal.status !== "pending" || !NationSameParticipant(proposal.recipient, player))
 		return false;
 	proposal.status = "countered";
 	return true;

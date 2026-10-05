@@ -703,7 +703,7 @@ The later evaluator should be a Nation function that receives one `AgreementProp
 
 `AgreementManager` is the one store for proposals. A proposal is a proposer, a recipient, the items the proposer provides, the items the recipient provides, a status, and a deterministic id. The id starts at 1 and increases by 1. Status is `pending`, `accepted`, `rejected`, or `invalidated`.
 
-An item is one of four shapes. `resource` names a code from `Resources.GetCodes()` and a positive integer amount. `cash` is a positive integer of `GovernmentFinance` treasury, not a Player resource. `military_access` and `trade_access` have no amount. Each stored item records `provider` and `beneficiary`. Items the proposer offers have provider = proposer and beneficiary = recipient. Items the proposer requests are the other way around.
+An item is `resource`, `cash`, `military_access`, `trade_access`, `loan`, or `debt_forgiveness`. `resource` names a code from `Resources.GetCodes()` and a positive integer amount. `cash` is a positive integer of treasury, not a Player resource. `military_access` and `trade_access` have no amount. A `loan` names principal, an interest rate in basis points, a count of installments, and a grace count. A `debt_forgiveness` names an existing debt id and a principal amount. Each stored item records `provider` and `beneficiary`. Items the proposer offers have provider = proposer and beneficiary = recipient. Items the proposer requests are the other way around.
 
 ```text
 P1 offers military access
@@ -731,22 +731,9 @@ AGREEMENT SIGNED
 OBLIGATION FULFILLED
 ```
 
-A later item can still live in the same proposal arrays and mean "deliver 2000 food" by road, rail, port, or trader, instead of `AddResource` at the moment of acceptance. The proposal envelope does not have to change to allow that. It also does not have to change to allow a loan, debt forgiveness, or restructuring:
+A later item can still live in the same proposal arrays and mean "deliver 2000 food" by road, rail, port, or trader, instead of `AddResource` at the moment of acceptance. The proposal envelope does not have to change to allow that. `loan` and `debt_forgiveness` are accepted item types. Restructuring is not. A counteroffer is a new proposal whose `parentProposal` is the earlier id. Duration and unilateral revocation are not implemented. Revocation can later be an item that sets an existing `DiplomaticAccess` or `TradeAccess` row to false. Until then, a grant stays until some later system changes it.
 
-```text
-loan
-    principal, interestRate, maturity, repaymentSchedule, gracePeriod
-
-debt_forgiveness
-    debtId, amount
-
-debt_restructuring
-    the same debt, with new terms
-```
-
-Those types are not accepted yet. A counteroffer, when it exists, should be a new proposal whose `parentProposal` is the earlier id. It should not be a second object model. Duration and unilateral revocation are not implemented. Revocation can later be an item that sets an existing `DiplomaticAccess` or `TradeAccess` row to false. Until then, a grant stays until some later system changes it.
-
-The session screen lets the local player pick another country, add resource, cash, military-access, and trade-access rows to "we offer" or "we request", and post the proposal. Resource buttons use `nationAgreementResources` from the simulation, which is `Resources.GetCodes()` plus each resource's name. The amount field is a convenience. The simulation parses the command again and ignores the GUI's opinion of the balance. Accept is enabled only for a pending proposal whose recipient is the controlled player. The 1961 sandbox has one human. Neighbor is listed in `AgreementResponders` and answers through `AgreementAI`. A human recipient can still accept or reject by hand. The screen does not show utility numbers.
+The session screen lets the local player pick another country or an off-map power, add resource, cash, military-access, trade-access, loan, and debt-forgiveness rows to "we offer" or "we request", and post the proposal. Resource and map-access rows are omitted for an off-map power. Resource buttons use `nationAgreementResources` from the simulation, which is `Resources.GetCodes()` plus each resource's name. The amount field is a convenience. The simulation parses the command again and ignores the GUI's opinion of the balance. Accept is enabled only for a pending proposal whose recipient is the controlled player. The 1961 sandbox has one human. Neighbor is listed in `AgreementResponders` and answers through `AgreementAI`. A human recipient can still accept or reject by hand. The screen does not show utility numbers.
 
 A future evaluator should score a proposal from the simulation, not from a fixed table of equivalents:
 
@@ -803,6 +790,62 @@ Trade access already held is worth 0. Receiving it is worth 15. Granting it cost
 `AgreementAI` answers a pending proposal whose recipient is in `AgreementResponders` or whose `Player.IsAI` is set. The rebel player is never answered. Neighbor is responder 2 and is not a Petra player. One second after the proposal is stored, it evaluates once. It does not rescore on later turns. The answered id is saved with the component, and the timer is the ordinary `Timer` timeout, so a loaded game does not answer twice and does not execute twice.
 
 A counteroffer is a new proposal from the recipient back to the proposer, with `parentProposal` set to the original id. The original becomes `countered` and can no longer execute. The search asks for more of the proposer's cash in steps of 10,000, the smallest step that reaches utility 0. If cash cannot close the gap, it asks for one resource: the code with the highest one-unit value to the answering country, ties broken by the code, first a parcel of 100 and then whatever remains. It does not ask for cash or resources the proposer does not have. It does not add military access as payment. If nothing acceptable can be built, the original is rejected. The human accepts a counteroffer with the normal `Accept` path.
+
+## Diplomatic participants
+
+An agreement party is either an on-map state or an off-map actor.
+
+An on-map state is a Player id. It can have territory, settlements, units, and a Player resource stockpile. Its treasury is `GovernmentFinance`.
+
+An off-map actor is `{ "type": "foreign_actor", "id": "ussr" }`. The id is a stable lowercase token, not a random identifier. `ForeignActorManager` stores the actor. It has a name, a finite treasury, and a `responds` flag. It has no territory, settlements, units, population, or Player resource stockpile. Player ids in old proposals stay numbers, so a player-versus-player agreement is unchanged.
+
+`GovernmentFinance` still belongs to on-map states and still collects their population revenue. An off-map treasury is not that account and does not receive population revenue. Agreement code spends and pays either kind of participant through one pair of calls.
+
+Map-specific items are refused when either party is off-map: `resource`, `military_access`, and `trade_access`. The USSR has no physical inventory and no sovereign map, so those grants would be fiction. Cash, loans, and debt forgiveness are the V1 financial vocabulary. Later powers can add military aid, investment, basing, and alignment as their own item types. They are not implied by the current access components.
+
+A future actor may eventually carry strategic interests, an aid budget, trade demand, and investment capacity. None of that is scored yet. There is no friendship, trust, alignment, or ideology modifier.
+
+## Debt
+
+`DebtLedger` is the obligation book. A debt is not a negative treasury. Each debt has a deterministic id starting at 1, a creditor, a debtor, the original principal, the outstanding principal, interest due, interest paid, the installment count, grace remaining, payments made, missed payments, and a status of `active` or `repaid`.
+
+Prototype financial time is 60 simulation seconds per interval. That interval is not a year. A later calendar can map it onto a fiscal period. The constant is `DebtLedger.PaymentInterval`. One timer per debt fires the next interval. The ledger does not scan debts every turn. The callback carries a sequence number. A restored game keeps the timer the engine already stored, and a second callback with the old sequence does nothing.
+
+Interest for an interval is `floor(principalOutstanding * interestRateBps / 10000)`. 400 basis points is 4 percent of outstanding principal. The division remainder is discarded. It is not added to principal. Interest due is tracked beside principal. Missed interest is not capitalized.
+
+During each grace interval the ledger adds that interest and collects nothing. On a payment interval it moves the next principal slice into the amount due. Every installment except the last takes `floor(uncharged / installmentsStillToCharge)`. The last slice takes whatever principal is not yet due, so the integer remainder lands on the final installment. The debtor then owes that slice plus the interest due. If the full sum is in the debtor's treasury, it moves to the creditor. If it is not, the transfer is zero, `missedPayments` increases by one, and the unpaid amount stays due. The treasury never goes negative. A miss does not change diplomacy, start a war, or seize anything.
+
+When outstanding principal, principal due, and interest due are all zero, the status becomes `repaid` and the timer is cancelled. Full forgiveness that clears the same balances is also `repaid`. There is no separate forgiven status.
+
+## Loans
+
+A loan item is not a cash item with a note attached. Acceptance does two things in the same atomic execution: the lender's treasury loses the principal, the borrower's treasury gains it, and the ledger creates the debt. If the lender can no longer fund the principal, or any other immediate term fails, the proposal is invalidated. No principal moves and no debt is created. Cash the borrower offered in the same proposal is rolled back with it. Debt forgiveness in the same proposal is rolled back with it.
+
+Either participant with a treasury can lend. The type is not reserved for the USSR.
+
+Worked prototype, grace 0, principal 1,000,000, 400 basis points, 5 installments. Each principal slice is 200,000.
+
+```text
+payment 1    interest 40,000    due 240,000    outstanding 800,000
+payment 2    interest 32,000    due 232,000    outstanding 600,000
+payment 3    interest 24,000    due 224,000    outstanding 400,000
+payment 4    interest 16,000    due 216,000    outstanding 200,000
+payment 5    interest  8,000    due 208,000    outstanding 0
+```
+
+Interest paid across the loan is 120,000. One grace interval on the same loan adds 40,000 of interest and moves no money. The first payment then collects that 40,000 plus a new 40,000 plus the 200,000 slice, due 280,000.
+
+A principal of 1,000,001 over 5 installments charges 200,000 four times and 200,001 on the last.
+
+## Debt forgiveness
+
+The provider must be the creditor and the beneficiary the debtor. The amount must be a positive integer no greater than outstanding principal. Forgiveness reduces `principalOutstanding`. It does not move treasury. Forgiving 1,500,000 of a 5,000,000 principal leaves 3,500,000. A nonexistent debt, the wrong creditor, the wrong debtor, or an amount above the outstanding principal is rejected. If another item in the same proposal cannot be paid, the forgiveness is restored with the rest of the snapshot.
+
+The negotiation screen adds loan and forgiveness rows to the same offer and request lists. The payment interval is not editable. Interest, installments, and grace are. Forgiveness is offered only for a debt the provider actually holds, and the simulation checks that claim again. Resource, military-access, and trade-access buttons are hidden when the other party is off-map. The debt line reads who owes whom. Utility numbers stay off the screen.
+
+## Foreign powers
+
+The Soviet Union is the first actor: id `ussr`, name Soviet Union, type `foreign_power`, treasury 100,000,000, `responds` true. It is not a Player. It is not Petra. `AgreementAI` answers it because the actor is marked `responds`, through the same evaluator and the same manager as Neighbor. A loan's value to the borrower is the cash value of the principal now, minus the discounted cost of the repayments. Each interval keeps nine-tenths of a future payment's weight, applied in integer thousandths. Existing debt increases that future cost by `(5,000,000 + burden) / 5,000,000`, where burden is outstanding principal plus interest already due. The lender's value is the mirror, assuming every payment arrives. A higher rate is worse for the borrower and better for the lender. A longer grace is better for the borrower and worse for the lender. Forgiveness is worth the log of the claim being reduced, positive for the debtor and the same magnitude negative for the creditor. No treasury is imagined to move. Counteroffers against a loan still ask for cash or, between on-map states, a resource. They do not search interest, term, or grace.
 
 ## Build and run
 

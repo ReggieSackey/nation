@@ -6,9 +6,30 @@ var g_NationAgreementDraft = {
 	"recipient": 0,
 	"side": "offer",
 	"offer": [],
-	"request": []
+	"request": [],
+	"debtId": 0
 };
 var g_NationAgreementActionId = 0;
+
+function nationAgreementKey(participant)
+{
+	if (typeof participant === "number" && participant > 0)
+		return "player:" + participant;
+	if (participant && participant.type === "foreign_actor" && participant.id)
+		return "foreign_actor:" + participant.id;
+	return "";
+}
+
+function nationAgreementSame(left, right)
+{
+	const key = nationAgreementKey(left);
+	return key !== "" && key === nationAgreementKey(right);
+}
+
+function nationAgreementForeign(participant)
+{
+	return nationAgreementKey(participant).indexOf("foreign_actor:") === 0;
+}
 
 function nationAgreementAmount()
 {
@@ -19,21 +40,75 @@ function nationAgreementAmount()
 	return Number.isInteger(amount) && amount > 0 ? amount : 0;
 }
 
-function nationAgreementPlayers()
+function nationAgreementPartners()
 {
-	const players = [];
-	if (!g_SimState || !g_SimState.players)
-		return players;
-	for (let playerId = 1; playerId < g_SimState.players.length; ++playerId)
-		if (playerId !== g_ViewedPlayer && g_SimState.players[playerId])
-			players.push(playerId);
-	return players;
+	const partners = [];
+	if (g_SimState && g_SimState.players)
+		for (let playerId = 1; playerId < g_SimState.players.length; ++playerId)
+			if (playerId !== g_ViewedPlayer && g_SimState.players[playerId])
+				partners.push(playerId);
+	const actors = g_SimState && g_SimState.nationForeignActors || [];
+	for (let i = 0; i < actors.length; ++i)
+		partners.push({
+			"type": "foreign_actor",
+			"id": actors[i].id
+		});
+	return partners;
 }
 
-function nationAgreementName(playerId)
+function nationAgreementName(participant)
 {
-	const player = g_SimState && g_SimState.players[playerId];
-	return player && player.name || ("Player " + playerId);
+	if (nationAgreementForeign(participant))
+	{
+		const actors = g_SimState && g_SimState.nationForeignActors || [];
+		for (let i = 0; i < actors.length; ++i)
+			if (actors[i].id === participant.id)
+				return actors[i].name;
+		return participant.id;
+	}
+	const player = g_SimState && g_SimState.players[participant];
+	return player && player.name || ("Player " + participant);
+}
+
+function nationAgreementTreasury(participant)
+{
+	if (nationAgreementForeign(participant))
+	{
+		const actors = g_SimState && g_SimState.nationForeignActors || [];
+		for (let i = 0; i < actors.length; ++i)
+			if (actors[i].id === participant.id)
+				return actors[i].treasury;
+		return 0;
+	}
+	const player = g_SimState && g_SimState.players[participant];
+	return player && player.nationTreasury || 0;
+}
+
+function nationAgreementField(name, fallback, allowZero)
+{
+	const input = Engine.GetGUIObjectByName(name);
+	if (!input)
+		return fallback;
+	const pattern = allowZero ? /^(0|[1-9][0-9]*)$/ : /^[1-9][0-9]*$/;
+	if (!pattern.test(input.caption))
+		return fallback;
+	const amount = +input.caption;
+	return Number.isInteger(amount) && amount >= 0 ? amount : fallback;
+}
+
+function nationAgreementClaims(provider, beneficiary)
+{
+	const debts = g_SimState && g_SimState.nationDebts || [];
+	const claims = [];
+	for (let i = 0; i < debts.length; ++i)
+	{
+		const debt = debts[i];
+		if (debt.status !== "active")
+			continue;
+		if (nationAgreementSame(debt.creditor, provider) && nationAgreementSame(debt.debtor, beneficiary))
+			claims.push(debt);
+	}
+	return claims;
 }
 
 function nationAgreementStock(playerId, code)
@@ -71,10 +146,54 @@ function nationAgreementAdd(type, resource)
 	const already = nationAgreementDraftTotal(list, type, resource);
 	if (type === "cash")
 	{
-		const treasury = g_SimState.players[provider] && g_SimState.players[provider].nationTreasury || 0;
-		if (already + amount > treasury)
+		if (already + amount > nationAgreementTreasury(provider))
 			return;
 		list.push({ "type": "cash", "amount": amount });
+		return;
+	}
+
+	if (type === "loan")
+	{
+		const interest = nationAgreementField("nationAgreementInterest", 400, true);
+		const installments = nationAgreementField("nationAgreementInstallments", 5, false);
+		const grace = nationAgreementField("nationAgreementGrace", 1, true);
+		if (interest > 10000 || installments > 60 || grace > 24 || amount < installments)
+			return;
+		let alreadyPrincipal = 0;
+		for (let i = 0; i < list.length; ++i)
+			if (list[i].type === "loan")
+				alreadyPrincipal += list[i].principal;
+		if (alreadyPrincipal + amount > nationAgreementTreasury(provider))
+			return;
+		list.push({
+			"type": "loan",
+			"principal": amount,
+			"interestRateBps": interest,
+			"installments": installments,
+			"graceIntervals": grace
+		});
+		return;
+	}
+
+	if (type === "debt_forgiveness")
+	{
+		const claims = nationAgreementClaims(provider, provider === g_ViewedPlayer ? g_NationAgreementDraft.recipient : g_ViewedPlayer);
+		let debt = null;
+		for (let i = 0; i < claims.length; ++i)
+			if (claims[i].id === g_NationAgreementDraft.debtId)
+				debt = claims[i];
+		if (!debt)
+			debt = claims.length ? claims[0] : null;
+		if (!debt || amount > debt.principalOutstanding)
+			return;
+		for (let i = 0; i < list.length; ++i)
+			if (list[i].type === "debt_forgiveness" && list[i].debtId === debt.id)
+				return;
+		list.push({
+			"type": "debt_forgiveness",
+			"debtId": debt.id,
+			"amount": amount
+		});
 		return;
 	}
 
@@ -103,6 +222,11 @@ function nationAgreementDescribe(items, provider, beneficiary)
 			lines.push("    " + nationAgreementName(provider) + " grants " + nationAgreementName(beneficiary) + " military access");
 		else if (item.type === "trade_access")
 			lines.push("    " + nationAgreementName(provider) + " grants " + nationAgreementName(beneficiary) + " trade access");
+		else if (item.type === "loan")
+			lines.push("    loan " + item.principal + " at " + item.interestRateBps +
+				" bps, " + item.installments + " installments, grace " + item.graceIntervals);
+		else if (item.type === "debt_forgiveness")
+			lines.push("    forgive " + item.amount + " of debt #" + item.debtId);
 	}
 	return lines.join("\n");
 }
@@ -128,11 +252,15 @@ function nationAgreementBind()
 
 	Engine.GetGUIObjectByName("nationAgreementPartnerButton").onPress = function()
 	{
-		const players = nationAgreementPlayers();
-		if (!players.length)
+		const partners = nationAgreementPartners();
+		if (!partners.length)
 			return;
-		const index = players.indexOf(g_NationAgreementDraft.recipient);
-		g_NationAgreementDraft.recipient = players[(index + 1) % players.length];
+		let index = -1;
+		for (let i = 0; i < partners.length; ++i)
+			if (nationAgreementSame(partners[i], g_NationAgreementDraft.recipient))
+				index = i;
+		g_NationAgreementDraft.recipient = partners[(index + 1) % partners.length];
+		g_NationAgreementDraft.debtId = 0;
 	};
 	Engine.GetGUIObjectByName("nationAgreementSideOffer").onPress = function()
 	{
@@ -154,6 +282,36 @@ function nationAgreementBind()
 	{
 		nationAgreementAdd("trade_access");
 	};
+	Engine.GetGUIObjectByName("nationAgreementLoan").onPress = function()
+	{
+		nationAgreementAdd("loan");
+	};
+	Engine.GetGUIObjectByName("nationAgreementForgive").onPress = function()
+	{
+		nationAgreementAdd("debt_forgiveness");
+	};
+	Engine.GetGUIObjectByName("nationAgreementDebtPick").onPress = function()
+	{
+		const provider = g_NationAgreementDraft.side === "request" ? g_NationAgreementDraft.recipient : g_ViewedPlayer;
+		const beneficiary = g_NationAgreementDraft.side === "request" ? g_ViewedPlayer : g_NationAgreementDraft.recipient;
+		const claims = nationAgreementClaims(provider, beneficiary);
+		if (!claims.length)
+			return;
+		let index = 0;
+		for (let i = 0; i < claims.length; ++i)
+			if (claims[i].id === g_NationAgreementDraft.debtId)
+				index = i + 1;
+		g_NationAgreementDraft.debtId = claims[index % claims.length].id;
+	};
+	const interest = Engine.GetGUIObjectByName("nationAgreementInterest");
+	const installments = Engine.GetGUIObjectByName("nationAgreementInstallments");
+	const grace = Engine.GetGUIObjectByName("nationAgreementGrace");
+	if (!interest.caption)
+		interest.caption = "400";
+	if (!installments.caption)
+		installments.caption = "5";
+	if (!grace.caption)
+		grace.caption = "1";
 
 	for (let i = 0; i < 8; ++i)
 	{
@@ -213,32 +371,74 @@ function updateNationAgreement()
 	if (dialog.hidden || g_ViewedPlayer < 1)
 		return;
 
-	const players = nationAgreementPlayers();
-	if (players.indexOf(g_NationAgreementDraft.recipient) === -1)
-		g_NationAgreementDraft.recipient = players.length ? players[0] : 0;
+	const partners = nationAgreementPartners();
+	let partnerKnown = false;
+	for (let i = 0; i < partners.length; ++i)
+		if (nationAgreementSame(partners[i], g_NationAgreementDraft.recipient))
+			partnerKnown = true;
+	if (!partnerKnown)
+		g_NationAgreementDraft.recipient = partners.length ? partners[0] : 0;
 
+	const partner = g_NationAgreementDraft.recipient;
+	const foreign = nationAgreementForeign(partner);
 	const title = Engine.GetGUIObjectByName("nationAgreementTitle");
-	title.caption = "Negotiation — " + (g_NationAgreementDraft.recipient ? nationAgreementName(g_NationAgreementDraft.recipient) : "no country");
+	title.caption = "Negotiation — " + (partner ? nationAgreementName(partner) : "no country") +
+		(foreign ? " — Foreign Power" : "");
 
 	const resources = g_SimState.nationAgreementResources || [];
 	for (let i = 0; i < 8; ++i)
 	{
 		const button = Engine.GetGUIObjectByName("nationAgreementType" + i);
-		const choice = resources[i];
+		const choice = !foreign && resources[i];
 		button.hidden = !choice;
 		button.nationResource = choice ? choice.code : "";
 		if (choice)
 			button.caption = choice.name;
 	}
+	Engine.GetGUIObjectByName("nationAgreementMilitary").hidden = foreign;
+	Engine.GetGUIObjectByName("nationAgreementTrade").hidden = foreign;
 
-	const provider = g_NationAgreementDraft.side === "request" ? g_NationAgreementDraft.recipient : g_ViewedPlayer;
-	const treasury = provider && g_SimState.players[provider] && g_SimState.players[provider].nationTreasury || 0;
+	const provider = g_NationAgreementDraft.side === "request" ? partner : g_ViewedPlayer;
+	const beneficiary = g_NationAgreementDraft.side === "request" ? g_ViewedPlayer : partner;
+	const claims = nationAgreementClaims(provider, beneficiary);
+	const forgive = Engine.GetGUIObjectByName("nationAgreementForgive");
+	const pick = Engine.GetGUIObjectByName("nationAgreementDebtPick");
+	forgive.hidden = !claims.length;
+	pick.hidden = !claims.length;
+	let selected = null;
+	for (let i = 0; i < claims.length; ++i)
+		if (claims[i].id === g_NationAgreementDraft.debtId)
+			selected = claims[i];
+	if (!selected && claims.length)
+	{
+		selected = claims[0];
+		g_NationAgreementDraft.debtId = selected.id;
+	}
+	if (selected)
+		pick.caption = "Debt #" + selected.id + "  " + selected.principalOutstanding + " left";
+
+	const treasury = provider ? nationAgreementTreasury(provider) : 0;
 	Engine.GetGUIObjectByName("nationAgreementAvailable").caption =
 		(g_NationAgreementDraft.side === "request" ? "Requesting from " : "Offering from ") +
 		nationAgreementName(provider) + "   treasury " + treasury;
 
+	const debtLines = [];
+	const debts = g_SimState.nationDebts || [];
+	for (let i = 0; i < debts.length; ++i)
+	{
+		const debt = debts[i];
+		if (debt.status !== "active")
+			continue;
+		if (!nationAgreementSame(debt.debtor, g_ViewedPlayer) && !nationAgreementSame(debt.creditor, g_ViewedPlayer) &&
+			!nationAgreementSame(debt.debtor, partner) && !nationAgreementSame(debt.creditor, partner))
+			continue;
+		debtLines.push(nationAgreementName(debt.debtor) + " owes " + nationAgreementName(debt.creditor) + ": " + debt.principalOutstanding);
+	}
+	Engine.GetGUIObjectByName("nationAgreementDebt").caption = debtLines.length ?
+		debtLines.join("\n") : "No outstanding debt with this country.";
+
 	const us = g_ViewedPlayer;
-	const them = g_NationAgreementDraft.recipient;
+	const them = partner;
 	const proposals = g_SimState.nationAgreements || [];
 	const pendingLines = [];
 	g_NationAgreementActionId = 0;
