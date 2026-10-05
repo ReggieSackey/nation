@@ -382,6 +382,36 @@
 			<Position x="268" z="108"/>
 			<Orientation y="0"/>
 		</Entity>
+		<Entity uid="89">
+			<Template>structures/nation/trade_junction</Template>
+			<Player>1</Player>
+			<Position x="228" z="40"/>
+			<Orientation y="0"/>
+		</Entity>
+		<Entity uid="90">
+			<Template>structures/nation/trade_junction</Template>
+			<Player>2</Player>
+			<Position x="308" z="40"/>
+			<Orientation y="0"/>
+		</Entity>
+		<Entity uid="91">
+			<Template>structures/nation/trade_link_south_nation</Template>
+			<Player>1</Player>
+			<Position x="210" z="50"/>
+			<Orientation y="1.2"/>
+		</Entity>
+		<Entity uid="92">
+			<Template>structures/nation/trade_link_south_bypass</Template>
+			<Player>1</Player>
+			<Position x="268" z="40"/>
+			<Orientation y="1.570796"/>
+		</Entity>
+		<Entity uid="93">
+			<Template>structures/nation/trade_link_south_neighbor</Template>
+			<Player>2</Player>
+			<Position x="314" z="50"/>
+			<Orientation y="1.2"/>
+		</Entity>
 	</Entities>
 	<Paths/>
 </Scenario>

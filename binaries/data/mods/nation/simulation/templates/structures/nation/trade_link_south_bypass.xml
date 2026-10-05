@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Entity parent="structures/nation/capital_northern_road">
+  <TerritoryDecay disable=""/>
+  <Health>
+    <Initial>60</Initial>
+  </Health>
+  <Identity>
+    <GenericName>Road</GenericName>
+    <SpecificName>South Bypass</SpecificName>
+  </Identity>
+  <InfrastructureLink>
+    <From>89</From>
+    <To>90</To>
+    <Condition>60</Condition>
+  </InfrastructureLink>
+</Entity>

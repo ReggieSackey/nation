@@ -28,6 +28,75 @@ Trader.prototype.Init = function()
 		"type": null,
 		"amount": null
 	};
+	// Links chosen when the delivery leg left the seller. Settlement rechecks them.
+	// The waypoint list is the same corridor, seller toward buyer, without the two markets.
+	this.journey = null;
+	this.corridor = null;
+};
+
+/**
+ * Remember the corridor this delivery leg is walking. Points are copied.
+ */
+Trader.prototype.SetJourney = function(journey)
+{
+	if (!journey || !journey.links || !journey.links.length)
+	{
+		this.journey = null;
+		this.corridor = null;
+		return;
+	}
+	const points = [];
+	const given = journey.points || [];
+	for (let i = 0; i < given.length; ++i)
+	{
+		points.push({
+			"x": given[i].x,
+			"z": given[i].z,
+			"min": given[i].min,
+			"max": given[i].max
+		});
+	}
+	this.journey = {
+		"links": journey.links.slice(),
+		"nodes": (journey.nodes || []).slice(),
+		"condition": journey.condition
+	};
+	this.corridor = points;
+};
+
+/**
+ * @return {Object|null}
+ */
+Trader.prototype.GetJourney = function()
+{
+	return this.journey;
+};
+
+/**
+ * Seller-to-buyer intermediate waypoints captured at departure.
+ * @return {Object[]|null}
+ */
+Trader.prototype.GetCorridor = function()
+{
+	if (!this.corridor)
+		return null;
+	const copy = [];
+	for (let i = 0; i < this.corridor.length; ++i)
+		copy.push({
+			"x": this.corridor[i].x,
+			"z": this.corridor[i].z,
+			"min": this.corridor[i].min,
+			"max": this.corridor[i].max
+		});
+	return copy;
+};
+
+/**
+ * Settlement has consumed the snapshot. The return trip still follows this.corridor.
+ */
+Trader.prototype.ClearJourney = function()
+{
+	this.journey = null;
 };
 
 Trader.prototype.CalculateGain = function(currentMarket, nextMarket)
@@ -224,11 +293,33 @@ Trader.prototype.PerformTrade = function(currentMarket)
 
 	// The carried gain is only the signal that a leg finished.
 	// Upstream would mint resources here. Nation settles a contract instead.
+	// GenerateResources is not called. Junctions never reach this method.
 	if (this.goods.amount && this.goods.amount.traderGain && typeof IID_TradeContractManager !== "undefined")
 	{
 		const cmpContracts = Engine.QueryInterface(SYSTEM_ENTITY, IID_TradeContractManager);
 		if (cmpContracts)
 			cmpContracts.SettleArrival(this.entity, currentMarket);
+	}
+
+	// UnitAI copies order.data.route into waypoints after this returns.
+	// A delivery leg refreshes that list from the usable corridor. A return leg
+	// writes the same list again so the walk back retraces it. No legal corridor
+	// means this leg does not start.
+	if (typeof IID_TradeContractManager !== "undefined")
+	{
+		const cmpContracts = Engine.QueryInterface(SYSTEM_ENTITY, IID_TradeContractManager);
+		if (cmpContracts && cmpContracts.PrepareDeparture)
+		{
+			const decision = cmpContracts.PrepareDeparture(this.entity, currentMarket, nextMarket);
+			if (decision === "hold")
+			{
+				const at = this.markets.indexOf(currentMarket);
+				if (at >= 0)
+					this.index = at;
+				this.goods.amount = null;
+				return INVALID_ENTITY;
+			}
+		}
 	}
 
 	const cmpPlayer = QueryOwnerInterface(this.entity);
@@ -293,7 +384,8 @@ Trader.prototype.StopTrading = function()
 	this.index = -1;
 	this.markets = [];
 	this.goods.amount = null;
-	this.markets = [];
+	this.journey = null;
+	this.corridor = null;
 };
 
 // Get range in which deals with market are available,

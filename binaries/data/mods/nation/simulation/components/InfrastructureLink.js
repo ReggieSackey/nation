@@ -7,7 +7,12 @@ InfrastructureLink.prototype.Schema =
 	"</element>" +
 	"<element name='To' a:help='Entity id of the other endpoint.'>" +
 		"<data type='positiveInteger'/>" +
-	"</element>";
+	"</element>" +
+	"<optional>" +
+		"<element name='Condition' a:help='Initial operational condition from 0 to 100. Omitted means 100.'>" +
+			"<ref name='nonNegativeDecimal'/>" +
+		"</element>" +
+	"</optional>";
 
 InfrastructureLink.prototype.Init = function()
 {
@@ -15,7 +20,14 @@ InfrastructureLink.prototype.Init = function()
 	const to = this.template ? +this.template.To : NaN;
 	// Full condition until a health change or SetCondition says otherwise.
 	// Health cannot be the stored value: a dead entity cannot be restored through Health.
+	// An optional template condition is the initial bottleneck, still overwritten by later damage.
 	this.condition = 100;
+	if (this.template && this.template.Condition !== undefined)
+	{
+		const initial = Math.round(+this.template.Condition);
+		if (Number.isInteger(initial))
+			this.condition = Math.max(0, Math.min(100, initial));
+	}
 	if (!Number.isInteger(from) || from <= 0 || !Number.isInteger(to) || to <= 0 || from === to)
 	{
 		error("InfrastructureLink: entity " + this.entity + " needs two different endpoint entity ids");

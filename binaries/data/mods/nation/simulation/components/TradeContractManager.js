@@ -8,10 +8,17 @@ TradeContractManager.prototype.Schema =
  */
 TradeContractManager.prototype.LotSize = 100;
 
+/**
+ * How soon a merchant waiting at the seller market looks for a corridor again.
+ * One timer per waiting contract. It does not issue a movement order until a route exists.
+ */
+TradeContractManager.prototype.ResumeDelay = 2000;
+
 TradeContractManager.prototype.Init = function()
 {
 	this.nextId = 1;
 	this.contracts = [];
+	this.timers = {};
 };
 
 /**
@@ -91,6 +98,7 @@ TradeContractManager.prototype.DescribedCorridor = function(contract)
 		"connected": false,
 		"condition": 0,
 		"links": [],
+		"nodes": [],
 		"transitStates": [],
 		"missingTransit": [],
 		"legallyUsable": false
@@ -114,6 +122,7 @@ TradeContractManager.prototype.UsableCorridor = function(contract)
 		"connected": false,
 		"condition": 0,
 		"links": [],
+		"nodes": [],
 		"transitStates": [],
 		"missingTransit": [],
 		"legallyUsable": false
@@ -309,15 +318,30 @@ TradeContractManager.prototype.TryDeliver = function(contractId)
 	if (this.Enemies(contract.seller, contract.buyer))
 		return refuse("enemies");
 
-	const usable = this.UsableCorridor(contract);
-	if (!usable.connected)
+	const journey = this.ActiveJourney(contract);
+	let lot = 0;
+	if (journey)
 	{
-		const described = this.DescribedCorridor(contract);
-		if (described.connected && described.missingTransit.length)
-			return refuse("missing_transit", described.missingTransit);
-		return refuse("no_route");
+		const assessed = this.AssessJourney(contract, journey);
+		this.ReleaseJourney(contract);
+		if (!assessed.operational)
+			return refuse("no_route");
+		if (!assessed.legallyUsable)
+			return refuse("missing_transit", assessed.missingTransit);
+		lot = Math.floor(this.LotSize * assessed.condition / 100);
 	}
-	const lot = Math.floor(this.LotSize * usable.condition / 100);
+	else
+	{
+		const usable = this.UsableCorridor(contract);
+		if (!usable.connected)
+		{
+			const described = this.DescribedCorridor(contract);
+			if (described.connected && described.missingTransit.length)
+				return refuse("missing_transit", described.missingTransit);
+			return refuse("no_route");
+		}
+		lot = Math.floor(this.LotSize * usable.condition / 100);
+	}
 	if (lot <= 0)
 		return refuse("no_route");
 
@@ -392,6 +416,244 @@ TradeContractManager.prototype.SettleArrival = function(trader, market)
 			continue;
 		this.TryDeliver(contract.id);
 	}
+};
+
+/**
+ * Contract currently served by this merchant, if it is still open.
+ * @return {Object|null}
+ */
+TradeContractManager.prototype.FindByTrader = function(trader)
+{
+	if (!trader)
+		return null;
+	for (let i = 0; i < this.contracts.length; ++i)
+	{
+		const contract = this.contracts[i];
+		if (contract.trader === trader && contract.status !== "fulfilled")
+			return contract;
+	}
+	return null;
+};
+
+/**
+ * Departure snapshot for the merchant bound to this contract.
+ * Direct settlement, with no snapshot, keeps using the live usable route.
+ * @return {Object|null}
+ */
+TradeContractManager.prototype.ActiveJourney = function(contract)
+{
+	if (!contract || !contract.trader || typeof IID_Trader === "undefined")
+		return null;
+	const cmpTrader = Engine.QueryInterface(contract.trader, IID_Trader);
+	if (!cmpTrader || !cmpTrader.GetJourney)
+		return null;
+	const journey = cmpTrader.GetJourney();
+	if (!journey || !journey.links || !journey.links.length)
+		return null;
+	return journey;
+};
+
+/**
+ * @return {Object}
+ */
+TradeContractManager.prototype.AssessJourney = function(contract, journey)
+{
+	const failed = {
+		"operational": false,
+		"condition": 0,
+		"missingTransit": [],
+		"legallyUsable": false
+	};
+	if (typeof IID_TransportEfficiency === "undefined")
+		return failed;
+	const cmpTransport = Engine.QueryInterface(SYSTEM_ENTITY, IID_TransportEfficiency);
+	if (!cmpTransport || !cmpTransport.AssessLinks)
+		return failed;
+	return cmpTransport.AssessLinks(journey.links, contract.seller, contract.buyer);
+};
+
+/**
+ * Drop the settlement snapshot. The return trip still has its waypoint list.
+ */
+TradeContractManager.prototype.ReleaseJourney = function(contract)
+{
+	if (!contract || !contract.trader || typeof IID_Trader === "undefined")
+		return;
+	const cmpTrader = Engine.QueryInterface(contract.trader, IID_Trader);
+	if (cmpTrader && cmpTrader.ClearJourney)
+		cmpTrader.ClearJourney();
+};
+
+/**
+ * Copy the seller-to-buyer waypoint list onto the live trade order.
+ * UnitAI reads it after PerformTrade and reverses it when walking back to the seller.
+ */
+TradeContractManager.prototype.ApplyCorridor = function(trader)
+{
+	if (typeof IID_UnitAI === "undefined" || typeof IID_Trader === "undefined")
+		return;
+	const cmpTrader = Engine.QueryInterface(trader, IID_Trader);
+	const cmpUnitAI = Engine.QueryInterface(trader, IID_UnitAI);
+	if (!cmpTrader || !cmpTrader.GetCorridor || !cmpUnitAI || !cmpUnitAI.order || !cmpUnitAI.order.data)
+		return;
+	const corridor = cmpTrader.GetCorridor() || [];
+	const route = [];
+	for (let i = 0; i < corridor.length; ++i)
+		route.push({
+			"x": corridor[i].x,
+			"z": corridor[i].z,
+			"min": corridor[i].min,
+			"max": corridor[i].max
+		});
+	cmpUnitAI.order.data.route = route;
+};
+
+/**
+ * Record a logistics block and leave the contract active.
+ */
+TradeContractManager.prototype.NoteBlock = function(contract, reason, missing)
+{
+	contract.blockReason = reason;
+	contract.missingTransit = missing ? missing.slice() : [];
+	if (contract.status !== "fulfilled")
+		contract.status = contract.status === "blocked" ? "blocked" : "active";
+};
+
+/**
+ * Stop this delivery leg. A closed corridor does not keep the previous waypoint list.
+ * @return {string}
+ */
+TradeContractManager.prototype.HoldDeparture = function(contract, reason, missing)
+{
+	this.NoteBlock(contract, reason, missing);
+	if (reason !== "no_endpoint" && reason !== "no_trader")
+		this.ScheduleResume(contract.id);
+	if (typeof IID_UnitAI !== "undefined")
+	{
+		const cmpUnitAI = Engine.QueryInterface(contract.trader, IID_UnitAI);
+		if (cmpUnitAI && cmpUnitAI.order && cmpUnitAI.order.data)
+			cmpUnitAI.order.data.route = null;
+	}
+	return "hold";
+};
+
+/**
+ * One later attempt to leave the seller. Movement is issued only when a corridor exists.
+ */
+TradeContractManager.prototype.ScheduleResume = function(contractId)
+{
+	if (!Number.isInteger(contractId) || contractId <= 0 || this.timers[contractId])
+		return;
+	if (typeof IID_Timer === "undefined")
+		return;
+	const cmpTimer = Engine.QueryInterface(SYSTEM_ENTITY, IID_Timer);
+	if (!cmpTimer)
+		return;
+	this.timers[contractId] = cmpTimer.SetTimeout(
+		SYSTEM_ENTITY,
+		IID_TradeContractManager,
+		"ResumeDeparture",
+		this.ResumeDelay,
+		contractId
+	);
+};
+
+/**
+ * Called from the timer, or directly in tests. Does not walk when the corridor is still closed.
+ */
+TradeContractManager.prototype.ResumeDeparture = function(contractId)
+{
+	delete this.timers[contractId];
+	const contract = this.Find(contractId);
+	if (!contract || contract.status === "fulfilled")
+		return;
+	if (!contract.trader || !this.EntityAlive(contract.trader) ||
+		!contract.sellerMarket || !contract.buyerMarket ||
+		!this.EntityAlive(contract.sellerMarket) || !this.EntityAlive(contract.buyerMarket))
+	{
+		this.NoteBlock(contract, contract.trader && this.EntityAlive(contract.trader) ? "no_endpoint" : "no_trader");
+		return;
+	}
+
+	const usable = this.UsableCorridor(contract);
+	if (!usable.connected)
+	{
+		const described = this.DescribedCorridor(contract);
+		if (described.connected && described.missingTransit.length)
+			this.NoteBlock(contract, "missing_transit", described.missingTransit);
+		else
+			this.NoteBlock(contract, "no_route");
+		this.ScheduleResume(contractId);
+		return;
+	}
+
+	if (typeof IID_UnitAI === "undefined")
+		return;
+	const cmpUnitAI = Engine.QueryInterface(contract.trader, IID_UnitAI);
+	if (!cmpUnitAI || !cmpUnitAI.SetupTradeRoute)
+		return;
+	if (cmpUnitAI.order && cmpUnitAI.order.type === "Trade")
+		return;
+	cmpUnitAI.SetupTradeRoute(contract.buyerMarket, contract.sellerMarket, null, false);
+};
+
+/**
+ * Choose the corridor at the start of a seller-to-buyer leg.
+ * A return leg retraces that corridor. An unbound trader is left to ordinary trade orders.
+ * @return {string} "free", "hold", "outbound", or "return"
+ */
+TradeContractManager.prototype.PrepareDeparture = function(trader, currentMarket, nextMarket)
+{
+	const contract = this.FindByTrader(trader);
+	if (!contract)
+		return "free";
+	if (currentMarket === contract.buyerMarket && nextMarket === contract.sellerMarket)
+	{
+		this.ApplyCorridor(trader);
+		return "return";
+	}
+	if (currentMarket !== contract.sellerMarket || nextMarket !== contract.buyerMarket)
+		return "free";
+
+	if (!this.EntityAlive(contract.sellerMarket) || !this.EntityAlive(contract.buyerMarket) ||
+		!Engine.QueryInterface(contract.sellerMarket, IID_Market) ||
+		!Engine.QueryInterface(contract.buyerMarket, IID_Market))
+		return this.HoldDeparture(contract, "no_endpoint");
+	if (!this.AccessAllows(contract))
+		return this.HoldDeparture(contract, "no_access");
+	if (this.Enemies(contract.seller, contract.buyer))
+		return this.HoldDeparture(contract, "enemies");
+
+	const usable = this.UsableCorridor(contract);
+	if (!usable.connected)
+	{
+		const described = this.DescribedCorridor(contract);
+		if (described.connected && described.missingTransit.length)
+			return this.HoldDeparture(contract, "missing_transit", described.missingTransit);
+		return this.HoldDeparture(contract, "no_route");
+	}
+
+	let points = [];
+	if (typeof IID_TransportEfficiency !== "undefined")
+	{
+		const cmpTransport = Engine.QueryInterface(SYSTEM_ENTITY, IID_TransportEfficiency);
+		if (cmpTransport && cmpTransport.CorridorWaypoints)
+			points = cmpTransport.CorridorWaypoints(usable.nodes);
+	}
+	const cmpTrader = typeof IID_Trader !== "undefined" && Engine.QueryInterface(trader, IID_Trader);
+	if (cmpTrader && cmpTrader.SetJourney)
+	{
+		cmpTrader.SetJourney({
+			"links": usable.links,
+			"nodes": usable.nodes,
+			"condition": usable.condition,
+			"points": points
+		});
+	}
+	this.ApplyCorridor(trader);
+	contract.blockReason = "";
+	contract.missingTransit = [];
+	return "outbound";
 };
 
 Engine.RegisterSystemComponentType(IID_TradeContractManager, "TradeContractManager", TradeContractManager);

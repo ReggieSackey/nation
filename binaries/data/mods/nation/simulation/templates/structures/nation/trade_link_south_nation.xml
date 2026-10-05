@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Entity parent="structures/nation/capital_northern_road">
+  <TerritoryDecay disable=""/>
+  <Identity>
+    <GenericName>Road</GenericName>
+    <SpecificName>South Trade Road</SpecificName>
+  </Identity>
+  <InfrastructureLink>
+    <From>80</From>
+    <To>89</To>
+  </InfrastructureLink>
+</Entity>

@@ -117,11 +117,12 @@ TransportEfficiency.prototype.CommercialAdjacency = function()
 
 /**
  * Widest path. allowLink, when set, drops edges the caller may not use.
- * @return {{connected: boolean, condition: number, links: number[]}}
+ * Nodes are ordered from the origin to the destination.
+ * @return {{connected: boolean, condition: number, links: number[], nodes: number[]}}
  */
 TransportEfficiency.prototype.WidestPath = function(origin, destination, allowLink)
 {
-	const empty = { "connected": false, "condition": 0, "links": [] };
+	const empty = { "connected": false, "condition": 0, "links": [], "nodes": [] };
 	if (!Number.isInteger(origin) || !Number.isInteger(destination) ||
 		origin <= 0 || destination <= 0 || origin === destination)
 		return empty;
@@ -130,7 +131,7 @@ TransportEfficiency.prototype.WidestPath = function(origin, destination, allowLi
 
 	const adj = this.CommercialAdjacency();
 	const best = {};
-	best[origin] = { "condition": 100, "hops": 0, "links": [] };
+	best[origin] = { "condition": 100, "hops": 0, "links": [], "nodes": [origin] };
 	const queue = [origin];
 	const queued = {};
 	queued[origin] = true;
@@ -154,7 +155,8 @@ TransportEfficiency.prototype.WidestPath = function(origin, destination, allowLi
 			const candidate = {
 				"condition": Math.min(here.condition, edge.condition),
 				"hops": here.hops + 1,
-				"links": here.links.concat(edge.link)
+				"links": here.links.concat(edge.link),
+				"nodes": here.nodes.concat(edge.to)
 			};
 			if (!this.RouteBetter(candidate, best[edge.to]))
 				continue;
@@ -173,7 +175,116 @@ TransportEfficiency.prototype.WidestPath = function(origin, destination, allowLi
 	return {
 		"connected": true,
 		"condition": found.condition,
-		"links": found.links.slice()
+		"links": found.links.slice(),
+		"nodes": found.nodes.slice()
+	};
+};
+
+/**
+ * World position of a route node. Position.y is the map z coordinate.
+ * @return {{x: number, z: number}|null}
+ */
+TransportEfficiency.prototype.EntityPoint = function(ent)
+{
+	if (!Number.isInteger(ent) || ent <= 0 || typeof IID_Position === "undefined")
+		return null;
+	const cmpPosition = Engine.QueryInterface(ent, IID_Position);
+	if (!cmpPosition || !cmpPosition.GetPosition2D)
+		return null;
+	if (cmpPosition.IsInWorld && !cmpPosition.IsInWorld())
+		return null;
+	const pos = cmpPosition.GetPosition2D();
+	if (!pos || typeof pos.x !== "number" || typeof pos.y !== "number" ||
+		!isFinite(pos.x) || !isFinite(pos.y))
+		return null;
+	return { "x": pos.x, "z": pos.y };
+};
+
+/**
+ * Approach distance for a corridor junction. The unit does not have to stand on the exact point.
+ * Markets stay on the trader's own range. This is not a road-following tolerance.
+ */
+TransportEfficiency.prototype.WaypointRange = 8;
+
+/**
+ * Positions of every node that currently has one, in the given order.
+ * A missing position is skipped. The caller still owns the node ids.
+ * @return {Object[]}
+ */
+TransportEfficiency.prototype.NodePoints = function(nodes)
+{
+	const points = [];
+	if (!nodes)
+		return points;
+	for (let i = 0; i < nodes.length; ++i)
+	{
+		const point = this.EntityPoint(nodes[i]);
+		if (point)
+			points.push(point);
+	}
+	return points;
+};
+
+/**
+ * Intermediate junctions for an upstream trade order, oriented with the node list.
+ * The first and last nodes are the markets. UnitAI walks to the market on its own.
+ * @return {Object[]}
+ */
+TransportEfficiency.prototype.CorridorWaypoints = function(nodes)
+{
+	const points = [];
+	if (!nodes || nodes.length < 3)
+		return points;
+	for (let i = 1; i < nodes.length - 1; ++i)
+	{
+		const point = this.EntityPoint(nodes[i]);
+		if (!point)
+			continue;
+		points.push({
+			"x": point.x,
+			"z": point.z,
+			"min": 0,
+			"max": this.WaypointRange
+		});
+	}
+	return points;
+};
+
+/**
+ * Live condition and transit requirement of one already chosen link sequence.
+ * A missing or closed link means the sequence is not operational.
+ * @return {Object}
+ */
+TransportEfficiency.prototype.AssessLinks = function(links, seller, buyer)
+{
+	const failed = {
+		"operational": false,
+		"condition": 0,
+		"missingTransit": [],
+		"legallyUsable": false
+	};
+	if (!links || !links.length || typeof IID_InfrastructureLink === "undefined")
+		return failed;
+
+	let condition = 100;
+	for (let i = 0; i < links.length; ++i)
+	{
+		const link = Engine.QueryInterface(links[i], IID_InfrastructureLink);
+		if (!link || !link.IsUsable || !link.IsUsable() || !link.IsOperational || !link.IsOperational())
+			return failed;
+		const value = link.GetCondition();
+		if (!Number.isInteger(value) || value <= 0)
+			return failed;
+		if (value < condition)
+			condition = value;
+	}
+
+	const missingTransit = this.MissingTransit(this.TransitStates(links, seller, buyer), seller, null);
+	return {
+		"operational": true,
+		"condition": condition,
+		"missingTransit": missingTransit,
+		"legallyUsable": missingTransit.length === 0
 	};
 };
 
@@ -274,7 +385,7 @@ TransportEfficiency.prototype.MissingTransit = function(states, user, assumed)
  * Recomputed from live link condition. Nothing is cached or serialized.
  * Condition 0 and a destroyed link are absent, so a severed corridor is disconnected.
  * The result condition is the worst remaining link. Ownership and sovereignty are ignored.
- * @return {{connected: boolean, condition: number, links: number[]}}
+ * @return {{connected: boolean, condition: number, links: number[], nodes: number[]}}
  */
 TransportEfficiency.prototype.GetCommercialRoute = function(origin, destination)
 {
@@ -295,6 +406,7 @@ TransportEfficiency.prototype.DescribeCommercialRoute = function(origin, destina
 		"connected": physical.connected,
 		"condition": physical.condition,
 		"links": physical.links,
+		"nodes": physical.nodes,
 		"transitStates": transitStates,
 		"missingTransit": missingTransit,
 		"legallyUsable": physical.connected && missingTransit.length === 0
@@ -316,6 +428,7 @@ TransportEfficiency.prototype.GetUsableCommercialRoute = function(seller, origin
 		"connected": path.connected,
 		"condition": path.condition,
 		"links": path.links,
+		"nodes": path.nodes,
 		"transitStates": transitStates,
 		"missingTransit": [],
 		"legallyUsable": path.connected
