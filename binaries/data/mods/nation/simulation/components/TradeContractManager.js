@@ -450,6 +450,9 @@ TradeContractManager.prototype.ActiveJourney = function(contract)
 	const journey = cmpTrader.GetJourney();
 	if (!journey || !journey.links || !journey.links.length)
 		return null;
+	// A return leg carries no cocoa. The next outbound selection replaces it.
+	if (journey.direction === "return")
+		return null;
 	return journey;
 };
 
@@ -473,7 +476,7 @@ TradeContractManager.prototype.AssessJourney = function(contract, journey)
 };
 
 /**
- * Drop the settlement snapshot. The return trip still has its waypoint list.
+ * Drop the settlement snapshot. The waypoint list remains until the next leg replaces it.
  */
 TradeContractManager.prototype.ReleaseJourney = function(contract)
 {
@@ -485,8 +488,9 @@ TradeContractManager.prototype.ReleaseJourney = function(contract)
 };
 
 /**
- * Copy the seller-to-buyer waypoint list onto the live trade order.
- * UnitAI reads it after PerformTrade and reverses it when walking back to the seller.
+ * Copy this leg's waypoints onto the live trade order.
+ * UnitAI pops from the end, and it reverses the list only when the next market is the second one.
+ * An outbound leg is stored in walk order. A return leg is stored reversed so that pop walks buyer toward seller.
  */
 TradeContractManager.prototype.ApplyCorridor = function(trader)
 {
@@ -497,6 +501,7 @@ TradeContractManager.prototype.ApplyCorridor = function(trader)
 	if (!cmpTrader || !cmpTrader.GetCorridor || !cmpUnitAI || !cmpUnitAI.order || !cmpUnitAI.order.data)
 		return;
 	const corridor = cmpTrader.GetCorridor() || [];
+	const journey = cmpTrader.GetJourney && cmpTrader.GetJourney();
 	const route = [];
 	for (let i = 0; i < corridor.length; ++i)
 		route.push({
@@ -505,6 +510,8 @@ TradeContractManager.prototype.ApplyCorridor = function(trader)
 			"min": corridor[i].min,
 			"max": corridor[i].max
 		});
+	if (journey && journey.direction === "return")
+		route.reverse();
 	cmpUnitAI.order.data.route = route;
 };
 
@@ -575,7 +582,13 @@ TradeContractManager.prototype.ResumeDeparture = function(contractId)
 		return;
 	}
 
-	const usable = this.UsableCorridor(contract);
+	const cmpTrader = typeof IID_Trader !== "undefined" &&
+		Engine.QueryInterface(contract.trader, IID_Trader);
+	const atBuyer = !!(cmpTrader && cmpTrader.markets &&
+		cmpTrader.markets[cmpTrader.index] === contract.buyerMarket);
+	const usable = atBuyer ?
+		this.LegCorridor(contract, contract.buyerMarket, contract.sellerMarket) :
+		this.UsableCorridor(contract);
 	if (!usable.connected)
 	{
 		const described = this.DescribedCorridor(contract);
@@ -590,16 +603,51 @@ TradeContractManager.prototype.ResumeDeparture = function(contractId)
 	if (typeof IID_UnitAI === "undefined")
 		return;
 	const cmpUnitAI = Engine.QueryInterface(contract.trader, IID_UnitAI);
-	if (!cmpUnitAI || !cmpUnitAI.SetupTradeRoute)
+	if (!cmpUnitAI)
 		return;
 	if (cmpUnitAI.order && cmpUnitAI.order.type === "Trade")
 		return;
-	cmpUnitAI.SetupTradeRoute(contract.buyerMarket, contract.sellerMarket, null, false);
+	if (atBuyer)
+	{
+		if (cmpUnitAI.AddOrder)
+			cmpUnitAI.AddOrder("Trade", {
+				"target": contract.buyerMarket,
+				"route": null,
+				"force": false
+			}, false);
+		return;
+	}
+	if (cmpUnitAI.SetupTradeRoute)
+		cmpUnitAI.SetupTradeRoute(contract.buyerMarket, contract.sellerMarket, null, false);
 };
 
 /**
- * Choose the corridor at the start of a seller-to-buyer leg.
- * A return leg retraces that corridor. An unbound trader is left to ordinary trade orders.
+ * Usable corridor for one leg. Transit is always the contract seller's right, not the walk direction.
+ * @return {Object}
+ */
+TradeContractManager.prototype.LegCorridor = function(contract, origin, destination)
+{
+	const empty = {
+		"connected": false,
+		"condition": 0,
+		"links": [],
+		"nodes": [],
+		"transitStates": [],
+		"missingTransit": [],
+		"legallyUsable": false
+	};
+	if (typeof IID_TransportEfficiency === "undefined")
+		return empty;
+	const cmpTransport = Engine.QueryInterface(SYSTEM_ENTITY, IID_TransportEfficiency);
+	if (!cmpTransport || !cmpTransport.GetUsableCommercialRoute)
+		return empty;
+	return cmpTransport.GetUsableCommercialRoute(
+		contract.seller, origin, destination, contract.buyer);
+};
+
+/**
+ * Choose the corridor for the leg that is about to start.
+ * An unbound trader is left to ordinary trade orders.
  * @return {string} "free", "hold", "outbound", or "return"
  */
 TradeContractManager.prototype.PrepareDeparture = function(trader, currentMarket, nextMarket)
@@ -607,12 +655,13 @@ TradeContractManager.prototype.PrepareDeparture = function(trader, currentMarket
 	const contract = this.FindByTrader(trader);
 	if (!contract)
 		return "free";
-	if (currentMarket === contract.buyerMarket && nextMarket === contract.sellerMarket)
-	{
-		this.ApplyCorridor(trader);
-		return "return";
-	}
-	if (currentMarket !== contract.sellerMarket || nextMarket !== contract.buyerMarket)
+
+	let direction = "";
+	if (currentMarket === contract.sellerMarket && nextMarket === contract.buyerMarket)
+		direction = "outbound";
+	else if (currentMarket === contract.buyerMarket && nextMarket === contract.sellerMarket)
+		direction = "return";
+	else
 		return "free";
 
 	if (!this.EntityAlive(contract.sellerMarket) || !this.EntityAlive(contract.buyerMarket) ||
@@ -624,7 +673,7 @@ TradeContractManager.prototype.PrepareDeparture = function(trader, currentMarket
 	if (this.Enemies(contract.seller, contract.buyer))
 		return this.HoldDeparture(contract, "enemies");
 
-	const usable = this.UsableCorridor(contract);
+	const usable = this.LegCorridor(contract, currentMarket, nextMarket);
 	if (!usable.connected)
 	{
 		const described = this.DescribedCorridor(contract);
@@ -644,6 +693,7 @@ TradeContractManager.prototype.PrepareDeparture = function(trader, currentMarket
 	if (cmpTrader && cmpTrader.SetJourney)
 	{
 		cmpTrader.SetJourney({
+			"direction": direction,
 			"links": usable.links,
 			"nodes": usable.nodes,
 			"condition": usable.condition,
@@ -651,9 +701,12 @@ TradeContractManager.prototype.PrepareDeparture = function(trader, currentMarket
 		});
 	}
 	this.ApplyCorridor(trader);
-	contract.blockReason = "";
-	contract.missingTransit = [];
-	return "outbound";
+	if (direction === "outbound")
+	{
+		contract.blockReason = "";
+		contract.missingTransit = [];
+	}
+	return direction;
 };
 
 Engine.RegisterSystemComponentType(IID_TradeContractManager, "TradeContractManager", TradeContractManager);

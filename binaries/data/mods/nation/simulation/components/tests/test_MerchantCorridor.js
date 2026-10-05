@@ -131,6 +131,7 @@ function gain()
 }
 
 let g_Setups = 0;
+let g_Adds = 0;
 const g_Order = {
 	"type": "Trade",
 	"data": { "target": 80, "route": [{ "x": 999, "z": 999 }] }
@@ -144,6 +145,12 @@ AddMock(82, IID_UnitAI, {
 		cmpTrader.SetTargetMarket(target, source);
 		g_Order.type = "Trade";
 		g_Order.data = { "target": cmpTrader.GetFirstMarket(), "route": null };
+	},
+	"AddOrder": (type, data) =>
+	{
+		++g_Adds;
+		g_Order.type = type;
+		g_Order.data = data;
 	}
 });
 AddMock(82, IID_Ownership, { "GetOwner": () => 1 });
@@ -289,41 +296,93 @@ TS_ASSERT_EQUALS(cmpContracts.TryDeliver(contractId).delivered, 100);
 cmpContracts = SerializationCycle(cmpContracts);
 TS_ASSERT_EQUALS(cmpContracts.Find(contractId).quantityDelivered, 160);
 
-const returnCorridor = cmpTrader.GetCorridor();
-cmpTrader.index = 1;
-cmpTrader.goods.amount = null;
-g_Minted = 0;
-TS_ASSERT_EQUALS(cmpTrader.PerformTrade(81), 80);
+function leaveBuyer()
+{
+	cmpTrader.index = 1;
+	cmpTrader.goods.amount = null;
+	g_Minted = 0;
+	const result = cmpTrader.PerformTrade(81);
+	if (result === INVALID_ENTITY)
+		g_Order.type = null;
+	return result;
+}
+
+TS_ASSERT_EQUALS(leaveBuyer(), 80);
 TS_ASSERT_EQUALS(g_Minted, 0);
-TS_ASSERT_EQUALS(g_Order.data.route[0].x, returnCorridor[0].x);
-TS_ASSERT_EQUALS(g_Order.data.route[1].z, 100);
+TS_ASSERT_EQUALS(cmpTrader.GetJourney().direction, "return");
+TS_ASSERT_EQUALS(cmpTrader.GetJourney().nodes.join(","), "81,111,110,80");
+const sameWayHome = visited(g_Order.data.route, false);
+TS_ASSERT_EQUALS(sameWayHome[0].x, 80);
+TS_ASSERT_EQUALS(sameWayHome[1].x, 40);
 
-cmpTransit.RevokeTransit(1, 4);
 TS_ASSERT_EQUALS(leaveSeller(), 81);
-TS_ASSERT_EQUALS(cmpTrader.GetJourney().nodes.join(","), "80,120,121,81");
-TS_ASSERT_EQUALS(g_Order.data.route[0].z, 0);
-TS_ASSERT_EQUALS(cmpContracts.TryDeliver(contractId).delivered, 60);
-
-cmpTransit.GrantTransit(1, 4);
-TS_ASSERT_EQUALS(leaveSeller(), 81);
+TS_ASSERT_EQUALS(cmpTrader.GetJourney().direction, "outbound");
+TS_ASSERT_EQUALS(cmpTrader.GetJourney().nodes.join(","), "80,110,111,81");
+cmpTrader = SerializationCycle(cmpTrader);
 cmpTransit.RevokeTransit(1, 4);
+const savedDelivered = cmpContracts.Find(contractId).quantityDelivered;
 const revokedMidway = cmpContracts.TryDeliver(contractId);
 TS_ASSERT_EQUALS(revokedMidway.delivered, 0);
 TS_ASSERT_EQUALS(revokedMidway.reason, "missing_transit");
+TS_ASSERT_EQUALS(cmpContracts.Find(contractId).quantityDelivered, savedDelivered);
 TS_ASSERT_EQUALS(cmpContracts.Find(contractId).status, "active");
+TS_ASSERT_EQUALS(cmpContracts.Find(contractId).trader, 82);
+TS_ASSERT_EQUALS(cmpTrader.GetFirstMarket(), 80);
+TS_ASSERT_EQUALS(cmpTrader.GetSecondMarket(), 81);
+TS_ASSERT_EQUALS(leaveBuyer(), 80);
+TS_ASSERT_EQUALS(cmpTrader.GetJourney().nodes.join(","), "81,121,120,80");
+const bypassHome = visited(g_Order.data.route, false);
+TS_ASSERT_EQUALS(bypassHome[0].x + "," + bypassHome[0].z, "85,0");
+TS_ASSERT_EQUALS(bypassHome[1].x + "," + bypassHome[1].z, "15,0");
+TS_ASSERT_EQUALS(cmpTrader.GetJourney().nodes.indexOf(110), -1);
+TS_ASSERT_EQUALS(cmpTrader.GetJourney().nodes.indexOf(111), -1);
+
+cmpTransit.RevokeTransit(1, 4);
 TS_ASSERT_EQUALS(leaveSeller(), 81);
 TS_ASSERT_EQUALS(cmpTrader.GetJourney().nodes.join(","), "80,120,121,81");
-TS_ASSERT_EQUALS(cmpContracts.TryDeliver(contractId).delivered, 60);
-
 cmpTransit.GrantTransit(1, 4);
+TS_ASSERT_EQUALS(cmpTransport.GetUsableCommercialRoute(1, 80, 81, 2).nodes.join(","), "80,110,111,81");
+TS_ASSERT_EQUALS(cmpContracts.TryDeliver(contractId).delivered, 60);
+TS_ASSERT_EQUALS(leaveBuyer(), 80);
+TS_ASSERT_EQUALS(cmpTrader.GetJourney().nodes.join(","), "81,111,110,80");
+const grantedHome = visited(g_Order.data.route, false);
+TS_ASSERT_EQUALS(grantedHome[0].x, 80);
+TS_ASSERT_EQUALS(grantedHome[1].x, 40);
+
 TS_ASSERT_EQUALS(leaveSeller(), 81);
 northB.SetCondition(0);
 const severed = cmpContracts.TryDeliver(contractId);
-TS_ASSERT_EQUALS(severed.delivered, 0);
 TS_ASSERT_EQUALS(severed.reason, "no_route");
+TS_ASSERT_EQUALS(severed.delivered, 0);
+TS_ASSERT_EQUALS(leaveBuyer(), 80);
+TS_ASSERT_EQUALS(cmpTrader.GetJourney().nodes.join(","), "81,121,120,80");
+
+northB.SetCondition(0);
 TS_ASSERT_EQUALS(leaveSeller(), 81);
 TS_ASSERT_EQUALS(cmpTrader.GetJourney().nodes.join(","), "80,120,121,81");
 northB.SetCondition(100);
+TS_ASSERT_EQUALS(cmpContracts.TryDeliver(contractId).delivered, 60);
+TS_ASSERT_EQUALS(leaveBuyer(), 80);
+TS_ASSERT_EQUALS(cmpTrader.GetJourney().nodes.join(","), "81,111,110,80");
+
+g_LinkIds = [];
+const addsWhileClosed = g_Adds;
+const setupsWhileReturnClosed = g_Setups;
+TS_ASSERT_EQUALS(leaveBuyer(), INVALID_ENTITY);
+TS_ASSERT_EQUALS(g_Order.data.route, null);
+TS_ASSERT_EQUALS(cmpContracts.Find(contractId).blockReason, "no_route");
+TS_ASSERT_EQUALS(cmpContracts.Find(contractId).status, "active");
+TS_ASSERT_EQUALS(cmpContracts.Find(contractId).trader, 82);
+cmpContracts.ResumeDeparture(contractId);
+TS_ASSERT_EQUALS(g_Adds, addsWhileClosed);
+TS_ASSERT_EQUALS(g_Setups, setupsWhileReturnClosed);
+g_LinkIds = [201, 202, 203];
+cmpContracts.ResumeDeparture(contractId);
+TS_ASSERT_EQUALS(g_Adds, addsWhileClosed + 1);
+TS_ASSERT_EQUALS(g_Order.data.target, 81);
+TS_ASSERT_EQUALS(leaveBuyer(), 80);
+TS_ASSERT_EQUALS(cmpTrader.GetJourney().nodes.join(","), "81,121,120,80");
+g_LinkIds = [101, 102, 103, 201, 202, 203];
 
 cmpTransit.RevokeTransit(1, 4);
 g_LinkIds = [101, 102, 103];

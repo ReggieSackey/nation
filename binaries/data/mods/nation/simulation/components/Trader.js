@@ -28,8 +28,8 @@ Trader.prototype.Init = function()
 		"type": null,
 		"amount": null
 	};
-	// Links chosen when the delivery leg left the seller. Settlement rechecks them.
-	// The waypoint list is the same corridor, seller toward buyer, without the two markets.
+	// The corridor for the leg that is underway. Settlement reads an outbound snapshot only.
+	// Points are in the direction of that leg, without the two markets.
 	this.journey = null;
 	this.corridor = null;
 };
@@ -57,6 +57,7 @@ Trader.prototype.SetJourney = function(journey)
 		});
 	}
 	this.journey = {
+		"direction": journey.direction === "return" ? "return" : "outbound",
 		"links": journey.links.slice(),
 		"nodes": (journey.nodes || []).slice(),
 		"condition": journey.condition
@@ -73,7 +74,7 @@ Trader.prototype.GetJourney = function()
 };
 
 /**
- * Seller-to-buyer intermediate waypoints captured at departure.
+ * Intermediate waypoints for the current leg, in the direction the merchant walks.
  * @return {Object[]|null}
  */
 Trader.prototype.GetCorridor = function()
@@ -92,7 +93,7 @@ Trader.prototype.GetCorridor = function()
 };
 
 /**
- * Settlement has consumed the snapshot. The return trip still follows this.corridor.
+ * Settlement has consumed an outbound snapshot. The waypoint list stays until the next leg.
  */
 Trader.prototype.ClearJourney = function()
 {
@@ -302,8 +303,7 @@ Trader.prototype.PerformTrade = function(currentMarket)
 	}
 
 	// UnitAI copies order.data.route into waypoints after this returns.
-	// A delivery leg refreshes that list from the usable corridor. A return leg
-	// writes the same list again so the walk back retraces it. No legal corridor
+	// Each market-to-market leg selects its own corridor here. No legal corridor
 	// means this leg does not start.
 	if (typeof IID_TradeContractManager !== "undefined")
 	{
