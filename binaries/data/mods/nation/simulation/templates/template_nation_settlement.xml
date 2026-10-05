@@ -3,9 +3,12 @@
   <Identity>
     <GenericName>Settlement</GenericName>
   </Identity>
+  <Capturable disable=""/>
+  <Health disable=""/>
   <Population disable=""/>
   <ProductionQueue disable=""/>
   <Researcher disable=""/>
+  <TerritoryDecay disable=""/>
   <TerritoryInfluence disable=""/>
   <Trainer disable=""/>
   <NationSettlement>

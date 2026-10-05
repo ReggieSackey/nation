@@ -30,13 +30,13 @@ const g = {
 	"debts": [],
 	"notes": [],
 	"settlements": [
-		{ "id": 30, "name": "Capital", "population": 18000, "integration": 90, "discontent": 0, "rebellion": false, "owner": 1, "isCapital": true, "x": 90, "z": 420 },
-		{ "id": 31, "name": "Northern Village", "population": 5000, "integration": 35, "discontent": 0, "rebellion": false, "owner": 1, "isCapital": false, "x": 70, "z": 470 },
-		{ "id": 32, "name": "Western Village", "population": 3500, "integration": 20, "discontent": 0, "rebellion": false, "owner": 1, "isCapital": false, "x": 80, "z": 280 },
-		{ "id": 33, "name": "Southern Village", "population": 7000, "integration": 55, "discontent": 0, "rebellion": false, "owner": 1, "isCapital": false, "x": 210, "z": 300 }
+		{ "id": 30, "name": "Esika", "population": 18000, "integration": 90, "discontent": 0, "rebellion": false, "owner": 1, "isCapital": true, "x": 90, "z": 420 },
+		{ "id": 31, "name": "Bontuku", "population": 5000, "integration": 35, "discontent": 0, "rebellion": false, "owner": 1, "isCapital": false, "x": 70, "z": 470 },
+		{ "id": 32, "name": "Sefira", "population": 3500, "integration": 20, "discontent": 0, "rebellion": false, "owner": 1, "isCapital": false, "x": 80, "z": 280 },
+		{ "id": 33, "name": "Anomara", "population": 7000, "integration": 55, "discontent": 0, "rebellion": false, "owner": 1, "isCapital": false, "x": 210, "z": 300 }
 	],
 	"links": [
-		{ "id": 40, "name": "Northern Road", "condition": 42, "owner": 1, "x": 80, "z": 445, "inWorld": true },
+		{ "id": 40, "name": "Bontuku Road", "condition": 42, "owner": 1, "x": 80, "z": 445, "inWorld": true },
 		{ "id": 41, "name": "Western Road", "condition": 100, "owner": 1, "x": 120, "z": 300, "inWorld": true },
 		{ "id": 42, "name": "Border Road", "condition": 20, "owner": 2, "x": 300, "z": 300, "inWorld": true },
 		{ "id": 43, "name": "", "condition": 10, "owner": 1, "x": 10, "z": 10, "inWorld": true }
@@ -198,7 +198,7 @@ TS_ASSERT_EQUALS(view.food, 1800);
 TS_ASSERT_EQUALS(view.required, 335);
 TS_ASSERT_EQUALS(view.unmet, 0);
 TS_ASSERT_EQUALS(view.treasury, 2000000);
-TS_ASSERT_EQUALS(view.settlements[2].name, "Western Village");
+TS_ASSERT_EQUALS(view.settlements[2].name, "Sefira");
 TS_ASSERT_EQUALS(view.settlements[2].integration, 20);
 TS_ASSERT_EQUALS(view.settlements[2].discontent, 0);
 TS_ASSERT_EQUALS(view.settlements[2].rebellion, false);
@@ -226,14 +226,14 @@ TS_ASSERT_EQUALS(g.notes.length, 0);
 row(32).discontent = 50;
 cmp.Observe();
 TS_ASSERT_EQUALS(g.notes.length, 1);
-TS_ASSERT_EQUALS(g.notes[0], "Western Village is restless.");
+TS_ASSERT_EQUALS(g.notes[0], "Sefira is restless.");
 row(32).discontent = 51;
 cmp.Observe();
 TS_ASSERT_EQUALS(g.notes.length, 1);
 row(32).discontent = 70;
 cmp.Observe();
 TS_ASSERT_EQUALS(g.notes.length, 2);
-TS_ASSERT_EQUALS(g.notes[1], "Western Village is volatile.");
+TS_ASSERT_EQUALS(g.notes[1], "Sefira is volatile.");
 
 cmp = SerializationCycle(cmp);
 const noted = g.notes.length;
@@ -242,7 +242,7 @@ cmp.Observe();
 TS_ASSERT_EQUALS(g.notes.length, noted);
 row(32).discontent = 80;
 cmp.Observe();
-TS_ASSERT_EQUALS(g.notes[g.notes.length - 1], "Western Village is at risk of rebellion.");
+TS_ASSERT_EQUALS(g.notes[g.notes.length - 1], "Sefira is at risk of rebellion.");
 
 function hold(cmpScenario)
 {
@@ -328,8 +328,8 @@ row(32).rebellion = true;
 row(31).rebellion = true;
 cmp.Observe();
 TS_ASSERT_EQUALS(cmp.outcome, "");
-	TS_ASSERT(g.notes.indexOf("Rebels have appeared near Western Village.") !== -1);
-	TS_ASSERT(g.notes.indexOf("Rebels have appeared near Northern Village.") !== -1);
+	TS_ASSERT(g.notes.indexOf("Rebels have appeared near Sefira.") !== -1);
+	TS_ASSERT(g.notes.indexOf("Rebels have appeared near Bontuku.") !== -1);
 g.time = 10000 + 180000;
 cmp.Observe();
 TS_ASSERT_EQUALS(cmp.outcome, "loss");
@@ -505,7 +505,7 @@ TS_ASSERT_EQUALS(cmpLedger.GetDebts()[0].principalOutstanding, 2000000);
 
 cmp = fresh();
 view = cmp.GetView();
-TS_ASSERT_EQUALS(view.settlements[0].name, "Capital");
+TS_ASSERT_EQUALS(view.settlements[0].name, "Esika");
 TS_ASSERT_EQUALS(view.settlements[0].isCapital, true);
 TS_ASSERT_EQUALS(view.settlements[0].mood, "Calm");
 TS_ASSERT_EQUALS(view.settlements[0].position.x, 90);
@@ -545,7 +545,7 @@ TS_ASSERT_EQUALS(view.settlements[2].discontent, 72);
 TS_ASSERT_EQUALS(view.settlements[2].mood, "Volatile");
 TS_ASSERT_EQUALS(view.criticalInfrastructure.length, 1);
 TS_ASSERT_EQUALS(view.criticalInfrastructure[0].id, 40);
-TS_ASSERT_EQUALS(view.criticalInfrastructure[0].name, "Northern Road");
+TS_ASSERT_EQUALS(view.criticalInfrastructure[0].name, "Bontuku Road");
 TS_ASSERT_EQUALS(view.criticalInfrastructure[0].condition, 42);
 TS_ASSERT_EQUALS(view.criticalInfrastructure[0].position.z, 445);
 g.links[0].condition = 100;
@@ -560,7 +560,7 @@ cmp = SerializationCycle(cmp);
 view = cmp.GetView();
 TS_ASSERT_EQUALS(view.settlements[2].discontent, 72);
 TS_ASSERT_EQUALS(view.settlements[2].mood, "Volatile");
-TS_ASSERT_EQUALS(view.criticalInfrastructure[0].name, "Northern Road");
+TS_ASSERT_EQUALS(view.criticalInfrastructure[0].name, "Bontuku Road");
 TS_ASSERT_EQUALS(view.criticalInfrastructure[0].condition, 42);
 TS_ASSERT_EQUALS(cmp.labels, undefined);
 
@@ -570,18 +570,18 @@ TS_ASSERT_EQUALS(nationCrisisMood(50), "Restive");
 TS_ASSERT_EQUALS(nationCrisisMood(70), "Volatile");
 TS_ASSERT_EQUALS(nationCrisisMood(80), "Rebellion risk");
 const caption = nationCrisisSettlementCaption(view.settlements[2]);
-TS_ASSERT_EQUALS(caption, "WESTERN VILLAGE\n72 · VOLATILE");
-TS_ASSERT_EQUALS(nationCrisisSettlementCaption(view.settlements[0]), "CAPITAL\n0 · CALM");
-TS_ASSERT_EQUALS(nationCrisisRoadCaption(view.criticalInfrastructure[0]), "NORTHERN ROAD\n42%");
+TS_ASSERT_EQUALS(caption, "SEFIRA\n72 · VOLATILE");
+TS_ASSERT_EQUALS(nationCrisisSettlementCaption(view.settlements[0]), "ESIKA\n0 · CALM");
+TS_ASSERT_EQUALS(nationCrisisRoadCaption(view.criticalInfrastructure[0]), "BONTUKU ROAD\n42%");
 const visible = nationCrisisForViewer(view.settlements, 1);
 TS_ASSERT_EQUALS(visible.length, 3);
 TS_ASSERT_EQUALS(visible[0].id, 30);
 const ordered = nationCrisisOrderedSettlements(view.settlements);
 TS_ASSERT_EQUALS(ordered[0].id, 32);
-TS_ASSERT_EQUALS(ordered[0].name, "Western Village");
+TS_ASSERT_EQUALS(ordered[0].name, "Sefira");
 const items = nationCrisisMapItems(view, 1);
 TS_ASSERT_EQUALS(items.length, 4);
-TS_ASSERT_EQUALS(items[3].caption, "NORTHERN ROAD\n42%");
+TS_ASSERT_EQUALS(items[3].caption, "BONTUKU ROAD\n42%");
 const none = nationCrisisNewRebellions(null, view.settlements);
 TS_ASSERT_EQUALS(none.started.length, 0);
 row(32).rebellion = true;

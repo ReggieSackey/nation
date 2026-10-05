@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Entity parent="structures/athen/temple">
+  <Identity>
+    <GenericName>Court</GenericName>
+    <SpecificName>Court</SpecificName>
+  </Identity>
+  <Researcher disable=""/>
+  <TerritoryInfluence disable=""/>
+  <Trainer disable=""/>
+</Entity>

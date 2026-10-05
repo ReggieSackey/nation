@@ -41,8 +41,8 @@ function settlement(entity, name, population, integration, x, z, owner, isCapita
 	});
 }
 
-const capital = settlement(1, "Capital", "18000", "90", 100, 420, 1, true);
-TS_ASSERT_EQUALS(capital.GetName(), "Capital");
+const capital = settlement(1, "Esika", "18000", "90", 100, 420, 1, true);
+TS_ASSERT_EQUALS(capital.GetName(), "Esika");
 TS_ASSERT_EQUALS(capital.GetPopulation(), 18000);
 TS_ASSERT_EQUALS(capital.GetStateIntegration(), 90);
 TS_ASSERT_EQUALS(capital.GetIsCapital(), true);
@@ -54,7 +54,7 @@ TS_ASSERT_EQUALS(capital.ChangeDiscontent(-1000), 0);
 TS_ASSERT_EQUALS(capital.SetDiscontent(42), 42);
 
 const restored = SerializationCycle(capital);
-TS_ASSERT_EQUALS(restored.GetName(), "Capital");
+TS_ASSERT_EQUALS(restored.GetName(), "Esika");
 TS_ASSERT_EQUALS(restored.GetPopulation(), 18000);
 TS_ASSERT_EQUALS(restored.GetStateIntegration(), 90);
 TS_ASSERT_EQUALS(restored.GetIsCapital(), true);
@@ -98,9 +98,9 @@ const flagged = ConstructComponent(16, "NationSettlement", {
 TS_ASSERT_EQUALS(flagged.GetName(), "");
 TS_ASSERT(g_Errors.length > 0);
 
-settlement(2, "Northern Village", "5000", "35", 80, 470, 1);
-settlement(3, "Western Village", "3500", "20", 40, 220, 1);
-settlement(4, "Southern Village", "7000", "55", 180, 60, 1);
+settlement(2, "Bontuku", "5000", "35", 80, 470, 1);
+settlement(3, "Sefira", "3500", "20", 40, 220, 1);
+settlement(4, "Anomara", "7000", "55", 180, 60, 1);
 // Engine owner is Player 1. The land is Player 2.
 settlement(5, "Eastern Village", "4000", "40", 400, 400, 1);
 
@@ -122,6 +122,10 @@ TS_ASSERT_EQUALS(Engine.QueryInterface(5, IID_NationSettlement).GetSovereignOwne
 nationIds.push(99);
 TS_ASSERT_EQUALS(cmpManager.GetSettlementsForSovereign(1).length, 4);
 
+TS_ASSERT_EQUALS(cmpManager.GetTotalPopulation(1), 33500);
+// A house placed in Esika is not a settlement, so it does not add demographic population.
+place(20, 100, 420, 1);
+TS_ASSERT_EQUALS(cmpManager.GetSettlementsForSovereign(1).indexOf(20), -1);
 TS_ASSERT_EQUALS(cmpManager.GetTotalPopulation(1), 33500);
 const weighted = (18000 * 90 + 5000 * 35 + 3500 * 20 + 7000 * 55) / 33500;
 TS_ASSERT_EQUALS(cmpManager.GetPopulationWeightedIntegration(1), weighted);

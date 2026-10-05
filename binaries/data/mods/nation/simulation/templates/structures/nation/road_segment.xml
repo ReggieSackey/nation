@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Entity parent="structures/nation/capital_northern_road">
+  <Health disable=""/>
+  <Identity>
+    <SpecificName>Road</SpecificName>
+  </Identity>
+  <InfrastructureLink disable=""/>
+</Entity>

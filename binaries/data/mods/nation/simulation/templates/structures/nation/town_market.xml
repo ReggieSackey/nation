@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Entity parent="structures/athen/market">
+  <Identity>
+    <GenericName>Market</GenericName>
+    <SpecificName>Market</SpecificName>
+  </Identity>
+  <TerritoryInfluence disable=""/>
+  <Trainer disable=""/>
+</Entity>

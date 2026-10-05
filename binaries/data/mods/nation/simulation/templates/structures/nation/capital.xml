@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Entity parent="template_nation_settlement">
   <Identity>
-    <SpecificName>Capital</SpecificName>
+    <SpecificName>Esika</SpecificName>
   </Identity>
   <NationSettlement>
-    <Name>Capital</Name>
+    <Name>Esika</Name>
     <Population>18000</Population>
     <StateIntegration>90</StateIntegration>
     <IsCapital>true</IsCapital>

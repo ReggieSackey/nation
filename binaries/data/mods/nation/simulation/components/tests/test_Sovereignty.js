@@ -55,3 +55,41 @@ cmpSovereignty.ReadRegions([{ "owner": 1, "points": [{ "x": 0, "z": 0 }, { "x": 
 TS_ASSERT_EQUALS(cmpSovereignty.GetRegions().length, 0);
 cmpSovereignty.ReadRegions([{ "owner": 9, "points": g_Regions[0].points }]);
 TS_ASSERT_EQUALS(cmpSovereignty.GetRegions().length, 0);
+
+const enlarged = [
+	{
+		"owner": 1,
+		"points": [
+			{ "x": 0, "z": 0 },
+			{ "x": 1020, "z": 0 },
+			{ "x": 980, "z": 400 },
+			{ "x": 1060, "z": 800 },
+			{ "x": 990, "z": 1200 },
+			{ "x": 1080, "z": 1536 },
+			{ "x": 0, "z": 1536 }
+		]
+	},
+	{
+		"owner": 2,
+		"points": [
+			{ "x": 1020, "z": 0 },
+			{ "x": 1536, "z": 0 },
+			{ "x": 1536, "z": 1536 },
+			{ "x": 1080, "z": 1536 },
+			{ "x": 990, "z": 1200 },
+			{ "x": 1060, "z": 800 },
+			{ "x": 980, "z": 400 }
+		]
+	}
+];
+TS_ASSERT_EQUALS(cmpSovereignty.ReadRegions(enlarged), true);
+TS_ASSERT_EQUALS(cmpSovereignty.GetSovereignOwner({ "x": 520, "z": 790 }), 1);
+TS_ASSERT_EQUALS(cmpSovereignty.GetSovereignOwner({ "x": 480, "z": 1360 }), 1);
+TS_ASSERT_EQUALS(cmpSovereignty.GetSovereignOwner({ "x": 180, "z": 360 }), 1);
+TS_ASSERT_EQUALS(cmpSovereignty.GetSovereignOwner({ "x": 800, "z": 220 }), 1);
+TS_ASSERT_EQUALS(cmpSovereignty.GetSovereignOwner({ "x": 1280, "z": 820 }), 2);
+TS_ASSERT_EQUALS(cmpSovereignty.GetSovereignOwner({ "x": 1400, "z": 200 }), 2);
+TS_ASSERT_EQUALS(cmpSovereignty.GetSovereignOwner({ "x": 1020, "z": 0 }), 1);
+const enlargedSaved = SerializationCycle(cmpSovereignty);
+TS_ASSERT_EQUALS(enlargedSaved.GetSovereignOwner({ "x": 800, "z": 220 }), 1);
+TS_ASSERT_EQUALS(enlargedSaved.GetSovereignOwner({ "x": 1280, "z": 820 }), 2);

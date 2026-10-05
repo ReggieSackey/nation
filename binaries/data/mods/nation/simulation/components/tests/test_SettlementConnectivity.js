@@ -261,3 +261,22 @@ TS_ASSERT(g_Errors.length > 0);
 TS_ASSERT_EQUALS(world.cmpConnectivity.IsConnectedToCapital(2), false);
 TS_ASSERT_EQUALS(world.cmpConnectivity.Neighbors(1).length, 0);
 TS_ASSERT_EQUALS(Engine.QueryInterface(10, IID_InfrastructureLink).IsUsable(), false);
+
+// Densira's roads are one link each. Condition 42 still connects. A house is not a settlement.
+world = start([]);
+settlement(30, "Esika", 18000, 90, 100, true);
+settlement(31, "Bontuku", 5000, 35, 120, false);
+settlement(32, "Sefira", 3500, 20, 140, false);
+settlement(33, "Anomara", 7000, 55, 160, false);
+place(34, 180, 100);
+link(40, 30, 31);
+link(41, 30, 32);
+link(42, 30, 33);
+Engine.QueryInterface(40, IID_InfrastructureLink).SetCondition(42);
+begin(world);
+TS_ASSERT_EQUALS(world.cmpConnectivity.IsConnectedToCapital(31), true);
+TS_ASSERT_EQUALS(world.cmpConnectivity.IsConnectedToCapital(32), true);
+TS_ASSERT_EQUALS(world.cmpConnectivity.IsConnectedToCapital(33), true);
+TS_ASSERT_EQUALS(world.cmpConnectivity.GetHopCondition(30, 31), 42);
+TS_ASSERT_EQUALS(g_SettlementIds.indexOf(34), -1);
+TS_ASSERT_EQUALS(world.cmpManager.GetTotalPopulation(1), 33500);

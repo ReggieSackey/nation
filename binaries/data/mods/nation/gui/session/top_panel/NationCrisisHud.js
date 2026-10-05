@@ -77,7 +77,7 @@ function nationCrisisOrderedSettlements(settlements)
 
 function nationCrisisSettlementCaption(settlement)
 {
-	const title = settlement.isCapital ? "CAPITAL" : String(settlement.name || "").toUpperCase();
+	const title = String(settlement.name || "").toUpperCase();
 	const mood = String(settlement.mood || nationCrisisMood(settlement.discontent) || "").toUpperCase();
 	return title + "\n" + settlement.discontent + " · " + mood;
 }

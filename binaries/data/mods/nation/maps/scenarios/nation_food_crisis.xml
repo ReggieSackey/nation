@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
 <Scenario version="7">
-	<Terrain patches="8" texture="african_savanna_grass_dirt_01" priority="0" height="16384"/>
+	<Terrain patches="24" texture="african_savanna_grass_dirt_01" priority="0" height="16384"/>
 	<Environment>
 		<SkySet>default</SkySet>
 		<SunColor r="0.74902" g="0.74902" b="0.74902"/>
@@ -33,14 +32,14 @@
 		</Postproc>
 	</Environment>
 	<Camera>
-		<Position x="150" y="240" z="220"/>
+		<Position x="510" y="450" z="438"/>
 		<Rotation angle="0"/>
 		<Declination angle="0.65"/>
 	</Camera>
 	<ScriptSettings><![CDATA[
 {
   "CircularMap": false,
-  "Description": "A newly independent state. The harvest was poor, the treasury is limited, and the west barely trusts the capital.",
+  "Description": "The Republic of Densira, 1961. The harvest was poor, the treasury is limited, and Sefira barely trusts Esika.",
   "Keywords": [],
   "LockTeams": false,
   "Name": "The Food Crisis",
@@ -50,7 +49,7 @@
     null,
     {
       "Civ": "athen",
-      "Name": "Nation",
+      "Name": "Densira",
       "Color": { "r": 46, "g": 92, "b": 64 },
       "Diplomacy": [-1, 1, 0, -1],
       "Resources": {
@@ -63,7 +62,7 @@
     },
     {
       "Civ": "spart",
-      "Name": "Neighbor",
+      "Name": "Adomé",
       "Diplomacy": [-1, 0, 1, 0],
       "Resources": {
         "food": 300,
@@ -122,18 +121,24 @@
       "owner": 1,
       "points": [
         { "x": 0, "z": 0 },
-        { "x": 256, "z": 0 },
-        { "x": 256, "z": 512 },
-        { "x": 0, "z": 512 }
+        { "x": 1020, "z": 0 },
+        { "x": 980, "z": 400 },
+        { "x": 1060, "z": 800 },
+        { "x": 990, "z": 1200 },
+        { "x": 1080, "z": 1536 },
+        { "x": 0, "z": 1536 }
       ]
     },
     {
       "owner": 2,
       "points": [
-        { "x": 256, "z": 0 },
-        { "x": 512, "z": 0 },
-        { "x": 512, "z": 512 },
-        { "x": 256, "z": 512 }
+        { "x": 1020, "z": 0 },
+        { "x": 1536, "z": 0 },
+        { "x": 1536, "z": 1536 },
+        { "x": 1080, "z": 1536 },
+        { "x": 990, "z": 1200 },
+        { "x": 1060, "z": 800 },
+        { "x": 980, "z": 400 }
       ]
     }
   ],
@@ -156,348 +161,1270 @@
 ]]></ScriptSettings>
 	<Entities>
 		<Entity uid="10">
-			<Template>structures/nation/civil_centre</Template>
+			<Template>structures/nation/esika_civic</Template>
 			<Player>1</Player>
-			<Position x="140" z="380"/>
-			<Orientation y="2.35621"/>
+			<Position x="470" z="810"/>
+			<Orientation y="2.3"/>
+		</Entity>
+		<Entity uid="30">
+			<Template>structures/nation/capital</Template>
+			<Player>1</Player>
+			<Position x="520" z="800"/>
+			<Orientation y="0.2"/>
+		</Entity>
+		<Entity uid="200">
+			<Template>structures/nation/court</Template>
+			<Player>1</Player>
+			<Position x="590" z="808"/>
+			<Orientation y="1.57"/>
+		</Entity>
+		<Entity uid="201">
+			<Template>structures/nation/town_storehouse</Template>
+			<Player>1</Player>
+			<Position x="520" z="862"/>
+			<Orientation y="0"/>
+		</Entity>
+		<Entity uid="202">
+			<Template>structures/nation/town_barracks</Template>
+			<Player>1</Player>
+			<Position x="408" z="748"/>
+			<Orientation y="0.4"/>
+		</Entity>
+		<Entity uid="203">
+			<Template>structures/nation/town_market</Template>
+			<Player>1</Player>
+			<Position x="648" z="748"/>
+			<Orientation y="-0.6"/>
+		</Entity>
+		<Entity uid="204">
+			<Template>structures/nation/town_house</Template>
+			<Player>1</Player>
+			<Position x="388" z="688"/>
+			<Orientation y="0.0"/>
+		</Entity>
+		<Entity uid="205">
+			<Template>structures/nation/town_house</Template>
+			<Player>1</Player>
+			<Position x="412" z="688"/>
+			<Orientation y="0.15"/>
+		</Entity>
+		<Entity uid="206">
+			<Template>structures/nation/town_house</Template>
+			<Player>1</Player>
+			<Position x="436" z="688"/>
+			<Orientation y="0.3"/>
+		</Entity>
+		<Entity uid="207">
+			<Template>structures/nation/town_house</Template>
+			<Player>1</Player>
+			<Position x="400" z="712"/>
+			<Orientation y="0.0"/>
+		</Entity>
+		<Entity uid="208">
+			<Template>structures/nation/town_house</Template>
+			<Player>1</Player>
+			<Position x="424" z="712"/>
+			<Orientation y="0.15"/>
+		</Entity>
+		<Entity uid="209">
+			<Template>structures/nation/town_house</Template>
+			<Player>1</Player>
+			<Position x="448" z="712"/>
+			<Orientation y="0.3"/>
+		</Entity>
+		<Entity uid="210">
+			<Template>structures/nation/informal_house</Template>
+			<Player>1</Player>
+			<Position x="560" z="676"/>
+			<Orientation y="0.4"/>
+		</Entity>
+		<Entity uid="211">
+			<Template>structures/nation/informal_house</Template>
+			<Player>1</Player>
+			<Position x="578" z="676"/>
+			<Orientation y="0.55"/>
+		</Entity>
+		<Entity uid="212">
+			<Template>structures/nation/informal_house</Template>
+			<Player>1</Player>
+			<Position x="596" z="676"/>
+			<Orientation y="0.7"/>
+		</Entity>
+		<Entity uid="213">
+			<Template>structures/nation/informal_house</Template>
+			<Player>1</Player>
+			<Position x="614" z="676"/>
+			<Orientation y="0.85"/>
+		</Entity>
+		<Entity uid="214">
+			<Template>structures/nation/informal_house</Template>
+			<Player>1</Player>
+			<Position x="632" z="676"/>
+			<Orientation y="0.4"/>
+		</Entity>
+		<Entity uid="215">
+			<Template>structures/nation/informal_house</Template>
+			<Player>1</Player>
+			<Position x="569" z="694"/>
+			<Orientation y="0.55"/>
+		</Entity>
+		<Entity uid="216">
+			<Template>structures/nation/informal_house</Template>
+			<Player>1</Player>
+			<Position x="587" z="694"/>
+			<Orientation y="0.7"/>
+		</Entity>
+		<Entity uid="217">
+			<Template>structures/nation/informal_house</Template>
+			<Player>1</Player>
+			<Position x="605" z="694"/>
+			<Orientation y="0.85"/>
+		</Entity>
+		<Entity uid="218">
+			<Template>structures/nation/informal_house</Template>
+			<Player>1</Player>
+			<Position x="623" z="694"/>
+			<Orientation y="0.4"/>
+		</Entity>
+		<Entity uid="219">
+			<Template>structures/nation/informal_house</Template>
+			<Player>1</Player>
+			<Position x="641" z="694"/>
+			<Orientation y="0.55"/>
+		</Entity>
+		<Entity uid="50">
+			<Template>structures/nation/crisis_field</Template>
+			<Player>1</Player>
+			<Position x="510" z="760"/>
+			<Orientation y="0.3"/>
+		</Entity>
+		<Entity uid="31">
+			<Template>structures/nation/northern_village</Template>
+			<Player>1</Player>
+			<Position x="480" z="1360"/>
+			<Orientation y="0.1"/>
+		</Entity>
+		<Entity uid="220">
+			<Template>structures/nation/district_office</Template>
+			<Player>1</Player>
+			<Position x="480" z="1390"/>
+			<Orientation y="3.14"/>
+		</Entity>
+		<Entity uid="221">
+			<Template>structures/nation/informal_house</Template>
+			<Player>1</Player>
+			<Position x="446" z="1320"/>
+			<Orientation y="0.0"/>
+		</Entity>
+		<Entity uid="222">
+			<Template>structures/nation/informal_house</Template>
+			<Player>1</Player>
+			<Position x="464" z="1320"/>
+			<Orientation y="0.2"/>
+		</Entity>
+		<Entity uid="223">
+			<Template>structures/nation/informal_house</Template>
+			<Player>1</Player>
+			<Position x="482" z="1320"/>
+			<Orientation y="0.4"/>
+		</Entity>
+		<Entity uid="224">
+			<Template>structures/nation/informal_house</Template>
+			<Player>1</Player>
+			<Position x="500" z="1320"/>
+			<Orientation y="0.0"/>
+		</Entity>
+		<Entity uid="225">
+			<Template>structures/nation/informal_house</Template>
+			<Player>1</Player>
+			<Position x="455" z="1338"/>
+			<Orientation y="0.2"/>
+		</Entity>
+		<Entity uid="226">
+			<Template>structures/nation/informal_house</Template>
+			<Player>1</Player>
+			<Position x="473" z="1338"/>
+			<Orientation y="0.4"/>
+		</Entity>
+		<Entity uid="227">
+			<Template>structures/nation/informal_house</Template>
+			<Player>1</Player>
+			<Position x="491" z="1338"/>
+			<Orientation y="0.0"/>
+		</Entity>
+		<Entity uid="228">
+			<Template>structures/nation/farmstead</Template>
+			<Player>1</Player>
+			<Position x="416" z="1364"/>
+			<Orientation y="1.2"/>
+		</Entity>
+		<Entity uid="229">
+			<Template>structures/nation/town_storehouse</Template>
+			<Player>1</Player>
+			<Position x="540" z="1374"/>
+			<Orientation y="-0.4"/>
+		</Entity>
+		<Entity uid="32">
+			<Template>structures/nation/western_village</Template>
+			<Player>1</Player>
+			<Position x="180" z="360"/>
+			<Orientation y="0.4"/>
+		</Entity>
+		<Entity uid="230">
+			<Template>structures/nation/district_office</Template>
+			<Player>1</Player>
+			<Position x="180" z="390"/>
+			<Orientation y="0"/>
+		</Entity>
+		<Entity uid="231">
+			<Template>structures/nation/informal_house</Template>
+			<Player>1</Player>
+			<Position x="146" z="308"/>
+			<Orientation y="1.1"/>
+		</Entity>
+		<Entity uid="232">
+			<Template>structures/nation/informal_house</Template>
+			<Player>1</Player>
+			<Position x="164" z="308"/>
+			<Orientation y="1.3"/>
+		</Entity>
+		<Entity uid="233">
+			<Template>structures/nation/informal_house</Template>
+			<Player>1</Player>
+			<Position x="182" z="308"/>
+			<Orientation y="1.5"/>
+		</Entity>
+		<Entity uid="234">
+			<Template>structures/nation/informal_house</Template>
+			<Player>1</Player>
+			<Position x="200" z="308"/>
+			<Orientation y="1.1"/>
+		</Entity>
+		<Entity uid="235">
+			<Template>structures/nation/informal_house</Template>
+			<Player>1</Player>
+			<Position x="155" z="326"/>
+			<Orientation y="1.3"/>
+		</Entity>
+		<Entity uid="236">
+			<Template>structures/nation/informal_house</Template>
+			<Player>1</Player>
+			<Position x="173" z="326"/>
+			<Orientation y="1.5"/>
+		</Entity>
+		<Entity uid="237">
+			<Template>structures/nation/informal_house</Template>
+			<Player>1</Player>
+			<Position x="191" z="326"/>
+			<Orientation y="1.1"/>
+		</Entity>
+		<Entity uid="238">
+			<Template>structures/nation/informal_house</Template>
+			<Player>1</Player>
+			<Position x="209" z="326"/>
+			<Orientation y="1.3"/>
+		</Entity>
+		<Entity uid="239">
+			<Template>structures/nation/farmstead</Template>
+			<Player>1</Player>
+			<Position x="124" z="356"/>
+			<Orientation y="0.8"/>
+		</Entity>
+		<Entity uid="240">
+			<Template>structures/nation/town_storehouse</Template>
+			<Player>1</Player>
+			<Position x="232" z="372"/>
+			<Orientation y="-1.2"/>
+		</Entity>
+		<Entity uid="33">
+			<Template>structures/nation/southern_village</Template>
+			<Player>1</Player>
+			<Position x="800" z="220"/>
+			<Orientation y="-0.2"/>
+		</Entity>
+		<Entity uid="241">
+			<Template>structures/nation/district_office</Template>
+			<Player>1</Player>
+			<Position x="800" z="252"/>
+			<Orientation y="0.1"/>
+		</Entity>
+		<Entity uid="242">
+			<Template>structures/nation/informal_house</Template>
+			<Player>1</Player>
+			<Position x="748" z="178"/>
+			<Orientation y="0.0"/>
+		</Entity>
+		<Entity uid="243">
+			<Template>structures/nation/informal_house</Template>
+			<Player>1</Player>
+			<Position x="766" z="178"/>
+			<Orientation y="0.3"/>
+		</Entity>
+		<Entity uid="244">
+			<Template>structures/nation/informal_house</Template>
+			<Player>1</Player>
+			<Position x="784" z="178"/>
+			<Orientation y="0.0"/>
+		</Entity>
+		<Entity uid="245">
+			<Template>structures/nation/informal_house</Template>
+			<Player>1</Player>
+			<Position x="802" z="178"/>
+			<Orientation y="0.3"/>
+		</Entity>
+		<Entity uid="246">
+			<Template>structures/nation/informal_house</Template>
+			<Player>1</Player>
+			<Position x="757" z="196"/>
+			<Orientation y="0.0"/>
+		</Entity>
+		<Entity uid="247">
+			<Template>structures/nation/informal_house</Template>
+			<Player>1</Player>
+			<Position x="775" z="196"/>
+			<Orientation y="0.3"/>
+		</Entity>
+		<Entity uid="248">
+			<Template>structures/nation/informal_house</Template>
+			<Player>1</Player>
+			<Position x="793" z="196"/>
+			<Orientation y="0.0"/>
+		</Entity>
+		<Entity uid="249">
+			<Template>structures/nation/informal_house</Template>
+			<Player>1</Player>
+			<Position x="811" z="196"/>
+			<Orientation y="0.3"/>
+		</Entity>
+		<Entity uid="250">
+			<Template>structures/nation/farmstead</Template>
+			<Player>1</Player>
+			<Position x="720" z="236"/>
+			<Orientation y="0.6"/>
+		</Entity>
+		<Entity uid="251">
+			<Template>structures/nation/grain_field</Template>
+			<Player>1</Player>
+			<Position x="688" z="160"/>
+			<Orientation y="0.2"/>
+		</Entity>
+		<Entity uid="252">
+			<Template>structures/nation/cocoa_grove</Template>
+			<Player>1</Player>
+			<Position x="868" z="176"/>
+			<Orientation y="-0.4"/>
+		</Entity>
+		<Entity uid="253">
+			<Template>structures/nation/cocoa_store</Template>
+			<Player>1</Player>
+			<Position x="862" z="248"/>
+			<Orientation y="1.4"/>
+		</Entity>
+		<Entity uid="254">
+			<Template>structures/nation/town_market</Template>
+			<Player>1</Player>
+			<Position x="748" z="292"/>
+			<Orientation y="2.4"/>
+		</Entity>
+		<Entity uid="20">
+			<Template>structures/nation/aveme_civic</Template>
+			<Player>2</Player>
+			<Position x="1280" z="830"/>
+			<Orientation y="-0.8"/>
+		</Entity>
+		<Entity uid="255">
+			<Template>structures/nation/neighbor_house</Template>
+			<Player>2</Player>
+			<Position x="1236" z="776"/>
+			<Orientation y="0.5"/>
+		</Entity>
+		<Entity uid="256">
+			<Template>structures/nation/neighbor_house</Template>
+			<Player>2</Player>
+			<Position x="1254" z="776"/>
+			<Orientation y="0.6"/>
+		</Entity>
+		<Entity uid="257">
+			<Template>structures/nation/neighbor_house</Template>
+			<Player>2</Player>
+			<Position x="1272" z="776"/>
+			<Orientation y="0.7"/>
+		</Entity>
+		<Entity uid="258">
+			<Template>structures/nation/neighbor_house</Template>
+			<Player>2</Player>
+			<Position x="1290" z="776"/>
+			<Orientation y="0.8"/>
+		</Entity>
+		<Entity uid="259">
+			<Template>structures/nation/neighbor_house</Template>
+			<Player>2</Player>
+			<Position x="1245" z="794"/>
+			<Orientation y="0.9"/>
+		</Entity>
+		<Entity uid="260">
+			<Template>structures/nation/neighbor_house</Template>
+			<Player>2</Player>
+			<Position x="1263" z="794"/>
+			<Orientation y="1.0"/>
+		</Entity>
+		<Entity uid="261">
+			<Template>structures/nation/neighbor_house</Template>
+			<Player>2</Player>
+			<Position x="1281" z="794"/>
+			<Orientation y="1.1"/>
+		</Entity>
+		<Entity uid="262">
+			<Template>structures/nation/neighbor_house</Template>
+			<Player>2</Player>
+			<Position x="1299" z="794"/>
+			<Orientation y="1.2"/>
+		</Entity>
+		<Entity uid="263">
+			<Template>structures/nation/neighbor_barracks</Template>
+			<Player>2</Player>
+			<Position x="1196" z="868"/>
+			<Orientation y="0.9"/>
+		</Entity>
+		<Entity uid="264">
+			<Template>structures/nation/neighbor_market</Template>
+			<Player>2</Player>
+			<Position x="1352" z="868"/>
+			<Orientation y="-1.1"/>
+		</Entity>
+		<Entity uid="265">
+			<Template>structures/nation/town_storehouse</Template>
+			<Player>2</Player>
+			<Position x="1280" z="904"/>
+			<Orientation y="0"/>
+		</Entity>
+		<Entity uid="266">
+			<Template>structures/nation/farmstead</Template>
+			<Player>2</Player>
+			<Position x="1192" z="776"/>
+			<Orientation y="2.2"/>
+		</Entity>
+		<Entity uid="40">
+			<Template>structures/nation/crisis_northern_road</Template>
+			<Player>1</Player>
+			<Position x="500" z="1120"/>
+			<Orientation y="-0.0867"/>
+		</Entity>
+		<Entity uid="41">
+			<Template>structures/nation/sefira_road</Template>
+			<Player>1</Player>
+			<Position x="300" z="540"/>
+			<Orientation y="-2.583"/>
+		</Entity>
+		<Entity uid="42">
+			<Template>structures/nation/anomara_road</Template>
+			<Player>1</Player>
+			<Position x="700" z="460"/>
+			<Orientation y="2.6292"/>
+		</Entity>
+		<Entity uid="267">
+			<Template>structures/nation/road_segment</Template>
+			<Player>1</Player>
+			<Position x="518.3" z="909.2"/>
+			<Orientation y="-0.0867"/>
+		</Entity>
+		<Entity uid="268">
+			<Template>structures/nation/road_segment</Template>
+			<Player>1</Player>
+			<Position x="515.0" z="947.5"/>
+			<Orientation y="-0.0867"/>
+		</Entity>
+		<Entity uid="269">
+			<Template>structures/nation/road_segment</Template>
+			<Player>1</Player>
+			<Position x="511.7" z="985.8"/>
+			<Orientation y="-0.0867"/>
+		</Entity>
+		<Entity uid="270">
+			<Template>structures/nation/road_segment</Template>
+			<Player>1</Player>
+			<Position x="508.3" z="1024.2"/>
+			<Orientation y="-0.0867"/>
+		</Entity>
+		<Entity uid="271">
+			<Template>structures/nation/road_segment</Template>
+			<Player>1</Player>
+			<Position x="505.0" z="1062.5"/>
+			<Orientation y="-0.0867"/>
+		</Entity>
+		<Entity uid="272">
+			<Template>structures/nation/road_segment</Template>
+			<Player>1</Player>
+			<Position x="492.5" z="1183.0"/>
+			<Orientation y="-0.1185"/>
+		</Entity>
+		<Entity uid="273">
+			<Template>structures/nation/road_segment</Template>
+			<Player>1</Player>
+			<Position x="487.5" z="1225.0"/>
+			<Orientation y="-0.1185"/>
+		</Entity>
+		<Entity uid="274">
+			<Template>structures/nation/road_segment</Template>
+			<Player>1</Player>
+			<Position x="482.5" z="1267.0"/>
+			<Orientation y="-0.1185"/>
+		</Entity>
+		<Entity uid="275">
+			<Template>structures/nation/road_segment</Template>
+			<Player>1</Player>
+			<Position x="370.0" z="652.0"/>
+			<Orientation y="-2.583"/>
+		</Entity>
+		<Entity uid="276">
+			<Template>structures/nation/road_segment</Template>
+			<Player>1</Player>
+			<Position x="350.0" z="620.0"/>
+			<Orientation y="-2.583"/>
+		</Entity>
+		<Entity uid="277">
+			<Template>structures/nation/road_segment</Template>
+			<Player>1</Player>
+			<Position x="330.0" z="588.0"/>
+			<Orientation y="-2.583"/>
+		</Entity>
+		<Entity uid="278">
+			<Template>structures/nation/road_segment</Template>
+			<Player>1</Player>
+			<Position x="266.2" z="487.5"/>
+			<Orientation y="-2.5703"/>
+		</Entity>
+		<Entity uid="279">
+			<Template>structures/nation/road_segment</Template>
+			<Player>1</Player>
+			<Position x="243.8" z="452.5"/>
+			<Orientation y="-2.5703"/>
+		</Entity>
+		<Entity uid="280">
+			<Template>structures/nation/road_segment</Template>
+			<Player>1</Player>
+			<Position x="221.2" z="417.5"/>
+			<Orientation y="-2.5703"/>
+		</Entity>
+		<Entity uid="281">
+			<Template>structures/nation/road_segment</Template>
+			<Player>1</Player>
+			<Position x="625.0" z="632.5"/>
+			<Orientation y="2.7315"/>
+		</Entity>
+		<Entity uid="282">
+			<Template>structures/nation/road_segment</Template>
+			<Player>1</Player>
+			<Position x="641.7" z="594.2"/>
+			<Orientation y="2.7315"/>
+		</Entity>
+		<Entity uid="283">
+			<Template>structures/nation/road_segment</Template>
+			<Player>1</Player>
+			<Position x="658.3" z="555.8"/>
+			<Orientation y="2.7315"/>
+		</Entity>
+		<Entity uid="284">
+			<Template>structures/nation/road_segment</Template>
+			<Player>1</Player>
+			<Position x="675.0" z="517.5"/>
+			<Orientation y="2.7315"/>
+		</Entity>
+		<Entity uid="285">
+			<Template>structures/nation/road_segment</Template>
+			<Player>1</Player>
+			<Position x="727.0" z="412.0"/>
+			<Orientation y="2.6292"/>
+		</Entity>
+		<Entity uid="286">
+			<Template>structures/nation/road_segment</Template>
+			<Player>1</Player>
+			<Position x="745.0" z="380.0"/>
+			<Orientation y="2.6292"/>
+		</Entity>
+		<Entity uid="287">
+			<Template>structures/nation/road_segment</Template>
+			<Player>1</Player>
+			<Position x="763.0" z="348.0"/>
+			<Orientation y="2.6292"/>
+		</Entity>
+		<Entity uid="288">
+			<Template>structures/nation/road_segment</Template>
+			<Player>1</Player>
+			<Position x="781.0" z="316.0"/>
+			<Orientation y="2.6292"/>
+		</Entity>
+		<Entity uid="289">
+			<Template>structures/nation/road_segment</Template>
+			<Player>1</Player>
+			<Position x="545.0" z="820.0"/>
+			<Orientation y="3.1416"/>
+		</Entity>
+		<Entity uid="290">
+			<Template>structures/nation/road_segment</Template>
+			<Player>1</Player>
+			<Position x="545.0" z="780.0"/>
+			<Orientation y="3.1416"/>
+		</Entity>
+		<Entity uid="291">
+			<Template>structures/nation/road_segment</Template>
+			<Player>1</Player>
+			<Position x="545.0" z="740.0"/>
+			<Orientation y="3.1416"/>
+		</Entity>
+		<Entity uid="292">
+			<Template>structures/nation/road_segment</Template>
+			<Player>1</Player>
+			<Position x="480.0" z="1288.0"/>
+			<Orientation y="1.5708"/>
+		</Entity>
+		<Entity uid="293">
+			<Template>structures/nation/road_segment</Template>
+			<Player>1</Player>
+			<Position x="220.0" z="350.0"/>
+			<Orientation y="0.7854"/>
+		</Entity>
+		<Entity uid="294">
+			<Template>structures/nation/road_segment</Template>
+			<Player>1</Player>
+			<Position x="780.0" z="250.0"/>
+			<Orientation y="1.5708"/>
+		</Entity>
+		<Entity uid="295">
+			<Template>gaia/tree/acacia</Template>
+			<Player>0</Player>
+			<Position x="300" z="800"/>
+			<Orientation y="0"/>
+		</Entity>
+		<Entity uid="296">
+			<Template>gaia/tree/acacia</Template>
+			<Player>0</Player>
+			<Position x="314" z="806"/>
+			<Orientation y="0"/>
+		</Entity>
+		<Entity uid="297">
+			<Template>gaia/tree/acacia</Template>
+			<Player>0</Player>
+			<Position x="288" z="810"/>
+			<Orientation y="0"/>
+		</Entity>
+		<Entity uid="298">
+			<Template>gaia/tree/acacia</Template>
+			<Player>0</Player>
+			<Position x="308" z="786"/>
+			<Orientation y="0"/>
+		</Entity>
+		<Entity uid="299">
+			<Template>gaia/tree/acacia</Template>
+			<Player>0</Player>
+			<Position x="284" z="792"/>
+			<Orientation y="0"/>
+		</Entity>
+		<Entity uid="300">
+			<Template>gaia/tree/acacia</Template>
+			<Player>0</Player>
+			<Position x="318" z="816"/>
+			<Orientation y="0"/>
+		</Entity>
+		<Entity uid="301">
+			<Template>gaia/tree/baobab</Template>
+			<Player>0</Player>
+			<Position x="700" z="900"/>
+			<Orientation y="0"/>
+		</Entity>
+		<Entity uid="302">
+			<Template>gaia/tree/baobab</Template>
+			<Player>0</Player>
+			<Position x="714" z="906"/>
+			<Orientation y="0"/>
+		</Entity>
+		<Entity uid="303">
+			<Template>gaia/tree/baobab</Template>
+			<Player>0</Player>
+			<Position x="688" z="910"/>
+			<Orientation y="0"/>
+		</Entity>
+		<Entity uid="304">
+			<Template>gaia/tree/baobab</Template>
+			<Player>0</Player>
+			<Position x="708" z="886"/>
+			<Orientation y="0"/>
+		</Entity>
+		<Entity uid="305">
+			<Template>gaia/tree/baobab</Template>
+			<Player>0</Player>
+			<Position x="684" z="892"/>
+			<Orientation y="0"/>
+		</Entity>
+		<Entity uid="306">
+			<Template>gaia/tree/baobab</Template>
+			<Player>0</Player>
+			<Position x="718" z="916"/>
+			<Orientation y="0"/>
+		</Entity>
+		<Entity uid="307">
+			<Template>gaia/tree/senegal_date_palm</Template>
+			<Player>0</Player>
+			<Position x="240" z="700"/>
+			<Orientation y="0"/>
+		</Entity>
+		<Entity uid="308">
+			<Template>gaia/tree/senegal_date_palm</Template>
+			<Player>0</Player>
+			<Position x="254" z="706"/>
+			<Orientation y="0"/>
+		</Entity>
+		<Entity uid="309">
+			<Template>gaia/tree/senegal_date_palm</Template>
+			<Player>0</Player>
+			<Position x="228" z="710"/>
+			<Orientation y="0"/>
+		</Entity>
+		<Entity uid="310">
+			<Template>gaia/tree/senegal_date_palm</Template>
+			<Player>0</Player>
+			<Position x="248" z="686"/>
+			<Orientation y="0"/>
+		</Entity>
+		<Entity uid="311">
+			<Template>gaia/tree/senegal_date_palm</Template>
+			<Player>0</Player>
+			<Position x="224" z="692"/>
+			<Orientation y="0"/>
+		</Entity>
+		<Entity uid="312">
+			<Template>gaia/tree/senegal_date_palm</Template>
+			<Player>0</Player>
+			<Position x="258" z="716"/>
+			<Orientation y="0"/>
+		</Entity>
+		<Entity uid="313">
+			<Template>gaia/tree/palm_doum</Template>
+			<Player>0</Player>
+			<Position x="900" z="500"/>
+			<Orientation y="0"/>
+		</Entity>
+		<Entity uid="314">
+			<Template>gaia/tree/palm_doum</Template>
+			<Player>0</Player>
+			<Position x="914" z="506"/>
+			<Orientation y="0"/>
+		</Entity>
+		<Entity uid="315">
+			<Template>gaia/tree/palm_doum</Template>
+			<Player>0</Player>
+			<Position x="888" z="510"/>
+			<Orientation y="0"/>
+		</Entity>
+		<Entity uid="316">
+			<Template>gaia/tree/palm_doum</Template>
+			<Player>0</Player>
+			<Position x="908" z="486"/>
+			<Orientation y="0"/>
+		</Entity>
+		<Entity uid="317">
+			<Template>gaia/tree/palm_doum</Template>
+			<Player>0</Player>
+			<Position x="884" z="492"/>
+			<Orientation y="0"/>
+		</Entity>
+		<Entity uid="318">
+			<Template>gaia/tree/palm_doum</Template>
+			<Player>0</Player>
+			<Position x="918" z="516"/>
+			<Orientation y="0"/>
+		</Entity>
+		<Entity uid="319">
+			<Template>gaia/tree/acacia</Template>
+			<Player>0</Player>
+			<Position x="1100" z="400"/>
+			<Orientation y="0"/>
+		</Entity>
+		<Entity uid="320">
+			<Template>gaia/tree/acacia</Template>
+			<Player>0</Player>
+			<Position x="1114" z="406"/>
+			<Orientation y="0"/>
+		</Entity>
+		<Entity uid="321">
+			<Template>gaia/tree/acacia</Template>
+			<Player>0</Player>
+			<Position x="1088" z="410"/>
+			<Orientation y="0"/>
+		</Entity>
+		<Entity uid="322">
+			<Template>gaia/tree/acacia</Template>
+			<Player>0</Player>
+			<Position x="1108" z="386"/>
+			<Orientation y="0"/>
+		</Entity>
+		<Entity uid="323">
+			<Template>gaia/tree/acacia</Template>
+			<Player>0</Player>
+			<Position x="1084" z="392"/>
+			<Orientation y="0"/>
+		</Entity>
+		<Entity uid="324">
+			<Template>gaia/tree/acacia</Template>
+			<Player>0</Player>
+			<Position x="1118" z="416"/>
+			<Orientation y="0"/>
+		</Entity>
+		<Entity uid="325">
+			<Template>gaia/tree/baobab</Template>
+			<Player>0</Player>
+			<Position x="600" z="200"/>
+			<Orientation y="0"/>
+		</Entity>
+		<Entity uid="326">
+			<Template>gaia/tree/baobab</Template>
+			<Player>0</Player>
+			<Position x="614" z="206"/>
+			<Orientation y="0"/>
+		</Entity>
+		<Entity uid="327">
+			<Template>gaia/tree/baobab</Template>
+			<Player>0</Player>
+			<Position x="588" z="210"/>
+			<Orientation y="0"/>
+		</Entity>
+		<Entity uid="328">
+			<Template>gaia/tree/baobab</Template>
+			<Player>0</Player>
+			<Position x="608" z="186"/>
+			<Orientation y="0"/>
+		</Entity>
+		<Entity uid="329">
+			<Template>gaia/tree/baobab</Template>
+			<Player>0</Player>
+			<Position x="584" z="192"/>
+			<Orientation y="0"/>
+		</Entity>
+		<Entity uid="330">
+			<Template>gaia/tree/baobab</Template>
+			<Player>0</Player>
+			<Position x="618" z="216"/>
+			<Orientation y="0"/>
+		</Entity>
+		<Entity uid="331">
+			<Template>gaia/tree/senegal_date_palm</Template>
+			<Player>0</Player>
+			<Position x="1400" z="500"/>
+			<Orientation y="0"/>
+		</Entity>
+		<Entity uid="332">
+			<Template>gaia/tree/senegal_date_palm</Template>
+			<Player>0</Player>
+			<Position x="1414" z="506"/>
+			<Orientation y="0"/>
+		</Entity>
+		<Entity uid="333">
+			<Template>gaia/tree/senegal_date_palm</Template>
+			<Player>0</Player>
+			<Position x="1388" z="510"/>
+			<Orientation y="0"/>
+		</Entity>
+		<Entity uid="334">
+			<Template>gaia/tree/senegal_date_palm</Template>
+			<Player>0</Player>
+			<Position x="1408" z="486"/>
+			<Orientation y="0"/>
+		</Entity>
+		<Entity uid="335">
+			<Template>gaia/tree/senegal_date_palm</Template>
+			<Player>0</Player>
+			<Position x="1384" z="492"/>
+			<Orientation y="0"/>
+		</Entity>
+		<Entity uid="336">
+			<Template>gaia/tree/senegal_date_palm</Template>
+			<Player>0</Player>
+			<Position x="1418" z="516"/>
+			<Orientation y="0"/>
+		</Entity>
+		<Entity uid="337">
+			<Template>gaia/tree/palm_doum</Template>
+			<Player>0</Player>
+			<Position x="200" z="1100"/>
+			<Orientation y="0"/>
+		</Entity>
+		<Entity uid="338">
+			<Template>gaia/tree/palm_doum</Template>
+			<Player>0</Player>
+			<Position x="214" z="1106"/>
+			<Orientation y="0"/>
+		</Entity>
+		<Entity uid="339">
+			<Template>gaia/tree/palm_doum</Template>
+			<Player>0</Player>
+			<Position x="188" z="1110"/>
+			<Orientation y="0"/>
+		</Entity>
+		<Entity uid="340">
+			<Template>gaia/tree/palm_doum</Template>
+			<Player>0</Player>
+			<Position x="208" z="1086"/>
+			<Orientation y="0"/>
+		</Entity>
+		<Entity uid="341">
+			<Template>gaia/tree/palm_doum</Template>
+			<Player>0</Player>
+			<Position x="184" z="1092"/>
+			<Orientation y="0"/>
+		</Entity>
+		<Entity uid="342">
+			<Template>gaia/tree/palm_doum</Template>
+			<Player>0</Player>
+			<Position x="218" z="1116"/>
+			<Orientation y="0"/>
+		</Entity>
+		<Entity uid="343">
+			<Template>gaia/rock/savanna_large</Template>
+			<Player>0</Player>
+			<Position x="920" z="720"/>
+			<Orientation y="0.4"/>
+		</Entity>
+		<Entity uid="344">
+			<Template>gaia/ore/savanna_large</Template>
+			<Player>0</Player>
+			<Position x="280" z="980"/>
+			<Orientation y="0.4"/>
+		</Entity>
+		<Entity uid="345">
+			<Template>gaia/rock/savanna_small</Template>
+			<Player>0</Player>
+			<Position x="1040" z="200"/>
+			<Orientation y="0.4"/>
+		</Entity>
+		<Entity uid="346">
+			<Template>gaia/rock/savanna_small</Template>
+			<Player>0</Player>
+			<Position x="150" z="800"/>
+			<Orientation y="0.4"/>
+		</Entity>
+		<Entity uid="347">
+			<Template>gaia/ore/savanna_small_01</Template>
+			<Player>0</Player>
+			<Position x="700" z="1200"/>
+			<Orientation y="0.4"/>
 		</Entity>
 		<Entity uid="11">
 			<Template>units/athen/infantry_spearman_b</Template>
 			<Player>1</Player>
-			<Position x="86" z="274"/>
-			<Orientation y="0.8"/>
+			<Position x="430" z="788"/>
+			<Orientation y="0.6"/>
 		</Entity>
 		<Entity uid="12">
 			<Template>units/athen/infantry_spearman_b</Template>
 			<Player>1</Player>
-			<Position x="92" z="286"/>
-			<Orientation y="0.8"/>
+			<Position x="437" z="788"/>
+			<Orientation y="0.6"/>
 		</Entity>
 		<Entity uid="13">
 			<Template>units/athen/infantry_spearman_b</Template>
 			<Player>1</Player>
-			<Position x="74" z="292"/>
-			<Orientation y="0.8"/>
+			<Position x="444" z="788"/>
+			<Orientation y="0.6"/>
 		</Entity>
 		<Entity uid="14">
 			<Template>units/athen/infantry_spearman_b</Template>
 			<Player>1</Player>
-			<Position x="98" z="270"/>
-			<Orientation y="0.8"/>
+			<Position x="451" z="788"/>
+			<Orientation y="0.6"/>
 		</Entity>
 		<Entity uid="15">
 			<Template>units/athen/infantry_spearman_b</Template>
 			<Player>1</Player>
-			<Position x="70" z="268"/>
-			<Orientation y="0.8"/>
+			<Position x="430" z="796"/>
+			<Orientation y="0.6"/>
 		</Entity>
 		<Entity uid="16">
 			<Template>units/athen/infantry_spearman_b</Template>
 			<Player>1</Player>
-			<Position x="104" z="294"/>
-			<Orientation y="0.8"/>
+			<Position x="437" z="796"/>
+			<Orientation y="0.6"/>
 		</Entity>
 		<Entity uid="17">
 			<Template>units/athen/infantry_spearman_b</Template>
 			<Player>1</Player>
-			<Position x="150" z="400"/>
-			<Orientation y="0.8"/>
+			<Position x="444" z="796"/>
+			<Orientation y="0.6"/>
 		</Entity>
 		<Entity uid="18">
 			<Template>units/athen/infantry_spearman_b</Template>
 			<Player>1</Player>
-			<Position x="128" z="392"/>
-			<Orientation y="0.8"/>
+			<Position x="451" z="796"/>
+			<Orientation y="0.6"/>
 		</Entity>
-
-
 		<Entity uid="100">
 			<Template>units/nation/crisis_farmer</Template>
 			<Player>1</Player>
-			<Position x="158" z="332"/>
+			<Position x="468" z="718"/>
 			<Orientation y="0"/>
 		</Entity>
 		<Entity uid="101">
 			<Template>units/nation/crisis_farmer</Template>
 			<Player>1</Player>
-			<Position x="162" z="332"/>
+			<Position x="468" z="724"/>
 			<Orientation y="0"/>
 		</Entity>
 		<Entity uid="102">
 			<Template>units/nation/crisis_farmer</Template>
 			<Player>1</Player>
-			<Position x="166" z="332"/>
+			<Position x="468" z="730"/>
 			<Orientation y="0"/>
 		</Entity>
 		<Entity uid="103">
 			<Template>units/nation/crisis_farmer</Template>
 			<Player>1</Player>
-			<Position x="170" z="332"/>
+			<Position x="468" z="736"/>
 			<Orientation y="0"/>
 		</Entity>
 		<Entity uid="104">
 			<Template>units/nation/crisis_farmer</Template>
 			<Player>1</Player>
-			<Position x="174" z="332"/>
+			<Position x="468" z="742"/>
 			<Orientation y="0"/>
 		</Entity>
 		<Entity uid="105">
 			<Template>units/nation/crisis_farmer</Template>
 			<Player>1</Player>
-			<Position x="178" z="332"/>
+			<Position x="476" z="718"/>
 			<Orientation y="0"/>
 		</Entity>
 		<Entity uid="106">
 			<Template>units/nation/crisis_farmer</Template>
 			<Player>1</Player>
-			<Position x="182" z="332"/>
+			<Position x="476" z="724"/>
 			<Orientation y="0"/>
 		</Entity>
 		<Entity uid="107">
 			<Template>units/nation/crisis_farmer</Template>
 			<Player>1</Player>
-			<Position x="186" z="332"/>
+			<Position x="476" z="730"/>
 			<Orientation y="0"/>
 		</Entity>
 		<Entity uid="108">
 			<Template>units/nation/crisis_farmer</Template>
 			<Player>1</Player>
-			<Position x="190" z="332"/>
+			<Position x="476" z="736"/>
 			<Orientation y="0"/>
 		</Entity>
 		<Entity uid="109">
 			<Template>units/nation/crisis_farmer</Template>
 			<Player>1</Player>
-			<Position x="194" z="332"/>
+			<Position x="476" z="742"/>
 			<Orientation y="0"/>
 		</Entity>
 		<Entity uid="110">
 			<Template>units/nation/crisis_farmer</Template>
 			<Player>1</Player>
-			<Position x="158" z="337"/>
+			<Position x="484" z="718"/>
 			<Orientation y="0"/>
 		</Entity>
 		<Entity uid="111">
 			<Template>units/nation/crisis_farmer</Template>
 			<Player>1</Player>
-			<Position x="162" z="337"/>
+			<Position x="484" z="724"/>
 			<Orientation y="0"/>
 		</Entity>
 		<Entity uid="112">
 			<Template>units/nation/crisis_farmer</Template>
 			<Player>1</Player>
-			<Position x="166" z="337"/>
+			<Position x="484" z="730"/>
 			<Orientation y="0"/>
 		</Entity>
 		<Entity uid="113">
 			<Template>units/nation/crisis_farmer</Template>
 			<Player>1</Player>
-			<Position x="170" z="337"/>
+			<Position x="484" z="736"/>
 			<Orientation y="0"/>
 		</Entity>
 		<Entity uid="114">
 			<Template>units/nation/crisis_farmer</Template>
 			<Player>1</Player>
-			<Position x="174" z="337"/>
+			<Position x="484" z="742"/>
 			<Orientation y="0"/>
 		</Entity>
 		<Entity uid="115">
 			<Template>units/nation/crisis_farmer</Template>
 			<Player>1</Player>
-			<Position x="178" z="337"/>
+			<Position x="492" z="718"/>
 			<Orientation y="0"/>
 		</Entity>
 		<Entity uid="116">
 			<Template>units/nation/crisis_farmer</Template>
 			<Player>1</Player>
-			<Position x="182" z="337"/>
+			<Position x="492" z="724"/>
 			<Orientation y="0"/>
 		</Entity>
 		<Entity uid="117">
 			<Template>units/nation/crisis_farmer</Template>
 			<Player>1</Player>
-			<Position x="186" z="337"/>
+			<Position x="492" z="730"/>
 			<Orientation y="0"/>
 		</Entity>
 		<Entity uid="118">
 			<Template>units/nation/crisis_farmer</Template>
 			<Player>1</Player>
-			<Position x="190" z="337"/>
+			<Position x="492" z="736"/>
 			<Orientation y="0"/>
 		</Entity>
 		<Entity uid="119">
 			<Template>units/nation/crisis_farmer</Template>
 			<Player>1</Player>
-			<Position x="194" z="337"/>
+			<Position x="492" z="742"/>
 			<Orientation y="0"/>
 		</Entity>
 		<Entity uid="120">
 			<Template>units/nation/crisis_farmer</Template>
 			<Player>1</Player>
-			<Position x="158" z="342"/>
+			<Position x="500" z="718"/>
 			<Orientation y="0"/>
 		</Entity>
 		<Entity uid="121">
 			<Template>units/nation/crisis_farmer</Template>
 			<Player>1</Player>
-			<Position x="162" z="342"/>
+			<Position x="500" z="724"/>
 			<Orientation y="0"/>
 		</Entity>
 		<Entity uid="122">
 			<Template>units/nation/crisis_farmer</Template>
 			<Player>1</Player>
-			<Position x="166" z="342"/>
+			<Position x="500" z="730"/>
 			<Orientation y="0"/>
 		</Entity>
 		<Entity uid="123">
 			<Template>units/nation/crisis_farmer</Template>
 			<Player>1</Player>
-			<Position x="170" z="342"/>
+			<Position x="500" z="736"/>
 			<Orientation y="0"/>
 		</Entity>
 		<Entity uid="124">
 			<Template>units/nation/crisis_farmer</Template>
 			<Player>1</Player>
-			<Position x="190" z="360"/>
+			<Position x="500" z="742"/>
 			<Orientation y="0"/>
 		</Entity>
 		<Entity uid="125">
 			<Template>units/nation/crisis_farmer</Template>
 			<Player>1</Player>
-			<Position x="194" z="360"/>
+			<Position x="508" z="718"/>
 			<Orientation y="0"/>
 		</Entity>
 		<Entity uid="126">
 			<Template>units/nation/crisis_farmer</Template>
 			<Player>1</Player>
-			<Position x="198" z="360"/>
+			<Position x="508" z="724"/>
 			<Orientation y="0"/>
 		</Entity>
 		<Entity uid="127">
 			<Template>units/nation/crisis_farmer</Template>
 			<Player>1</Player>
-			<Position x="202" z="360"/>
+			<Position x="508" z="730"/>
 			<Orientation y="0"/>
 		</Entity>
 		<Entity uid="128">
 			<Template>units/nation/crisis_farmer</Template>
 			<Player>1</Player>
-			<Position x="206" z="360"/>
+			<Position x="508" z="736"/>
 			<Orientation y="0"/>
 		</Entity>
 		<Entity uid="129">
 			<Template>units/nation/crisis_farmer</Template>
 			<Player>1</Player>
-			<Position x="210" z="360"/>
+			<Position x="508" z="742"/>
 			<Orientation y="0"/>
 		</Entity>
 		<Entity uid="130">
 			<Template>units/nation/crisis_farmer</Template>
 			<Player>1</Player>
-			<Position x="214" z="360"/>
+			<Position x="516" z="718"/>
 			<Orientation y="0"/>
 		</Entity>
 		<Entity uid="131">
 			<Template>units/nation/crisis_farmer</Template>
 			<Player>1</Player>
-			<Position x="218" z="360"/>
+			<Position x="516" z="724"/>
 			<Orientation y="0"/>
 		</Entity>
 		<Entity uid="132">
 			<Template>units/nation/crisis_farmer</Template>
 			<Player>1</Player>
-			<Position x="190" z="366"/>
+			<Position x="516" z="730"/>
 			<Orientation y="0"/>
 		</Entity>
 		<Entity uid="133">
 			<Template>units/nation/crisis_farmer</Template>
 			<Player>1</Player>
-			<Position x="194" z="366"/>
+			<Position x="516" z="736"/>
 			<Orientation y="0"/>
 		</Entity>
 		<Entity uid="134">
 			<Template>units/nation/crisis_farmer</Template>
 			<Player>1</Player>
-			<Position x="198" z="366"/>
+			<Position x="516" z="742"/>
 			<Orientation y="0"/>
 		</Entity>
 		<Entity uid="135">
 			<Template>units/nation/crisis_farmer</Template>
 			<Player>1</Player>
-			<Position x="202" z="366"/>
+			<Position x="524" z="718"/>
 			<Orientation y="0"/>
 		</Entity>
 		<Entity uid="136">
 			<Template>units/nation/crisis_farmer</Template>
 			<Player>1</Player>
-			<Position x="206" z="366"/>
+			<Position x="524" z="724"/>
 			<Orientation y="0"/>
 		</Entity>
 		<Entity uid="137">
 			<Template>units/nation/crisis_farmer</Template>
 			<Player>1</Player>
-			<Position x="210" z="366"/>
+			<Position x="524" z="730"/>
 			<Orientation y="0"/>
 		</Entity>
 		<Entity uid="138">
 			<Template>units/nation/crisis_farmer</Template>
 			<Player>1</Player>
-			<Position x="214" z="366"/>
+			<Position x="524" z="736"/>
 			<Orientation y="0"/>
 		</Entity>
 		<Entity uid="139">
 			<Template>units/nation/crisis_farmer</Template>
 			<Player>1</Player>
-			<Position x="218" z="366"/>
+			<Position x="524" z="742"/>
 			<Orientation y="0"/>
-		</Entity>
-		<Entity uid="20">
-			<Template>structures/nation/neighbor_civil_centre</Template>
-			<Player>2</Player>
-			<Position x="400" z="380"/>
-			<Orientation y="0.78"/>
 		</Entity>
 		<Entity uid="21">
 			<Template>units/spart/infantry_spearman_b</Template>
 			<Player>2</Player>
-			<Position x="390" z="370"/>
+			<Position x="1236" z="840"/>
 			<Orientation y="2.2"/>
 		</Entity>
-		<Entity uid="30">
-			<Template>structures/nation/capital</Template>
-			<Player>1</Player>
-			<Position x="90" z="420"/>
-			<Orientation y="0"/>
+		<Entity uid="22">
+			<Template>units/spart/infantry_spearman_b</Template>
+			<Player>2</Player>
+			<Position x="1244" z="848"/>
+			<Orientation y="2.0"/>
 		</Entity>
-		<Entity uid="31">
-			<Template>structures/nation/northern_village</Template>
-			<Player>1</Player>
-			<Position x="70" z="470"/>
-			<Orientation y="0"/>
+		<Entity uid="23">
+			<Template>units/spart/infantry_spearman_b</Template>
+			<Player>2</Player>
+			<Position x="1236" z="856"/>
+			<Orientation y="2.0"/>
 		</Entity>
-		<Entity uid="32">
-			<Template>structures/nation/western_village</Template>
-			<Player>1</Player>
-			<Position x="80" z="280"/>
-			<Orientation y="0"/>
+		<Entity uid="24">
+			<Template>units/spart/infantry_spearman_b</Template>
+			<Player>2</Player>
+			<Position x="1252" z="840"/>
+			<Orientation y="2.0"/>
 		</Entity>
-		<Entity uid="33">
-			<Template>structures/nation/southern_village</Template>
-			<Player>1</Player>
-			<Position x="210" z="300"/>
-			<Orientation y="0"/>
-		</Entity>
-		<Entity uid="40">
-			<Template>structures/nation/crisis_northern_road</Template>
-			<Player>1</Player>
-			<Position x="80" z="445"/>
-			<Orientation y="-0.380506377"/>
-		</Entity>
-		<Entity uid="50">
-			<Template>structures/nation/crisis_field</Template>
-			<Player>1</Player>
-			<Position x="176" z="348"/>
-			<Orientation y="0"/>
+		<Entity uid="25">
+			<Template>units/spart/infantry_spearman_b</Template>
+			<Player>2</Player>
+			<Position x="1248" z="856"/>
+			<Orientation y="2.0"/>
 		</Entity>
 	</Entities>
 </Scenario>
