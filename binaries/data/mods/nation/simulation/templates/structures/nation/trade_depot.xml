@@ -9,4 +9,7 @@
   <TerritoryInfluence disable=""/>
   <TerritoryDecay disable=""/>
   <Trainer disable=""/>
+  <InfrastructureNode>
+    <Kind>commercial</Kind>
+  </InfrastructureNode>
 </Entity>

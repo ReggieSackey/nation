@@ -9,6 +9,8 @@ Engine.LoadComponentScript("interfaces/CommodityInventory.js");
 Engine.LoadComponentScript("interfaces/CommodityExportManager.js");
 Engine.LoadComponentScript("interfaces/TransportEfficiency.js");
 Engine.LoadComponentScript("interfaces/SettlementConnectivity.js");
+Engine.LoadComponentScript("interfaces/InfrastructureLink.js");
+Engine.LoadComponentScript("interfaces/InfrastructureNode.js");
 Engine.LoadComponentScript("interfaces/TradeContractManager.js");
 Engine.LoadComponentScript("interfaces/AgreementManager.js");
 Engine.LoadComponentScript("interfaces/AgreementEvaluator.js");
@@ -25,6 +27,8 @@ Engine.LoadComponentScript("CommodityProducer.js");
 Engine.LoadComponentScript("CommodityInventory.js");
 Engine.LoadComponentScript("CommodityExportManager.js");
 Engine.LoadComponentScript("TransportEfficiency.js");
+Engine.LoadComponentScript("InfrastructureLink.js");
+Engine.LoadComponentScript("InfrastructureNode.js");
 Engine.LoadComponentScript("TradeContractManager.js");
 Engine.LoadComponentScript("ForeignActorManager.js");
 Engine.LoadComponentScript("AgreementManager.js");
@@ -50,7 +54,9 @@ AddMock(SYSTEM_ENTITY, IID_PlayerManager, {
 let g_Hop = 100;
 AddMock(SYSTEM_ENTITY, IID_SettlementConnectivity, {
 	"GetPathToCapital": () => [33, 30],
-	"GetHopCondition": () => g_Hop
+	"GetHopCondition": () => g_Hop,
+	"RefreshPhysicalLink": () => {},
+	"RemovePhysicalLink": () => {}
 });
 AddMock(SYSTEM_ENTITY, IID_Sovereignty, {
 	"GetSovereignOwner": pos => pos.x <= 256 ? 1 : 2
@@ -58,12 +64,15 @@ AddMock(SYSTEM_ENTITY, IID_Sovereignty, {
 
 const g_Producers = [33];
 const g_Markets = [80, 81];
+const g_LinkIds = [90, 91, 92, 93];
 Engine.GetEntitiesWithInterface = function(iid)
 {
 	if (iid === IID_CommodityProducer)
 		return g_Producers.slice();
 	if (iid === IID_Market)
 		return g_Markets.slice();
+	if (iid === IID_InfrastructureLink)
+		return g_LinkIds.slice();
 	return [];
 };
 
@@ -123,6 +132,30 @@ let producer = ConstructComponent(33, "CommodityProducer", {
 	"Stock": "0"
 });
 
+function commercialNode(ent)
+{
+	return ConstructComponent(ent, "InfrastructureNode", { "Kind": "commercial" });
+}
+
+function commercialLink(ent, from, to)
+{
+	return ConstructComponent(ent, "InfrastructureLink", {
+		"From": String(from),
+		"To": String(to)
+	});
+}
+
+commercialNode(80);
+commercialNode(81);
+commercialNode(83);
+commercialNode(84);
+commercialNode(30);
+commercialNode(31);
+const linkA = commercialLink(90, 80, 83);
+const linkB = commercialLink(91, 83, 84);
+const linkC = commercialLink(92, 84, 81);
+const linkOther = commercialLink(93, 30, 31);
+
 cmpActors.ReadActors([{
 	"id": "ussr",
 	"name": "Soviet Union",
@@ -146,6 +179,10 @@ function resetGoods()
 	producer.stock = 0;
 	cmpInventory.held = {};
 	g_Hop = 100;
+	linkA.SetCondition(100);
+	linkB.SetCondition(100);
+	linkC.SetCondition(100);
+	linkOther.SetCondition(100);
 	g_TraderHp = 100;
 	g_BuyerHp = 100;
 	g_Markets.length = 0;
@@ -301,20 +338,30 @@ producer.stock = 100;
 cmpContracts.Assign(1, packaged.id, 82, 80, 81);
 TS_ASSERT_EQUALS(cmpContracts.TryDeliver(packaged.id).delivered, 100);
 
-// Infrastructure scales the lot. A dead corridor moves nothing.
+// The commercial lot follows the market corridor. The capital road does not.
 const road = acceptSale(500, 1000000);
 producer.stock = 500;
 cmpContracts.Assign(1, road.id, 82, 80, 81);
-TS_ASSERT_EQUALS(cmpTransport.GetRouteCondition(33), 100);
-TS_ASSERT_EQUALS(cmpContracts.LotCapacity(1, "cocoa"), 100);
+TS_ASSERT_EQUALS(cmpTransport.GetCommercialRoute(80, 81).condition, 100);
+TS_ASSERT_EQUALS(cmpContracts.LotCapacity(80, 81), 100);
 TS_ASSERT_EQUALS(cmpContracts.TryDeliver(road.id).delivered, 100);
-g_Hop = 50;
-TS_ASSERT_EQUALS(cmpContracts.LotCapacity(1, "cocoa"), 50);
-TS_ASSERT_EQUALS(cmpContracts.TryDeliver(road.id).delivered, 50);
-g_Hop = 0;
-TS_ASSERT_EQUALS(cmpContracts.TryDeliver(road.id).delivered, 0);
-TS_ASSERT_EQUALS(cmpContracts.Find(road.id).status, "active");
+g_Hop = 10;
+linkOther.SetCondition(10);
+TS_ASSERT_EQUALS(cmpTransport.GetRouteCondition(33), 10);
+TS_ASSERT_EQUALS(cmpContracts.LotCapacity(80, 81), 100);
 g_Hop = 100;
+linkOther.SetCondition(100);
+linkB.SetCondition(50);
+TS_ASSERT_EQUALS(cmpTransport.GetRouteCondition(33), 100);
+TS_ASSERT_EQUALS(cmpContracts.LotCapacity(80, 81), 50);
+TS_ASSERT_EQUALS(cmpContracts.TryDeliver(road.id).delivered, 50);
+linkB.SetCondition(0);
+const severed = cmpContracts.TryDeliver(road.id);
+TS_ASSERT_EQUALS(severed.delivered, 0);
+TS_ASSERT_EQUALS(severed.reason, "no_route");
+TS_ASSERT(cmpTrade.CanTrade(2, 1));
+TS_ASSERT_EQUALS(cmpContracts.Find(road.id).status, "active");
+linkB.SetCondition(100);
 TS_ASSERT_EQUALS(cmpContracts.TryDeliver(road.id).delivered, 100);
 
 // Dead trader and a destroyed market leave the contract.
@@ -420,11 +467,14 @@ TS_ASSERT(hungryBuyer > stockedBuyer);
 cmpInventory.held[2].cocoa = 500;
 producer.stock = 500;
 const openRoute = cmpEvaluator.EvaluateProposalData(proposal(500, 100000), 2).totalUtility;
-g_Hop = 0;
+linkB.SetCondition(50);
+const halfRoute = cmpEvaluator.EvaluateProposalData(proposal(500, 100000), 2).totalUtility;
+linkB.SetCondition(0);
 const shutRoute = cmpEvaluator.EvaluateProposalData(proposal(500, 100000), 2).totalUtility;
-TS_ASSERT(shutRoute < openRoute);
+TS_ASSERT(halfRoute < openRoute);
+TS_ASSERT(shutRoute < halfRoute);
 TS_ASSERT(shutRoute > 0);
-g_Hop = 100;
+linkB.SetCondition(100);
 
 // Neighbor can accept, reject, and counter.
 resetGoods();

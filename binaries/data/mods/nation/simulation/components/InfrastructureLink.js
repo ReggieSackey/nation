@@ -1,11 +1,11 @@
 function InfrastructureLink() {}
 
 InfrastructureLink.prototype.Schema =
-	"<a:help>A physical connection between two settlements. Operational condition is separate from state integration.</a:help>" +
-	"<element name='From' a:help='Entity id of one settlement.'>" +
+	"<a:help>A physical connection between two infrastructure endpoints. Endpoints are settlements or other infrastructure nodes. Operational condition is separate from state integration and from who owns the link.</a:help>" +
+	"<element name='From' a:help='Entity id of one endpoint. An endpoint is a settlement or an infrastructure node.'>" +
 		"<data type='positiveInteger'/>" +
 	"</element>" +
-	"<element name='To' a:help='Entity id of the other settlement.'>" +
+	"<element name='To' a:help='Entity id of the other endpoint.'>" +
 		"<data type='positiveInteger'/>" +
 	"</element>";
 
@@ -18,7 +18,7 @@ InfrastructureLink.prototype.Init = function()
 	this.condition = 100;
 	if (!Number.isInteger(from) || from <= 0 || !Number.isInteger(to) || to <= 0 || from === to)
 	{
-		error("InfrastructureLink: entity " + this.entity + " needs two different settlement entity ids");
+		error("InfrastructureLink: entity " + this.entity + " needs two different endpoint entity ids");
 		this.from = 0;
 		this.to = 0;
 		return;

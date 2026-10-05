@@ -51,43 +51,31 @@ TradeContractManager.prototype.HasOpenObligation = function(playerId, commodity)
 };
 
 /**
- * Worst infrastructure condition on the seller's commodity producers, from 0 to 100.
- * No producer means nothing can leave. Missing transport data is treated as intact.
+ * Worst link on the physical corridor between the two assigned markets, from 0 to 100.
+ * National commodity stock is already at the seller's endpoint. The path from a producer
+ * to the capital does not set this number.
  * @return {number}
  */
-TradeContractManager.prototype.RouteCondition = function(seller, commodity)
+TradeContractManager.prototype.CorridorCondition = function(origin, destination)
 {
-	const cmpInventory = Engine.QueryInterface(SYSTEM_ENTITY, IID_CommodityInventory);
-	if (!cmpInventory)
-		return 0;
-	const producers = cmpInventory.Producers(seller, commodity);
-	if (!producers.length)
-		return 0;
 	if (typeof IID_TransportEfficiency === "undefined")
-		return 100;
+		return 0;
 	const cmpTransport = Engine.QueryInterface(SYSTEM_ENTITY, IID_TransportEfficiency);
-	if (!cmpTransport)
-		return 100;
-
-	let worst = 100;
-	for (let i = 0; i < producers.length; ++i)
-	{
-		const condition = cmpTransport.GetRouteCondition(producers[i]);
-		if (!Number.isInteger(condition) || condition <= 0)
-			return 0;
-		if (condition < worst)
-			worst = condition;
-	}
-	return worst;
+	if (!cmpTransport || !cmpTransport.GetCommercialRoute)
+		return 0;
+	const route = cmpTransport.GetCommercialRoute(origin, destination);
+	if (!route || !route.connected || !Number.isInteger(route.condition) || route.condition <= 0)
+		return 0;
+	return route.condition;
 };
 
 /**
  * Infrastructure-scaled lot. Stock and the remaining promise can only make it smaller.
  * @return {number}
  */
-TradeContractManager.prototype.LotCapacity = function(seller, commodity)
+TradeContractManager.prototype.LotCapacity = function(origin, destination)
 {
-	const condition = this.RouteCondition(seller, commodity);
+	const condition = this.CorridorCondition(origin, destination);
 	if (condition <= 0)
 		return 0;
 	return Math.floor(this.LotSize * condition / 100);
@@ -273,9 +261,9 @@ TradeContractManager.prototype.TryDeliver = function(contractId)
 	if (this.Enemies(contract.seller, contract.buyer))
 		return refuse("enemies");
 
-	const lot = this.LotCapacity(contract.seller, contract.commodity);
+	const lot = this.LotCapacity(contract.sellerMarket, contract.buyerMarket);
 	if (lot <= 0)
-		return refuse("no_capacity");
+		return refuse("no_route");
 
 	const cmpInventory = Engine.QueryInterface(SYSTEM_ENTITY, IID_CommodityInventory);
 	const cmpFinance = Engine.QueryInterface(SYSTEM_ENTITY, IID_GovernmentFinance);

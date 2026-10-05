@@ -135,11 +135,10 @@ SettlementConnectivity.prototype.ReadPhysicalEdges = function()
 
 		const from = cmpLink.GetFrom();
 		const to = cmpLink.GetTo();
+		// A link that touches a depot or another non-settlement is commercial infrastructure.
+		// It is not an administrative edge and it is not an error.
 		if (!this.EndpointsAreSettlements(from, to))
-		{
-			error("SettlementConnectivity: infrastructure link " + ent + " must join NationSettlement entities");
 			continue;
-		}
 		this.RefreshPhysicalLink(ent);
 	}
 };

@@ -411,14 +411,15 @@ AgreementEvaluator.prototype.SaleLegallyOpen = function(seller, buyer)
 };
 
 /**
- * Both states have a living market. This is the physical endpoint, not the legal right.
- * @return {boolean}
+ * Living markets owned by one player, in ascending entity id.
+ * @return {number[]}
  */
-AgreementEvaluator.prototype.PlayerHasMarket = function(playerId)
+AgreementEvaluator.prototype.LivingMarkets = function(playerId)
 {
 	if (typeof IID_Market === "undefined")
-		return false;
-	const markets = Engine.GetEntitiesWithInterface(IID_Market);
+		return [];
+	const markets = Engine.GetEntitiesWithInterface(IID_Market).slice().sort((a, b) => a - b);
+	const living = [];
 	for (let i = 0; i < markets.length; ++i)
 	{
 		const cmpOwnership = Engine.QueryInterface(markets[i], IID_Ownership);
@@ -430,25 +431,70 @@ AgreementEvaluator.prototype.PlayerHasMarket = function(playerId)
 			if (cmpHealth && cmpHealth.GetHitpoints && cmpHealth.GetHitpoints() <= 0)
 				continue;
 		}
-		return true;
+		living.push(markets[i]);
 	}
-	return false;
+	return living;
 };
 
 /**
- * Legal permission, both endpoints, and a corridor that can still carry goods.
+ * Both states have a living market. This is the physical endpoint, not the legal right.
+ * @return {boolean}
+ */
+AgreementEvaluator.prototype.PlayerHasMarket = function(playerId)
+{
+	return this.LivingMarkets(playerId).length > 0;
+};
+
+/**
+ * Best physical corridor between the seller's markets and the buyer's markets.
+ * Tie-break is the lower seller market id, then the lower buyer market id.
+ * @return {{connected: boolean, condition: number, links: number[], origin: number, destination: number}}
+ */
+AgreementEvaluator.prototype.BestCommercialRoute = function(seller, buyer)
+{
+	const empty = { "connected": false, "condition": 0, "links": [], "origin": 0, "destination": 0 };
+	if (typeof IID_TransportEfficiency === "undefined")
+		return empty;
+	const cmpTransport = Engine.QueryInterface(SYSTEM_ENTITY, IID_TransportEfficiency);
+	if (!cmpTransport || !cmpTransport.GetCommercialRoute)
+		return empty;
+
+	const origins = this.LivingMarkets(seller);
+	const destinations = this.LivingMarkets(buyer);
+	let best = empty;
+	for (let i = 0; i < origins.length; ++i)
+	{
+		for (let j = 0; j < destinations.length; ++j)
+		{
+			const route = cmpTransport.GetCommercialRoute(origins[i], destinations[j]);
+			if (!route.connected || route.condition <= 0)
+				continue;
+			const better = !best.connected || route.condition > best.condition ||
+				(route.condition === best.condition &&
+					(origins[i] < best.origin || (origins[i] === best.origin && destinations[j] < best.destination)));
+			if (!better)
+				continue;
+			best = {
+				"connected": true,
+				"condition": route.condition,
+				"links": route.links,
+				"origin": origins[i],
+				"destination": destinations[j]
+			};
+		}
+	}
+	return best;
+};
+
+/**
+ * Legal permission and a physical corridor that can still carry goods.
  * @return {boolean}
  */
 AgreementEvaluator.prototype.SaleRouteOpen = function(item)
 {
 	if (!this.SaleLegallyOpen(item.provider, item.beneficiary))
 		return false;
-	if (!this.PlayerHasMarket(item.provider) || !this.PlayerHasMarket(item.beneficiary))
-		return false;
-	if (typeof IID_TradeContractManager === "undefined")
-		return false;
-	const cmpContracts = Engine.QueryInterface(SYSTEM_ENTITY, IID_TradeContractManager);
-	return !!(cmpContracts && cmpContracts.LotCapacity(item.provider, item.commodity) > 0);
+	return this.BestCommercialRoute(item.provider, item.beneficiary).connected;
 };
 
 /**
@@ -487,13 +533,17 @@ AgreementEvaluator.prototype.CommoditySaleUtility = function(item, evaluatingPla
 		pricePoints = Math.round(this.CashMagnitude(treasury, item.totalPrice));
 
 	let utility = received ? commodityPoints - pricePoints : pricePoints - commodityPoints;
-	if (!this.SaleRouteOpen(item))
+	const legal = this.SaleLegallyOpen(item.provider, item.beneficiary);
+	const route = this.BestCommercialRoute(item.provider, item.beneficiary);
+	if (!legal || !route.connected)
 	{
 		if (utility > 0)
 			utility = Math.round(utility * 0.25);
 		else
 			utility -= 40;
 	}
+	else if (route.condition < 100 && utility > 0)
+		utility = Math.round(utility * (100 + route.condition) / 200);
 	return utility;
 };
 
