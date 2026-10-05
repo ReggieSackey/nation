@@ -314,6 +314,8 @@ function AttachRebellionToSimulationState()
 		wrapped.nationFoodImportWrapped = true;
 	if (original.nationDiscontentWrapped)
 		wrapped.nationDiscontentWrapped = true;
+	if (original.nationScenarioWrapped)
+		wrapped.nationScenarioWrapped = true;
 	GuiInterface.prototype.GetSimulationState = wrapped;
 }
 

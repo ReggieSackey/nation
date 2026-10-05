@@ -237,6 +237,8 @@ function AttachPopulationFoodToSimulationState()
 		wrapped.nationDiscontentWrapped = true;
 	if (original.nationRebellionWrapped)
 		wrapped.nationRebellionWrapped = true;
+	if (original.nationScenarioWrapped)
+		wrapped.nationScenarioWrapped = true;
 	GuiInterface.prototype.GetSimulationState = wrapped;
 }
 

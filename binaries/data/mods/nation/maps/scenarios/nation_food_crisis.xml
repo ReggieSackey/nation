@@ -1,0 +1,503 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<Scenario version="7">
+	<Terrain patches="8" texture="african_savanna_grass_dirt_01" priority="0" height="16384"/>
+	<Environment>
+		<SkySet>default</SkySet>
+		<SunColor r="0.74902" g="0.74902" b="0.74902"/>
+		<SunElevation angle="0.785398"/>
+		<SunRotation angle="-0.785396"/>
+		<AmbientColor r="0.501961" g="0.501961" b="0.501961"/>
+		<Fog>
+			<FogFactor>0</FogFactor>
+			<FogThickness>0.5</FogThickness>
+			<FogColor r="0.8" g="0.8" b="0.894118"/>
+		</Fog>
+		<Water>
+			<WaterBody>
+				<Type>ocean</Type>
+				<Color r="0.294118" g="0.34902" b="0.694118"/>
+				<Tint r="0.27451" g="0.294118" b="0.584314"/>
+				<Height>5</Height>
+				<Waviness>4</Waviness>
+				<Murkiness>0.45</Murkiness>
+				<WindAngle>0</WindAngle>
+			</WaterBody>
+		</Water>
+		<Postproc>
+			<Brightness>0</Brightness>
+			<Contrast>1</Contrast>
+			<Saturation>0.99</Saturation>
+			<Bloom>0.1999</Bloom>
+			<PostEffect>default</PostEffect>
+		</Postproc>
+	</Environment>
+	<Camera>
+		<Position x="150" y="240" z="220"/>
+		<Rotation angle="0"/>
+		<Declination angle="0.65"/>
+	</Camera>
+	<ScriptSettings><![CDATA[
+{
+  "CircularMap": false,
+  "Description": "A newly independent state. The harvest was poor, the treasury is limited, and the west barely trusts the capital.",
+  "Keywords": [],
+  "LockTeams": false,
+  "Name": "The Food Crisis",
+  "Preview": "",
+  "RevealMap": true,
+  "PlayerData": [
+    null,
+    {
+      "Civ": "athen",
+      "Name": "Nation",
+      "Color": { "r": 46, "g": 92, "b": 64 },
+      "Diplomacy": [-1, 1, 0, -1],
+      "Resources": {
+        "food": 4200,
+        "wood": 400,
+        "stone": 300,
+        "metal": 200,
+        "construction_materials": 0
+      }
+    },
+    {
+      "Civ": "spart",
+      "Name": "Neighbor",
+      "Diplomacy": [-1, 0, 1, 0],
+      "Resources": {
+        "food": 300,
+        "wood": 300,
+        "stone": 300,
+        "metal": 300,
+        "construction_materials": 0
+      }
+    },
+    {
+      "Civ": "athen",
+      "Name": "Rebels",
+      "AI": "",
+      "Color": { "r": 120, "g": 32, "b": 32 },
+      "Diplomacy": [-1, -1, 0, 1],
+      "Resources": {
+        "food": 0,
+        "wood": 0,
+        "stone": 0,
+        "metal": 0,
+        "construction_materials": 0
+      }
+    }
+  ],
+  "RebelPlayer": 3,
+  "AgreementResponders": [2],
+  "ForeignActors": [
+    {
+      "id": "ussr",
+      "name": "Soviet Union",
+      "type": "foreign_power",
+      "treasury": 100000000,
+      "responds": true
+    }
+  ],
+  "TradeAccess": [
+    { "from": 1, "to": 2, "trade": true },
+    { "from": 2, "to": 1, "trade": true }
+  ],
+  "FoodImports": [
+    {
+      "id": "neighbor-food-import",
+      "buyer": 1,
+      "seller": 2,
+      "resource": "food",
+      "amount": 1000,
+      "cost": 500000
+    }
+  ],
+  "GovernmentFinance": [
+    { "player": 1, "treasury": 2000000 },
+    { "player": 2, "treasury": 5000000 }
+  ],
+  "Sovereignty": [
+    {
+      "owner": 1,
+      "points": [
+        { "x": 0, "z": 0 },
+        { "x": 256, "z": 0 },
+        { "x": 256, "z": 512 },
+        { "x": 0, "z": 512 }
+      ]
+    },
+    {
+      "owner": 2,
+      "points": [
+        { "x": 256, "z": 0 },
+        { "x": 512, "z": 0 },
+        { "x": 512, "z": 512 },
+        { "x": 256, "z": 512 }
+      ]
+    }
+  ],
+  "NationScenario": {
+    "id": "food_crisis",
+    "player": 1,
+    "capitalEntity": 10,
+    "minVictoryTime": 720000,
+    "stableDuration": 120000,
+    "discontentVictoryMax": 60,
+    "reserveIntervals": 3,
+    "collapseRebellions": 2,
+    "collapseRebellionDuration": 180000,
+    "collapseShortageBps": 8000,
+    "collapseTreasuryDuration": 120000,
+    "discontentBands": [50, 70, 80]
+  },
+  "VictoryConditions": []
+}
+]]></ScriptSettings>
+	<Entities>
+		<Entity uid="10">
+			<Template>structures/nation/civil_centre</Template>
+			<Player>1</Player>
+			<Position x="140" z="380"/>
+			<Orientation y="2.35621"/>
+		</Entity>
+		<Entity uid="11">
+			<Template>units/athen/infantry_spearman_b</Template>
+			<Player>1</Player>
+			<Position x="86" z="274"/>
+			<Orientation y="0.8"/>
+		</Entity>
+		<Entity uid="12">
+			<Template>units/athen/infantry_spearman_b</Template>
+			<Player>1</Player>
+			<Position x="92" z="286"/>
+			<Orientation y="0.8"/>
+		</Entity>
+		<Entity uid="13">
+			<Template>units/athen/infantry_spearman_b</Template>
+			<Player>1</Player>
+			<Position x="74" z="292"/>
+			<Orientation y="0.8"/>
+		</Entity>
+		<Entity uid="14">
+			<Template>units/athen/infantry_spearman_b</Template>
+			<Player>1</Player>
+			<Position x="98" z="270"/>
+			<Orientation y="0.8"/>
+		</Entity>
+		<Entity uid="15">
+			<Template>units/athen/infantry_spearman_b</Template>
+			<Player>1</Player>
+			<Position x="70" z="268"/>
+			<Orientation y="0.8"/>
+		</Entity>
+		<Entity uid="16">
+			<Template>units/athen/infantry_spearman_b</Template>
+			<Player>1</Player>
+			<Position x="104" z="294"/>
+			<Orientation y="0.8"/>
+		</Entity>
+		<Entity uid="17">
+			<Template>units/athen/infantry_spearman_b</Template>
+			<Player>1</Player>
+			<Position x="150" z="400"/>
+			<Orientation y="0.8"/>
+		</Entity>
+		<Entity uid="18">
+			<Template>units/athen/infantry_spearman_b</Template>
+			<Player>1</Player>
+			<Position x="128" z="392"/>
+			<Orientation y="0.8"/>
+		</Entity>
+
+
+		<Entity uid="100">
+			<Template>units/nation/crisis_farmer</Template>
+			<Player>1</Player>
+			<Position x="158" z="332"/>
+			<Orientation y="0"/>
+		</Entity>
+		<Entity uid="101">
+			<Template>units/nation/crisis_farmer</Template>
+			<Player>1</Player>
+			<Position x="162" z="332"/>
+			<Orientation y="0"/>
+		</Entity>
+		<Entity uid="102">
+			<Template>units/nation/crisis_farmer</Template>
+			<Player>1</Player>
+			<Position x="166" z="332"/>
+			<Orientation y="0"/>
+		</Entity>
+		<Entity uid="103">
+			<Template>units/nation/crisis_farmer</Template>
+			<Player>1</Player>
+			<Position x="170" z="332"/>
+			<Orientation y="0"/>
+		</Entity>
+		<Entity uid="104">
+			<Template>units/nation/crisis_farmer</Template>
+			<Player>1</Player>
+			<Position x="174" z="332"/>
+			<Orientation y="0"/>
+		</Entity>
+		<Entity uid="105">
+			<Template>units/nation/crisis_farmer</Template>
+			<Player>1</Player>
+			<Position x="178" z="332"/>
+			<Orientation y="0"/>
+		</Entity>
+		<Entity uid="106">
+			<Template>units/nation/crisis_farmer</Template>
+			<Player>1</Player>
+			<Position x="182" z="332"/>
+			<Orientation y="0"/>
+		</Entity>
+		<Entity uid="107">
+			<Template>units/nation/crisis_farmer</Template>
+			<Player>1</Player>
+			<Position x="186" z="332"/>
+			<Orientation y="0"/>
+		</Entity>
+		<Entity uid="108">
+			<Template>units/nation/crisis_farmer</Template>
+			<Player>1</Player>
+			<Position x="190" z="332"/>
+			<Orientation y="0"/>
+		</Entity>
+		<Entity uid="109">
+			<Template>units/nation/crisis_farmer</Template>
+			<Player>1</Player>
+			<Position x="194" z="332"/>
+			<Orientation y="0"/>
+		</Entity>
+		<Entity uid="110">
+			<Template>units/nation/crisis_farmer</Template>
+			<Player>1</Player>
+			<Position x="158" z="337"/>
+			<Orientation y="0"/>
+		</Entity>
+		<Entity uid="111">
+			<Template>units/nation/crisis_farmer</Template>
+			<Player>1</Player>
+			<Position x="162" z="337"/>
+			<Orientation y="0"/>
+		</Entity>
+		<Entity uid="112">
+			<Template>units/nation/crisis_farmer</Template>
+			<Player>1</Player>
+			<Position x="166" z="337"/>
+			<Orientation y="0"/>
+		</Entity>
+		<Entity uid="113">
+			<Template>units/nation/crisis_farmer</Template>
+			<Player>1</Player>
+			<Position x="170" z="337"/>
+			<Orientation y="0"/>
+		</Entity>
+		<Entity uid="114">
+			<Template>units/nation/crisis_farmer</Template>
+			<Player>1</Player>
+			<Position x="174" z="337"/>
+			<Orientation y="0"/>
+		</Entity>
+		<Entity uid="115">
+			<Template>units/nation/crisis_farmer</Template>
+			<Player>1</Player>
+			<Position x="178" z="337"/>
+			<Orientation y="0"/>
+		</Entity>
+		<Entity uid="116">
+			<Template>units/nation/crisis_farmer</Template>
+			<Player>1</Player>
+			<Position x="182" z="337"/>
+			<Orientation y="0"/>
+		</Entity>
+		<Entity uid="117">
+			<Template>units/nation/crisis_farmer</Template>
+			<Player>1</Player>
+			<Position x="186" z="337"/>
+			<Orientation y="0"/>
+		</Entity>
+		<Entity uid="118">
+			<Template>units/nation/crisis_farmer</Template>
+			<Player>1</Player>
+			<Position x="190" z="337"/>
+			<Orientation y="0"/>
+		</Entity>
+		<Entity uid="119">
+			<Template>units/nation/crisis_farmer</Template>
+			<Player>1</Player>
+			<Position x="194" z="337"/>
+			<Orientation y="0"/>
+		</Entity>
+		<Entity uid="120">
+			<Template>units/nation/crisis_farmer</Template>
+			<Player>1</Player>
+			<Position x="158" z="342"/>
+			<Orientation y="0"/>
+		</Entity>
+		<Entity uid="121">
+			<Template>units/nation/crisis_farmer</Template>
+			<Player>1</Player>
+			<Position x="162" z="342"/>
+			<Orientation y="0"/>
+		</Entity>
+		<Entity uid="122">
+			<Template>units/nation/crisis_farmer</Template>
+			<Player>1</Player>
+			<Position x="166" z="342"/>
+			<Orientation y="0"/>
+		</Entity>
+		<Entity uid="123">
+			<Template>units/nation/crisis_farmer</Template>
+			<Player>1</Player>
+			<Position x="170" z="342"/>
+			<Orientation y="0"/>
+		</Entity>
+		<Entity uid="124">
+			<Template>units/nation/crisis_farmer</Template>
+			<Player>1</Player>
+			<Position x="190" z="360"/>
+			<Orientation y="0"/>
+		</Entity>
+		<Entity uid="125">
+			<Template>units/nation/crisis_farmer</Template>
+			<Player>1</Player>
+			<Position x="194" z="360"/>
+			<Orientation y="0"/>
+		</Entity>
+		<Entity uid="126">
+			<Template>units/nation/crisis_farmer</Template>
+			<Player>1</Player>
+			<Position x="198" z="360"/>
+			<Orientation y="0"/>
+		</Entity>
+		<Entity uid="127">
+			<Template>units/nation/crisis_farmer</Template>
+			<Player>1</Player>
+			<Position x="202" z="360"/>
+			<Orientation y="0"/>
+		</Entity>
+		<Entity uid="128">
+			<Template>units/nation/crisis_farmer</Template>
+			<Player>1</Player>
+			<Position x="206" z="360"/>
+			<Orientation y="0"/>
+		</Entity>
+		<Entity uid="129">
+			<Template>units/nation/crisis_farmer</Template>
+			<Player>1</Player>
+			<Position x="210" z="360"/>
+			<Orientation y="0"/>
+		</Entity>
+		<Entity uid="130">
+			<Template>units/nation/crisis_farmer</Template>
+			<Player>1</Player>
+			<Position x="214" z="360"/>
+			<Orientation y="0"/>
+		</Entity>
+		<Entity uid="131">
+			<Template>units/nation/crisis_farmer</Template>
+			<Player>1</Player>
+			<Position x="218" z="360"/>
+			<Orientation y="0"/>
+		</Entity>
+		<Entity uid="132">
+			<Template>units/nation/crisis_farmer</Template>
+			<Player>1</Player>
+			<Position x="190" z="366"/>
+			<Orientation y="0"/>
+		</Entity>
+		<Entity uid="133">
+			<Template>units/nation/crisis_farmer</Template>
+			<Player>1</Player>
+			<Position x="194" z="366"/>
+			<Orientation y="0"/>
+		</Entity>
+		<Entity uid="134">
+			<Template>units/nation/crisis_farmer</Template>
+			<Player>1</Player>
+			<Position x="198" z="366"/>
+			<Orientation y="0"/>
+		</Entity>
+		<Entity uid="135">
+			<Template>units/nation/crisis_farmer</Template>
+			<Player>1</Player>
+			<Position x="202" z="366"/>
+			<Orientation y="0"/>
+		</Entity>
+		<Entity uid="136">
+			<Template>units/nation/crisis_farmer</Template>
+			<Player>1</Player>
+			<Position x="206" z="366"/>
+			<Orientation y="0"/>
+		</Entity>
+		<Entity uid="137">
+			<Template>units/nation/crisis_farmer</Template>
+			<Player>1</Player>
+			<Position x="210" z="366"/>
+			<Orientation y="0"/>
+		</Entity>
+		<Entity uid="138">
+			<Template>units/nation/crisis_farmer</Template>
+			<Player>1</Player>
+			<Position x="214" z="366"/>
+			<Orientation y="0"/>
+		</Entity>
+		<Entity uid="139">
+			<Template>units/nation/crisis_farmer</Template>
+			<Player>1</Player>
+			<Position x="218" z="366"/>
+			<Orientation y="0"/>
+		</Entity>
+		<Entity uid="20">
+			<Template>structures/nation/neighbor_civil_centre</Template>
+			<Player>2</Player>
+			<Position x="400" z="380"/>
+			<Orientation y="0.78"/>
+		</Entity>
+		<Entity uid="21">
+			<Template>units/spart/infantry_spearman_b</Template>
+			<Player>2</Player>
+			<Position x="390" z="370"/>
+			<Orientation y="2.2"/>
+		</Entity>
+		<Entity uid="30">
+			<Template>structures/nation/capital</Template>
+			<Player>1</Player>
+			<Position x="90" z="420"/>
+			<Orientation y="0"/>
+		</Entity>
+		<Entity uid="31">
+			<Template>structures/nation/northern_village</Template>
+			<Player>1</Player>
+			<Position x="70" z="470"/>
+			<Orientation y="0"/>
+		</Entity>
+		<Entity uid="32">
+			<Template>structures/nation/western_village</Template>
+			<Player>1</Player>
+			<Position x="80" z="280"/>
+			<Orientation y="0"/>
+		</Entity>
+		<Entity uid="33">
+			<Template>structures/nation/southern_village</Template>
+			<Player>1</Player>
+			<Position x="210" z="300"/>
+			<Orientation y="0"/>
+		</Entity>
+		<Entity uid="40">
+			<Template>structures/nation/crisis_northern_road</Template>
+			<Player>1</Player>
+			<Position x="80" z="445"/>
+			<Orientation y="-0.380506377"/>
+		</Entity>
+		<Entity uid="50">
+			<Template>structures/nation/crisis_field</Template>
+			<Player>1</Player>
+			<Position x="176" z="348"/>
+			<Orientation y="0"/>
+		</Entity>
+	</Entities>
+</Scenario>

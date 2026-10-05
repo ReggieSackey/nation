@@ -67,7 +67,6 @@
 			<translatableAttribute id="tooltip">Sell cocoa for a total price paid as goods are delivered. Quantity may exceed current stock.</translatableAttribute>
 		</object>
 		<object name="nationAgreementPrice" type="input" style="ModernInput" size="208 236 420 260" tooltip_style="sessionToolTip">
-			<attribute id="caption">1000000</attribute>
 			<translatableAttribute id="tooltip">Total price for the commodity quantity. Nothing is paid at signing.</translatableAttribute>
 		</object>
 

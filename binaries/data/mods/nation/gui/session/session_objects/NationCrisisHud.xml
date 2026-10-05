@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<object>
+	<object name="nationCrisisHud" type="image" sprite="color: 18 16 14 176" size="8 44 312 236" hidden="true" z="40">
+		<object name="nationCrisisSummaryText" type="text" style="resourceText" text_valign="top" size="12 8 100%-12 100%-8"/>
+	</object>
+
+	<object name="nationCrisisPlaces" type="image" sprite="color: 18 16 14 176" size="8 244 312 360" hidden="true" z="40">
+		<object name="nationCrisisPlacesText" type="text" style="resourceText" text_valign="top" size="12 6 100%-12 100%-6"/>
+	</object>
+
+	<object name="nationCrisisActions" type="image" sprite="color: 18 16 14 176" size="100%-196 44 100%-8 214" hidden="true" z="40">
+		<object name="nationCrisisActionsTitle" type="text" style="resourceText" size="10 6 100%-10 24">
+			<translatableAttribute id="caption">Government</translatableAttribute>
+		</object>
+		<object name="nationCrisisImport" type="button" style="StoneButton" size="10 28 100%-10 54" tooltip_style="sessionToolTip">
+			<translatableAttribute id="caption">Import food</translatableAttribute>
+		</object>
+		<object name="nationCrisisImportReason" type="text" style="resourceText" size="10 56 100%-10 92"/>
+		<object name="nationCrisisRepair" type="button" style="StoneButton" size="10 96 100%-10 122" tooltip_style="sessionToolTip">
+			<translatableAttribute id="caption">Repair road</translatableAttribute>
+		</object>
+		<object name="nationCrisisNegotiate" type="button" style="StoneButton" size="10 136 100%-10 162" tooltip_style="sessionToolTip">
+			<translatableAttribute id="caption">Foreign negotiations</translatableAttribute>
+		</object>
+	</object>
+
+	<object name="nationCrisisSelection" type="image" sprite="color: 18 16 14 176" size="50%-150 100%-168 50%+150 100%-8" hidden="true" z="40">
+		<object name="nationCrisisSelectionText" type="text" style="resourceText" text_valign="top" size="12 8 100%-12 100%-8"/>
+	</object>
+
+	<object name="nationCrisisImportDialog" type="image" sprite="color: 18 16 14 220" size="50%-160 50%-90 50%+160 50%+90" hidden="true" z="210">
+		<object name="nationCrisisImportText" type="text" style="resourceText" text_valign="top" size="16 12 100%-16 112"/>
+		<object name="nationCrisisImportConfirm" type="button" style="StoneButton" size="16 118 150 146">
+			<translatableAttribute id="caption">Confirm import</translatableAttribute>
+		</object>
+		<object name="nationCrisisImportCancel" type="button" style="StoneButton" size="160 118 100%-16 146">
+			<translatableAttribute id="caption">Cancel</translatableAttribute>
+		</object>
+	</object>
+
+	<object name="nationCrisisBriefing" type="image" sprite="color: 18 16 14 220" size="50%-250 110 50%+250 332" hidden="true" z="230">
+		<object name="nationCrisisBriefingText" type="text" style="resourceText" text_valign="top" size="16 12 100%-16 176"/>
+		<object name="nationCrisisBriefingClose" type="button" style="StoneButton" size="50%-70 184 50%+70 212">
+			<translatableAttribute id="caption">Continue</translatableAttribute>
+		</object>
+	</object>
+
+	<object name="nationCrisisEnd" type="image" sprite="color: 18 16 14 220" size="50%-220 60 50%+220 420" hidden="true" z="220">
+		<object name="nationCrisisEndText" type="text" style="resourceText" text_valign="top" size="16 12 100%-16 300"/>
+		<object name="nationCrisisEndClose" type="button" style="StoneButton" size="50%-60 308 50%+60 336">
+			<translatableAttribute id="caption">Close</translatableAttribute>
+		</object>
+	</object>
+</object>

@@ -12,6 +12,11 @@ function updateNationSettlementStatus()
 	const label = Engine.GetGUIObjectByName("nationSettlementStatus");
 	if (!label)
 		return;
+	if (typeof nationPlayingFoodCrisis === "function" && nationPlayingFoodCrisis())
+	{
+		label.hidden = true;
+		return;
+	}
 
 	const selected = g_Selection && g_Selection.toList();
 	const state = selected && selected.length === 1 && GetEntityState(selected[0]);

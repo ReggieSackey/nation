@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Entity parent="units/nation/farmer">
+  <Identity>
+    <GenericName>Farmer</GenericName>
+    <SpecificName>Farmer</SpecificName>
+  </Identity>
+  <ResourceGatherer>
+    <Capacities>
+      <food>10</food>
+    </Capacities>
+  </ResourceGatherer>
+</Entity>

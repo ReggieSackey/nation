@@ -12,6 +12,11 @@ function updateNationFoodStatus()
 	const label = Engine.GetGUIObjectByName("nationFoodStatus");
 	if (!label)
 		return;
+	if (typeof nationPlayingFoodCrisis === "function" && nationPlayingFoodCrisis())
+	{
+		label.hidden = true;
+		return;
+	}
 
 	const state = g_SimState && g_ViewedPlayer > 0 && g_SimState.players[g_ViewedPlayer];
 	const status = state && state.nationFood;

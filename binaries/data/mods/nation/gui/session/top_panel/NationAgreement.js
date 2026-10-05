@@ -254,12 +254,15 @@ function nationAgreementDescribe(items, provider, beneficiary)
 	return lines.join("\n");
 }
 
+var g_NationAgreementBound = false;
+var g_NationAgreementResourceCodes = [];
+
 function nationAgreementBind()
 {
 	const open = Engine.GetGUIObjectByName("nationAgreementOpen");
-	if (!open || open.nationAgreementBound)
+	if (!open || g_NationAgreementBound)
 		return;
-	open.nationAgreementBound = true;
+	g_NationAgreementBound = true;
 	open.onPress = function()
 	{
 		const dialog = Engine.GetGUIObjectByName("nationAgreementDialog");
@@ -346,11 +349,13 @@ function nationAgreementBind()
 
 	for (let i = 0; i < 8; ++i)
 	{
+		const index = i;
 		const button = Engine.GetGUIObjectByName("nationAgreementType" + i);
 		button.onPress = function()
 		{
-			if (button.nationResource)
-				nationAgreementAdd("resource", button.nationResource);
+			const code = g_NationAgreementResourceCodes[index];
+			if (code)
+				nationAgreementAdd("resource", code);
 		};
 	}
 
@@ -397,7 +402,8 @@ function updateNationAgreement()
 	if (!open || !dialog)
 		return;
 
-	open.hidden = g_ViewedPlayer < 1;
+	open.hidden = g_ViewedPlayer < 1 ||
+		(typeof nationPlayingFoodCrisis === "function" && nationPlayingFoodCrisis());
 	open.enabled = controlsPlayer(g_ViewedPlayer);
 	if (dialog.hidden || g_ViewedPlayer < 1)
 		return;
@@ -422,7 +428,7 @@ function updateNationAgreement()
 		const button = Engine.GetGUIObjectByName("nationAgreementType" + i);
 		const choice = !foreign && resources[i];
 		button.hidden = !choice;
-		button.nationResource = choice ? choice.code : "";
+		g_NationAgreementResourceCodes[i] = choice ? choice.code : "";
 		if (choice)
 			button.caption = choice.name;
 	}

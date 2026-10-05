@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Entity parent="structures/nation/grain_field">
+  <Identity>
+    <SpecificName>Grain Field</SpecificName>
+  </Identity>
+  <ResourceSupply>
+    <MaxGatherers>140</MaxGatherers>
+    <DiminishingReturns>1.0</DiminishingReturns>
+  </ResourceSupply>
+</Entity>

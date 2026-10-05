@@ -13,6 +13,12 @@ function updateNationFoodImport()
 	const button = Engine.GetGUIObjectByName("nationFoodImport");
 	if (!label || !button)
 		return;
+	if (typeof nationPlayingFoodCrisis === "function" && nationPlayingFoodCrisis())
+	{
+		label.hidden = true;
+		button.hidden = true;
+		return;
+	}
 
 	const player = g_SimState && g_ViewedPlayer > 0 && g_SimState.players[g_ViewedPlayer];
 	const quote = player && player.nationFoodImport;
