@@ -242,24 +242,59 @@ function updateNationAgreement()
 	const proposals = g_SimState.nationAgreements || [];
 	const pendingLines = [];
 	g_NationAgreementActionId = 0;
+	let outgoingId = 0;
 	for (let i = 0; i < proposals.length; ++i)
 	{
 		const proposal = proposals[i];
 		if (proposal.proposer !== us && proposal.recipient !== us)
 			continue;
-		pendingLines.push("#" + proposal.id + " " + proposal.status);
+		pendingLines.push("#" + proposal.id + " " + proposal.status +
+			(proposal.parentProposal ? " (answers #" + proposal.parentProposal + ")" : ""));
 		pendingLines.push(nationAgreementName(proposal.proposer) + " offers:");
 		pendingLines.push(nationAgreementDescribe(proposal.offer, proposal.proposer, proposal.recipient));
 		pendingLines.push(nationAgreementName(proposal.proposer) + " requests:");
 		pendingLines.push(nationAgreementDescribe(proposal.request, proposal.recipient, proposal.proposer));
-		if (proposal.status === "pending" && !g_NationAgreementActionId &&
-			(proposal.recipient === us || proposal.proposer === us))
+		if (proposal.status !== "pending")
+			continue;
+		if (proposal.recipient === us && !g_NationAgreementActionId)
 			g_NationAgreementActionId = proposal.id;
+		else if (proposal.proposer === us && !outgoingId)
+			outgoingId = proposal.id;
+	}
+	if (!g_NationAgreementActionId)
+		g_NationAgreementActionId = outgoingId;
+
+	let outcome = "";
+	for (let i = proposals.length - 1; i >= 0; --i)
+	{
+		const proposal = proposals[i];
+		const other = proposal.proposer === us ? proposal.recipient : proposal.proposer;
+		if (proposal.recipient === us && proposal.status === "pending" && proposal.parentProposal)
+		{
+			outcome = nationAgreementName(other) + " has proposed different terms.";
+			break;
+		}
+		if (proposal.proposer === us && proposal.status === "accepted")
+		{
+			outcome = nationAgreementName(other) + " accepted the agreement.";
+			break;
+		}
+		if (proposal.proposer === us && proposal.status === "rejected")
+		{
+			outcome = nationAgreementName(other) + " rejected the agreement.";
+			break;
+		}
+		if (proposal.proposer === us && proposal.status === "countered")
+		{
+			outcome = nationAgreementName(other) + " has proposed different terms.";
+			break;
+		}
 	}
 
 	Engine.GetGUIObjectByName("nationAgreementLists").caption =
 		"WE OFFER\n" + nationAgreementDescribe(g_NationAgreementDraft.offer, us, them) + "\n" +
 		"WE REQUEST\n" + nationAgreementDescribe(g_NationAgreementDraft.request, them, us) + "\n\n" +
+		(outcome ? outcome + "\n\n" : "") +
 		pendingLines.join("\n");
 
 	const action = proposals.find(proposal => proposal.id === g_NationAgreementActionId);

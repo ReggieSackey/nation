@@ -746,7 +746,7 @@ debt_restructuring
 
 Those types are not accepted yet. A counteroffer, when it exists, should be a new proposal whose `parentProposal` is the earlier id. It should not be a second object model. Duration and unilateral revocation are not implemented. Revocation can later be an item that sets an existing `DiplomaticAccess` or `TradeAccess` row to false. Until then, a grant stays until some later system changes it.
 
-The session screen lets the local player pick another country, add resource, cash, military-access, and trade-access rows to "we offer" or "we request", and post the proposal. Resource buttons use `nationAgreementResources` from the simulation, which is `Resources.GetCodes()` plus each resource's name. The amount field is a convenience. The simulation parses the command again and ignores the GUI's opinion of the balance. Accept is enabled only for a pending proposal whose recipient is the controlled player. The 1961 sandbox has one human, so Neighbor cannot click Accept. Tests and a simulation command cover that path. The screen does not show whether a deal is likely to be accepted. There is no valuation yet.
+The session screen lets the local player pick another country, add resource, cash, military-access, and trade-access rows to "we offer" or "we request", and post the proposal. Resource buttons use `nationAgreementResources` from the simulation, which is `Resources.GetCodes()` plus each resource's name. The amount field is a convenience. The simulation parses the command again and ignores the GUI's opinion of the balance. Accept is enabled only for a pending proposal whose recipient is the controlled player. The 1961 sandbox has one human. Neighbor is listed in `AgreementResponders` and answers through `AgreementAI`. A human recipient can still accept or reject by hand. The screen does not show utility numbers.
 
 A future evaluator should score a proposal from the simulation, not from a fixed table of equivalents:
 
@@ -763,6 +763,46 @@ PHYSICAL TRADE     Trader and Market, movement and gain
 INFRASTRUCTURE     whether a route can carry anything
 TREASURY           GovernmentFinance, government money
 ```
+
+## Agreement valuation
+
+A proposal, a valuation, a response, and an execution are four different facts.
+
+```text
+AgreementManager
+    stores the proposal and executes it
+
+AgreementEvaluator
+    scores that proposal for one country
+
+AgreementAI
+    accepts, rejects, or replaces it
+
+AgreementManager
+    executes the accepted proposal
+```
+
+`AgreementEvaluator` stores nothing. `EvaluateProposalData` walks the items the country gives, then the items it receives, from the stock and treasury as they would stand after the earlier items. Each row is an integer. Received utility is the sum of the positive rows. Given utility is the sum of the costs. The total is the difference. The same state and the same proposal produce the same breakdown. There is no random roll, no personality, and no language-model call.
+
+Utility is not a price. `utility >= 0` accepts. `utility >= -200` and below 0 is a counteroffer. Below `-200` rejects. A hard-rejected row rejects the package whatever the other rows are worth.
+
+Resource value is the integral of `scale * reference / (reference + stock)`. A unit is worth more when the stockpile is low. Food, wood, stone, metal, and construction materials each have their own scale and reference. Any other registered resource uses scale 1 and reference 200. Giving a quantity is the cost of the units that would leave. Receiving it is the value of the units that would arrive. They are not the same number when the stockpile is already thin.
+
+Food multiplies that integral by food security from `PopulationFoodConsumption`. Full shortage (`shortageBps` 10000) multiplies by 5 before coverage. Eight or more intervals of stock on hand halves the value. Less than one interval multiplies by 4. A country with no food demand is not treated as being in crisis. Discontent is not read.
+
+Wood, stone, and metal use the scarcity integral. If an owned `IndustrialProduction` entity cannot run its next cycle because that input is short, the value is multiplied by 2.5. No factory means no extra pressure. This is not a production plan.
+
+Construction materials use the same integral, then the phase. Consolidation's next program costs 20. Development's costs 50. A stock below that cost is multiplied by 2.5. Advanced State with at least 200 on hand is multiplied by 0.6. A missing technology manager is treated as Consolidation, so an actor without a phase still treats the materials as useful.
+
+Cash uses `132 * ln((500000 + treasuryAfter) / (500000 + treasuryBefore))`. A treasury of 100,000 values another 500,000 much more than a treasury of 20,000,000 does. The money stays in `GovernmentFinance`.
+
+Military access the country already holds is worth 0. Granting it to a mutually hostile state is a hard reject, utility -1000, and no cash payment turns that into a counteroffer. Granting it otherwise costs 40, or 120 if that army is already inside the country or occupies one of its settlements. Receiving it is worth 25. If there is no unit list, the soldier count is 0 and the grant stays the ordinary cost. That is how an off-map power is scored: the economic terms still work, and the military term becomes the modest cost rather than a crash.
+
+Trade access already held is worth 0. Receiving it is worth 15. Granting it costs 8. That is a legal permission, not a claim that a trader and two markets already connect the countries. Physical trade remains the upstream `Trader` and `Market` path.
+
+`AgreementAI` answers a pending proposal whose recipient is in `AgreementResponders` or whose `Player.IsAI` is set. The rebel player is never answered. Neighbor is responder 2 and is not a Petra player. One second after the proposal is stored, it evaluates once. It does not rescore on later turns. The answered id is saved with the component, and the timer is the ordinary `Timer` timeout, so a loaded game does not answer twice and does not execute twice.
+
+A counteroffer is a new proposal from the recipient back to the proposer, with `parentProposal` set to the original id. The original becomes `countered` and can no longer execute. The search asks for more of the proposer's cash in steps of 10,000, the smallest step that reaches utility 0. If cash cannot close the gap, it asks for one resource: the code with the highest one-unit value to the answering country, ties broken by the code, first a parcel of 100 and then whatever remains. It does not ask for cash or resources the proposer does not have. It does not add military access as payment. If nothing acceptable can be built, the original is rejected. The human accepts a counteroffer with the normal `Accept` path.
 
 ## Build and run
 

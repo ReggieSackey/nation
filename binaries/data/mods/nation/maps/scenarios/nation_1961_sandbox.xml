@@ -80,6 +80,7 @@
     { "from": 1, "to": 2, "military": false },
     { "from": 2, "to": 1, "military": false }
   ],
+  "AgreementResponders": [2],
   "TradeAccess": [
     { "from": 1, "to": 2, "trade": true }
   ],

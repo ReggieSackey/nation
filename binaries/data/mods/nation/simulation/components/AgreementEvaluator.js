@@ -1,0 +1,470 @@
+function AgreementEvaluator() {}
+
+AgreementEvaluator.prototype.Schema =
+	"<a:component type='system'/><empty/>";
+
+/**
+ * Utility is an integer. Positive favors the evaluating country.
+ * AcceptAt is the acceptance line. CounterAt is the floor of a counteroffer.
+ * Below CounterAt the proposal is rejected. A hard-rejected item is rejected
+ * whatever the sum is.
+ */
+AgreementEvaluator.prototype.AcceptAt = 0;
+AgreementEvaluator.prototype.CounterAt = -200;
+
+AgreementEvaluator.prototype.CashScale = 132;
+AgreementEvaluator.prototype.CashReference = 500000;
+
+AgreementEvaluator.prototype.ShortageDivisor = 2500;
+AgreementEvaluator.prototype.SurplusIntervals = 8;
+AgreementEvaluator.prototype.SurplusFactor = 0.5;
+AgreementEvaluator.prototype.DevelopmentCost = 20;
+AgreementEvaluator.prototype.AdvancedCost = 50;
+AgreementEvaluator.prototype.MaterialsSurplus = 200;
+AgreementEvaluator.prototype.NeededMaterialsFactor = 2.5;
+AgreementEvaluator.prototype.SurplusMaterialsFactor = 0.6;
+AgreementEvaluator.prototype.ConstrainedFactor = 2.5;
+AgreementEvaluator.prototype.ImpossibleCost = 5000;
+
+AgreementEvaluator.prototype.MilitaryReceive = 25;
+AgreementEvaluator.prototype.MilitaryGrant = 40;
+AgreementEvaluator.prototype.MilitaryGrantOccupied = 120;
+AgreementEvaluator.prototype.MilitaryHostile = 1000;
+
+AgreementEvaluator.prototype.TradeReceive = 15;
+AgreementEvaluator.prototype.TradeGrant = 8;
+
+AgreementEvaluator.prototype.Init = function()
+{
+};
+
+/**
+ * @return {Object|null}
+ */
+AgreementEvaluator.prototype.ResourceProfile = function(code)
+{
+	if (code === "food")
+		return { "scale": 2, "reference": 400 };
+	if (code === "wood" || code === "stone")
+		return { "scale": 1, "reference": 300 };
+	if (code === "metal")
+		return { "scale": 1, "reference": 200 };
+	if (code === "construction_materials")
+		return { "scale": 2, "reference": 80 };
+	return { "scale": 1, "reference": 200 };
+};
+
+/**
+ * Integral of scale * reference / (reference + stock) between two stocks.
+ * @return {number}
+ */
+AgreementEvaluator.prototype.RangeValue = function(scale, reference, fromStock, toStock)
+{
+	if (toStock === fromStock)
+		return 0;
+	const low = reference + fromStock;
+	const high = reference + toStock;
+	if (low <= 0 || high <= 0)
+		return 0;
+	return scale * reference * Math.log(high / low);
+};
+
+AgreementEvaluator.prototype.Stock = function(playerId, code)
+{
+	const cmpPlayer = QueryPlayerIDInterface(playerId);
+	const counts = cmpPlayer && cmpPlayer.GetResourceCounts();
+	const amount = counts && counts[code];
+	return Number.isFinite(amount) && amount > 0 ? amount : 0;
+};
+
+AgreementEvaluator.prototype.Treasury = function(playerId)
+{
+	const cmpFinance = Engine.QueryInterface(SYSTEM_ENTITY, IID_GovernmentFinance);
+	return cmpFinance ? cmpFinance.GetTreasury(playerId) : 0;
+};
+
+/**
+ * Shortage and coverage against PopulationFoodConsumption. Missing demand is neutral.
+ * @return {number}
+ */
+AgreementEvaluator.prototype.FoodSecurity = function(playerId, stock)
+{
+	const cmpFood = Engine.QueryInterface(SYSTEM_ENTITY, IID_PopulationFoodConsumption);
+	const status = cmpFood && cmpFood.GetFoodStatus && cmpFood.GetFoodStatus(playerId);
+	if (!status)
+		return 1;
+
+	const shortage = Number.isFinite(status.shortageBps) && status.shortageBps > 0 ? status.shortageBps : 0;
+	const shortageFactor = 1 + shortage / this.ShortageDivisor;
+	const required = status.required || 0;
+	if (required <= 0)
+		return shortageFactor;
+
+	const coverage = stock / required;
+	let coverageFactor = 1;
+	if (coverage >= this.SurplusIntervals)
+		coverageFactor = this.SurplusFactor;
+	else if (coverage < 1)
+		coverageFactor = 4;
+	else if (coverage < 3)
+		coverageFactor = 2;
+	return shortageFactor * coverageFactor;
+};
+
+/**
+ * consolidation, development, or advanced. A missing technology manager is consolidation.
+ * @return {string}
+ */
+AgreementEvaluator.prototype.Phase = function(playerId)
+{
+	const cmpTech = QueryPlayerIDInterface(playerId, IID_TechnologyManager);
+	if (!cmpTech || !cmpTech.IsTechnologyResearched)
+		return "consolidation";
+
+	const city = ["phase_city", "phase_city_athen", "phase_city_generic"];
+	for (let i = 0; i < city.length; ++i)
+		if (cmpTech.IsTechnologyResearched(city[i]))
+			return "advanced";
+
+	const town = ["phase_town", "phase_town_athen", "phase_town_generic"];
+	for (let i = 0; i < town.length; ++i)
+		if (cmpTech.IsTechnologyResearched(town[i]))
+			return "development";
+	return "consolidation";
+};
+
+/**
+ * @return {number}
+ */
+AgreementEvaluator.prototype.MaterialsFactor = function(playerId, stock)
+{
+	const phase = this.Phase(playerId);
+	if (phase === "advanced")
+		return stock >= this.MaterialsSurplus ? this.SurplusMaterialsFactor : 1;
+
+	const next = phase === "development" ? this.AdvancedCost : this.DevelopmentCost;
+	if (stock < next)
+		return this.NeededMaterialsFactor;
+	if (stock < next * 2)
+		return 1.5;
+	return 1;
+};
+
+/**
+ * Owned factories that cannot run because this input is short.
+ * @return {number}
+ */
+AgreementEvaluator.prototype.InputPressure = function(playerId, code, stock)
+{
+	if (code !== "wood" && code !== "stone" && code !== "metal")
+		return 1;
+	if (typeof Engine.GetEntitiesWithInterface !== "function" || typeof IID_IndustrialProduction === "undefined")
+		return 1;
+
+	const entities = Engine.GetEntitiesWithInterface(IID_IndustrialProduction) || [];
+	for (let i = 0; i < entities.length; ++i)
+	{
+		const cmpOwnership = Engine.QueryInterface(entities[i], IID_Ownership);
+		if (!cmpOwnership || cmpOwnership.GetOwner() !== playerId)
+			continue;
+		const cmpProduction = Engine.QueryInterface(entities[i], IID_IndustrialProduction);
+		if (!cmpProduction || !cmpProduction.template)
+			continue;
+		const inputs = cmpProduction.Amounts ?
+			cmpProduction.Amounts(cmpProduction.template.Inputs) : cmpProduction.template.Inputs;
+		if (inputs && inputs[code] > 0 && stock < inputs[code])
+			return this.ConstrainedFactor;
+	}
+	return 1;
+};
+
+/**
+ * @return {boolean}
+ */
+AgreementEvaluator.prototype.MutuallyHostile = function(first, second)
+{
+	const from = QueryPlayerIDInterface(first, IID_Diplomacy);
+	const to = QueryPlayerIDInterface(second, IID_Diplomacy);
+	if (!from || !to || !from.IsEnemy || !to.IsEnemy)
+		return false;
+	return !!from.IsEnemy(second) && !!to.IsEnemy(first);
+};
+
+/**
+ * @return {number}
+ */
+AgreementEvaluator.prototype.SoldierCount = function(playerId)
+{
+	const cmpRange = Engine.QueryInterface(SYSTEM_ENTITY, IID_RangeManager);
+	if (!cmpRange || !cmpRange.GetEntitiesByPlayer || typeof IID_Identity === "undefined")
+		return 0;
+	const entities = cmpRange.GetEntitiesByPlayer(playerId) || [];
+	let count = 0;
+	for (let i = 0; i < entities.length; ++i)
+	{
+		const cmpIdentity = Engine.QueryInterface(entities[i], IID_Identity);
+		if (cmpIdentity && cmpIdentity.HasClass && cmpIdentity.HasClass("Soldier"))
+			++count;
+	}
+	return count;
+};
+
+/**
+ * Beneficiary already holds this right.
+ * @return {boolean}
+ */
+AgreementEvaluator.prototype.RightAlreadyHeld = function(item)
+{
+	if (item.type === "military_access")
+	{
+		const cmpAccess = Engine.QueryInterface(SYSTEM_ENTITY, IID_DiplomaticAccess);
+		return !!(cmpAccess && cmpAccess.HasMilitaryAccess(item.beneficiary, item.provider));
+	}
+	if (item.type === "trade_access")
+	{
+		const cmpTrade = Engine.QueryInterface(SYSTEM_ENTITY, IID_TradeAccess);
+		return !!(cmpTrade && cmpTrade.CanTrade(item.beneficiary, item.provider));
+	}
+	return false;
+};
+
+/**
+ * @return {boolean}
+ */
+AgreementEvaluator.prototype.BeneficiaryOccupiesProvider = function(beneficiary, provider)
+{
+	if (typeof Engine.GetEntitiesWithInterface !== "function" || typeof IID_NationSettlement === "undefined")
+		return false;
+	const cmpOccupation = Engine.QueryInterface(SYSTEM_ENTITY, IID_MilitaryOccupation);
+	if (!cmpOccupation)
+		return false;
+	const settlements = Engine.GetEntitiesWithInterface(IID_NationSettlement) || [];
+	for (let i = 0; i < settlements.length; ++i)
+	{
+		const cmpSettlement = Engine.QueryInterface(settlements[i], IID_NationSettlement);
+		if (!cmpSettlement || cmpSettlement.GetSovereignOwner() !== provider)
+			continue;
+		if (cmpOccupation.GetOccupier(settlements[i]) === beneficiary)
+			return true;
+	}
+	return false;
+};
+
+/**
+ * Score one item from the working stock and treasury. Does not read other items.
+ * @return {Object}
+ */
+AgreementEvaluator.prototype.ScoreItem = function(item, evaluatingPlayer, stock, treasury)
+{
+	const received = item.beneficiary === evaluatingPlayer;
+	const row = {
+		"type": item.type,
+		"direction": received ? "received" : "given",
+		"utility": 0,
+		"hardReject": false
+	};
+	if (item.resource)
+		row.resource = item.resource;
+	if (item.amount !== undefined)
+		row.amount = item.amount;
+
+	if (item.provider !== evaluatingPlayer && item.beneficiary !== evaluatingPlayer)
+		return row;
+
+	if (item.type === "military_access" || item.type === "trade_access")
+	{
+		if (this.RightAlreadyHeld(item))
+			return row;
+
+		if (item.type === "military_access" && !received &&
+			this.MutuallyHostile(item.provider, item.beneficiary))
+		{
+			row.utility = -this.MilitaryHostile;
+			row.hardReject = true;
+			return row;
+		}
+
+		if (item.type === "military_access")
+		{
+			if (received)
+				row.utility = this.MilitaryReceive;
+			else if (this.BeneficiaryOccupiesProvider(item.beneficiary, item.provider))
+				row.utility = -this.MilitaryGrantOccupied;
+			else
+			{
+				const cmpPresence = Engine.QueryInterface(SYSTEM_ENTITY, IID_ForeignMilitaryPresence);
+				const inside = cmpPresence && cmpPresence.HasForeignMilitaryPresence &&
+					cmpPresence.HasForeignMilitaryPresence(item.beneficiary, item.provider);
+				row.utility = inside || this.SoldierCount(item.beneficiary) > 0 ?
+					-this.MilitaryGrantOccupied : -this.MilitaryGrant;
+			}
+			return row;
+		}
+
+		row.utility = received ? this.TradeReceive : -this.TradeGrant;
+		return row;
+	}
+
+	const amount = item.amount;
+	if (item.type === "cash")
+	{
+		const from = received ? treasury : treasury - amount;
+		const to = received ? treasury + amount : treasury;
+		if (!received && treasury < amount)
+		{
+			row.utility = -this.ImpossibleCost;
+			return row;
+		}
+		const span = this.CashScale * Math.log((this.CashReference + Math.max(from, to)) / (this.CashReference + Math.min(from, to)));
+		row.utility = Math.round(received ? span : -span);
+		return row;
+	}
+
+	const held = stock[item.resource] || 0;
+	const from = received ? held : held - amount;
+	const to = received ? held + amount : held;
+	if (!received && held < amount)
+	{
+		row.utility = -this.ImpossibleCost;
+		return row;
+	}
+
+	const profile = this.ResourceProfile(item.resource);
+	let span = this.RangeValue(profile.scale, profile.reference, Math.min(from, to), Math.max(from, to));
+	if (item.resource === "food")
+		span *= this.FoodSecurity(evaluatingPlayer, held);
+	else if (item.resource === "construction_materials")
+		span *= this.MaterialsFactor(evaluatingPlayer, held);
+	else
+		span *= this.InputPressure(evaluatingPlayer, item.resource, held);
+	row.utility = Math.round(received ? span : -span);
+	return row;
+};
+
+/**
+ * @return {Object}
+ */
+AgreementEvaluator.prototype.EvaluateItem = function(item, evaluatingPlayer)
+{
+	const stock = {};
+	if (item && item.type === "resource")
+		stock[item.resource] = this.Stock(evaluatingPlayer, item.resource);
+	return this.ScoreItem(item, evaluatingPlayer, stock, this.Treasury(evaluatingPlayer));
+};
+
+AgreementEvaluator.prototype.SortItems = function(items)
+{
+	return items.slice().sort((left, right) =>
+	{
+		if (left.type < right.type)
+			return -1;
+		if (left.type > right.type)
+			return 1;
+		const leftCode = left.resource || "";
+		const rightCode = right.resource || "";
+		if (leftCode < rightCode)
+			return -1;
+		if (leftCode > rightCode)
+			return 1;
+		return (left.amount || 0) - (right.amount || 0);
+	});
+};
+
+/**
+ * Given items are scored from the current stock, then received items from what remains.
+ * @return {Object}
+ */
+AgreementEvaluator.prototype.EvaluateProposalData = function(proposal, evaluatingPlayer)
+{
+	const empty = {
+		"totalUtility": 0,
+		"receivedUtility": 0,
+		"givenUtility": 0,
+		"hardReject": false,
+		"decision": "reject",
+		"items": []
+	};
+	if (!proposal)
+		return empty;
+
+	const cmpPlayer = QueryPlayerIDInterface(evaluatingPlayer);
+	const counts = cmpPlayer && cmpPlayer.GetResourceCounts() || {};
+	const stock = {};
+	for (const code in counts)
+		stock[code] = Number.isFinite(counts[code]) && counts[code] > 0 ? counts[code] : 0;
+	let treasury = this.Treasury(evaluatingPlayer);
+
+	const given = [];
+	const received = [];
+	const source = (proposal.offer || []).concat(proposal.request || []);
+	for (let i = 0; i < source.length; ++i)
+	{
+		const item = source[i];
+		if (!item)
+			continue;
+		if (item.provider === evaluatingPlayer)
+			given.push(item);
+		else if (item.beneficiary === evaluatingPlayer)
+			received.push(item);
+	}
+
+	const rows = [];
+	const ordered = this.SortItems(given).concat(this.SortItems(received));
+	for (let i = 0; i < ordered.length; ++i)
+	{
+		const item = ordered[i];
+		const row = this.ScoreItem(item, evaluatingPlayer, stock, treasury);
+		rows.push(row);
+		if (item.type === "resource" && item.provider === evaluatingPlayer)
+			stock[item.resource] = Math.max(0, (stock[item.resource] || 0) - item.amount);
+		else if (item.type === "resource" && item.beneficiary === evaluatingPlayer)
+			stock[item.resource] = (stock[item.resource] || 0) + item.amount;
+		else if (item.type === "cash" && item.provider === evaluatingPlayer)
+			treasury = Math.max(0, treasury - item.amount);
+		else if (item.type === "cash" && item.beneficiary === evaluatingPlayer)
+			treasury += item.amount;
+	}
+
+	let receivedUtility = 0;
+	let givenUtility = 0;
+	let hardReject = false;
+	for (let i = 0; i < rows.length; ++i)
+	{
+		if (rows[i].hardReject)
+			hardReject = true;
+		if (rows[i].utility >= 0)
+			receivedUtility += rows[i].utility;
+		else
+			givenUtility += -rows[i].utility;
+	}
+
+	const totalUtility = receivedUtility - givenUtility;
+	let decision = "reject";
+	if (!hardReject && totalUtility >= this.AcceptAt)
+		decision = "accept";
+	else if (!hardReject && totalUtility >= this.CounterAt)
+		decision = "counter";
+
+	return {
+		"totalUtility": totalUtility,
+		"receivedUtility": receivedUtility,
+		"givenUtility": givenUtility,
+		"hardReject": hardReject,
+		"decision": decision,
+		"items": rows
+	};
+};
+
+/**
+ * @return {Object|null}
+ */
+AgreementEvaluator.prototype.EvaluateProposal = function(proposalId, evaluatingPlayer)
+{
+	const cmpAgreements = Engine.QueryInterface(SYSTEM_ENTITY, IID_AgreementManager);
+	const proposal = cmpAgreements && cmpAgreements.Find(proposalId);
+	if (!proposal)
+		return null;
+	return this.EvaluateProposalData(proposal, evaluatingPlayer);
+};
+
+Engine.RegisterSystemComponentType(IID_AgreementEvaluator, "AgreementEvaluator", AgreementEvaluator);

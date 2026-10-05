@@ -360,7 +360,7 @@ AgreementManager.prototype.Execute = function(proposal)
  * Store a pending proposal. Nothing is spent.
  * @return {number} - Proposal id, or 0 when the proposal is refused.
  */
-AgreementManager.prototype.Propose = function(proposer, recipient, offer, request)
+AgreementManager.prototype.Propose = function(proposer, recipient, offer, request, parentProposal)
 {
 	const proposal = this.Normalize(proposer, recipient, offer, request);
 	if (!proposal || !this.CanExecute(proposal))
@@ -368,7 +368,15 @@ AgreementManager.prototype.Propose = function(proposer, recipient, offer, reques
 
 	proposal.id = this.nextId++;
 	proposal.status = "pending";
+	if (this.IsPositiveInt(parentProposal) && this.Find(parentProposal))
+		proposal.parentProposal = parentProposal;
 	this.proposals.push(proposal);
+	if (typeof IID_AgreementAI !== "undefined")
+	{
+		const cmpAI = Engine.QueryInterface(SYSTEM_ENTITY, IID_AgreementAI);
+		if (cmpAI)
+			cmpAI.NoticeProposal(proposal.id);
+	}
 	return proposal.id;
 };
 
@@ -413,6 +421,19 @@ AgreementManager.prototype.Reject = function(player, id)
 	if (player !== proposal.proposer && player !== proposal.recipient)
 		return false;
 	proposal.status = "rejected";
+	return true;
+};
+
+/**
+ * The recipient answered with a new proposal. The original can no longer execute.
+ * @return {boolean}
+ */
+AgreementManager.prototype.MarkCountered = function(player, id)
+{
+	const proposal = this.Find(id);
+	if (!proposal || proposal.status !== "pending" || proposal.recipient !== player)
+		return false;
+	proposal.status = "countered";
 	return true;
 };
 
