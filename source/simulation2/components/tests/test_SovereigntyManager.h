@@ -17,6 +17,7 @@
 
 #include "lib/self_test.h"
 
+#include "graphics/TerritoryBoundary.h"
 #include "graphics/Terrain.h"
 #include "maths/Fixed.h"
 #include "maths/FixedVector3D.h"
@@ -29,6 +30,7 @@
 #include "simulation2/components/ICmpPlayerManager.h"
 #include "simulation2/components/ICmpSovereigntyManager.h"
 #include "simulation2/components/ICmpTerrain.h"
+#include "simulation2/components/ICmpTerritoryManager.h"
 #include "simulation2/helpers/Grid.h"
 #include "simulation2/helpers/Player.h"
 #include "simulation2/serialization/StdDeserializer.h"
@@ -36,6 +38,7 @@
 #include "simulation2/system/Component.h"
 #include "simulation2/system/ComponentTest.h"
 
+#include <cmath>
 #include <cstdint>
 #include <sstream>
 #include <string>
@@ -45,7 +48,9 @@ class MockSovereigntyPlayerManager : public ICmpPlayerManager
 public:
 	DEFAULT_MOCK_COMPONENT()
 
-	std::int32_t GetNumPlayers() override { return 3; }
+	std::int32_t m_NumPlayers = 3;
+
+	std::int32_t GetNumPlayers() override { return m_NumPlayers; }
 	entity_id_t GetPlayerByID(std::int32_t id) override { return id + 1; }
 };
 
@@ -104,6 +109,22 @@ public:
 	void setUp()
 	{
 		m_Terrain.m_Tiles = 16;
+		m_Players.m_NumPlayers = 3;
+	}
+
+	static Grid<std::uint8_t> Fill(const std::uint8_t* cells, std::uint16_t width, std::uint16_t height)
+	{
+		Grid<std::uint8_t> grid(width, height);
+		for (std::uint16_t j = 0; j < height; ++j)
+			for (std::uint16_t i = 0; i < width; ++i)
+				grid.set(i, j, cells[j * width + i]);
+		return grid;
+	}
+
+	static void ExpectPoint(const CVector2D& point, float x, float y)
+	{
+		TS_ASSERT_DELTA(point.X, x, 0.01f);
+		TS_ASSERT_DELTA(point.Y, y, 0.01f);
 	}
 
 	void test_rectangles_unclaimed_and_cell_quantization()
@@ -321,5 +342,359 @@ public:
 		// Outside the authored rings only because this grid is larger than the scenario.
 		TS_ASSERT_EQUALS(cmp->GetOwner(At(1540), At(4)), INVALID_PLAYER);
 		TS_ASSERT_EQUALS(cmp->GetSovereigntyGrid().get(192, 0), 0);
+	}
+
+	void test_territory_encoding_ignores_connected_and_keeps_blinking()
+	{
+		// 6x5 grid. Interior 4x3 is player 1. The right half also has the connected bit.
+		// The connected bit must not split the outline. Blinking on every interior tile must.
+		const std::uint8_t connected = static_cast<std::uint8_t>(
+			1 | ICmpTerritoryManager::TERRITORY_CONNECTED_MASK);
+		const std::uint8_t cells[] = {
+			0, 0, 0, 0, 0, 0,
+			0, 1, 1, connected, connected, 0,
+			0, 1, 1, connected, connected, 0,
+			0, 1, 1, connected, connected, 0,
+			0, 0, 0, 0, 0, 0,
+		};
+		Grid<std::uint8_t> grid = Fill(cells, 6, 5);
+
+		const std::vector<STerritoryBoundary> plain = CTerritoryBoundaryCalculator::ComputeBoundaries(&grid);
+		const std::vector<STerritoryBoundary> classified = CTerritoryBoundaryCalculator::ComputeBoundaries(
+			&grid, CTerritoryBoundaryCalculator::TerritoryClassifier());
+		TS_ASSERT_EQUALS(plain.size(), 1U);
+		TS_ASSERT_EQUALS(classified.size(), 1U);
+		TS_ASSERT_EQUALS(plain[0].blinking, false);
+		TS_ASSERT_EQUALS(classified[0].blinking, false);
+		TS_ASSERT_EQUALS(plain[0].closed, true);
+		TS_ASSERT_EQUALS(plain[0].owner, static_cast<player_id_t>(1));
+		TS_ASSERT_EQUALS(plain[0].points.size(), classified[0].points.size());
+		TS_ASSERT_EQUALS(plain[0].points.size(), 14U);
+		for (size_t i = 0; i < plain[0].points.size(); ++i)
+		{
+			TS_ASSERT_DELTA(plain[0].points[i].X, classified[0].points[i].X, 0.01f);
+			TS_ASSERT_DELTA(plain[0].points[i].Y, classified[0].points[i].Y, 0.01f);
+		}
+
+		const float expected[][2] = {
+			{12, 8}, {20, 8}, {28, 8}, {36, 8},
+			{40, 12}, {40, 20}, {40, 28},
+			{36, 32}, {28, 32}, {20, 32}, {12, 32},
+			{8, 28}, {8, 20}, {8, 12},
+		};
+		for (size_t i = 0; i < 14; ++i)
+			ExpectPoint(plain[0].points[i], expected[i][0], expected[i][1]);
+
+		const std::uint8_t blinking = static_cast<std::uint8_t>(1 | ICmpTerritoryManager::TERRITORY_BLINKING_MASK);
+		std::uint8_t blinkingCells[30];
+		for (int i = 0; i < 30; ++i)
+			blinkingCells[i] = cells[i] == 0 ? 0 : blinking;
+		Grid<std::uint8_t> blinkingGrid = Fill(blinkingCells, 6, 5);
+		const std::vector<STerritoryBoundary> blinkingBoundaries =
+			CTerritoryBoundaryCalculator::ComputeBoundaries(&blinkingGrid);
+		TS_ASSERT_EQUALS(blinkingBoundaries.size(), 1U);
+		TS_ASSERT_EQUALS(blinkingBoundaries[0].blinking, true);
+		TS_ASSERT_EQUALS(blinkingBoundaries[0].points.size(), plain[0].points.size());
+		for (size_t i = 0; i < plain[0].points.size(); ++i)
+		{
+			TS_ASSERT_DELTA(blinkingBoundaries[0].points[i].X, plain[0].points[i].X, 0.01f);
+			TS_ASSERT_DELTA(blinkingBoundaries[0].points[i].Y, plain[0].points[i].Y, 0.01f);
+		}
+	}
+
+	void test_sovereignty_split_is_one_shared_boundary()
+	{
+		const std::uint8_t cells[] = {
+			1, 1, 1, 1, 2, 2, 2, 2,
+			1, 1, 1, 1, 2, 2, 2, 2,
+			1, 1, 1, 1, 2, 2, 2, 2,
+			1, 1, 1, 1, 2, 2, 2, 2,
+		};
+		Grid<std::uint8_t> grid = Fill(cells, 8, 4);
+		const std::vector<STerritoryBoundary> boundaries = CTerritoryBoundaryCalculator::ComputeBoundaries(
+			&grid, CTerritoryBoundaryCalculator::SovereigntyClassifier());
+
+		TS_ASSERT_EQUALS(boundaries.size(), 1U);
+		TS_ASSERT_EQUALS(boundaries[0].closed, false);
+		TS_ASSERT_EQUALS(boundaries[0].blinking, false);
+		TS_ASSERT_EQUALS(boundaries[0].points.size(), 6U);
+		ExpectPoint(boundaries[0].points[0], 28, 0);
+		ExpectPoint(boundaries[0].points[1], 32, 4);
+		ExpectPoint(boundaries[0].points[2], 32, 12);
+		ExpectPoint(boundaries[0].points[3], 32, 20);
+		ExpectPoint(boundaries[0].points[4], 32, 28);
+		ExpectPoint(boundaries[0].points[5], 28, 32);
+	}
+
+	void test_sovereignty_three_states()
+	{
+		const std::uint8_t cells[] = {
+			1, 1, 2, 2, 4, 4,
+			1, 1, 2, 2, 4, 4,
+			1, 1, 2, 2, 4, 4,
+			1, 1, 2, 2, 4, 4,
+		};
+		Grid<std::uint8_t> grid = Fill(cells, 6, 4);
+		const std::vector<STerritoryBoundary> boundaries = CTerritoryBoundaryCalculator::ComputeBoundaries(
+			&grid, CTerritoryBoundaryCalculator::SovereigntyClassifier());
+
+		TS_ASSERT_EQUALS(boundaries.size(), 2U);
+		bool saw16 = false;
+		bool saw32 = false;
+		for (const STerritoryBoundary& boundary : boundaries)
+		{
+			TS_ASSERT_EQUALS(boundary.closed, false);
+			for (const CVector2D& point : boundary.points)
+			{
+				TS_ASSERT(point.X > 1.f);
+				TS_ASSERT(point.X < 47.f);
+				if (std::fabs(point.X - 16.f) < 0.01f)
+					saw16 = true;
+				if (std::fabs(point.X - 32.f) < 0.01f)
+					saw32 = true;
+			}
+		}
+		TS_ASSERT(saw16);
+		TS_ASSERT(saw32);
+	}
+
+	void test_sovereignty_unclaimed_edge()
+	{
+		const std::uint8_t cells[] = {
+			1, 1, 0, 0,
+			1, 1, 0, 0,
+		};
+		Grid<std::uint8_t> grid = Fill(cells, 4, 2);
+		const std::vector<STerritoryBoundary> boundaries = CTerritoryBoundaryCalculator::ComputeBoundaries(
+			&grid, CTerritoryBoundaryCalculator::SovereigntyClassifier());
+
+		TS_ASSERT_EQUALS(boundaries.size(), 1U);
+		TS_ASSERT_EQUALS(boundaries[0].closed, false);
+		TS_ASSERT_EQUALS(boundaries[0].owner, static_cast<player_id_t>(1));
+		bool sawShared = false;
+		for (const CVector2D& point : boundaries[0].points)
+		{
+			TS_ASSERT(point.X > 1.f);
+			if (std::fabs(point.X - 16.f) < 0.01f)
+				sawShared = true;
+		}
+		TS_ASSERT(sawShared);
+	}
+
+	void test_sovereignty_stair_and_map_edge()
+	{
+		const std::uint8_t full[] = {
+			1, 1, 1, 1,
+			1, 1, 1, 1,
+			1, 1, 1, 1,
+			1, 1, 1, 1,
+		};
+		Grid<std::uint8_t> fullGrid = Fill(full, 4, 4);
+		TS_ASSERT_EQUALS(
+			CTerritoryBoundaryCalculator::ComputeBoundaries(
+				&fullGrid, CTerritoryBoundaryCalculator::SovereigntyClassifier()).size(),
+			0U);
+		const std::vector<STerritoryBoundary> territoryLoops =
+			CTerritoryBoundaryCalculator::ComputeBoundaries(&fullGrid);
+		TS_ASSERT_EQUALS(territoryLoops.size(), 1U);
+		bool territoryTouchesEdge = false;
+		for (const CVector2D& point : territoryLoops[0].points)
+		{
+			if (point.X <= 0.01f || point.Y <= 0.01f)
+				territoryTouchesEdge = true;
+		}
+		TS_ASSERT(territoryTouchesEdge);
+
+		const std::uint8_t island[] = {
+			0, 0, 0, 0,
+			0, 1, 1, 0,
+			0, 1, 1, 0,
+			0, 0, 0, 0,
+		};
+		Grid<std::uint8_t> islandGrid = Fill(island, 4, 4);
+		const std::vector<STerritoryBoundary> islandBoundaries =
+			CTerritoryBoundaryCalculator::ComputeBoundaries(
+				&islandGrid, CTerritoryBoundaryCalculator::SovereigntyClassifier());
+		TS_ASSERT_EQUALS(islandBoundaries.size(), 1U);
+		TS_ASSERT_EQUALS(islandBoundaries[0].closed, true);
+		for (const CVector2D& point : islandBoundaries[0].points)
+		{
+			TS_ASSERT(point.X > 1.f && point.X < 31.f);
+			TS_ASSERT(point.Y > 1.f && point.Y < 31.f);
+		}
+
+		const std::uint8_t stair[] = {
+			1, 1, 1, 0, 0, 0,
+			1, 1, 1, 0, 0, 0,
+			1, 1, 1, 1, 0, 0,
+			1, 1, 1, 1, 0, 0,
+		};
+		Grid<std::uint8_t> stairGrid = Fill(stair, 6, 4);
+		const std::vector<STerritoryBoundary> stairBoundaries =
+			CTerritoryBoundaryCalculator::ComputeBoundaries(
+				&stairGrid, CTerritoryBoundaryCalculator::SovereigntyClassifier());
+		TS_ASSERT_EQUALS(stairBoundaries.size(), 1U);
+		TS_ASSERT_EQUALS(stairBoundaries[0].closed, false);
+		bool saw24 = false;
+		bool saw32 = false;
+		const std::vector<CVector2D>& stairPoints = stairBoundaries[0].points;
+		TS_ASSERT(stairPoints.size() > 4U);
+		for (size_t i = 0; i < stairPoints.size(); ++i)
+		{
+			TS_ASSERT(stairPoints[i].X > 1.f);
+			if (std::fabs(stairPoints[i].X - 24.f) < 0.01f)
+				saw24 = true;
+			if (std::fabs(stairPoints[i].X - 32.f) < 0.01f)
+				saw32 = true;
+			if (i == 0)
+				continue;
+			const float dx = stairPoints[i].X - stairPoints[i - 1].X;
+			const float dy = stairPoints[i].Y - stairPoints[i - 1].Y;
+			TS_ASSERT(dx * dx + dy * dy < 12.f * 12.f);
+		}
+		TS_ASSERT(saw24);
+		TS_ASSERT(saw32);
+	}
+
+	void test_food_crisis_raster_border()
+	{
+		CXeromycesEngine xeromycesEngine;
+		ComponentTestHelper test(*g_ScriptContext);
+		m_Terrain.m_Tiles = 384;
+		ICmpSovereigntyManager* cmp = Add(test);
+		SetRegions(test,
+			"["
+			"{owner:1,points:["
+			"{x:0,z:0},{x:1020,z:0},{x:980,z:400},{x:1060,z:800},"
+			"{x:990,z:1200},{x:1080,z:1536},{x:0,z:1536}]},"
+			"{owner:2,points:["
+			"{x:1020,z:0},{x:1536,z:0},{x:1536,z:1536},{x:1080,z:1536},"
+			"{x:990,z:1200},{x:1060,z:800},{x:980,z:400}]}"
+			"]");
+
+		const Grid<std::uint8_t>& grid = cmp->GetSovereigntyGrid();
+		TS_ASSERT_EQUALS(grid.width(), 192);
+		const std::vector<STerritoryBoundary> boundaries = CTerritoryBoundaryCalculator::ComputeBoundaries(
+			&grid, CTerritoryBoundaryCalculator::SovereigntyClassifier());
+
+		TS_ASSERT_EQUALS(boundaries.size(), 1U);
+		TS_ASSERT_EQUALS(boundaries[0].closed, false);
+		int interior = 0;
+		for (const CVector2D& point : boundaries[0].points)
+		{
+			TSM_ASSERT_DELTA("Densira–Adomé border stays on the rasterized frontier", point.X, 1040.f, 160.f);
+			TS_ASSERT(point.Y >= -0.01f && point.Y <= 1536.01f);
+			const bool onPerimeter = point.Y <= 0.01f || point.Y >= 1535.99f;
+			if (onPerimeter)
+				continue;
+			++interior;
+			const int west = OwnerByte(grid, point.X - 4.f, point.Y);
+			const int east = OwnerByte(grid, point.X + 4.f, point.Y);
+			const int south = OwnerByte(grid, point.X, point.Y - 4.f);
+			const int north = OwnerByte(grid, point.X, point.Y + 4.f);
+			TS_ASSERT(west != east || south != north);
+		}
+		TS_ASSERT(interior > 20);
+	}
+
+	void test_sandbox_three_sovereigns()
+	{
+		CXeromycesEngine xeromycesEngine;
+		ComponentTestHelper test(*g_ScriptContext);
+		m_Terrain.m_Tiles = 128;
+		m_Players.m_NumPlayers = 5;
+		ICmpSovereigntyManager* cmp = Add(test);
+		SetRegions(test,
+			"["
+			"{owner:1,points:["
+			"{x:0,z:0},{x:256,z:0},{x:256,z:70},{x:248,z:70},"
+			"{x:248,z:110},{x:256,z:110},{x:256,z:512},{x:0,z:512}]},"
+			"{owner:4,points:["
+			"{x:248,z:70},{x:292,z:70},{x:292,z:110},{x:248,z:110}]},"
+			"{owner:2,points:["
+			"{x:256,z:0},{x:512,z:0},{x:512,z:512},{x:256,z:512}]}"
+			"]");
+
+		const Grid<std::uint8_t>& grid = cmp->GetSovereigntyGrid();
+		TS_ASSERT_EQUALS(grid.width(), 64);
+		TS_ASSERT_EQUALS(grid.get(10, 40), 1);
+		TS_ASSERT_EQUALS(grid.get(40, 40), 2);
+		TS_ASSERT_EQUALS(grid.get(31, 10), 4);
+
+		const std::vector<STerritoryBoundary> boundaries = CTerritoryBoundaryCalculator::ComputeBoundaries(
+			&grid, CTerritoryBoundaryCalculator::SovereigntyClassifier());
+
+		bool sawMain = false;
+		bool sawNotch = false;
+		bool sawTransitEast = false;
+		bool sawTransitSouth = false;
+		bool sawTransitNorth = false;
+		for (const STerritoryBoundary& boundary : boundaries)
+		{
+			for (const CVector2D& point : boundary.points)
+			{
+				TS_ASSERT(point.X > 1.f && point.X < 511.f);
+				TS_ASSERT(point.Y > -0.01f && point.Y < 512.01f);
+				if (std::fabs(point.X - 256.f) < 12.f && point.Y > 200.f && point.Y < 400.f)
+					sawMain = true;
+				if (point.X > 236.f && point.X < 260.f && point.Y > 70.f && point.Y < 110.f)
+					sawNotch = true;
+				if (point.X > 280.f && point.X < 304.f && point.Y > 70.f && point.Y < 110.f)
+					sawTransitEast = true;
+				if (point.X > 250.f && point.X < 290.f && point.Y > 60.f && point.Y < 84.f)
+					sawTransitSouth = true;
+				if (point.X > 250.f && point.X < 290.f && point.Y > 100.f && point.Y < 124.f)
+					sawTransitNorth = true;
+			}
+		}
+		TS_ASSERT(sawMain);
+		TS_ASSERT(sawNotch);
+		TS_ASSERT(sawTransitEast);
+		TS_ASSERT(sawTransitSouth);
+		TS_ASSERT(sawTransitNorth);
+	}
+
+	void test_boundary_lines_rebuild_only_when_stale()
+	{
+		CXeromycesEngine xeromycesEngine;
+		ComponentTestHelper test(*g_ScriptContext);
+		ICmpSovereigntyManager* cmp = Add(test);
+		SetRegions(test,
+			"[{owner:1,points:[{x:0,z:0},{x:32,z:0},{x:32,z:32},{x:0,z:32}]}]");
+
+		TS_ASSERT(cmp->UpdateBoundaryLines());
+		TS_ASSERT(!cmp->UpdateBoundaryLines());
+		TS_ASSERT(CTerritoryBoundaryCalculator::ComputeBoundaries(
+			&cmp->GetSovereigntyGrid(), CTerritoryBoundaryCalculator::SovereigntyClassifier()).size() > 0U);
+
+		size_t dirty = 0;
+		TS_ASSERT(cmp->NeedUpdateTexture(&dirty));
+		TS_ASSERT_EQUALS(dirty, 1);
+
+		CMessageTerrainChanged sameSize(0, 0, 16, 16);
+		cmp->GetSimContext().GetComponentManager().BroadcastMessage(sameSize);
+		TS_ASSERT(!cmp->NeedUpdateTexture(&dirty));
+		TS_ASSERT(cmp->UpdateBoundaryLines());
+		TS_ASSERT(!cmp->UpdateBoundaryLines());
+
+		m_Terrain.m_Tiles = 32;
+		CMessageTerrainChanged resized(0, 0, 32, 32);
+		cmp->GetSimContext().GetComponentManager().BroadcastMessage(resized);
+		TS_ASSERT(cmp->NeedUpdateTexture(&dirty));
+		TS_ASSERT_EQUALS(dirty, 2);
+		TS_ASSERT(cmp->UpdateBoundaryLines());
+		TS_ASSERT(!cmp->UpdateBoundaryLines());
+		TS_ASSERT_EQUALS(cmp->GetSovereigntyGrid().width(), 16);
+	}
+
+	static int OwnerByte(const Grid<std::uint8_t>& grid, float x, float y)
+	{
+		if (x < 0.f || y < 0.f)
+			return -1;
+		const int i = static_cast<int>(x / 8.f);
+		const int j = static_cast<int>(y / 8.f);
+		if (i < 0 || j < 0 || i >= grid.width() || j >= grid.height())
+			return -1;
+		return grid.get(static_cast<std::uint16_t>(i), static_cast<std::uint16_t>(j));
 	}
 };

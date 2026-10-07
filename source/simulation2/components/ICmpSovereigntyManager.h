@@ -53,6 +53,13 @@ public:
 	 */
 	virtual player_id_t GetOwner(entity_pos_t x, entity_pos_t z) = 0;
 
+	/**
+	 * Rebuilds world-space national boundary lines when the sovereignty generation
+	 * or cached terrain heights are stale. Not a script method.
+	 * @return true when boundary geometry was rebuilt.
+	 */
+	virtual bool UpdateBoundaryLines() = 0;
+
 	DECLARE_INTERFACE_TYPE(SovereigntyManager)
 };
 

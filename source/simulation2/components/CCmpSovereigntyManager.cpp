@@ -19,8 +19,15 @@
 
 #include "ICmpSovereigntyManager.h"
 
+#include "graphics/Color.h"
+#include "graphics/Overlay.h"
+#include "graphics/TerritoryBoundary.h"
+#include "graphics/Texture.h"
+#include "graphics/TextureManager.h"
 #include "maths/MathUtil.h"
 #include "ps/CLogger.h"
+#include "renderer/Renderer.h"
+#include "renderer/Scene.h"
 #include "scriptinterface/Object.h"
 #include "simulation2/MessageTypes.h"
 #include "simulation2/components/ICmpPlayerManager.h"
@@ -28,10 +35,12 @@
 #include "simulation2/components/ICmpTerritoryManager.h"
 #include "simulation2/helpers/Grid.h"
 #include "simulation2/helpers/Pathfinding.h"
+#include "simulation2/helpers/Render.h"
 #include "simulation2/system/Component.h"
 
 #include <cmath>
 #include <cstdint>
+#include <limits>
 #include <string>
 #include <utility>
 #include <vector>
@@ -41,6 +50,11 @@ namespace
 
 // Same 5-bit player field territory uses, so the two grids stay comparable.
 constexpr int MAX_SOVEREIGN_PLAYER = ICmpTerritoryManager::TERRITORY_PLAYER_MASK;
+
+// Territory control borders are 0.75m and player-colored. A national border is one
+// shared line, drawn as thicker neutral ink on the cell edge.
+constexpr float SOVEREIGNTY_BORDER_THICKNESS = 3.0f;
+const CColor SOVEREIGNTY_BORDER_COLOR(0.10f, 0.08f, 0.06f, 0.95f);
 
 struct SRegion
 {
@@ -121,6 +135,8 @@ public:
 	static void ClassInit(CComponentManager& componentManager)
 	{
 		componentManager.SubscribeToMessageType(MT_TerrainChanged);
+		componentManager.SubscribeToMessageType(MT_Interpolate);
+		componentManager.SubscribeToMessageType(MT_RenderSubmit);
 	}
 
 	DEFAULT_COMPONENT_ALLOCATOR(SovereigntyManager)
@@ -136,6 +152,11 @@ public:
 		m_Grid.resize(0, 0);
 		m_DirtyID = 0;
 		m_AuthoringLoaded = false;
+		m_BoundaryGeometry.clear();
+		m_BoundaryLines.clear();
+		m_RenderedDirtyID = std::numeric_limits<size_t>::max();
+		m_BoundaryForce = true;
+		m_OverlaysReady = false;
 	}
 
 	void Deinit() override
@@ -188,9 +209,24 @@ public:
 
 	void HandleMessage(const CMessage& msg, bool /*global*/) override
 	{
-		// Resize only. A same-size terrain edit does not move a legal border.
-		if (msg.GetType() == MT_TerrainChanged)
+		switch (msg.GetType())
+		{
+		case MT_TerrainChanged:
+			// A same-size edit does not move the legal border. Overlay Y is cached
+			// when the line is built, so the lines still need another pass.
+			m_BoundaryForce = true;
 			RebuildGrid(true);
+			break;
+		case MT_Interpolate:
+			UpdateBoundaryLines();
+			break;
+		case MT_RenderSubmit:
+		{
+			const CMessageRenderSubmit& msgData = static_cast<const CMessageRenderSubmit&>(msg);
+			RenderSubmit(msgData.collector, msgData.frustum, msgData.culling);
+			break;
+		}
+		}
 	}
 
 	bool NeedUpdateTexture(size_t* dirtyID) override
@@ -222,11 +258,100 @@ public:
 		return owner == 0 ? INVALID_PLAYER : static_cast<player_id_t>(owner);
 	}
 
+	bool UpdateBoundaryLines() override
+	{
+		EnsureGrid();
+
+		const bool geometryStale = m_BoundaryForce || m_RenderedDirtyID != m_DirtyID;
+		if (!geometryStale && m_OverlaysReady)
+			return false;
+
+		if (geometryStale)
+		{
+			m_BoundaryForce = false;
+			m_RenderedDirtyID = m_DirtyID;
+			m_BoundaryLines.clear();
+			m_OverlaysReady = false;
+			m_BoundaryGeometry.clear();
+			if (m_Grid.width() != 0 && m_Grid.height() != 0)
+			{
+				m_BoundaryGeometry = CTerritoryBoundaryCalculator::ComputeBoundaries(
+					&m_Grid, CTerritoryBoundaryCalculator::SovereigntyClassifier());
+			}
+		}
+
+		if (!CRenderer::IsInitialised())
+			return geometryStale;
+
+		BuildOverlays();
+		m_OverlaysReady = true;
+		return geometryStale;
+	}
+
 private:
 	std::vector<SRegion> m_Regions;
 	Grid<std::uint8_t> m_Grid;
 	size_t m_DirtyID = 0;
 	bool m_AuthoringLoaded = false;
+
+	// Render state. Not serialized, and not per-player knowledge.
+	std::vector<STerritoryBoundary> m_BoundaryGeometry;
+	std::vector<SOverlayTexturedLine> m_BoundaryLines;
+	size_t m_RenderedDirtyID = std::numeric_limits<size_t>::max();
+	bool m_BoundaryForce = true;
+	bool m_OverlaysReady = false;
+
+	void BuildOverlays()
+	{
+		m_BoundaryLines.clear();
+
+		CTextureProperties texturePropsBase("art/textures/misc/territory_border.png");
+		texturePropsBase.SetAddressMode(
+			Renderer::Backend::Sampler::AddressMode::CLAMP_TO_BORDER,
+			Renderer::Backend::Sampler::AddressMode::CLAMP_TO_EDGE);
+		texturePropsBase.SetAnisotropicFilter(true);
+		CTexturePtr textureBase = g_Renderer.GetTextureManager().CreateTexture(texturePropsBase);
+
+		CTextureProperties texturePropsMask("art/textures/misc/territory_border_mask.png");
+		texturePropsMask.SetAddressMode(
+			Renderer::Backend::Sampler::AddressMode::CLAMP_TO_BORDER,
+			Renderer::Backend::Sampler::AddressMode::CLAMP_TO_EDGE);
+		texturePropsMask.SetAnisotropicFilter(true);
+		CTexturePtr textureMask = g_Renderer.GetTextureManager().CreateTexture(texturePropsMask);
+
+		m_BoundaryLines.reserve(m_BoundaryGeometry.size());
+		for (const STerritoryBoundary& boundary : m_BoundaryGeometry)
+		{
+			if (boundary.points.size() < 2)
+				continue;
+
+			m_BoundaryLines.emplace_back();
+			SOverlayTexturedLine& overlay = m_BoundaryLines.back();
+			overlay.m_SimContext = &GetSimContext();
+			overlay.m_TextureBase = textureBase;
+			overlay.m_TextureMask = textureMask;
+			overlay.m_Color = SOVEREIGNTY_BORDER_COLOR;
+			overlay.m_Thickness = SOVEREIGNTY_BORDER_THICKNESS;
+			overlay.m_Closed = boundary.closed;
+			// Always visible for this prototype. Knowledge of a national border is not LOS.
+			overlay.m_AlwaysVisible = true;
+
+			std::vector<CVector2D> points = boundary.points;
+			SimRender::SmoothPointsAverage(points, overlay.m_Closed);
+			SimRender::InterpolatePointsRNS(points, overlay.m_Closed, 0.0f);
+			overlay.m_Coords = std::move(points);
+		}
+	}
+
+	void RenderSubmit(SceneCollector& collector, const CFrustum& frustum, bool culling)
+	{
+		for (SOverlayTexturedLine& line : m_BoundaryLines)
+		{
+			if (culling && !line.IsVisibleInFrustum(frustum))
+				continue;
+			collector.Submit(&line);
+		}
+	}
 
 	/**
 	 * The grid is a cache of the polygons, filled on query.

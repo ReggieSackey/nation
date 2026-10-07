@@ -25,10 +25,197 @@
 #include "simulation2/helpers/Grid.h"
 #include "simulation2/helpers/Pathfinding.h"
 
+#include <algorithm>
 #include <cmath>
+#include <set>
+#include <tuple>
+#include <utility>
+
+namespace
+{
+
+struct SegmentKey
+{
+	int x0;
+	int y0;
+	int x1;
+	int y1;
+
+	bool operator<(const SegmentKey& rhs) const
+	{
+		return std::tie(x0, y0, x1, y1) < std::tie(rhs.x0, rhs.y0, rhs.x1, rhs.y1);
+	}
+};
+
+int Quantise(float value)
+{
+	return static_cast<int>(std::lround(value));
+}
+
+SegmentKey Undirected(const CVector2D& a, const CVector2D& b)
+{
+	SegmentKey key{Quantise(a.X), Quantise(a.Y), Quantise(b.X), Quantise(b.Y)};
+	if (std::tie(key.x1, key.y1) < std::tie(key.x0, key.y0))
+	{
+		std::swap(key.x0, key.x1);
+		std::swap(key.y0, key.y1);
+	}
+	return key;
+}
+
+/**
+ * The walker traces each owned region, including the outer map perimeter, because a
+ * region that touches j=0 has to start somewhere. Sovereignty does not want that
+ * perimeter as a decorative rectangle. Segments with both ends on the map edge are
+ * dropped. A segment with one end on the edge is kept, so a shared border still
+ * meets the map. Each undirected segment is emitted once.
+ */
+std::vector<STerritoryBoundary> OmitMapEdge(std::vector<STerritoryBoundary> loops, float mapW, float mapH)
+{
+	const float eps = 0.01f;
+	auto onPerimeter = [&](const CVector2D& point)
+	{
+		return point.X <= eps || point.Y <= eps || point.X >= mapW - eps || point.Y >= mapH - eps;
+	};
+
+	std::vector<STerritoryBoundary> result;
+	// The opposite loop of a shared border is not an identical point list: each side
+	// keeps its own corner where the border meets the map. Dedup the edge itself.
+	std::set<SegmentKey> seen;
+	std::set<std::pair<int, int>> usedVertices;
+
+	auto vertexKey = [](const CVector2D& point)
+	{
+		return std::make_pair(Quantise(point.X), Quantise(point.Y));
+	};
+
+	for (const STerritoryBoundary& loop : loops)
+	{
+		const std::vector<CVector2D>& points = loop.points;
+		const size_t count = points.size();
+		if (count < 2)
+			continue;
+
+		std::vector<char> drop(count, 0);
+		bool anyDrop = false;
+		bool anyKeep = false;
+		for (size_t i = 0; i < count; ++i)
+		{
+			const CVector2D& start = points[i];
+			const CVector2D& end = points[(i + 1) % count];
+			const bool startEdge = onPerimeter(start);
+			const bool endEdge = onPerimeter(end);
+			bool dropped = startEdge && endEdge;
+			if (!dropped && seen.count(Undirected(start, end)) != 0)
+				dropped = true;
+			// The other side's corner stub meets this border at an already drawn vertex.
+			if (!dropped && startEdge != endEdge)
+			{
+				const CVector2D& interior = startEdge ? end : start;
+				if (usedVertices.count(vertexKey(interior)) != 0)
+					dropped = true;
+			}
+			drop[i] = dropped ? 1 : 0;
+			anyDrop = anyDrop || dropped;
+			anyKeep = anyKeep || !dropped;
+		}
+		if (!anyKeep)
+			continue;
+
+		auto emit = [&](const std::vector<CVector2D>& chain, bool closed)
+		{
+			if (chain.size() < 2)
+				return;
+
+			const size_t segments = closed ? chain.size() : chain.size() - 1;
+			for (size_t i = 0; i < segments; ++i)
+			{
+				const CVector2D& start = chain[i];
+				const CVector2D& end = chain[(i + 1) % chain.size()];
+				seen.insert(Undirected(start, end));
+				usedVertices.insert(vertexKey(start));
+				usedVertices.insert(vertexKey(end));
+			}
+
+			STerritoryBoundary boundary;
+			boundary.blinking = loop.blinking;
+			boundary.closed = closed;
+			boundary.owner = loop.owner;
+			boundary.points = chain;
+			result.push_back(std::move(boundary));
+		};
+
+		if (!anyDrop)
+		{
+			emit(points, true);
+			continue;
+		}
+
+		size_t begin = 0;
+		while (begin < count && !drop[begin])
+			++begin;
+
+		size_t index = (begin + 1) % count;
+		size_t walked = 0;
+		while (walked < count)
+		{
+			while (walked < count && drop[index])
+			{
+				index = (index + 1) % count;
+				++walked;
+			}
+			if (walked >= count)
+				break;
+
+			std::vector<CVector2D> chain;
+			chain.push_back(points[index]);
+			while (walked < count && !drop[index])
+			{
+				const size_t next = (index + 1) % count;
+				chain.push_back(points[next]);
+				index = next;
+				++walked;
+			}
+			emit(chain, false);
+		}
+	}
+
+	return result;
+}
+
+} // namespace
+
+SBoundaryClassifier CTerritoryBoundaryCalculator::TerritoryClassifier()
+{
+	SBoundaryClassifier classifier;
+	classifier.discriminatorMask = static_cast<std::uint8_t>(
+		ICmpTerritoryManager::TERRITORY_BLINKING_MASK | ICmpTerritoryManager::TERRITORY_PLAYER_MASK);
+	classifier.processedMask = static_cast<std::uint8_t>(ICmpTerritoryManager::TERRITORY_PROCESSED_MASK);
+	classifier.ownerMask = static_cast<std::uint8_t>(ICmpTerritoryManager::TERRITORY_PLAYER_MASK);
+	classifier.blinkingMask = static_cast<std::uint8_t>(ICmpTerritoryManager::TERRITORY_BLINKING_MASK);
+	classifier.omitMapEdge = false;
+	return classifier;
+}
+
+SBoundaryClassifier CTerritoryBoundaryCalculator::SovereigntyClassifier()
+{
+	SBoundaryClassifier classifier;
+	// Owner byte only. Processed is a scratch bit on the copied grid, not ownership.
+	classifier.discriminatorMask = static_cast<std::uint8_t>(ICmpTerritoryManager::TERRITORY_PLAYER_MASK);
+	classifier.processedMask = static_cast<std::uint8_t>(ICmpTerritoryManager::TERRITORY_PROCESSED_MASK);
+	classifier.ownerMask = static_cast<std::uint8_t>(ICmpTerritoryManager::TERRITORY_PLAYER_MASK);
+	classifier.blinkingMask = 0;
+	classifier.omitMapEdge = true;
+	return classifier;
+}
+
+std::vector<STerritoryBoundary> CTerritoryBoundaryCalculator::ComputeBoundaries(const Grid<std::uint8_t>* territories)
+{
+	return ComputeBoundaries(territories, TerritoryClassifier());
+}
 
 std::vector<STerritoryBoundary> CTerritoryBoundaryCalculator::ComputeBoundaries(
-	const Grid<std::uint8_t>* territory)
+	const Grid<std::uint8_t>* territory, const SBoundaryClassifier& classifier)
 {
 	std::vector<STerritoryBoundary> boundaries;
 
@@ -87,7 +274,10 @@ std::vector<STerritoryBoundary> CTerritoryBoundaryCalculator::ComputeBoundaries(
 	// do this by looking at a curvature value which we define to start at 0, and which is incremented by 1 for every CCW turn and
 	// decremented by 1 for every CW turn. Hence, a negative multiple of 4 means a CW winding order, and a positive one means CCW.
 
-	const int TERRITORY_DISCR_MASK = (ICmpTerritoryManager::TERRITORY_BLINKING_MASK | ICmpTerritoryManager::TERRITORY_PLAYER_MASK);
+	// Territory passes blinking|player. That mask does not include the connected bit.
+	const std::uint8_t discrMask = classifier.discriminatorMask;
+	const std::uint8_t processedMask = classifier.processedMask;
+	const float territoryTileSize = (Pathfinding::NAVCELL_SIZE * ICmpTerritoryManager::NAVCELLS_PER_TERRITORY_TILE).ToFloat();
 
 	// Try to find an assigned tile
 	for (std::uint16_t j = 0; j < grid.m_H; ++j)
@@ -97,14 +287,14 @@ std::vector<STerritoryBoundary> CTerritoryBoundaryCalculator::ComputeBoundaries(
 			// saved tile state; from MSB to LSB:
 			// processed bit, blinking bit, player ID
 			std::uint8_t tileState = grid.get(i, j);
-			std::uint8_t tileDiscr = (tileState & TERRITORY_DISCR_MASK);
+			std::uint8_t tileDiscr = (tileState & discrMask);
 
 			// ignore neutral tiles (note that tiles without an owner should never have the blinking bit set)
 			if (!tileDiscr)
 				continue;
 
-			bool tileProcessed = ((tileState & ICmpTerritoryManager::TERRITORY_PROCESSED_MASK) != 0);
-			bool tileEligible = (j == 0 || tileDiscr != (grid.get(i, j-1) & TERRITORY_DISCR_MASK));
+			bool tileProcessed = ((tileState & processedMask) != 0);
+			bool tileEligible = (j == 0 || tileDiscr != (grid.get(i, j-1) & discrMask));
 
 			if (tileProcessed || !tileEligible)
 				continue;
@@ -116,8 +306,9 @@ std::vector<STerritoryBoundary> CTerritoryBoundaryCalculator::ComputeBoundaries(
 			int curvature = 0; // +1 for every CCW 90 degree turn, -1 for every CW 90 degree turn; must be multiple of 4 at the end
 
 			boundaries.push_back(STerritoryBoundary());
-			boundaries.back().owner = (tileState & ICmpTerritoryManager::TERRITORY_PLAYER_MASK);
-			boundaries.back().blinking = (tileState & ICmpTerritoryManager::TERRITORY_BLINKING_MASK) != 0;
+			boundaries.back().owner = (tileState & classifier.ownerMask);
+			boundaries.back().blinking = classifier.blinkingMask != 0 && (tileState & classifier.blinkingMask) != 0;
+			boundaries.back().closed = true;
 			std::vector<CVector2D>& points = boundaries.back().points;
 
 			std::uint8_t dir = TILE_BOTTOM;
@@ -127,9 +318,6 @@ std::vector<STerritoryBoundary> CTerritoryBoundaryCalculator::ComputeBoundaries(
 
 			std::uint16_t maxi = static_cast<std::uint16_t>(grid.m_W - 1);
 			std::uint16_t maxj = static_cast<std::uint16_t>(grid.m_H - 1);
-
-			// Size of a territory tile in metres
-			float territoryTileSize = (Pathfinding::NAVCELL_SIZE * ICmpTerritoryManager::NAVCELLS_PER_TERRITORY_TILE).ToFloat();
 
 			while (true)
 			{
@@ -143,17 +331,17 @@ std::vector<STerritoryBoundary> CTerritoryBoundaryCalculator::ComputeBoundaries(
 				case TILE_BOTTOM:
 
 					// mark tile as processed so we don't start a new run from it after this one is complete
-					ENSURE(!(grid.get(ci, cj) & ICmpTerritoryManager::TERRITORY_PROCESSED_MASK));
-					grid.set(ci, cj, grid.get(ci, cj) | ICmpTerritoryManager::TERRITORY_PROCESSED_MASK);
+					ENSURE(!(grid.get(ci, cj) & processedMask));
+					grid.set(ci, cj, grid.get(ci, cj) | processedMask);
 
-					if (ci < maxi && cj > 0 && (grid.get(ci+1, cj-1) & TERRITORY_DISCR_MASK) == tileDiscr)
+					if (ci < maxi && cj > 0 && (grid.get(ci+1, cj-1) & discrMask) == tileDiscr)
 					{
 						++ci;
 						--cj;
 						cdir = TILE_LEFT;
 						curvature += CURVE_CW;
 					}
-					else if (ci < maxi && (grid.get(ci+1, cj) & TERRITORY_DISCR_MASK) == tileDiscr)
+					else if (ci < maxi && (grid.get(ci+1, cj) & discrMask) == tileDiscr)
 						++ci;
 					else
 					{
@@ -163,14 +351,14 @@ std::vector<STerritoryBoundary> CTerritoryBoundaryCalculator::ComputeBoundaries(
 					break;
 
 				case TILE_RIGHT:
-					if (ci < maxi && cj < maxj && (grid.get(ci+1, cj+1) & TERRITORY_DISCR_MASK) == tileDiscr)
+					if (ci < maxi && cj < maxj && (grid.get(ci+1, cj+1) & discrMask) == tileDiscr)
 					{
 						++ci;
 						++cj;
 						cdir = TILE_BOTTOM;
 						curvature += CURVE_CW;
 					}
-					else if (cj < maxj && (grid.get(ci, cj+1) & TERRITORY_DISCR_MASK) == tileDiscr)
+					else if (cj < maxj && (grid.get(ci, cj+1) & discrMask) == tileDiscr)
 						++cj;
 					else
 					{
@@ -180,14 +368,14 @@ std::vector<STerritoryBoundary> CTerritoryBoundaryCalculator::ComputeBoundaries(
 					break;
 
 				case TILE_TOP:
-					if (ci > 0 && cj < maxj && (grid.get(ci-1, cj+1) & TERRITORY_DISCR_MASK) == tileDiscr)
+					if (ci > 0 && cj < maxj && (grid.get(ci-1, cj+1) & discrMask) == tileDiscr)
 					{
 						--ci;
 						++cj;
 						cdir = TILE_RIGHT;
 						curvature += CURVE_CW;
 					}
-					else if (ci > 0 && (grid.get(ci-1, cj) & TERRITORY_DISCR_MASK) == tileDiscr)
+					else if (ci > 0 && (grid.get(ci-1, cj) & discrMask) == tileDiscr)
 						--ci;
 					else
 					{
@@ -197,14 +385,14 @@ std::vector<STerritoryBoundary> CTerritoryBoundaryCalculator::ComputeBoundaries(
 					break;
 
 				case TILE_LEFT:
-					if (ci > 0 && cj > 0 && (grid.get(ci-1, cj-1) & TERRITORY_DISCR_MASK) == tileDiscr)
+					if (ci > 0 && cj > 0 && (grid.get(ci-1, cj-1) & discrMask) == tileDiscr)
 					{
 						--ci;
 						--cj;
 						cdir = TILE_TOP;
 						curvature += CURVE_CW;
 					}
-					else if (cj > 0 && (grid.get(ci, cj-1) & TERRITORY_DISCR_MASK) == tileDiscr)
+					else if (cj > 0 && (grid.get(ci, cj-1) & discrMask) == tileDiscr)
 						--cj;
 					else
 					{
@@ -223,5 +411,8 @@ std::vector<STerritoryBoundary> CTerritoryBoundaryCalculator::ComputeBoundaries(
 		}
 	}
 
-	return boundaries;
+	if (!classifier.omitMapEdge)
+		return boundaries;
+
+	return OmitMapEdge(std::move(boundaries), grid.m_W * territoryTileSize, grid.m_H * territoryTileSize);
 }

@@ -21,6 +21,7 @@
 #include "maths/Vector2D.h"
 #include "simulation2/helpers/Player.h"
 
+#include <cstdint>
 #include <vector>
 
 template<typename T> class Grid;
@@ -39,11 +40,31 @@ struct STerritoryBoundary
 {
 	/// Set if this boundary should blink
 	bool blinking;
+	/**
+	 * True when the last point connects back to the first.
+	 * Territory outlines are closed. A sovereignty chain that meets the map edge is open.
+	 */
+	bool closed = true;
 	player_id_t owner;
 	/// The boundary points, in clockwise order for inner boundaries and counter-clockwise order for outer boundaries.
 	/// Note: if you need a way to explicitly find out which winding order these are in, you can have
 	/// CTerritoryBoundCalculator::ComputeBoundaries set it during computation -- see its implementation for details.
 	std::vector<CVector2D> points;
+};
+
+/**
+ * Tells the shared edge walker which bits of a grid byte are ownership.
+ * Territory bytes pack player, connected, blinking, and processed.
+ * Sovereignty bytes are a plain owner, with 0 meaning unclaimed.
+ */
+struct SBoundaryClassifier
+{
+	std::uint8_t discriminatorMask;
+	std::uint8_t processedMask;
+	std::uint8_t ownerMask;
+	std::uint8_t blinkingMask;
+	/// Drop segments that run along the outer map perimeter and keep one copy of each shared edge.
+	bool omitMapEdge;
 };
 
 /**
@@ -61,7 +82,22 @@ public:
 	 * boundaries have them in CW order (because this matches the winding orders needed by the renderer to offset them
 	 * inwards/outwards appropriately).
 	 */
+	/**
+	 * TerritoryManager encoding. The discriminator is blinking|player.
+	 * The connected bit is not part of that mask.
+	 */
+	static SBoundaryClassifier TerritoryClassifier();
+
+	/**
+	 * Plain owner byte. 0 is unclaimed and does not start a trace.
+	 * Map-perimeter segments are omitted.
+	 */
+	static SBoundaryClassifier SovereigntyClassifier();
+
 	static std::vector<STerritoryBoundary> ComputeBoundaries(const Grid<std::uint8_t>* territories);
+
+	static std::vector<STerritoryBoundary> ComputeBoundaries(
+		const Grid<std::uint8_t>* territories, const SBoundaryClassifier& classifier);
 };
 
 #endif // INCLUDED_TERRITORYBOUNDARY
