@@ -12,22 +12,18 @@
   <Identity>
     <GenericName>Regional Administration</GenericName>
     <SpecificName>Regional Administration</SpecificName>
-    <Tooltip>A regional office. It extends effective state control around itself and does not move the legal border, integration, or population.</Tooltip>
+    <Tooltip>A regional office. It does not move the legal border, integration, or population, and does not project routine territorial control.</Tooltip>
     <Classes datatype="tokens">NationRegionalAdministration</Classes>
     <Requirements>
       <Techs datatype="tokens">phase_city</Techs>
     </Requirements>
   </Identity>
   <BuildRestrictions>
-    <Territory>own neutral</Territory>
+    <Territory>sovereign</Territory>
   </BuildRestrictions>
   <ProductionQueue disable=""/>
   <Researcher disable=""/>
   <ResourceDropsite disable=""/>
-  <TerritoryInfluence>
-    <Root>true</Root>
-    <Radius>72</Radius>
-    <Weight>4000</Weight>
-    <SovereigntyAware>true</SovereigntyAware>
-  </TerritoryInfluence>
+  <TerritoryDecay disable=""/>
+  <TerritoryInfluence disable=""/>
 </Entity>

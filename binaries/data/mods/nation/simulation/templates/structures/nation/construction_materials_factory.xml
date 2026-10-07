@@ -19,6 +19,9 @@
       <Techs datatype="tokens">phase_town</Techs>
     </Requirements>
   </Identity>
+  <BuildRestrictions>
+    <Territory>sovereign</Territory>
+  </BuildRestrictions>
   <IndustrialProduction>
     <Interval>10000</Interval>
     <Inputs>

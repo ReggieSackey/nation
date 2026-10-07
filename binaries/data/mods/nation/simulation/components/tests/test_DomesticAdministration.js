@@ -1,3 +1,7 @@
+// Milestone 1: routine domestic territory influence is gone. Placement uses the
+// generic BuildRestrictions "sovereign" token, and effective control falls back
+// to the sovereign when TerritoryManager reports 0.
+
 Engine.LoadComponentScript("interfaces/Sovereignty.js");
 Engine.LoadComponentScript("interfaces/PlayerManager.js");
 Engine.LoadComponentScript("interfaces/NationSettlement.js");
@@ -27,13 +31,6 @@ global.QueryPlayerIDInterface = () => null;
 
 AddMock(SYSTEM_ENTITY, IID_PlayerManager, {
 	"GetNumPlayers": () => 3
-});
-
-AddMock(SYSTEM_ENTITY, IID_TerritoryManager, {
-	"GetOwner": () =>
-	{
-		throw new Error("MayPlace consulted TerritoryManager");
-	}
 });
 
 // Native grid for the two test rectangles. Cell centers at x=4..252 are player 1.
@@ -82,44 +79,57 @@ global.InitAttributes = {
 };
 cmpSovereignty.OnInitGame();
 
-const cmpAdmin = ConstructComponent(SYSTEM_ENTITY, "DomesticAdministration");
+// ---------------------------------------------------------------
+// Effective controller: sovereign fallback, hostile override.
+// ---------------------------------------------------------------
 
-// Sovereign but uncontrolled land is allowed. TerritoryManager is not asked.
-TS_ASSERT_EQUALS(cmpAdmin.MayPlace(1, 96, 230), true);
-TS_ASSERT_EQUALS(cmpSovereignty.GetSovereignOwner({ "x": 96, "z": 230 }), 1);
+const owners = {};
+AddMock(SYSTEM_ENTITY, IID_TerritoryManager, {
+	"GetOwner": (x, z) => owners[x + "," + z] || 0
+});
 
-// Foreign sovereignty is rejected.
-TS_ASSERT_EQUALS(cmpAdmin.MayPlace(1, 400, 400), false);
-TS_ASSERT_EQUALS(cmpAdmin.MayPlace(1, 270, 380), false);
-TS_ASSERT_EQUALS(cmpAdmin.MayPlace(2, 96, 230), false);
+AddMock(32, IID_Position, {
+	"IsInWorld": () => true,
+	"GetPosition2D": () => ({ "x": 40, "y": 220 })
+});
+const western = ConstructComponent(32, "NationSettlement", {
+	"Name": "Western Village",
+	"Population": "4000",
+	"StateIntegration": "40",
+	"IsCapital": "false"
+});
 
-// x=256 is the shared polygon edge. The old ray cast gave that point to player 1.
-// The native cell is (32, 32), center (260, 260), player 2.
-TS_ASSERT_EQUALS(cmpSovereignty.GetSovereignOwner({ "x": 256, "z": 256 }), 2);
-TS_ASSERT_EQUALS(cmpAdmin.MayPlace(1, 256, 256), false);
-TS_ASSERT_EQUALS(cmpAdmin.MayPlace(2, 256, 256), true);
+TS_ASSERT_EQUALS(western.GetSovereignOwner(), 1);
+// Sovereign 1 / territory 0 -> normal peacetime Densiran control.
+TS_ASSERT_EQUALS(western.GetEffectiveController(), 1);
+// Sovereign 1 / territory 1 -> tolerated, still 1.
+owners["40,220"] = 1;
+TS_ASSERT_EQUALS(western.GetEffectiveController(), 1);
+// Sovereign 1 / territory 2 -> Adoméan control.
+owners["40,220"] = 2;
+TS_ASSERT_EQUALS(western.GetEffectiveController(), 2);
+owners["40,220"] = 0;
 
-TS_ASSERT_EQUALS(cmpAdmin.MayPlace(0, 96, 230), false);
-TS_ASSERT_EQUALS(cmpAdmin.MayPlace(1, NaN, 230), false);
+AddMock(33, IID_Position, {
+	"IsInWorld": () => true,
+	"GetPosition2D": () => ({ "x": 400, "y": 300 })
+});
+const eastern = ConstructComponent(33, "NationSettlement", {
+	"Name": "Eastern Village",
+	"Population": "2000",
+	"StateIntegration": "20",
+	"IsCapital": "false"
+});
+TS_ASSERT_EQUALS(eastern.GetSovereignOwner(), 2);
+TS_ASSERT_EQUALS(eastern.GetEffectiveController(), 2);
 
-const restored = SerializationCycle(cmpAdmin);
-TS_ASSERT_EQUALS(restored.MayPlace(1, 96, 230), true);
-TS_ASSERT_EQUALS(restored.MayPlace(1, 400, 400), false);
-TS_ASSERT_EQUALS(cmpSovereignty.GetRegions().length, 2);
+const restoredWestern = SerializationCycle(western);
+TS_ASSERT_EQUALS(restoredWestern.GetStateIntegration(), 40);
+TS_ASSERT_EQUALS(restoredWestern.GetEffectiveController(), 1);
 
-TS_ASSERT_EQUALS(g_Commands.construct(1, {
-	"template": "structures/nation/regional_administration",
-	"x": 400,
-	"z": 400
-}), false);
-TS_ASSERT_EQUALS(g_Calls.length, 0);
-
-TS_ASSERT_EQUALS(g_Commands.construct(1, {
-	"template": "structures/nation/regional_administration",
-	"x": 270,
-	"z": 380
-}), false);
-TS_ASSERT_EQUALS(g_Calls.length, 0);
+// ---------------------------------------------------------------
+// DomesticAdministration: only the phase gate remains.
+// ---------------------------------------------------------------
 
 TS_ASSERT_EQUALS(g_Commands.construct(1, {
 	"template": "structures/nation/regional_administration",
@@ -128,6 +138,18 @@ TS_ASSERT_EQUALS(g_Commands.construct(1, {
 }), "built");
 TS_ASSERT_EQUALS(g_Calls.length, 1);
 
+// The spatial rule no longer lives here; foreign coordinates are not checked
+// by this wrapper. The phase gate still is.
+global.QueryPlayerIDInterface = (player, iid) =>
+	iid === IID_TechnologyManager ? { "CanProduce": () => false } : null;
+TS_ASSERT_EQUALS(g_Commands.construct(1, {
+	"template": "structures/nation/regional_administration",
+	"x": 400,
+	"z": 400
+}), false);
+TS_ASSERT_EQUALS(g_Calls.length, 1);
+global.QueryPlayerIDInterface = () => null;
+
 TS_ASSERT_EQUALS(g_Commands.construct(1, {
 	"template": "structures/nation/civil_centre",
 	"x": 400,
@@ -135,61 +157,54 @@ TS_ASSERT_EQUALS(g_Commands.construct(1, {
 }), "built");
 TS_ASSERT_EQUALS(g_Calls.length, 2);
 
-global.QueryPlayerIDInterface = (player, iid) =>
-	iid === IID_TechnologyManager ? { "CanProduce": () => false } : null;
-TS_ASSERT_EQUALS(g_Commands.construct(1, {
-	"template": "structures/nation/regional_administration",
-	"x": 96,
-	"z": 230
-}), false);
-TS_ASSERT_EQUALS(g_Calls.length, 2);
-global.QueryPlayerIDInterface = () => null;
+// ---------------------------------------------------------------
+// Templates: no routine domestic territory influence, no decay,
+// sovereign placement; the foreign office keeps its influence.
+// ---------------------------------------------------------------
 
 const templateDir = "/Users/reg/Documents/GitHub/nation/binaries/data/mods/nation/simulation/templates";
+
 const adminXml = fs.readFileSync(
 	path.join(templateDir, "structures/nation/regional_administration.xml"),
 	"utf8");
 TS_ASSERT(adminXml.includes("phase_city"));
-TS_ASSERT(adminXml.includes("<Root>true</Root>"));
-TS_ASSERT(adminXml.includes("<Radius>72</Radius>"));
-TS_ASSERT(adminXml.includes("<Weight>4000</Weight>"));
-TS_ASSERT(adminXml.includes("<Territory>own neutral</Territory>"));
-TS_ASSERT(adminXml.includes("<Population>0</Population>"));
-TS_ASSERT(!adminXml.includes("TerritoryInfluence disable"));
-TS_ASSERT(!adminXml.includes("<PopulationBonus"));
+TS_ASSERT(adminXml.includes("<Territory>sovereign</Territory>"));
+TS_ASSERT(adminXml.includes("TerritoryInfluence disable"));
+TS_ASSERT(adminXml.includes("TerritoryDecay disable"));
+TS_ASSERT(!adminXml.includes("<Root>"));
+TS_ASSERT(!adminXml.includes("<Radius>"));
+TS_ASSERT(!adminXml.includes("<Weight>"));
+
+const districtXml = fs.readFileSync(
+	path.join(templateDir, "structures/nation/district_office.xml"),
+	"utf8");
+TS_ASSERT(!districtXml.includes("TerritoryInfluence"));
+TS_ASSERT(!districtXml.includes("TerritoryDecay"));
 
 const nationCentre = fs.readFileSync(
 	path.join(templateDir, "structures/nation/civil_centre.xml"),
 	"utf8");
-TS_ASSERT(nationCentre.includes("<Radius>140</Radius>"));
-TS_ASSERT(nationCentre.includes("<Weight>10000</Weight>"));
+TS_ASSERT(nationCentre.includes("<Territory>sovereign</Territory>"));
+TS_ASSERT(nationCentre.includes("TerritoryInfluence disable"));
+TS_ASSERT(nationCentre.includes("TerritoryDecay disable"));
+TS_ASSERT(!nationCentre.includes("<Radius>"));
 
 const neighborCentre = fs.readFileSync(
 	path.join(templateDir, "structures/nation/neighbor_civil_centre.xml"),
 	"utf8");
-TS_ASSERT(neighborCentre.includes("<Radius>90</Radius>"));
-TS_ASSERT(neighborCentre.includes("<Weight>10000</Weight>"));
+TS_ASSERT(neighborCentre.includes("<Territory>sovereign</Territory>"));
+TS_ASSERT(neighborCentre.includes("TerritoryInfluence disable"));
+TS_ASSERT(neighborCentre.includes("TerritoryDecay disable"));
 
-DeleteMock(SYSTEM_ENTITY, IID_TerritoryManager);
-const owners = {};
-AddMock(SYSTEM_ENTITY, IID_TerritoryManager, {
-	"GetOwner": (x, z) => owners[x + "," + z] || 0
-});
-AddMock(32, IID_Position, {
-	"IsInWorld": () => true,
-	"GetPosition2D": () => ({ "x": 40, "y": 220 })
-});
-owners["40,220"] = 0;
-const western = ConstructComponent(32, "NationSettlement", {
-	"Name": "Western Village",
-	"Population": "4000",
-	"StateIntegration": "40",
-	"IsCapital": "false"
-});
-TS_ASSERT_EQUALS(western.GetSovereignOwner(), 1);
-TS_ASSERT_EQUALS(western.GetEffectiveController(), 0);
-owners["40,220"] = 1;
-TS_ASSERT_EQUALS(western.GetEffectiveController(), 1);
-const restoredWestern = SerializationCycle(western);
-TS_ASSERT_EQUALS(restoredWestern.GetStateIntegration(), 40);
-TS_ASSERT_EQUALS(restoredWestern.GetEffectiveController(), 1);
+const factoryXml = fs.readFileSync(
+	path.join(templateDir, "structures/nation/construction_materials_factory.xml"),
+	"utf8");
+TS_ASSERT(factoryXml.includes("<Territory>sovereign</Territory>"));
+
+const foreignXml = fs.readFileSync(
+	path.join(templateDir, "structures/nation/foreign_administration.xml"),
+	"utf8");
+// The exceptional occupation office keeps projecting control.
+TS_ASSERT(!foreignXml.includes("TerritoryInfluence disable"));
+TS_ASSERT(foreignXml.includes("<Radius>72</Radius>"));
+TS_ASSERT(!foreignXml.includes("<Territory>sovereign</Territory>"));

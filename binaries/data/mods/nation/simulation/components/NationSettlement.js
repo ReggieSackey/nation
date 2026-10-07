@@ -200,8 +200,19 @@ NationSettlement.prototype.GetSovereignOwner = function()
 };
 
 /**
- * Effective controller at this settlement. Read from TerritoryManager when asked.
- * Zero is uncontrolled. This is not stored.
+ * Effective controller at this settlement.
+ *
+ * Normal control is implicit in sovereignty: peaceful sovereign land is
+ * controlled by its sovereign even when TerritoryManager reports 0.
+ * TerritoryManager only overrides when control diverges from sovereignty
+ * (foreign occupation, and later rebel control).
+ *
+ *     sovereign S, territory 0       -> S (normal peacetime control)
+ *     sovereign S, territory S       -> S
+ *     sovereign S, territory Q != S  -> Q (hostile/exceptional control)
+ *     unclaimed sovereignty          -> uncontrolled
+ *
+ * This is not stored.
  * @return {number}
  */
 NationSettlement.prototype.GetEffectiveController = function()
@@ -210,11 +221,24 @@ NationSettlement.prototype.GetEffectiveController = function()
 	if (!cmpPosition || !cmpPosition.IsInWorld())
 		return 0;
 	const pos = cmpPosition.GetPosition2D();
-	const cmpTerritory = Engine.QueryInterface(SYSTEM_ENTITY, IID_TerritoryManager);
-	if (!pos || !cmpTerritory)
+	if (!pos)
 		return 0;
 
-	return cmpTerritory.GetOwner(pos.x, pos.y);
+	const cmpSovereignty = Engine.QueryInterface(SYSTEM_ENTITY, IID_Sovereignty);
+	if (!cmpSovereignty)
+		return 0;
+	const sovereign = cmpSovereignty.GetSovereignOwner({ "x": pos.x, "z": pos.y });
+	if (!Number.isInteger(sovereign) || sovereign <= 0)
+		return 0;
+
+	const cmpTerritory = Engine.QueryInterface(SYSTEM_ENTITY, IID_TerritoryManager);
+	if (!cmpTerritory)
+		return sovereign;
+	const territory = cmpTerritory.GetOwner(pos.x, pos.y);
+	if (territory > 0 && territory !== sovereign)
+		return territory;
+
+	return sovereign;
 };
 
 Engine.RegisterComponentType(IID_NationSettlement, "NationSettlement", NationSettlement);

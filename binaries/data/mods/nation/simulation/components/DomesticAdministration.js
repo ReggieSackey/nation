@@ -9,30 +9,17 @@ DomesticAdministration.prototype.Init = function()
 {
 };
 
-/**
- * Domestic administration is allowed only on land legally sovereign to the builder.
- * Existing effective control is not consulted.
- * @return {boolean}
- */
-DomesticAdministration.prototype.MayPlace = function(playerId, x, z)
-{
-	if (!Number.isInteger(playerId) || playerId <= 0)
-		return false;
-	if (!Number.isFinite(+x) || !Number.isFinite(+z))
-		return false;
-
-	const cmpSovereignty = Engine.QueryInterface(SYSTEM_ENTITY, IID_Sovereignty);
-	if (!cmpSovereignty)
-		return false;
-
-	return cmpSovereignty.GetSovereignOwner({ "x": +x, "z": +z }) === playerId;
-};
-
+// Must stay registered even though placement moved to BuildRestrictions:
+// GenerateSchema emits an (invalid) empty choice for an interface with no
+// implementing component.
 Engine.RegisterSystemComponentType(IID_DomesticAdministration, "DomesticAdministration", DomesticAdministration);
 
 /**
- * Commands.js creates g_Commands while helpers load.
- * Components load afterwards, so the construct command can be wrapped here.
+ * Spatial placement for regional administration is owned by BuildRestrictions
+ * with the generic "sovereign" token. This system component remains only for
+ * the phase gate: upstream TryConstructBuilding checks CanProduce after
+ * CheckPlacement but does not abort construction when it fails, and this
+ * building costs nothing, so the gate is enforced here.
  */
 function AttachDomesticAdministrationToConstruct()
 {
@@ -46,12 +33,6 @@ function AttachDomesticAdministrationToConstruct()
 	{
 		if (cmd && cmd.template === DomesticAdministration.prototype.TemplateName)
 		{
-			const cmpAdmin = Engine.QueryInterface(SYSTEM_ENTITY, IID_DomesticAdministration);
-			if (!cmpAdmin || !cmpAdmin.MayPlace(player, cmd.x, cmd.z))
-				return false;
-
-			// Upstream construct does not return when CanProduce fails, and this
-			// building costs nothing, so the phase gate is enforced here as well.
 			const cmpTech = QueryPlayerIDInterface(player, IID_TechnologyManager);
 			if (cmpTech && !cmpTech.CanProduce(cmd.template))
 				return false;

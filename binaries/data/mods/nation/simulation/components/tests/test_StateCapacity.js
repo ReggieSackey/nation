@@ -112,9 +112,8 @@ TS_ASSERT(factoryXml.includes("<Population>0</Population>"));
 
 const adminXml = readTemplate("structures/nation/regional_administration.xml");
 TS_ASSERT(adminXml.includes("phase_city"));
-TS_ASSERT(adminXml.includes("<Root>true</Root>"));
-TS_ASSERT(adminXml.includes("<Radius>72</Radius>"));
-TS_ASSERT(adminXml.includes("<Weight>4000</Weight>"));
+TS_ASSERT(adminXml.includes("<Territory>sovereign</Territory>"));
+TS_ASSERT(adminXml.includes("TerritoryInfluence disable"));
 TS_ASSERT(adminXml.includes("<Population>0</Population>"));
 TS_ASSERT(!adminXml.includes("<Bonus>"));
 
