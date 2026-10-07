@@ -27,6 +27,7 @@
 #include "graphics/TextureManager.h"
 #include "lib/code_annotation.h"
 #include "lib/code_generation.h"
+#include "simulation2/components/ICmpSovereigntyManager.h"
 #include "lib/debug.h"
 #include "lib/path.h"
 #include "maths/Fixed.h"
@@ -193,6 +194,8 @@ public:
 		SAFE_DELETE(m_Territories);
 		SAFE_DELETE(m_CostGrid);
 		SAFE_DELETE(m_DebugOverlay);
+		m_SovereigntyByTile = nullptr;
+		m_SovereigntyTileGrid.clear();
 	}
 
 	void Serialize(ISerializer& serialize) override
@@ -363,14 +366,31 @@ private:
 	bool m_Enabled;
 
 	/**
+	 * The sovereignty grid resampled to territory tiles, or null when the map has no
+	 * sovereignty (upstream maps). Cached per territory recalculation. When absent,
+	 * every cell is traversable by every source, which is the upstream behavior.
+	 */
+	const Grid<std::uint8_t>* m_SovereigntyByTile = nullptr;
+	Grid<std::uint8_t> m_SovereigntyTileGrid;
+
+	bool TileSovereignTo(std::uint16_t i, std::uint16_t j, std::uint8_t owner) const
+	{
+		return !m_SovereigntyByTile || (m_SovereigntyByTile->get(i, j) & TERRITORY_PLAYER_MASK) == owner;
+	}
+
+	/**
 	* Mark the territory tiles covered by an entity's footprint with infinite weight.
 	* This ensures that buildings always own the territory directly beneath them.
 	* Tiles already claimed by another footprint are left untouched, so when called
 	* in ascending entity ID order, the oldest building keeps contested tiles.
+	* A sovereignty-aware influence never claims footprint tiles that are not sovereign
+	* to its owner, so a building standing in foreign land does not claim the ground
+	* beneath itself by existing.
 	*/
 	void MarkFootprintTiles(
 		entity_id_t ent,
 		player_id_t owner,
+		bool sovereigntyAware,
 		Grid<std::uint32_t>& bestWeightGrid,
 		const std::uint16_t tilesW,
 		const std::uint16_t tilesH,
@@ -492,6 +512,7 @@ void CCmpTerritoryManager::CalculateCostGrid()
 void CCmpTerritoryManager::MarkFootprintTiles(
 	entity_id_t ent,
 	player_id_t owner,
+	bool sovereigntyAware,
 	Grid<std::uint32_t>& bestWeightGrid,
 	const std::uint16_t tilesW,
 	const std::uint16_t tilesH,
@@ -516,6 +537,9 @@ void CCmpTerritoryManager::MarkFootprintTiles(
 		if (bestWeightGrid.get(tile.first, tile.second) == infiniteWeight)
 			continue;
 
+		if (sovereigntyAware && !TileSovereignTo(tile.first, tile.second, static_cast<std::uint8_t>(owner)))
+			continue;
+
 		m_Territories->set(tile.first, tile.second, owner);
 		bestWeightGrid.set(tile.first, tile.second, infiniteWeight);
 	}
@@ -538,6 +562,24 @@ void CCmpTerritoryManager::CalculateTerritories()
 	const std::uint16_t tilesH = m_CostGrid->m_H;
 
 	m_Territories = new Grid<std::uint8_t>(tilesW, tilesH);
+
+	// Resample the sovereignty grid to territory tiles. The grids share the tile size
+	// (both derive from the same terrain size), so this is a direct cell copy when the
+	// sovereignty grid is built. A map without sovereignty keeps the null pointer and
+	// every source behaves as unrestricted.
+	m_SovereigntyByTile = nullptr;
+	{
+		CmpPtr<ICmpSovereigntyManager> cmpSovereigntyManager(GetSystemEntity());
+		if (cmpSovereigntyManager)
+		{
+			const Grid<std::uint8_t>& sovereignty = cmpSovereigntyManager->GetSovereigntyGrid();
+			if (sovereignty.m_W == tilesW && sovereignty.m_H == tilesH)
+			{
+				m_SovereigntyTileGrid = sovereignty;
+				m_SovereigntyByTile = &m_SovereigntyTileGrid;
+			}
+		}
+	}
 
 	// Reset territory counts for all players
 	CmpPtr<ICmpPlayerManager> cmpPlayerManager(GetSystemEntity());
@@ -579,7 +621,8 @@ void CCmpTerritoryManager::CalculateTerritories()
 		influenceEntities[owner].push_back(ent);
 
 		// Mark the entity's footprint tiles with infinite weight
-		MarkFootprintTiles(ent, owner, bestWeightGrid, tilesW, tilesH, footprintTiles);
+		MarkFootprintTiles(ent, owner, cmpTerritoryInfluence->IsSovereigntyAware(),
+			bestWeightGrid, tilesW, tilesH, footprintTiles);
 	}
 
 	// store the root influences to mark territory as connected
@@ -607,6 +650,11 @@ void CCmpTerritoryManager::CalculateTerritories()
 			const std::uint32_t originWeight = cmpTerritoryInfluence->GetWeight();
 			// Non-zero, entities with zero weight or radius were filtered out above
 			const std::uint32_t radius = cmpTerritoryInfluence->GetRadius();
+			// Sovereignty-aware sources only traverse tiles whose sovereign owner equals
+			// this entity's owner. Foreign cells are simply not expanded, so influence
+			// can never cross foreign land and reappear in disconnected own-sovereignty
+			// geography. This test is a no-op on maps without a sovereignty grid.
+			const bool sovereigntyAware = m_SovereigntyByTile && cmpTerritoryInfluence->IsSovereigntyAware();
 			const std::uint32_t relativeFalloff = originWeight *
 				(Pathfinding::NAVCELL_SIZE * NAVCELLS_PER_TERRITORY_TILE)
 				.ToInt_RoundToNegInfinity() / radius;
@@ -621,6 +669,12 @@ void CCmpTerritoryManager::CalculateTerritories()
 			// Expand influences outwards
 			Floodfill({i, j}, {tilesW, tilesH}, [&](const Tile* current, const Tile& neighbour)
 				{
+					// Sovereignty-aware traversal: a foreign-sovereignty tile is not
+					// traversable for this source, including the origin tile itself
+					// (current == nullptr on the first invocation).
+					if (sovereigntyAware && !TileSovereignTo(neighbour.x, neighbour.z, owner))
+						return false;
+
 					const bool diagonalProgression{current && neighbour.x != current->x &&
 						neighbour.z != current->z};
 

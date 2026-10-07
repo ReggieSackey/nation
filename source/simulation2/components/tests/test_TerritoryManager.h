@@ -113,8 +113,10 @@ public:
 	bool IsRoot() const override { return true; };
 	std::uint16_t GetWeight() const override { return 10; };
 	std::uint32_t GetRadius() const override { return m_Radius; };
+	bool IsSovereigntyAware() const override { return m_SovereigntyAware; };
 
 	std::uint32_t m_Radius = 0;
+	bool m_SovereigntyAware = false;
 };
 
 class MockOwnershipTerrManager : public ICmpOwnership

@@ -5,6 +5,7 @@
     <Root>true</Root>
     <Radius>140</Radius>
     <Weight>10000</Weight>
+    <SovereigntyAware>true</SovereigntyAware>
   </TerritoryInfluence>
   <Researcher>
     <TechCostMultiplier>

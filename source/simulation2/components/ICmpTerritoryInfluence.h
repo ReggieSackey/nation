@@ -32,6 +32,12 @@ public:
 
 	virtual std::uint32_t GetRadius() const = 0;
 
+	/**
+	 * True when this influence may only propagate through cells whose sovereign owner
+	 * equals the entity's owner. False is the upstream default.
+	 */
+	virtual bool IsSovereigntyAware() const = 0;
+
 	DECLARE_INTERFACE_TYPE(TerritoryInfluence)
 };
 

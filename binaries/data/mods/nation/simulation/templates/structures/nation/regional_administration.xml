@@ -28,5 +28,6 @@
     <Root>true</Root>
     <Radius>72</Radius>
     <Weight>4000</Weight>
+    <SovereigntyAware>true</SovereigntyAware>
   </TerritoryInfluence>
 </Entity>

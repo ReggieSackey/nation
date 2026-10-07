@@ -34,6 +34,7 @@ public:
 	DEFAULT_COMPONENT_ALLOCATOR(TerritoryInfluence)
 
 	bool m_Root;
+	bool m_SovereigntyAware;
 	std::uint16_t m_Weight;
 	std::uint32_t m_Radius;
 
@@ -50,12 +51,18 @@ public:
 			"</element>"
 			"<element name='Radius'>"
 				"<data type='nonNegativeInteger'/>"
-			"</element>";
+			"</element>"
+			"<optional>"
+				"<element name='SovereigntyAware'>"
+					"<data type='boolean'/>"
+				"</element>"
+			"</optional>";
 	}
 
 	void Init(const CParamNode& paramNode) override
 	{
 		m_Root = paramNode.GetChild("Root").ToBool();
+		m_SovereigntyAware = paramNode.GetChild("SovereigntyAware").ToBool();
 		m_Weight = static_cast<std::uint16_t>(paramNode.GetChild("Weight").ToInt());
 		m_Radius = paramNode.GetChild("Radius").ToInt();
 	}
@@ -99,6 +106,11 @@ public:
 
 		std::uint32_t newRadius = cmpValueModificationManager->ApplyModifications(L"TerritoryInfluence/Radius", m_Radius, GetEntityId());
 		return newRadius;
+	}
+
+	bool IsSovereigntyAware() const override
+	{
+		return m_SovereigntyAware;
 	}
 };
 
