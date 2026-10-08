@@ -33,7 +33,7 @@ global.g_Commands = { "construct": () => "ordinary" };
 Engine.LoadComponentScript("NationNationalProject.js");
 
 const project = {
-	"template": "structures/nation/national_project",
+	"template": "structures/nation/independence_monument",
 	"entities": [7]
 };
 const data = { "cmpPlayer": {}, "controlAllUnits": false };

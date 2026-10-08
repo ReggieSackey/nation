@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Entity parent="structures/athen/temple">
+  <BuildRestrictions><Territory>sovereign</Territory></BuildRestrictions>
+  <Cost><BuildTime>60</BuildTime><Resources><food>0</food><wood>200</wood><stone>100</stone><metal>0</metal></Resources></Cost>
+  <Identity><GenericName>Clinic</GenericName><SpecificName>Clinic</SpecificName><Tooltip>Provides basic healthcare to settlements within 140 metres.</Tooltip><Classes datatype="tokens">NationHealthcare</Classes></Identity>
+  <PublicService><Type>healthcare</Type><Radius>140</Radius><Level>1</Level></PublicService>
+  <Researcher disable=""/><Trainer disable=""/><TerritoryDecay disable=""/><TerritoryInfluence disable=""/>
+</Entity>

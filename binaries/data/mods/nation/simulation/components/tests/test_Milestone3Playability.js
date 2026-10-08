@@ -1,5 +1,5 @@
-const templateDir = "/Users/reg/Documents/GitHub/nation/binaries/data/mods/nation/simulation/templates";
-const technologyDir = "/Users/reg/Documents/GitHub/nation/binaries/data/mods/nation/simulation/data/technologies";
+const templateDir = path.resolve("binaries/data/mods/nation/simulation/templates");
+const technologyDir = path.resolve("binaries/data/mods/nation/simulation/data/technologies");
 
 function template(name)
 {
@@ -50,7 +50,7 @@ TS_ASSERT(baselinePopulation >= 33000);
 TS_ASSERT_EQUALS(development.cost.food, 300);
 TS_ASSERT_EQUALS(advanced.cost.food, 800);
 const project = template("structures/nation/national_project.xml");
-TS_ASSERT(project.includes("<food>1500</food>"));
-TS_ASSERT(project.includes("<wood>1000</wood>"));
-TS_ASSERT(project.includes("<stone>1200</stone>"));
-TS_ASSERT(project.includes("<metal>800</metal>"));
+	TS_ASSERT(project.includes("<food>6000</food>"));
+	TS_ASSERT(project.includes("<wood>3000</wood>"));
+	TS_ASSERT(project.includes("<stone>4000</stone>"));
+	TS_ASSERT(project.includes("<metal>2500</metal>"));

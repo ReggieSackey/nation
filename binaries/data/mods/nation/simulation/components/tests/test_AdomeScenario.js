@@ -1,5 +1,5 @@
-const scenarioDir = "/Users/reg/Documents/GitHub/nation/binaries/data/mods/nation/maps/scenarios";
-const templateDir = "/Users/reg/Documents/GitHub/nation/binaries/data/mods/nation/simulation/templates";
+const scenarioDir = path.resolve("binaries/data/mods/nation/maps/scenarios");
+const templateDir = path.resolve("binaries/data/mods/nation/simulation/templates");
 
 const food = fs.readFileSync(path.join(scenarioDir, "nation_food_crisis.xml"), "utf8");
 const sandbox = fs.readFileSync(path.join(scenarioDir, "nation_1961_sandbox.xml"), "utf8");
@@ -8,9 +8,9 @@ const civic = fs.readFileSync(path.join(templateDir, "structures/nation/neighbor
 const barracks = fs.readFileSync(path.join(templateDir, "structures/nation/neighbor_barracks.xml"), "utf8");
 const worker = fs.readFileSync(path.join(templateDir, "units/nation/adome_worker.xml"), "utf8");
 const strategySetting = fs.readFileSync(
-	"/Users/reg/Documents/GitHub/nation/binaries/data/mods/nation/gamesettings/attributes/AdomeStrategy.js", "utf8");
+	path.resolve("binaries/data/mods/nation/gamesettings/attributes/AdomeStrategy.js"), "utf8");
 const endgameSetting = fs.readFileSync(
-	"/Users/reg/Documents/GitHub/nation/binaries/data/mods/nation/gamesettings/attributes/NationEndgame.js", "utf8");
+	path.resolve("binaries/data/mods/nation/gamesettings/attributes/NationEndgame.js"), "utf8");
 
 for (const scenario of [food, sandbox])
 {
@@ -34,7 +34,7 @@ TS_ASSERT(food.includes('<Template>structures/nation/neighbor_market</Template>'
 TS_ASSERT(food.includes('<Template>structures/nation/farmstead</Template>'));
 TS_ASSERT(food.includes('<Template>structures/nation/town_storehouse</Template>'));
 TS_ASSERT_EQUALS((food.match(/<Template>units\/nation\/adome_worker<\/Template>/g) || []).length, 6);
-TS_ASSERT_EQUALS((food.match(/<Template>units\/spart\/infantry_spearman_b<\/Template>/g) || []).length, 10);
+TS_ASSERT_EQUALS((food.match(/<Template>units\/nation\/adome_infantry<\/Template>/g) || []).length, 10);
 
 TS_ASSERT(aveme.includes("<Population>12000</Population>"));
 TS_ASSERT(aveme.includes("<IsCapital>true</IsCapital>"));

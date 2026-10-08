@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Entity parent="structures/athen/gymnasium">
+  <BuildRestrictions><Territory>sovereign</Territory></BuildRestrictions>
+  <Cost><BuildTime>70</BuildTime><Resources><food>0</food><wood>250</wood><stone>100</stone><metal>0</metal></Resources></Cost>
+  <Identity><GenericName>Training College</GenericName><SpecificName>Training College</SpecificName><Tooltip>Trains Civil Servants and provides basic education within 150 metres.</Tooltip><Classes datatype="tokens">NationEducation</Classes></Identity>
+  <PublicService><Type>education</Type><Radius>150</Radius><Level>1</Level></PublicService>
+  <Researcher disable=""/><TerritoryDecay disable=""/><TerritoryInfluence disable=""/>
+  <Trainer><Entities datatype="tokens">units/nation/civil_servant</Entities></Trainer>
+</Entity>

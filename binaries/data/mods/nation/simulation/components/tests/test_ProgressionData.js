@@ -1,5 +1,5 @@
-const techDir = "/Users/reg/Documents/GitHub/nation/binaries/data/mods/nation/simulation/data/technologies";
-const templateDir = "/Users/reg/Documents/GitHub/nation/binaries/data/mods/nation/simulation/templates";
+const techDir = path.resolve("binaries/data/mods/nation/simulation/data/technologies");
+const templateDir = path.resolve("binaries/data/mods/nation/simulation/templates");
 
 function technology(name)
 {
@@ -34,9 +34,9 @@ const project = fs.readFileSync(
 	path.join(templateDir, "structures/nation/national_project.xml"), "utf8");
 TS_ASSERT(project.includes("phase_city"));
 TS_ASSERT(project.includes("<Territory>sovereign</Territory>"));
-TS_ASSERT(project.includes("<food>1500</food>"));
-TS_ASSERT(project.includes("<wood>1000</wood>"));
-TS_ASSERT(project.includes("<stone>1200</stone>"));
-TS_ASSERT(project.includes("<metal>800</metal>"));
+TS_ASSERT(project.includes("<food>6000</food>"));
+TS_ASSERT(project.includes("<wood>3000</wood>"));
+TS_ASSERT(project.includes("<stone>4000</stone>"));
+TS_ASSERT(project.includes("<metal>2500</metal>"));
 TS_ASSERT(!project.includes("construction_materials"));
 TS_ASSERT(project.includes("33,000 sovereign people"));

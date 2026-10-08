@@ -47,8 +47,20 @@
       structures/nation/town_storehouse
       structures/nation/town_barracks
       structures/nation/court
+      structures/nation/training_college
+      structures/nation/polytechnic
+      structures/nation/university
+      structures/nation/clinic
+      structures/nation/hospital
+      structures/nation/generator_station
+      structures/nation/power_station
+      structures/nation/national_power_plant
+      structures/nation/military_camp
+      structures/nation/special_operations_centre
       structures/nation/regional_administration
-      structures/nation/national_project
+      structures/nation/grand_mosque
+      structures/nation/national_cathedral
+      structures/nation/independence_monument
       structures/nation/trade_depot
       structures/nation/foreign_administration
     </Entities>

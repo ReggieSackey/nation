@@ -232,7 +232,7 @@ const restored = SerializationCycle(cmp);
 TS_ASSERT_EQUALS(restored.GetOccupier(EAST), 4);
 TS_ASSERT_EQUALS(Object.keys(restored).length, 0);
 
-const templateDir = "/Users/reg/Documents/GitHub/nation/binaries/data/mods/nation/simulation/templates";
+const templateDir = path.resolve("binaries/data/mods/nation/simulation/templates");
 const xml = fs.readFileSync(path.join(templateDir, "structures/nation/foreign_administration.xml"), "utf8");
 TS_ASSERT(xml.includes("phase_city"));
 TS_ASSERT(xml.includes("<Root>true</Root>"));

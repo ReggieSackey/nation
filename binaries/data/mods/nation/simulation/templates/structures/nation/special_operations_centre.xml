@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Entity parent="structures/nation/town_barracks">
+  <Cost><BuildTime>220</BuildTime><Resources><food>0</food><wood>700</wood><stone>500</stone><metal>500</metal></Resources></Cost>
+  <Identity><GenericName>Special Operations Centre</GenericName><SpecificName>Special Operations Centre</SpecificName><Tooltip>Advanced State facility for elite Special Operations Soldiers and Officers.</Tooltip><Requirements><Techs datatype="tokens">phase_city</Techs></Requirements></Identity>
+  <Trainer><Entities datatype="tokens">-units/nation/infantry units/nation/special_operations_soldier units/nation/officer</Entities></Trainer>
+</Entity>

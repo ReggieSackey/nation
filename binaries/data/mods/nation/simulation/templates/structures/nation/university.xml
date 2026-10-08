@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Entity parent="structures/nation/training_college">
+  <Cost><BuildTime>240</BuildTime><Resources><food>0</food><wood>700</wood><stone>600</stone><metal>400</metal></Resources></Cost>
+  <Identity><GenericName>University</GenericName><SpecificName>University</SpecificName><Tooltip>Provides advanced education within 300 metres and trains Doctors and Lawyers.</Tooltip><Requirements><Techs datatype="tokens">phase_city</Techs></Requirements></Identity>
+  <PublicService><Type>education</Type><Radius>300</Radius><Level>3</Level></PublicService>
+  <Trainer><Entities datatype="tokens">-units/nation/civil_servant units/nation/doctor units/nation/lawyer</Entities></Trainer>
+</Entity>

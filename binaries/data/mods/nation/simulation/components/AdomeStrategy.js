@@ -4,7 +4,7 @@ AdomeStrategy.prototype.Schema =
 	"<a:component type='system'/><empty/>";
 
 AdomeStrategy.prototype.EvaluationInterval = 20000;
-AdomeStrategy.prototype.EarliestWarTime = 300000;
+AdomeStrategy.prototype.EarliestWarTime = 5400000;
 AdomeStrategy.prototype.MinimumForce = 10;
 AdomeStrategy.prototype.StableRatioNumerator = 3;
 AdomeStrategy.prototype.StableRatioDenominator = 2;
@@ -146,7 +146,7 @@ AdomeStrategy.prototype.SelectTarget = function()
 		return 0;
 
 	let best = 0;
-	let bestDistance = Infinity;
+	let bestDistance = Number.POSITIVE_INFINITY;
 	for (const ent of settlements)
 	{
 		const cmpSettlement = Engine.QueryInterface(ent, IID_NationSettlement);

@@ -431,12 +431,18 @@ function updateNationCrisisSelection(view)
 		else if (row)
 			pressure = "Fed. If food runs short, weak ties add " + row.vulnerability + ".";
 		const rebellion = state.nationRebellion && state.nationRebellion.active ? "Rebels are here." : "";
+		const services = settlement.services || {};
+		const missing = settlement.missingServices && settlement.missingServices.length ?
+			"Missing services: " + settlement.missingServices.join(", ") + "." :
+			"Education, healthcare, and electricity are available.";
 		text.caption =
 			settlement.name + "\n" +
 			"Population " + nationCrisisComma(settlement.population) + "\n" +
 			"Integration " + settlement.integration + "%\n" +
 			"Discontent " + discontent + " / 100  " + (row && row.mood || nationCrisisMood(discontent)) + "\n" +
-			pressure + (rebellion ? "\n" + rebellion : "");
+			"Services E" + (services.education || 0) + " H" + (services.healthcare || 0) +
+			" P" + (services.electricity || 0) + "\n" +
+			missing + "\n" + pressure + (rebellion ? "\n" + rebellion : "");
 		panel.hidden = false;
 		return;
 	}

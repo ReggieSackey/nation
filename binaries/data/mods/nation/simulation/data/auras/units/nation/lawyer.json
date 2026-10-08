@@ -1,0 +1,11 @@
+{
+  "type": "range",
+  "radius": 35,
+  "affects": ["Structure"],
+  "modifications": [
+    { "value": "Capturable/CapturePoints", "multiply": 1.1 }
+  ],
+  "auraName": "Civic Defence",
+  "auraDescription": "Nearby structures have 10% more capture points.",
+  "overlayIcon": "art/textures/ui/session/auras/standground.png"
+}

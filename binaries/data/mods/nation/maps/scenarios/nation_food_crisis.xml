@@ -1103,49 +1103,49 @@
 			<Orientation y="0.4"/>
 		</Entity>
 		<Entity uid="11">
-			<Template>units/athen/infantry_spearman_b</Template>
+			<Template>units/nation/infantry</Template>
 			<Player>1</Player>
 			<Position x="430" z="788"/>
 			<Orientation y="0.6"/>
 		</Entity>
 		<Entity uid="12">
-			<Template>units/athen/infantry_spearman_b</Template>
+			<Template>units/nation/infantry</Template>
 			<Player>1</Player>
 			<Position x="437" z="788"/>
 			<Orientation y="0.6"/>
 		</Entity>
 		<Entity uid="13">
-			<Template>units/athen/infantry_spearman_b</Template>
+			<Template>units/nation/infantry</Template>
 			<Player>1</Player>
 			<Position x="444" z="788"/>
 			<Orientation y="0.6"/>
 		</Entity>
 		<Entity uid="14">
-			<Template>units/athen/infantry_spearman_b</Template>
+			<Template>units/nation/infantry</Template>
 			<Player>1</Player>
 			<Position x="451" z="788"/>
 			<Orientation y="0.6"/>
 		</Entity>
 		<Entity uid="15">
-			<Template>units/athen/infantry_spearman_b</Template>
+			<Template>units/nation/infantry</Template>
 			<Player>1</Player>
 			<Position x="430" z="796"/>
 			<Orientation y="0.6"/>
 		</Entity>
 		<Entity uid="16">
-			<Template>units/athen/infantry_spearman_b</Template>
+			<Template>units/nation/infantry</Template>
 			<Player>1</Player>
 			<Position x="437" z="796"/>
 			<Orientation y="0.6"/>
 		</Entity>
 		<Entity uid="17">
-			<Template>units/athen/infantry_spearman_b</Template>
+			<Template>units/nation/infantry</Template>
 			<Player>1</Player>
 			<Position x="444" z="796"/>
 			<Orientation y="0.6"/>
 		</Entity>
 		<Entity uid="18">
-			<Template>units/athen/infantry_spearman_b</Template>
+			<Template>units/nation/infantry</Template>
 			<Player>1</Player>
 			<Position x="451" z="796"/>
 			<Orientation y="0.6"/>
@@ -1391,31 +1391,31 @@
 			<Orientation y="0"/>
 		</Entity>
 		<Entity uid="21">
-			<Template>units/spart/infantry_spearman_b</Template>
+			<Template>units/nation/adome_infantry</Template>
 			<Player>2</Player>
 			<Position x="1236" z="840"/>
 			<Orientation y="2.2"/>
 		</Entity>
 		<Entity uid="22">
-			<Template>units/spart/infantry_spearman_b</Template>
+			<Template>units/nation/adome_infantry</Template>
 			<Player>2</Player>
 			<Position x="1244" z="848"/>
 			<Orientation y="2.0"/>
 		</Entity>
 		<Entity uid="23">
-			<Template>units/spart/infantry_spearman_b</Template>
+			<Template>units/nation/adome_infantry</Template>
 			<Player>2</Player>
 			<Position x="1236" z="856"/>
 			<Orientation y="2.0"/>
 		</Entity>
 		<Entity uid="24">
-			<Template>units/spart/infantry_spearman_b</Template>
+			<Template>units/nation/adome_infantry</Template>
 			<Player>2</Player>
 			<Position x="1252" z="840"/>
 			<Orientation y="2.0"/>
 		</Entity>
 		<Entity uid="25">
-			<Template>units/spart/infantry_spearman_b</Template>
+			<Template>units/nation/adome_infantry</Template>
 			<Player>2</Player>
 			<Position x="1248" z="856"/>
 			<Orientation y="2.0"/>
@@ -1457,31 +1457,31 @@
 			<Orientation y="0"/>
 		</Entity>
 		<Entity uid="142">
-			<Template>units/spart/infantry_spearman_b</Template>
+			<Template>units/nation/adome_infantry</Template>
 			<Player>2</Player>
 			<Position x="1260" z="840"/>
 			<Orientation y="2.0"/>
 		</Entity>
 		<Entity uid="143">
-			<Template>units/spart/infantry_spearman_b</Template>
+			<Template>units/nation/adome_infantry</Template>
 			<Player>2</Player>
 			<Position x="1268" z="848"/>
 			<Orientation y="2.0"/>
 		</Entity>
 		<Entity uid="144">
-			<Template>units/spart/infantry_spearman_b</Template>
+			<Template>units/nation/adome_infantry</Template>
 			<Player>2</Player>
 			<Position x="1260" z="856"/>
 			<Orientation y="2.0"/>
 		</Entity>
 		<Entity uid="145">
-			<Template>units/spart/infantry_spearman_b</Template>
+			<Template>units/nation/adome_infantry</Template>
 			<Player>2</Player>
 			<Position x="1268" z="864"/>
 			<Orientation y="2.0"/>
 		</Entity>
 		<Entity uid="146">
-			<Template>units/spart/infantry_spearman_b</Template>
+			<Template>units/nation/adome_infantry</Template>
 			<Player>2</Player>
 			<Position x="1276" z="864"/>
 			<Orientation y="2.0"/>

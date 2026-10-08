@@ -2,8 +2,9 @@
 <Entity parent="units/athen/infantry_spearman_b">
   <Identity>
     <Civ>athen</Civ>
-    <GenericName>Nation Infantry</GenericName>
-    <SpecificName>Nation Infantry</SpecificName>
+    <GenericName>Regular Soldier</GenericName>
+    <SpecificName>Regular Soldier</SpecificName>
+    <Tooltip>Affordable standard infantry and the backbone of the national army.</Tooltip>
     <Icon>units/athenians/infantry_spearman.png</Icon>
   </Identity>
   <Promotion disable=""/>

@@ -1,7 +1,7 @@
 // Milestone 2 economy: worker rosters, trainer rosters, template placement,
 // decay, and representative-capacity behavior.
 
-const templateDir = "/Users/reg/Documents/GitHub/nation/binaries/data/mods/nation/simulation/templates";
+const templateDir = path.resolve("binaries/data/mods/nation/simulation/templates");
 function readTemplate(rel)
 {
 	return fs.readFileSync(path.join(templateDir, rel), "utf8");
@@ -26,7 +26,9 @@ const domesticRoster = [
 	"structures/nation/town_barracks",
 	"structures/nation/court",
 	"structures/nation/regional_administration",
-	"structures/nation/national_project",
+	"structures/nation/grand_mosque",
+	"structures/nation/national_cathedral",
+	"structures/nation/independence_monument",
 	"structures/nation/trade_depot"
 ];
 

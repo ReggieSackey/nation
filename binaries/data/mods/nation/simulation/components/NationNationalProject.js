@@ -1,7 +1,11 @@
 // A single physical project uses the ordinary construction command and Cost.
 // The command wrapper adds the two Nation prerequisites that Cost cannot hold.
 var NationNationalProject = {
-	"template": "structures/nation/national_project",
+	"templates": [
+		"structures/nation/grand_mosque",
+		"structures/nation/national_cathedral",
+		"structures/nation/independence_monument"
+	],
 	"treasury": 1500000,
 	"people": 33000
 };
@@ -14,7 +18,7 @@ function AttachNationNationalProjectToConstruct()
 	const original = g_Commands.construct;
 	const wrapped = function(player, cmd, data)
 	{
-		if (!cmd || cmd.template !== NationNationalProject.template)
+		if (!cmd || NationNationalProject.templates.indexOf(cmd.template) === -1)
 			return original.apply(this, arguments);
 		if (player !== 1)
 			return false;

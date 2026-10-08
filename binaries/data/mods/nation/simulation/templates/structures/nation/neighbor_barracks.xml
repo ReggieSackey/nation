@@ -5,4 +5,10 @@
     <GenericName>Barracks</GenericName>
     <SpecificName>Barracks</SpecificName>
   </Identity>
+  <Trainer>
+    <Entities datatype="tokens">
+      -units/{civ}/infantry_spearman_neodamodes
+      units/nation/adome_infantry
+    </Entities>
+  </Trainer>
 </Entity>

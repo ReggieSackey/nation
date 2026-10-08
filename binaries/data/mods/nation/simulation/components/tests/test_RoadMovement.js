@@ -239,13 +239,13 @@ TS_ASSERT_EQUALS(effects.GetDiscontentRelief(62), 4);
 
 // 26. Relief never makes positive pressure negative.
 g_RouteConditions[60] = 100;
-// pressure at 10000 bps = 10, integration 50 -> penalty 2, relief 4 -> 8.
-TS_ASSERT_EQUALS(discontent.DiscontentDelta(60, 10000, 50), 8);
-// Tiny shortage: pressure 1 + penalty 2 - relief 4 -> clamped to 0, not negative.
+// pressure at 10000 bps = 2, integration 50 -> penalty 1, relief 4 -> 0.
+TS_ASSERT_EQUALS(discontent.DiscontentDelta(60, 10000, 50), 0);
+// Tiny shortage rounds to zero and relief cannot make pressure negative.
 TS_ASSERT_EQUALS(discontent.DiscontentDelta(60, 1000, 50), 0);
 // 27. No-shortage recovery is unchanged.
-TS_ASSERT_EQUALS(discontent.DiscontentDelta(60, 0, 50), -5);
+TS_ASSERT_EQUALS(discontent.DiscontentDelta(60, 0, 50), -3);
 
 // Broken roads give no relief: condition 0.
 g_RouteConditions[60] = 0;
-TS_ASSERT_EQUALS(discontent.DiscontentDelta(60, 10000, 50), 12);
+TS_ASSERT_EQUALS(discontent.DiscontentDelta(60, 10000, 50), 3);

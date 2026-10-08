@@ -1,0 +1,14 @@
+{
+  "type": "range",
+  "radius": 35,
+  "affects": ["Soldier !Officer"],
+  "modifications": [
+    { "value": "Attack/Melee/Damage/Hack", "multiply": 1.08 },
+    { "value": "Attack/Melee/Damage/Pierce", "multiply": 1.08 },
+    { "value": "Attack/Ranged/Damage/Hack", "multiply": 1.08 },
+    { "value": "Attack/Ranged/Damage/Pierce", "multiply": 1.08 }
+  ],
+  "auraName": "Field Leadership",
+  "auraDescription": "Nearby soldiers deal 8% more hack and pierce damage.",
+  "overlayIcon": "art/textures/ui/session/auras/attack_bonus.png"
+}

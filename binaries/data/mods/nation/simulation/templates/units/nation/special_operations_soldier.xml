@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Entity parent="units/athen/champion_infantry">
+  <Cost><BuildTime>65</BuildTime><Resources><food>180</food><wood>0</wood><stone>0</stone><metal>150</metal></Resources></Cost>
+  <Health><Max>240</Max></Health>
+  <Attack><Melee><Damage><Hack>8</Hack><Pierce>12</Pierce><Crush>0</Crush></Damage><RepeatTime>900</RepeatTime></Melee></Attack>
+  <Identity><GenericName>Special Operations Soldier</GenericName><SpecificName>Special Operations Soldier</SpecificName><Tooltip>Expensive elite infantry with greater health, damage, and training time.</Tooltip><Classes datatype="tokens">NationSoldier</Classes><Requirements><Techs datatype="tokens">phase_city</Techs></Requirements></Identity>
+  <Promotion disable=""/>
+</Entity>

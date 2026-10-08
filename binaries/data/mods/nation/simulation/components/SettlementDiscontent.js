@@ -12,22 +12,36 @@ SettlementDiscontent.prototype.FullShortageBps = 10000;
 /**
  * Food-pressure points at a complete shortage.
  */
-SettlementDiscontent.prototype.PressureScale = 10;
+SettlementDiscontent.prototype.PressureScale = 2;
 
 /**
  * Integration points that add one point of crisis vulnerability.
  */
-SettlementDiscontent.prototype.IntegrationBand = 20;
+SettlementDiscontent.prototype.IntegrationBand = 50;
 
 /**
  * Discontent removed on an interval with no food shortage.
  */
-SettlementDiscontent.prototype.Recovery = 5;
+SettlementDiscontent.prototype.Recovery = 3;
+
+/** Four missing-service intervals add one discontent point. */
+SettlementDiscontent.prototype.ServicePressureDivisor = 4;
 
 SettlementDiscontent.prototype.Init = function()
 {
+	this.servicePressure = {};
 	AttachDiscontentToSimulationState();
 	AttachSettlementDiscontentToEntityState();
+};
+
+SettlementDiscontent.prototype.Serialize = function()
+{
+	return { "servicePressure": this.servicePressure };
+};
+
+SettlementDiscontent.prototype.Deserialize = function(data)
+{
+	this.servicePressure = data.servicePressure || {};
 };
 
 /**
@@ -69,16 +83,28 @@ SettlementDiscontent.prototype.IntegrationPenalty = function(integration)
  * Low integration adds nothing while the country is fed.
  * @return {number}
  */
-SettlementDiscontent.prototype.DiscontentDelta = function(settlement, shortageBps, integration)
+SettlementDiscontent.prototype.DiscontentDelta = function(settlement, shortageBps, integration, service)
 {
+	service = service || 0;
 	if (shortageBps === 0)
-		return -this.Recovery;
+		return Math.min(0, service - this.Recovery);
 	const pressure = this.FoodPressure(shortageBps);
 	if (pressure <= 0)
-		return 0;
+		return service;
 
 	const relief = this.InfrastructureRelief(settlement);
-	return Math.max(0, pressure + this.IntegrationPenalty(integration) - relief);
+	return Math.max(0, pressure + this.IntegrationPenalty(integration) + service - relief);
+};
+
+SettlementDiscontent.prototype.ServicePressure = function(settlement)
+{
+	const cmpServices = Engine.QueryInterface(SYSTEM_ENTITY, IID_PublicServiceManager);
+	const missing = cmpServices ? cmpServices.GetMissing(settlement).length : 0;
+	const key = String(settlement);
+	const accumulated = (this.servicePressure[key] || 0) + missing;
+	const pressure = Math.floor(accumulated / this.ServicePressureDivisor);
+	this.servicePressure[key] = accumulated % this.ServicePressureDivisor;
+	return pressure;
 };
 
 /**
@@ -115,7 +141,8 @@ SettlementDiscontent.prototype.OnGlobalFoodConsumptionCompleted = function()
 			const cmpSettlement = Engine.QueryInterface(ent, IID_NationSettlement);
 			if (!cmpSettlement)
 				continue;
-			const delta = this.DiscontentDelta(ent, status.shortageBps, cmpSettlement.GetStateIntegration());
+			const delta = this.DiscontentDelta(ent, status.shortageBps,
+				cmpSettlement.GetStateIntegration(), this.ServicePressure(ent));
 			if (delta !== 0)
 				cmpSettlement.ChangeDiscontent(delta);
 		}
@@ -166,11 +193,16 @@ SettlementDiscontent.prototype.GetSettlementView = function(entity)
 	const cmpSettlement = Engine.QueryInterface(entity, IID_NationSettlement);
 	if (!cmpSettlement || !cmpSettlement.GetName())
 		return null;
+	const cmpServices = Engine.QueryInterface(SYSTEM_ENTITY, IID_PublicServiceManager);
+	const coverage = cmpServices ? cmpServices.GetCoverage(entity) :
+		{ "education": 0, "healthcare": 0, "electricity": 0 };
 	return {
 		"name": cmpSettlement.GetName(),
 		"population": cmpSettlement.GetPopulation(),
 		"integration": cmpSettlement.GetStateIntegration(),
 		"discontent": cmpSettlement.GetDiscontent(),
+		"services": coverage,
+		"missingServices": Object.keys(coverage).filter(type => !coverage[type]),
 		"legalSovereignty": nationControllerName(cmpSettlement.GetSovereignOwner(), "Unclaimed"),
 		"effectiveControl": nationControllerName(cmpSettlement.GetEffectiveController(), "Uncontrolled"),
 		"militaryOccupation": nationControllerName(

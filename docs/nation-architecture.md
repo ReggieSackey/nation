@@ -987,3 +987,10 @@ Dependencies for macOS are not present until `libraries/build-macos-libs.sh` dow
 User config, logs, and the writable user mod go to `~/Library/Application Support/0ad/`. Saving the mod selector writes `mod.enabledmods` there.
 
 Exact commands are in the task report that introduced this file. This checkout had no generated workspaces and no `pyrogenesis` binary, so those commands were taken from `libraries/build-macos-libs.sh`, `build/workspaces/update-workspaces.sh`, `build/premake/premake5.lua`, and `binaries/system/readme.txt`.
+## Milestone 6 public services and campaign pacing
+
+Education, healthcare, and electricity are settlement services rather than national currencies or detailed citizen simulations. A service building has a `PublicService` type, radius, and tier. `PublicServiceManager` deterministically finds completed, living buildings owned by the settlement's sovereign state and inside that radius. The highest local tier is exposed in settlement state. One building therefore cannot satisfy distant settlements merely because it shares an owner.
+
+`SettlementDiscontent` consumes missing local services only when it processes the existing food-consumption interval. Each missing service adds one quarter of a point per one-minute interval through a serialized integer remainder. Food shortage and low integration remain the primary crisis drivers; complete food shortage contributes two points, low integration contributes up to two, and food security recovers three points before service deprivation is applied. Public services can slow recovery or accelerate a sustained crisis, but do not directly cause an immediate revolt.
+
+The Food Crisis uses a 60-second population-food interval and a 90-minute minimum before `AdomeStrategy` can declare war. National Projects are ordinary Advanced State construction projects with three representational variants. Each requires the shared demographic and treasury checks, substantial physical resources, and 30 minutes of base construction time. Completing any variant reaches `NationEndgame` through its inherited `NationNationalProject` class.

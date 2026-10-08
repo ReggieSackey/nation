@@ -4,4 +4,7 @@
     <GenericName>District Office</GenericName>
     <SpecificName>District Office</SpecificName>
   </Identity>
+  <Trainer>
+    <Entities datatype="tokens">units/nation/civil_servant</Entities>
+  </Trainer>
 </Entity>

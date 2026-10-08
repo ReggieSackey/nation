@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Entity parent="structures/nation/training_college">
+  <Cost><BuildTime>120</BuildTime><Resources><food>0</food><wood>450</wood><stone>250</stone><metal>150</metal></Resources></Cost>
+  <Identity><GenericName>Polytechnic</GenericName><SpecificName>Polytechnic</SpecificName><Tooltip>Provides intermediate technical education within 220 metres and trains Civil Servants.</Tooltip><Requirements><Techs datatype="tokens">phase_town</Techs></Requirements></Identity>
+  <PublicService><Type>education</Type><Radius>220</Radius><Level>2</Level></PublicService>
+</Entity>

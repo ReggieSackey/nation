@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Entity parent="units/nation/infantry">
+  <Auras datatype="tokens">units/nation/officer</Auras>
+  <Cost><BuildTime>55</BuildTime><Resources><food>150</food><wood>0</wood><stone>0</stone><metal>120</metal></Resources></Cost>
+  <Identity><GenericName>Officer</GenericName><SpecificName>Officer</SpecificName><Tooltip>Expensive field leader who improves nearby soldiers' damage by 8%.</Tooltip><Classes datatype="tokens">Officer</Classes><Requirements><Techs datatype="tokens">phase_town</Techs></Requirements></Identity>
+</Entity>

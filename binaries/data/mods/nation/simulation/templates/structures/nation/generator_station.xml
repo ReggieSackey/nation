@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Entity parent="structures/athen/storehouse">
+  <BuildRestrictions><Territory>sovereign</Territory></BuildRestrictions>
+  <Cost><BuildTime>55</BuildTime><Resources><food>0</food><wood>180</wood><stone>50</stone><metal>100</metal></Resources></Cost>
+  <Identity><GenericName>Generator Station</GenericName><SpecificName>Generator Station</SpecificName><Tooltip>Provides basic electricity to settlements within 120 metres.</Tooltip><Classes datatype="tokens">NationElectricity</Classes></Identity>
+  <PublicService><Type>electricity</Type><Radius>120</Radius><Level>1</Level></PublicService>
+  <ProductionQueue disable=""/><Researcher disable=""/><ResourceDropsite disable=""/><TerritoryDecay disable=""/><TerritoryInfluence disable=""/>
+</Entity>

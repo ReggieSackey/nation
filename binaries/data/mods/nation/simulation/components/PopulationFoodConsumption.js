@@ -5,9 +5,9 @@ PopulationFoodConsumption.prototype.Schema =
 
 /**
  * Prototype interval in simulation milliseconds.
- * Aligned with the other Nation ten-second ticks. Not a calendar.
+ * One minute keeps food security legible over a multi-hour scenario.
  */
-PopulationFoodConsumption.prototype.Interval = 10000;
+PopulationFoodConsumption.prototype.Interval = 60000;
 
 /**
  * Prototype demand: one food per this many people each interval.

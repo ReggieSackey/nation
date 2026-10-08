@@ -1,0 +1,11 @@
+{
+  "type": "range",
+  "radius": 35,
+  "affects": ["Worker"],
+  "modifications": [
+    { "value": "Builder/Rate", "multiply": 1.05 }
+  ],
+  "auraName": "Local Administration",
+  "auraDescription": "Nearby workers build 5% faster.",
+  "overlayIcon": "art/textures/ui/session/auras/buildgather_bonus.png"
+}

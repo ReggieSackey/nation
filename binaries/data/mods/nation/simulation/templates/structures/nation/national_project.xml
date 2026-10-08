@@ -2,9 +2,9 @@
 <Entity parent="structures/athen/wonder">
   <Identity>
     <GenericName>National Project</GenericName>
-    <SpecificName>National Development Monument</SpecificName>
+    <SpecificName>National Project</SpecificName>
     <Classes datatype="tokens">NationNationalProject</Classes>
-    <Tooltip>Requires Advanced State, 33,000 sovereign people, 1,500,000 treasury, and its listed resources. Completion wins the game.</Tooltip>
+    <Tooltip>A monumental national work. Requires Advanced State, 33,000 sovereign people, 1,500,000 treasury, and its listed resources. Completion wins the game.</Tooltip>
     <Requirements>
       <Techs datatype="tokens">phase_city</Techs>
     </Requirements>
@@ -14,12 +14,12 @@
     <MatchLimit>1</MatchLimit>
   </BuildRestrictions>
   <Cost>
-    <BuildTime>600</BuildTime>
+    <BuildTime>1800</BuildTime>
     <Resources>
-      <food>1500</food>
-      <wood>1000</wood>
-      <stone>1200</stone>
-      <metal>800</metal>
+      <food>6000</food>
+      <wood>3000</wood>
+      <stone>4000</stone>
+      <metal>2500</metal>
     </Resources>
   </Cost>
   <Auras disable=""/>

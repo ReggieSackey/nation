@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Entity parent="structures/nation/national_project">
+  <Identity><GenericName>Grand Mosque</GenericName><SpecificName>Grand Mosque</SpecificName></Identity>
+</Entity>

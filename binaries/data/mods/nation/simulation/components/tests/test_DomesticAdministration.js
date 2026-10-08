@@ -162,7 +162,7 @@ TS_ASSERT_EQUALS(g_Calls.length, 2);
 // civic centre and the foreign office project effective control physically.
 // ---------------------------------------------------------------
 
-const templateDir = "/Users/reg/Documents/GitHub/nation/binaries/data/mods/nation/simulation/templates";
+const templateDir = path.resolve("binaries/data/mods/nation/simulation/templates");
 
 const adminXml = fs.readFileSync(
 	path.join(templateDir, "structures/nation/regional_administration.xml"),

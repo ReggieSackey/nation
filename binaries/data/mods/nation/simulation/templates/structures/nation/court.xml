@@ -11,5 +11,7 @@
   <Researcher disable=""/>
   <TerritoryDecay disable=""/>
   <TerritoryInfluence disable=""/>
-  <Trainer disable=""/>
+  <Trainer>
+    <Entities datatype="tokens">units/nation/lawyer</Entities>
+  </Trainer>
 </Entity>

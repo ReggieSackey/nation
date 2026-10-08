@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Entity parent="structures/nation/town_barracks">
+  <Cost><BuildTime>120</BuildTime><Resources><food>0</food><wood>450</wood><stone>250</stone><metal>150</metal></Resources></Cost>
+  <Identity><GenericName>Military Camp</GenericName><SpecificName>Military Camp</SpecificName><Tooltip>Development-era military facility for Regular Soldiers and Officers.</Tooltip><Requirements><Techs datatype="tokens">phase_town</Techs></Requirements></Identity>
+  <Trainer><Entities datatype="tokens">units/nation/officer</Entities></Trainer>
+</Entity>

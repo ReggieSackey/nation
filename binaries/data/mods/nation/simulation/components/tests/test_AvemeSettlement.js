@@ -17,7 +17,7 @@ Engine.LoadComponentScript("interfaces/PopulationFoodConsumption.js");
 Engine.LoadComponentScript("interfaces/PlayerManager.js");
 Engine.RegisterInterface("Health");
 
-const root = "/Users/reg/Documents/GitHub/nation/binaries/data/mods/nation/";
+const root = path.resolve("binaries/data/mods/nation") + "/";
 const anchorXml = fs.readFileSync(root + "simulation/templates/structures/nation/aveme.xml", "utf8");
 const parentXml = fs.readFileSync(root + "simulation/templates/template_nation_settlement.xml", "utf8");
 const mapXml = fs.readFileSync(root + "maps/scenarios/nation_food_crisis.xml", "utf8");
@@ -169,7 +169,7 @@ const cmpDiscontent = ConstructComponent(SYSTEM_ENTITY, "SettlementDiscontent");
 const cmpRebellion = ConstructComponent(SYSTEM_ENTITY, "RebellionManager");
 cmpRebellion.ReadRebelPlayer(3);
 let densiraRebel = false;
-for (let tick = 0; tick < 12; ++tick)
+for (let tick = 0; tick < 40; ++tick)
 {
 	cmpDiscontent.OnGlobalFoodConsumptionCompleted();
 	cmpRebellion.OnGlobalSettlementDiscontentCompleted();

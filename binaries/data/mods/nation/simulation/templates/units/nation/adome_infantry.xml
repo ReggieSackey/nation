@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Entity parent="units/spart/infantry_spearman_b">
+  <Identity><GenericName>Adoméan Regular Soldier</GenericName><SpecificName>Adoméan Regular Soldier</SpecificName><Tooltip>Standard infantry of the Republic of Adomé.</Tooltip></Identity>
+  <Promotion disable=""/>
+</Entity>

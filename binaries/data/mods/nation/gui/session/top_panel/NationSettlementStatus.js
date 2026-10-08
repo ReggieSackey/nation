@@ -28,6 +28,10 @@ function updateNationSettlementStatus()
 	}
 
 	const rebellion = state.nationRebellion;
+	const services = settlement.services || {};
+	const serviceLine = "Services: education " + (services.education || 0) +
+		", healthcare " + (services.healthcare || 0) +
+		", electricity " + (services.electricity || 0);
 	let rebellionLine = "Rebellion: None";
 	if (rebellion && rebellion.active)
 		rebellionLine = "Rebellion: Active";
@@ -40,6 +44,7 @@ function updateNationSettlementStatus()
 		"Population: " + nationSettlementAmount(settlement.population) + "\n" +
 		"State integration: " + settlement.integration + "\n" +
 		"Discontent: " + settlement.discontent + "\n" +
+		serviceLine + "\n" +
 		"Legal sovereignty: " + (settlement.legalSovereignty || "Unclaimed") + "\n" +
 		"Effective control: " + (settlement.effectiveControl || "Uncontrolled") + "\n" +
 		"Military occupation: " + (settlement.militaryOccupation || "None") + "\n" +

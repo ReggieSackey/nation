@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Entity parent="units/athen/support_female_citizen">
+  <Auras datatype="tokens">units/nation/lawyer</Auras>
+  <Builder disable=""/><ResourceGatherer disable=""/>
+  <Cost><BuildTime>50</BuildTime><Resources><food>120</food><wood>0</wood><stone>0</stone><metal>120</metal></Resources></Cost>
+  <Identity><GenericName>Lawyer</GenericName><SpecificName>Lawyer</SpecificName><Tooltip>Advanced legal professional who gives nearby structures 10% more capture points.</Tooltip><Classes datatype="tokens">NationProfessional</Classes><Requirements><Techs datatype="tokens">phase_city</Techs></Requirements></Identity>
+</Entity>

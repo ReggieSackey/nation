@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Entity parent="units/athen/support_healer_b">
+  <Cost><BuildTime>45</BuildTime><Resources><food>150</food><wood>0</wood><stone>0</stone><metal>100</metal></Resources></Cost>
+  <Heal><Range>18</Range><Health>6</Health><Interval>2000</Interval></Heal>
+  <Identity><GenericName>Doctor</GenericName><SpecificName>Doctor</SpecificName><Tooltip>Advanced medical professional who heals nearby friendly people.</Tooltip><Classes datatype="tokens">NationProfessional</Classes><Requirements><Techs datatype="tokens">phase_city</Techs></Requirements></Identity>
+  <Promotion disable=""/>
+</Entity>

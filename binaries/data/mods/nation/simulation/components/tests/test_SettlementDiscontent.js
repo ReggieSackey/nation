@@ -134,33 +134,32 @@ nation();
 TS_ASSERT_EQUALS(world.cmpDiscontent.GetNationalDiscontent(1), 0);
 TS_ASSERT_EQUALS(world.cmpDiscontent.GetNationalDiscontent(3), 0);
 TS_ASSERT_EQUALS(world.cmpDiscontent.FoodPressure(0), 0);
-TS_ASSERT_EQUALS(world.cmpDiscontent.FoodPressure(2500), 3);
-TS_ASSERT_EQUALS(world.cmpDiscontent.FoodPressure(5000), 5);
-TS_ASSERT_EQUALS(world.cmpDiscontent.FoodPressure(7500), 8);
-TS_ASSERT_EQUALS(world.cmpDiscontent.FoodPressure(10000), 10);
+TS_ASSERT_EQUALS(world.cmpDiscontent.FoodPressure(2500), 1);
+TS_ASSERT_EQUALS(world.cmpDiscontent.FoodPressure(5000), 1);
+TS_ASSERT_EQUALS(world.cmpDiscontent.FoodPressure(7500), 2);
+TS_ASSERT_EQUALS(world.cmpDiscontent.FoodPressure(10000), 2);
 TS_ASSERT_EQUALS(world.cmpDiscontent.IntegrationPenalty(90), 0);
-TS_ASSERT_EQUALS(world.cmpDiscontent.IntegrationPenalty(70), 1);
-TS_ASSERT_EQUALS(world.cmpDiscontent.IntegrationPenalty(55), 2);
-TS_ASSERT_EQUALS(world.cmpDiscontent.IntegrationPenalty(35), 3);
-TS_ASSERT_EQUALS(world.cmpDiscontent.IntegrationPenalty(20), 4);
-TS_ASSERT_EQUALS(world.cmpDiscontent.IntegrationPenalty(0), 5);
+TS_ASSERT_EQUALS(world.cmpDiscontent.IntegrationPenalty(70), 0);
+TS_ASSERT_EQUALS(world.cmpDiscontent.IntegrationPenalty(55), 0);
+TS_ASSERT_EQUALS(world.cmpDiscontent.IntegrationPenalty(35), 1);
+TS_ASSERT_EQUALS(world.cmpDiscontent.IntegrationPenalty(20), 1);
+TS_ASSERT_EQUALS(world.cmpDiscontent.IntegrationPenalty(0), 2);
 // No-shortage recovery is unchanged. Positive pressure keeps the
 // infrastructure relief floor at zero.
 AddMock(SYSTEM_ENTITY, IID_InfrastructureEffects, {
 	"GetDiscontentRelief": () => 0
 });
-TS_ASSERT_EQUALS(world.cmpDiscontent.DiscontentDelta(30, 0, 20), -5);
-TS_ASSERT_EQUALS(world.cmpDiscontent.DiscontentDelta(30, 10000, 90), 10);
-TS_ASSERT_EQUALS(world.cmpDiscontent.DiscontentDelta(30, 10000, 20), 14);
+TS_ASSERT_EQUALS(world.cmpDiscontent.DiscontentDelta(30, 0, 20), -3);
+TS_ASSERT_EQUALS(world.cmpDiscontent.DiscontentDelta(30, 10000, 90), 2);
+TS_ASSERT_EQUALS(world.cmpDiscontent.DiscontentDelta(30, 10000, 20), 3);
 // Relief subtracts and clamps at zero.
 AddMock(SYSTEM_ENTITY, IID_InfrastructureEffects, {
 	"GetDiscontentRelief": () => 4
 });
-TS_ASSERT_EQUALS(world.cmpDiscontent.DiscontentDelta(30, 10000, 90), 6);
-TS_ASSERT_EQUALS(world.cmpDiscontent.DiscontentDelta(30, 1000, 20), 1);
-// Pressure 1 + penalty 4 - relief 4 cannot go negative.
-TS_ASSERT_EQUALS(world.cmpDiscontent.DiscontentDelta(30, 1000, 20), Math.max(0, 1 + 4 - 4));
-TS_ASSERT_EQUALS(world.cmpDiscontent.DiscontentDelta(30, 0, 20), -5);
+TS_ASSERT_EQUALS(world.cmpDiscontent.DiscontentDelta(30, 10000, 90), 0);
+TS_ASSERT_EQUALS(world.cmpDiscontent.DiscontentDelta(30, 1000, 20), 0);
+TS_ASSERT_EQUALS(world.cmpDiscontent.DiscontentDelta(30, 1000, 20), 0);
+TS_ASSERT_EQUALS(world.cmpDiscontent.DiscontentDelta(30, 0, 20), -3);
 AddMock(SYSTEM_ENTITY, IID_InfrastructureEffects, {
 	"GetDiscontentRelief": () => 0
 });
@@ -179,21 +178,21 @@ world = start(0, 100000);
 nation();
 world.cmpFood.ConsumeFood();
 TS_ASSERT_EQUALS(world.cmpFood.GetFoodStatus(1).shortageBps, 10000);
-TS_ASSERT_EQUALS(Engine.QueryInterface(30, IID_NationSettlement).GetDiscontent(), 10);
-TS_ASSERT_EQUALS(Engine.QueryInterface(31, IID_NationSettlement).GetDiscontent(), 13);
-TS_ASSERT_EQUALS(Engine.QueryInterface(32, IID_NationSettlement).GetDiscontent(), 14);
-TS_ASSERT_EQUALS(Engine.QueryInterface(33, IID_NationSettlement).GetDiscontent(), 12);
+TS_ASSERT_EQUALS(Engine.QueryInterface(30, IID_NationSettlement).GetDiscontent(), 2);
+TS_ASSERT_EQUALS(Engine.QueryInterface(31, IID_NationSettlement).GetDiscontent(), 3);
+TS_ASSERT_EQUALS(Engine.QueryInterface(32, IID_NationSettlement).GetDiscontent(), 3);
+TS_ASSERT_EQUALS(Engine.QueryInterface(33, IID_NationSettlement).GetDiscontent(), 2);
 TS_ASSERT_EQUALS(Engine.QueryInterface(34, IID_NationSettlement).GetDiscontent(), 0);
-TS_ASSERT_EQUALS(world.cmpDiscontent.GetNationalDiscontent(1), 11);
+TS_ASSERT_EQUALS(world.cmpDiscontent.GetNationalDiscontent(1), 2);
 TS_ASSERT_EQUALS(Engine.QueryInterface(30, IID_NationSettlement).GetStateIntegration(), 90);
 
 world.cmpFood.ConsumeFood();
 world.cmpFood.ConsumeFood();
-TS_ASSERT_EQUALS(Engine.QueryInterface(30, IID_NationSettlement).GetDiscontent(), 30);
-TS_ASSERT_EQUALS(Engine.QueryInterface(32, IID_NationSettlement).GetDiscontent(), 42);
-TS_ASSERT_EQUALS(Engine.QueryInterface(33, IID_NationSettlement).GetDiscontent(), 36);
+TS_ASSERT_EQUALS(Engine.QueryInterface(30, IID_NationSettlement).GetDiscontent(), 6);
+TS_ASSERT_EQUALS(Engine.QueryInterface(32, IID_NationSettlement).GetDiscontent(), 9);
+TS_ASSERT_EQUALS(Engine.QueryInterface(33, IID_NationSettlement).GetDiscontent(), 6);
 
-for (let i = 0; i < 20; ++i)
+for (let i = 0; i < 50; ++i)
 	world.cmpFood.ConsumeFood();
 TS_ASSERT_EQUALS(Engine.QueryInterface(30, IID_NationSettlement).GetDiscontent(), 100);
 TS_ASSERT_EQUALS(Engine.QueryInterface(32, IID_NationSettlement).GetDiscontent(), 100);
@@ -202,12 +201,12 @@ TS_ASSERT_EQUALS(world.cmpDiscontent.GetNationalDiscontent(1), 100);
 world.p1.AddResource("food", 100000);
 world.cmpFood.ConsumeFood();
 TS_ASSERT_EQUALS(world.cmpFood.GetFoodStatus(1).shortageBps, 0);
-TS_ASSERT_EQUALS(Engine.QueryInterface(30, IID_NationSettlement).GetDiscontent(), 95);
-TS_ASSERT_EQUALS(Engine.QueryInterface(32, IID_NationSettlement).GetDiscontent(), 95);
+TS_ASSERT_EQUALS(Engine.QueryInterface(30, IID_NationSettlement).GetDiscontent(), 97);
+TS_ASSERT_EQUALS(Engine.QueryInterface(32, IID_NationSettlement).GetDiscontent(), 97);
 world.cmpFood.ConsumeFood();
-TS_ASSERT_EQUALS(Engine.QueryInterface(30, IID_NationSettlement).GetDiscontent(), 90);
-TS_ASSERT_EQUALS(Engine.QueryInterface(32, IID_NationSettlement).GetDiscontent(), 90);
-for (let i = 0; i < 30; ++i)
+TS_ASSERT_EQUALS(Engine.QueryInterface(30, IID_NationSettlement).GetDiscontent(), 94);
+TS_ASSERT_EQUALS(Engine.QueryInterface(32, IID_NationSettlement).GetDiscontent(), 94);
+for (let i = 0; i < 100; ++i)
 	world.cmpFood.ConsumeFood();
 TS_ASSERT_EQUALS(Engine.QueryInterface(30, IID_NationSettlement).GetDiscontent(), 0);
 TS_ASSERT_EQUALS(Engine.QueryInterface(32, IID_NationSettlement).GetDiscontent(), 0);
@@ -217,24 +216,24 @@ nation();
 world.cmpFood.ConsumeFood();
 world.cmpFood.ConsumeFood();
 world.cmpFood.ConsumeFood();
-TS_ASSERT_EQUALS(Engine.QueryInterface(30, IID_NationSettlement).GetDiscontent(), 30);
-TS_ASSERT_EQUALS(Engine.QueryInterface(32, IID_NationSettlement).GetDiscontent(), 42);
+TS_ASSERT_EQUALS(Engine.QueryInterface(30, IID_NationSettlement).GetDiscontent(), 6);
+TS_ASSERT_EQUALS(Engine.QueryInterface(32, IID_NationSettlement).GetDiscontent(), 9);
 world.p1.SetResourceCounts({ "food": 100000 });
 world.cmpFood.ConsumeFood();
 TS_ASSERT_EQUALS(world.cmpFood.GetFoodStatus(1).shortageBps, 0);
-TS_ASSERT_EQUALS(Engine.QueryInterface(30, IID_NationSettlement).GetDiscontent(), 25);
-TS_ASSERT_EQUALS(Engine.QueryInterface(32, IID_NationSettlement).GetDiscontent(), 37);
+TS_ASSERT_EQUALS(Engine.QueryInterface(30, IID_NationSettlement).GetDiscontent(), 3);
+TS_ASSERT_EQUALS(Engine.QueryInterface(32, IID_NationSettlement).GetDiscontent(), 6);
 world.cmpFood.ConsumeFood();
-TS_ASSERT_EQUALS(Engine.QueryInterface(30, IID_NationSettlement).GetDiscontent(), 20);
-TS_ASSERT_EQUALS(Engine.QueryInterface(32, IID_NationSettlement).GetDiscontent(), 32);
+TS_ASSERT_EQUALS(Engine.QueryInterface(30, IID_NationSettlement).GetDiscontent(), 0);
+TS_ASSERT_EQUALS(Engine.QueryInterface(32, IID_NationSettlement).GetDiscontent(), 3);
 
 world = start(168, 100000);
 nation();
 world.cmpFood.ConsumeFood();
 TS_ASSERT_EQUALS(world.cmpFood.GetFoodStatus(1).shortageBps, 4985);
-TS_ASSERT_EQUALS(world.cmpDiscontent.FoodPressure(4985), 5);
-TS_ASSERT_EQUALS(Engine.QueryInterface(30, IID_NationSettlement).GetDiscontent(), 5);
-TS_ASSERT_EQUALS(Engine.QueryInterface(32, IID_NationSettlement).GetDiscontent(), 9);
+TS_ASSERT_EQUALS(world.cmpDiscontent.FoodPressure(4985), 1);
+TS_ASSERT_EQUALS(Engine.QueryInterface(30, IID_NationSettlement).GetDiscontent(), 1);
+TS_ASSERT_EQUALS(Engine.QueryInterface(32, IID_NationSettlement).GetDiscontent(), 2);
 TS_ASSERT(Engine.QueryInterface(32, IID_NationSettlement).GetDiscontent() < 14);
 TS_ASSERT(Engine.QueryInterface(30, IID_NationSettlement).GetDiscontent() < 10);
 
@@ -258,21 +257,21 @@ cmpImport.ReadOffers([{
 }]);
 world.cmpFood.ConsumeFood();
 TS_ASSERT_EQUALS(world.cmpFood.GetFoodStatus(1).shortageBps, 10000);
-TS_ASSERT_EQUALS(Engine.QueryInterface(30, IID_NationSettlement).GetDiscontent(), 10);
-TS_ASSERT_EQUALS(Engine.QueryInterface(32, IID_NationSettlement).GetDiscontent(), 14);
+TS_ASSERT_EQUALS(Engine.QueryInterface(30, IID_NationSettlement).GetDiscontent(), 2);
+TS_ASSERT_EQUALS(Engine.QueryInterface(32, IID_NationSettlement).GetDiscontent(), 3);
 const treasuryBefore = cmpFinance.GetTreasury(1);
 TS_ASSERT_EQUALS(cmpImport.Purchase(1, "neighbor-food-import"), true);
 TS_ASSERT_EQUALS(world.p1.GetResourceCounts().food, 1000);
 TS_ASSERT_EQUALS(cmpFinance.GetTreasury(1), treasuryBefore - 500000);
 TS_ASSERT_EQUALS(world.cmpFood.GetFoodStatus(1).shortageBps, 10000);
-TS_ASSERT_EQUALS(Engine.QueryInterface(30, IID_NationSettlement).GetDiscontent(), 10);
-TS_ASSERT_EQUALS(Engine.QueryInterface(32, IID_NationSettlement).GetDiscontent(), 14);
+TS_ASSERT_EQUALS(Engine.QueryInterface(30, IID_NationSettlement).GetDiscontent(), 2);
+TS_ASSERT_EQUALS(Engine.QueryInterface(32, IID_NationSettlement).GetDiscontent(), 3);
 world.cmpFood.ConsumeFood();
 TS_ASSERT_EQUALS(world.cmpFood.GetFoodStatus(1).shortageBps, 0);
 TS_ASSERT_EQUALS(world.cmpFood.GetFoodStatus(1).consumed, 335);
 TS_ASSERT_EQUALS(world.p1.GetResourceCounts().food, 665);
-TS_ASSERT_EQUALS(Engine.QueryInterface(30, IID_NationSettlement).GetDiscontent(), 5);
-TS_ASSERT_EQUALS(Engine.QueryInterface(32, IID_NationSettlement).GetDiscontent(), 9);
+TS_ASSERT_EQUALS(Engine.QueryInterface(30, IID_NationSettlement).GetDiscontent(), 0);
+TS_ASSERT_EQUALS(Engine.QueryInterface(32, IID_NationSettlement).GetDiscontent(), 0);
 
 world = start(0, 100000);
 nation();
@@ -283,23 +282,23 @@ cmpConnectivity.ApplyConnectivityGrowth();
 TS_ASSERT_EQUALS(Engine.QueryInterface(32, IID_NationSettlement).GetStateIntegration(), 21);
 TS_ASSERT_EQUALS(Engine.QueryInterface(30, IID_NationSettlement).GetStateIntegration(), 90);
 world.cmpFood.ConsumeFood();
-TS_ASSERT_EQUALS(world.cmpDiscontent.IntegrationPenalty(21), 3);
-TS_ASSERT_EQUALS(Engine.QueryInterface(32, IID_NationSettlement).GetDiscontent(), 13);
-TS_ASSERT_EQUALS(Engine.QueryInterface(30, IID_NationSettlement).GetDiscontent(), 10);
+TS_ASSERT_EQUALS(world.cmpDiscontent.IntegrationPenalty(21), 1);
+TS_ASSERT_EQUALS(Engine.QueryInterface(32, IID_NationSettlement).GetDiscontent(), 3);
+TS_ASSERT_EQUALS(Engine.QueryInterface(30, IID_NationSettlement).GetDiscontent(), 2);
 
 world = start(0, 100000);
 nation();
 world.cmpFood.ConsumeFood();
-TS_ASSERT_EQUALS(Engine.QueryInterface(30, IID_NationSettlement).GetDiscontent(), 10);
+TS_ASSERT_EQUALS(Engine.QueryInterface(30, IID_NationSettlement).GetDiscontent(), 2);
 const savedTimers = world.cmpTimer.timers.size;
 const savedCapital = SerializationCycle(Engine.QueryInterface(30, IID_NationSettlement));
 const savedWest = SerializationCycle(Engine.QueryInterface(32, IID_NationSettlement));
 world.cmpFood = SerializationCycle(world.cmpFood);
 world.cmpDiscontent = SerializationCycle(world.cmpDiscontent);
-TS_ASSERT_EQUALS(savedCapital.GetDiscontent(), 10);
-TS_ASSERT_EQUALS(savedWest.GetDiscontent(), 14);
+TS_ASSERT_EQUALS(savedCapital.GetDiscontent(), 2);
+TS_ASSERT_EQUALS(savedWest.GetDiscontent(), 3);
 TS_ASSERT_EQUALS(world.cmpTimer.timers.size, savedTimers);
 world.cmpFood.ConsumeFood();
-TS_ASSERT_EQUALS(Engine.QueryInterface(30, IID_NationSettlement).GetDiscontent(), 20);
-TS_ASSERT_EQUALS(Engine.QueryInterface(32, IID_NationSettlement).GetDiscontent(), 28);
+TS_ASSERT_EQUALS(Engine.QueryInterface(30, IID_NationSettlement).GetDiscontent(), 4);
+TS_ASSERT_EQUALS(Engine.QueryInterface(32, IID_NationSettlement).GetDiscontent(), 6);
 TS_ASSERT_EQUALS(world.cmpTimer.timers.size, savedTimers);
