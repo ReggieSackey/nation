@@ -95,6 +95,7 @@ let g_NextRebel = 200;
 let g_RebelHitpoints = {};
 let g_RebelOwner = {};
 let g_RebelPos = {};
+let g_TerritoryOwner = 0;
 
 Engine.GetEntitiesWithInterface = function(iid)
 {
@@ -167,8 +168,12 @@ function start(food)
 	g_RebelHitpoints = {};
 	g_RebelOwner = {};
 	g_RebelPos = {};
+	g_TerritoryOwner = 0;
 	AddMock(SYSTEM_ENTITY, IID_Sovereignty, {
 		"GetSovereignOwner": pos => pos.x <= 256 ? 1 : pos.x <= 512 ? 2 : INVALID_PLAYER
+	});
+	AddMock(SYSTEM_ENTITY, IID_TerritoryManager, {
+		"GetOwner": () => g_TerritoryOwner
 	});
 	AddMock(SYSTEM_ENTITY, IID_PlayerManager, {
 		"GetNumPlayers": () => 4,
@@ -272,11 +277,17 @@ TS_ASSERT_EQUALS(g_Spawned.length, 0);
 evaluate();
 TS_ASSERT_EQUALS(status(32).extremeIntervals, 2);
 TS_ASSERT_EQUALS(status(32).active, true);
+
 TS_ASSERT_EQUALS(status(32).livingRebels, 3);
 TS_ASSERT_EQUALS(status(32).opponent, 1);
 TS_ASSERT_EQUALS(g_Spawned.length, 3);
 TS_ASSERT_EQUALS(g_Anchors.length, 1);
 TS_ASSERT_EQUALS(g_Anchors[0].template, "special/nation/rebel_control_anchor");
+const anchorTemplate = fs.readFileSync(
+	"/Users/reg/Documents/GitHub/nation/binaries/data/mods/nation/simulation/templates/special/nation/rebel_control_anchor.xml", "utf8");
+TS_ASSERT(anchorTemplate.includes('parent="template_trigger_point"'));
+TS_ASSERT(!anchorTemplate.includes("InfrastructureNode"));
+TS_ASSERT(!anchorTemplate.includes("trade_junction"));
 TS_ASSERT_EQUALS(status(32).active, true);
 TS_ASSERT_EQUALS(world.cmpRebellion.records[32].controlAnchor, g_Anchors[0].id);
 TS_ASSERT_EQUALS(g_Spawned[0].template, "units/nation/rebel_fighter");
@@ -312,6 +323,11 @@ TS_ASSERT_EQUALS(g_Spawned.length, 3);
 TS_ASSERT_EQUALS(cmpWestern.GetDiscontent(), 40);
 
 cmpWestern.SetDiscontent(100);
+g_RebelHitpoints[g_Spawned[0].id] = 0;
+evaluate();
+TS_ASSERT_EQUALS(status(32).active, true);
+TS_ASSERT_EQUALS(status(32).livingRebels, 2);
+TS_ASSERT(world.cmpRebellion.records[32].controlAnchor > 0);
 for (const spawned of g_Spawned)
 	g_RebelHitpoints[spawned.id] = 0;
 evaluate();
@@ -320,6 +336,12 @@ TS_ASSERT_EQUALS(status(32).livingRebels, 0);
 TS_ASSERT_EQUALS(status(32).extremeIntervals, 0);
 TS_ASSERT_EQUALS(cmpWestern.GetDiscontent(), 100);
 TS_ASSERT_EQUALS(cmpWestern.GetPopulation(), 3500);
+const anchorsAfterSuppression = g_Anchors.length;
+const suppressedReload = SerializationCycle(world.cmpRebellion);
+suppressedReload.OnUpdate();
+TS_ASSERT_EQUALS(suppressedReload.GetStatus(32).active, false);
+TS_ASSERT_EQUALS(suppressedReload.records[32].controlAnchor, 0);
+TS_ASSERT_EQUALS(g_Anchors.length, anchorsAfterSuppression);
 evaluate();
 TS_ASSERT_EQUALS(status(32).extremeIntervals, 1);
 TS_ASSERT_EQUALS(status(32).active, false);
@@ -340,6 +362,22 @@ TS_ASSERT_EQUALS(status(34).opponent, 2);
 TS_ASSERT_EQUALS(status(34).active, true);
 TS_ASSERT_EQUALS(g_RebelOwner[g_Spawned[6].id], 3);
 TS_ASSERT_EQUALS(Engine.QueryInterface(34, IID_Ownership).GetOwner(), 1);
+const simultaneous = Engine.QueryInterface(SYSTEM_ENTITY, IID_RebellionManager);
+TS_ASSERT(simultaneous.records[32].controlAnchor > 0);
+TS_ASSERT(simultaneous.records[34].controlAnchor > 0);
+TS_ASSERT(simultaneous.records[32].controlAnchor !== simultaneous.records[34].controlAnchor);
+
+// Established foreign control has precedence over a new rebellion.
+world = start(100000);
+nation();
+western().SetDiscontent(100);
+g_TerritoryOwner = 2;
+evaluate();
+evaluate();
+TS_ASSERT_EQUALS(status(32).active, false);
+TS_ASSERT_EQUALS(g_Spawned.length, 0);
+TS_ASSERT_EQUALS(g_Anchors.length, 0);
+TS_ASSERT_EQUALS(western().GetSovereignOwner(), 1);
 
 world = start(100000);
 nation();
@@ -372,6 +410,19 @@ const firstGroup = g_Spawned.map(spawned => spawned.id);
 reloaded = SerializationCycle(Engine.QueryInterface(SYSTEM_ENTITY, IID_RebellionManager));
 TS_ASSERT_EQUALS(reloaded.GetStatus(32).active, true);
 TS_ASSERT_EQUALS(reloaded.GetStatus(32).livingRebels, 3);
+const activeAnchor = reloaded.records[32].controlAnchor;
+const activeAnchorCount = g_Anchors.length;
+reloaded.OnUpdate();
+TS_ASSERT_EQUALS(reloaded.records[32].controlAnchor, activeAnchor);
+TS_ASSERT_EQUALS(g_Anchors.length, activeAnchorCount);
+reloaded.records[32].controlAnchor = 9999;
+reloaded.OnUpdate();
+TS_ASSERT(reloaded.records[32].controlAnchor !== 9999);
+TS_ASSERT_EQUALS(g_Anchors.length, activeAnchorCount + 1);
+const replacementAnchor = reloaded.records[32].controlAnchor;
+reloaded.OnUpdate();
+TS_ASSERT_EQUALS(reloaded.records[32].controlAnchor, replacementAnchor);
+TS_ASSERT_EQUALS(g_Anchors.length, activeAnchorCount + 1);
 western().SetDiscontent(100);
 evaluate();
 evaluate();

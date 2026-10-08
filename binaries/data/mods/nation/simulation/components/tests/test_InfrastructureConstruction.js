@@ -34,6 +34,7 @@ let g_SpawnOwner = null;
 let g_AddCalls = 0;
 let g_LastTemplate = null;
 let g_SettlementOwner = 1;
+let g_TerritoryOwner = 0;
 
 const westernProject = {
 	"id": "capital-western-road",
@@ -155,8 +156,12 @@ function start(treasury, projects, links)
 	g_SpawnOwner = null;
 	g_AddCalls = 0;
 	g_SettlementOwner = 1;
+	g_TerritoryOwner = 0;
 	AddMock(SYSTEM_ENTITY, IID_Sovereignty, {
 		"GetSovereignOwner": pos => pos.x <= 256 ? 1 : pos.x <= 512 ? 2 : INVALID_PLAYER
+	});
+	AddMock(SYSTEM_ENTITY, IID_TerritoryManager, {
+		"GetOwner": () => g_TerritoryOwner
 	});
 	const cmpTimer = ConstructComponent(SYSTEM_ENTITY, "Timer");
 	const cmpConnectivity = ConstructComponent(SYSTEM_ENTITY, "SettlementConnectivity");
@@ -207,6 +212,12 @@ TS_ASSERT_EQUALS(quote.population, 3500);
 TS_ASSERT_EQUALS(quote.integration, 20);
 TS_ASSERT_EQUALS(quote.connected, false);
 TS_ASSERT_EQUALS(world.cmpInvestment.GetConstructionQuote(1, 30), null);
+g_TerritoryOwner = 3;
+TS_ASSERT_EQUALS(world.cmpInvestment.GetConstructionQuote(1, 32).authorized, false);
+TS_ASSERT_EQUALS(world.cmpInvestment.Construct(1, "capital-western-road"), false);
+TS_ASSERT_EQUALS(g_AddCalls, 0);
+g_TerritoryOwner = 0;
+TS_ASSERT_EQUALS(world.cmpInvestment.GetConstructionQuote(1, 32).authorized, true);
 
 world = start(1500000, [westernProject]);
 settlement(30, "Capital", 0, 90, 90, true);

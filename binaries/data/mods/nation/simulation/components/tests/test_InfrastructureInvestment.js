@@ -26,6 +26,7 @@ let g_SettlementIds = [];
 let g_LinkIds = [];
 let g_ProducerIds = [];
 let g_RoadOwner = 1;
+let g_TerritoryOwner = 0;
 
 AddMock(SYSTEM_ENTITY, IID_Sovereignty, {
 	"GetSovereignOwner": pos => pos.x <= 256 ? 1 : pos.x <= 512 ? 2 : INVALID_PLAYER
@@ -71,8 +72,12 @@ function start(treasury)
 	g_LinkIds = [];
 	g_ProducerIds = [];
 	g_RoadOwner = 1;
+	g_TerritoryOwner = 0;
 	AddMock(SYSTEM_ENTITY, IID_Sovereignty, {
 		"GetSovereignOwner": pos => pos.x <= 256 ? 1 : pos.x <= 512 ? 2 : INVALID_PLAYER
+	});
+	AddMock(SYSTEM_ENTITY, IID_TerritoryManager, {
+		"GetOwner": () => g_TerritoryOwner
 	});
 	const cmpConnectivity = ConstructComponent(SYSTEM_ENTITY, "SettlementConnectivity");
 	const cmpTransport = ConstructComponent(SYSTEM_ENTITY, "TransportEfficiency");
@@ -130,6 +135,17 @@ TS_ASSERT_EQUALS(world.road.GetCondition(), 100);
 TS_ASSERT_EQUALS(world.cmpFinance.GetTreasury(1), 9500000);
 TS_ASSERT_EQUALS(world.cmpTransport.GetEfficiency(33), 1);
 TS_ASSERT_EQUALS(world.cmpConnectivity.IsConnectedToCapital(33), true);
+
+// Ownership alone cannot authorize remote work in rebel-held sovereign land.
+world = start(10000000);
+TS_ASSERT_EQUALS(world.road.SetCondition(50), true);
+g_TerritoryOwner = 3;
+TS_ASSERT_EQUALS(world.cmpInvestment.GetRepairQuote(1, 40).authorized, false);
+TS_ASSERT_EQUALS(world.cmpInvestment.Repair(1, 40), false);
+TS_ASSERT_EQUALS(world.road.GetCondition(), 50);
+g_TerritoryOwner = 0;
+TS_ASSERT_EQUALS(world.cmpInvestment.Repair(1, 40), true);
+TS_ASSERT_EQUALS(world.road.GetCondition(), 100);
 TS_ASSERT_EQUALS(world.cmpInvestment.Repair(1, 40), false);
 TS_ASSERT_EQUALS(world.cmpFinance.GetTreasury(1), 9500000);
 TS_ASSERT_EQUALS(world.road.GetCondition(), 100);

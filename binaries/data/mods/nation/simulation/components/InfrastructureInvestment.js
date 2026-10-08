@@ -152,16 +152,15 @@ InfrastructureInvestment.prototype.HasAuthority = function(playerId, cmpLink)
 	if (!cmpOwnership || cmpOwnership.GetOwner() !== playerId)
 		return false;
 	const cmpPosition = Engine.QueryInterface(cmpLink.entity, IID_Position);
-	const cmpSovereignty = Engine.QueryInterface(SYSTEM_ENTITY, IID_Sovereignty);
 	const cmpTerritory = Engine.QueryInterface(SYSTEM_ENTITY, IID_TerritoryManager);
 	// Tests and minimal maps without territorial components retain the existing
 	// ownership-only behavior; real matches always provide both components.
-	if (!cmpSovereignty || !cmpTerritory)
+	if (!cmpTerritory)
 		return true;
 	if (!cmpPosition || !cmpPosition.GetPosition2D)
 		return false;
 	const pos = cmpPosition.GetPosition2D();
-	if (!pos || cmpSovereignty.GetSovereignOwner({ "x": pos.x, "z": pos.y }) !== playerId)
+	if (!pos)
 		return false;
 	const controller = cmpTerritory.GetOwner(pos.x, pos.y);
 	return controller === 0 || controller === playerId;

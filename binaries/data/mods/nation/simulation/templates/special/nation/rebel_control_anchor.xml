@@ -1,8 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<Entity parent="structures/nation/trade_junction">
-  <Cost><Population>0</Population><Resources><food>0</food><wood>0</wood><stone>0</stone><metal>0</metal></Resources></Cost>
-  <Identity><GenericName>Rebel Control</GenericName><SpecificName>Rebel Control</SpecificName></Identity>
-  <ProductionQueue disable=""/>
-  <Researcher disable=""/>
+<Entity parent="template_trigger_point">
   <TerritoryInfluence><Root>true</Root><Radius>72</Radius><Weight>16000</Weight></TerritoryInfluence>
+  <VisualActor><Actor>props/special/common/vision_revealer_01.xml</Actor></VisualActor>
 </Entity>

@@ -21,6 +21,7 @@ error = function(message)
 const g_Positions = {};
 let g_SettlementIds = [];
 let g_LinkIds = [];
+let g_TerritoryOwner = 0;
 
 AddMock(SYSTEM_ENTITY, IID_Sovereignty, {
 	"GetSovereignOwner": pos => pos.x <= 256 ? 1 : pos.x <= 512 ? 2 : INVALID_PLAYER
@@ -62,8 +63,12 @@ function start(links)
 	g_Errors.length = 0;
 	g_SettlementIds = [];
 	g_LinkIds = [];
+	g_TerritoryOwner = 0;
 	AddMock(SYSTEM_ENTITY, IID_Sovereignty, {
 		"GetSovereignOwner": pos => pos.x <= 256 ? 1 : pos.x <= 512 ? 2 : INVALID_PLAYER
+	});
+	AddMock(SYSTEM_ENTITY, IID_TerritoryManager, {
+		"GetOwner": () => g_TerritoryOwner
 	});
 	const cmpTimer = ConstructComponent(SYSTEM_ENTITY, "Timer");
 	const cmpManager = ConstructComponent(SYSTEM_ENTITY, "NationSettlementManager");
@@ -107,6 +112,18 @@ settlement(2, "Northern Village", 5000, 35, 80, false);
 begin(world);
 TS_ASSERT_EQUALS(world.cmpConnectivity.GetCapitalForSovereign(1), 1);
 TS_ASSERT_EQUALS(world.cmpTimer.timers.size, 1);
+
+// Connected integration pauses under hostile control and resumes afterwards.
+world = start([{ "from": 1, "to": 2 }]);
+settlement(1, "Capital", 18000, 90, 100, true);
+const controlled = settlement(2, "Sefira", 3500, 20, 80, false);
+begin(world);
+g_TerritoryOwner = 3;
+advance(world.cmpTimer, 10);
+TS_ASSERT_EQUALS(controlled.GetStateIntegration(), 20);
+g_TerritoryOwner = 0;
+advance(world.cmpTimer, 10);
+TS_ASSERT_EQUALS(controlled.GetStateIntegration(), 21);
 
 // Two capitals for one sovereign are rejected. Nothing in that state is connected.
 world = start([{ "from": 1, "to": 2 }]);
