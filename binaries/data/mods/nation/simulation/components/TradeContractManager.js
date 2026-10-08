@@ -14,11 +14,38 @@ TradeContractManager.prototype.LotSize = 100;
  */
 TradeContractManager.prototype.ResumeDelay = 2000;
 
+/**
+ * The ordinary player resources international trade can carry. One economy:
+ * the same stockpile feeds domestic spending and export contracts.
+ */
+TradeContractManager.prototype.TradableResources = ["food", "metal", "stone", "wood"];
+
 TradeContractManager.prototype.Init = function()
 {
 	this.nextId = 1;
 	this.contracts = [];
 	this.timers = {};
+};
+
+/**
+ * Contracts are authoritative obligations. Timer ids are runtime-only.
+ */
+TradeContractManager.prototype.Serialize = function()
+{
+	return {
+		"nextId": this.nextId,
+		"contracts": this.contracts
+	};
+};
+
+TradeContractManager.prototype.Deserialize = function(data)
+{
+	this.Init();
+	if (!data)
+		return;
+	this.nextId = data.nextId || 1;
+	if (Array.isArray(data.contracts))
+		this.contracts = clone(data.contracts);
 };
 
 /**
@@ -43,25 +70,58 @@ TradeContractManager.prototype.GetContracts = function()
 };
 
 /**
- * An open sale still owns the seller's commodity. The abstract world buyer must not take it too.
+ * A tradable ordinary resource code.
  * @return {boolean}
  */
-TradeContractManager.prototype.HasOpenObligation = function(playerId, commodity)
+TradeContractManager.prototype.KnownResource = function(resource)
 {
-	for (let i = 0; i < this.contracts.length; ++i)
-	{
-		const contract = this.contracts[i];
-		if (contract.seller === playerId && contract.commodity === commodity && contract.status !== "fulfilled")
-			return true;
-	}
-	return false;
+	return typeof resource === "string" && this.TradableResources.indexOf(resource) !== -1;
+};
+
+/**
+ * Seller stockpile of the contract resource.
+ * @return {number}
+ */
+TradeContractManager.prototype.StockOf = function(playerId, resource)
+{
+	const cmpPlayer = QueryPlayerIDInterface(playerId, IID_Player);
+	if (!cmpPlayer)
+		return 0;
+	const counts = cmpPlayer.GetResourceCounts();
+	return counts && Number.isFinite(counts[resource]) ? Math.floor(counts[resource]) : 0;
+};
+
+/**
+ * Atomic stockpile take: all or nothing, through the normal player resource API.
+ * @return {boolean}
+ */
+TradeContractManager.prototype.TakeStock = function(playerId, resource, amount)
+{
+	if (!Number.isInteger(amount) || amount <= 0 || this.StockOf(playerId, resource) < amount)
+		return false;
+	const cmpPlayer = QueryPlayerIDInterface(playerId, IID_Player);
+	if (!cmpPlayer || !cmpPlayer.TrySubtractResources)
+		return false;
+	return !!cmpPlayer.TrySubtractResources({ [resource]: amount });
+};
+
+/**
+ * Atomic stockpile give.
+ * @return {boolean}
+ */
+TradeContractManager.prototype.GiveStock = function(playerId, resource, amount)
+{
+	if (!Number.isInteger(amount) || amount <= 0)
+		return false;
+	const cmpPlayer = QueryPlayerIDInterface(playerId, IID_Player);
+	if (!cmpPlayer || !cmpPlayer.AddResource)
+		return false;
+	cmpPlayer.AddResource(resource, amount);
+	return true;
 };
 
 /**
  * Worst link on the physical corridor between the two assigned markets, from 0 to 100.
- * National commodity stock is already at the seller's endpoint. The path from a producer
- * to the capital does not set this number.
- * @return {number}
  */
 TradeContractManager.prototype.CorridorCondition = function(origin, destination)
 {
@@ -94,15 +154,7 @@ TradeContractManager.prototype.LotCapacity = function(origin, destination)
  */
 TradeContractManager.prototype.DescribedCorridor = function(contract)
 {
-	const empty = {
-		"connected": false,
-		"condition": 0,
-		"links": [],
-		"nodes": [],
-		"transitStates": [],
-		"missingTransit": [],
-		"legallyUsable": false
-	};
+	const empty = this.EmptyCorridor();
 	if (typeof IID_TransportEfficiency === "undefined")
 		return empty;
 	const cmpTransport = Engine.QueryInterface(SYSTEM_ENTITY, IID_TransportEfficiency);
@@ -112,13 +164,9 @@ TradeContractManager.prototype.DescribedCorridor = function(contract)
 		contract.sellerMarket, contract.buyerMarket, contract.seller, contract.buyer);
 };
 
-/**
- * Widest corridor the seller may legally use for this contract.
- * @return {Object}
- */
-TradeContractManager.prototype.UsableCorridor = function(contract)
+TradeContractManager.prototype.EmptyCorridor = function()
 {
-	const empty = {
+	return {
 		"connected": false,
 		"condition": 0,
 		"links": [],
@@ -127,6 +175,15 @@ TradeContractManager.prototype.UsableCorridor = function(contract)
 		"missingTransit": [],
 		"legallyUsable": false
 	};
+};
+
+/**
+ * Widest corridor the seller may legally use for this contract.
+ * @return {Object}
+ */
+TradeContractManager.prototype.UsableCorridor = function(contract)
+{
+	const empty = this.EmptyCorridor();
 	if (typeof IID_TransportEfficiency === "undefined")
 		return empty;
 	const cmpTransport = Engine.QueryInterface(SYSTEM_ENTITY, IID_TransportEfficiency);
@@ -142,8 +199,7 @@ TradeContractManager.prototype.UsableCorridor = function(contract)
  */
 TradeContractManager.prototype.Create = function(agreementId, item)
 {
-	const cmpInventory = Engine.QueryInterface(SYSTEM_ENTITY, IID_CommodityInventory);
-	if (!cmpInventory || !item || !cmpInventory.Known(item.commodity))
+	if (!item || !this.KnownResource(item.resource))
 		return 0;
 	if (!Number.isInteger(item.provider) || item.provider <= 0 ||
 		!Number.isInteger(item.beneficiary) || item.beneficiary <= 0 ||
@@ -158,7 +214,7 @@ TradeContractManager.prototype.Create = function(agreementId, item)
 		"agreementId": agreementId || 0,
 		"seller": item.provider,
 		"buyer": item.beneficiary,
-		"commodity": item.commodity,
+		"resource": item.resource,
 		"quantityAgreed": item.quantity,
 		"quantityDelivered": 0,
 		"totalPrice": item.totalPrice,
@@ -283,6 +339,7 @@ TradeContractManager.prototype.PaymentFor = function(contract, nextDelivered)
 
 /**
  * One arrival. Nothing moves unless the whole transfer can be written.
+ * Cargo leaves the seller's ordinary stockpile only here, at successful dispatch.
  * @return {Object}
  */
 TradeContractManager.prototype.TryDeliver = function(contractId)
@@ -345,13 +402,12 @@ TradeContractManager.prototype.TryDeliver = function(contractId)
 	if (lot <= 0)
 		return refuse("no_route");
 
-	const cmpInventory = Engine.QueryInterface(SYSTEM_ENTITY, IID_CommodityInventory);
 	const cmpFinance = Engine.QueryInterface(SYSTEM_ENTITY, IID_GovernmentFinance);
-	if (!cmpInventory || !cmpFinance)
+	if (!cmpFinance)
 		return refuse("no_capacity");
 
 	const remaining = contract.quantityAgreed - contract.quantityDelivered;
-	const stock = cmpInventory.GetStock(contract.seller, contract.commodity);
+	const stock = this.StockOf(contract.seller, contract.resource);
 	const qty = Math.min(lot, remaining, stock);
 	if (qty <= 0)
 		return refuse("no_supply");
@@ -365,26 +421,27 @@ TradeContractManager.prototype.TryDeliver = function(contractId)
 		return refuse("buyer_cannot_pay");
 	}
 
-	const receipt = cmpInventory.Take(contract.seller, contract.commodity, qty);
-	if (!receipt)
+	// Dispatch: the exported quantity leaves the seller's ordinary stockpile now.
+	// The same units cannot be spent domestically or delivered twice.
+	if (!this.TakeStock(contract.seller, contract.resource, qty))
 		return refuse("no_supply");
 	if (payment > 0 && !cmpFinance.Spend(contract.buyer, payment))
 	{
-		cmpInventory.Restore(receipt);
+		this.GiveStock(contract.seller, contract.resource, qty);
 		contract.status = "blocked";
 		return refuse("buyer_cannot_pay");
 	}
-	if (!cmpInventory.Add(contract.buyer, contract.commodity, qty))
+	if (!this.GiveStock(contract.buyer, contract.resource, qty))
 	{
-		cmpInventory.Restore(receipt);
+		this.GiveStock(contract.seller, contract.resource, qty);
 		if (payment > 0)
 			cmpFinance.AddFunds(contract.buyer, payment);
 		return refuse("no_supply");
 	}
 	if (payment > 0 && !cmpFinance.AddFunds(contract.seller, payment))
 	{
-		cmpInventory.Take(contract.buyer, contract.commodity, qty);
-		cmpInventory.Restore(receipt);
+		this.TakeStock(contract.buyer, contract.resource, qty);
+		this.GiveStock(contract.seller, contract.resource, qty);
 		if (payment > 0)
 			cmpFinance.AddFunds(contract.buyer, payment);
 		return refuse("buyer_cannot_pay");
@@ -450,7 +507,7 @@ TradeContractManager.prototype.ActiveJourney = function(contract)
 	const journey = cmpTrader.GetJourney();
 	if (!journey || !journey.links || !journey.links.length)
 		return null;
-	// A return leg carries no cocoa. The next outbound selection replaces it.
+	// A return leg carries no cargo. The next outbound selection replaces it.
 	if (journey.direction === "return")
 		return null;
 	return journey;
@@ -627,15 +684,7 @@ TradeContractManager.prototype.ResumeDeparture = function(contractId)
  */
 TradeContractManager.prototype.LegCorridor = function(contract, origin, destination)
 {
-	const empty = {
-		"connected": false,
-		"condition": 0,
-		"links": [],
-		"nodes": [],
-		"transitStates": [],
-		"missingTransit": [],
-		"legallyUsable": false
-	};
+	const empty = this.EmptyCorridor();
 	if (typeof IID_TransportEfficiency === "undefined")
 		return empty;
 	const cmpTransport = Engine.QueryInterface(SYSTEM_ENTITY, IID_TransportEfficiency);

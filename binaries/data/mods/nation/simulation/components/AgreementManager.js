@@ -27,7 +27,7 @@ AgreementManager.prototype.ItemTypes = {
 	"transit_rights": true,
 	"loan": true,
 	"debt_forgiveness": true,
-	"commodity_sale": true
+	"resource_sale": true
 };
 
 AgreementManager.prototype.Init = function()
@@ -71,14 +71,15 @@ AgreementManager.prototype.Ledger = function()
 };
 
 /**
+ * An ordinary physical resource that international trade can carry.
  * @return {boolean}
  */
-AgreementManager.prototype.KnownCommodity = function(code)
+AgreementManager.prototype.KnownTradeResource = function(code)
 {
-	if (typeof IID_CommodityInventory === "undefined")
+	if (typeof IID_TradeContractManager === "undefined")
 		return false;
-	const cmpInventory = Engine.QueryInterface(SYSTEM_ENTITY, IID_CommodityInventory);
-	return !!(cmpInventory && cmpInventory.Known(code));
+	const cmpContracts = Engine.QueryInterface(SYSTEM_ENTITY, IID_TradeContractManager);
+	return !!(cmpContracts && cmpContracts.KnownResource && cmpContracts.KnownResource(code));
 };
 
 /**
