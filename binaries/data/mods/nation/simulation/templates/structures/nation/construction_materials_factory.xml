@@ -35,5 +35,6 @@
   </IndustrialProduction>
   <ProductionQueue disable=""/>
   <Researcher disable=""/>
+  <TerritoryDecay disable=""/>
   <TerritoryInfluence disable=""/>
 </Entity>

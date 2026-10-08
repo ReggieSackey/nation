@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Entity parent="structures/rome/house">
+  <BuildRestrictions>
+    <Territory>sovereign</Territory>
+  </BuildRestrictions>
   <Cost>
     <Population>0</Population>
   </Cost>

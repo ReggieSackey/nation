@@ -11,4 +11,13 @@
       <time>2</time>
     </TechCostMultiplier>
   </Researcher>
+  <Trainer>
+    <Entities datatype="tokens">
+      -units/{civ}/infantry_spearman_b
+      -units/{civ}/infantry_slinger_b
+      -units/{civ}/cavalry_javelineer_b
+      units/nation/farmer
+      units/nation/extraction_worker
+    </Entities>
+  </Trainer>
 </Entity>

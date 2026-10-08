@@ -144,9 +144,26 @@ TS_ASSERT_EQUALS(world.cmpDiscontent.IntegrationPenalty(55), 2);
 TS_ASSERT_EQUALS(world.cmpDiscontent.IntegrationPenalty(35), 3);
 TS_ASSERT_EQUALS(world.cmpDiscontent.IntegrationPenalty(20), 4);
 TS_ASSERT_EQUALS(world.cmpDiscontent.IntegrationPenalty(0), 5);
-TS_ASSERT_EQUALS(world.cmpDiscontent.DiscontentDelta(0, 20), -5);
-TS_ASSERT_EQUALS(world.cmpDiscontent.DiscontentDelta(10000, 90), 10);
-TS_ASSERT_EQUALS(world.cmpDiscontent.DiscontentDelta(10000, 20), 14);
+// No-shortage recovery is unchanged. Positive pressure keeps the
+// infrastructure relief floor at zero.
+AddMock(SYSTEM_ENTITY, IID_InfrastructureEffects, {
+	"GetDiscontentRelief": () => 0
+});
+TS_ASSERT_EQUALS(world.cmpDiscontent.DiscontentDelta(30, 0, 20), -5);
+TS_ASSERT_EQUALS(world.cmpDiscontent.DiscontentDelta(30, 10000, 90), 10);
+TS_ASSERT_EQUALS(world.cmpDiscontent.DiscontentDelta(30, 10000, 20), 14);
+// Relief subtracts and clamps at zero.
+AddMock(SYSTEM_ENTITY, IID_InfrastructureEffects, {
+	"GetDiscontentRelief": () => 4
+});
+TS_ASSERT_EQUALS(world.cmpDiscontent.DiscontentDelta(30, 10000, 90), 6);
+TS_ASSERT_EQUALS(world.cmpDiscontent.DiscontentDelta(30, 1000, 20), 1);
+// Pressure 1 + penalty 4 - relief 4 cannot go negative.
+TS_ASSERT_EQUALS(world.cmpDiscontent.DiscontentDelta(30, 1000, 20), Math.max(0, 1 + 4 - 4));
+TS_ASSERT_EQUALS(world.cmpDiscontent.DiscontentDelta(30, 0, 20), -5);
+AddMock(SYSTEM_ENTITY, IID_InfrastructureEffects, {
+	"GetDiscontentRelief": () => 0
+});
 
 world.cmpFood.ConsumeFood();
 world.cmpFood.ConsumeFood();

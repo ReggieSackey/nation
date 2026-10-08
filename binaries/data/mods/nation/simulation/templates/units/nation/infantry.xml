@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Entity parent="units/athen/infantry_spearman_b">
+  <Identity>
+    <Civ>athen</Civ>
+    <GenericName>Nation Infantry</GenericName>
+    <SpecificName>Nation Infantry</SpecificName>
+    <Icon>units/athenians/infantry_spearman.png</Icon>
+  </Identity>
+  <Promotion disable=""/>
+</Entity>

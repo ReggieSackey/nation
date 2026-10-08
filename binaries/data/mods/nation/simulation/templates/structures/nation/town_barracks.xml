@@ -4,4 +4,32 @@
     <GenericName>Barracks</GenericName>
     <SpecificName>Barracks</SpecificName>
   </Identity>
+  <TerritoryDecay disable=""/>
+  <TerritoryInfluence disable=""/>
+  <BuildRestrictions>
+    <Territory>sovereign</Territory>
+  </BuildRestrictions>
+  <Trainer>
+    <BatchTimeModifier>0.8</BatchTimeModifier>
+    <Entities datatype="tokens">
+      -units/{civ}/infantry_clubman
+      -units/{civ}/infantry_spearman_b
+      -units/{civ}/infantry_pikeman_b
+      -units/{civ}/infantry_maceman_b
+      -units/{civ}/infantry_axeman_b
+      -units/{civ}/infantry_swordsman_b
+      -units/{civ}/infantry_javelineer_b
+      -units/{civ}/infantry_slinger_b
+      -units/{civ}/infantry_archer_b
+      -units/{civ}/champion_infantry_spearman
+      -units/{civ}/champion_infantry_pikeman
+      -units/{civ}/champion_infantry_maceman
+      -units/{civ}/champion_infantry_axeman
+      -units/{civ}/champion_infantry_swordsman
+      -units/{civ}/champion_infantry_javelineer
+      -units/{civ}/champion_infantry_slinger
+      -units/{civ}/champion_infantry_archer
+      units/nation/infantry
+    </Entities>
+  </Trainer>
 </Entity>

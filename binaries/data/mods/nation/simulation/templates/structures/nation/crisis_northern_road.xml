@@ -10,5 +10,7 @@
     <From>30</From>
     <To>31</To>
     <Condition>42</Condition>
+    <MovementWidth>10</MovementWidth>
+    <MovementSpeedBonus>25</MovementSpeedBonus>
   </InfrastructureLink>
 </Entity>

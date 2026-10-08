@@ -124,11 +124,16 @@ for (const rel of [
 ])
 	TS_ASSERT(readTemplate(rel).includes("Nation"));
 
-for (const rel of ["units/nation/farmer.xml", "units/nation/extraction_worker.xml"])
+// The farmer carries the shared roster; the extraction worker inherits it
+// through its Nation parent and removes only farm-only structures.
 {
-	const xml = readTemplate(rel);
+	const xml = readTemplate("units/nation/farmer.xml");
 	TS_ASSERT(xml.includes("structures/nation/construction_materials_factory"));
 	TS_ASSERT(xml.includes("structures/nation/regional_administration"));
+}
+{
+	const xml = readTemplate("units/nation/extraction_worker.xml");
+	TS_ASSERT(xml.includes('parent="units/nation/farmer"'));
 }
 
 const ccXml = readTemplate("structures/nation/civil_centre.xml");

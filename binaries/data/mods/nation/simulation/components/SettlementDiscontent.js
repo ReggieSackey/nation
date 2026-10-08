@@ -69,14 +69,27 @@ SettlementDiscontent.prototype.IntegrationPenalty = function(integration)
  * Low integration adds nothing while the country is fed.
  * @return {number}
  */
-SettlementDiscontent.prototype.DiscontentDelta = function(shortageBps, integration)
+SettlementDiscontent.prototype.DiscontentDelta = function(settlement, shortageBps, integration)
 {
 	if (shortageBps === 0)
 		return -this.Recovery;
 	const pressure = this.FoodPressure(shortageBps);
 	if (pressure <= 0)
 		return 0;
-	return pressure + this.IntegrationPenalty(integration);
+
+	const relief = this.InfrastructureRelief(settlement);
+	return Math.max(0, pressure + this.IntegrationPenalty(integration) - relief);
+};
+
+/**
+ * Direct infrastructure relief for this settlement, 0 to 4.
+ * @param {number} settlement
+ * @return {number}
+ */
+SettlementDiscontent.prototype.InfrastructureRelief = function(settlement)
+{
+	const cmpEffects = Engine.QueryInterface(SYSTEM_ENTITY, IID_InfrastructureEffects);
+	return cmpEffects ? cmpEffects.GetDiscontentRelief(settlement) : 0;
 };
 
 /**
@@ -102,7 +115,7 @@ SettlementDiscontent.prototype.OnGlobalFoodConsumptionCompleted = function()
 			const cmpSettlement = Engine.QueryInterface(ent, IID_NationSettlement);
 			if (!cmpSettlement)
 				continue;
-			const delta = this.DiscontentDelta(status.shortageBps, cmpSettlement.GetStateIntegration());
+			const delta = this.DiscontentDelta(ent, status.shortageBps, cmpSettlement.GetStateIntegration());
 			if (delta !== 0)
 				cmpSettlement.ChangeDiscontent(delta);
 		}

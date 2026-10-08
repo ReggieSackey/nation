@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Entity parent="structures/athen/storehouse">
   <Capturable disable=""/>
+  <BuildRestrictions>
+    <Territory>sovereign</Territory>
+  </BuildRestrictions>
   <Identity>
     <GenericName>Logging Camp</GenericName>
     <SpecificName>Logging Camp</SpecificName>
@@ -12,5 +15,6 @@
     <Types>wood</Types>
     <Sharable>false</Sharable>
   </ResourceDropsite>
+  <TerritoryDecay disable=""/>
   <TerritoryInfluence disable=""/>
 </Entity>

@@ -2,14 +2,62 @@
 <Entity parent="units/athen/support_female_citizen">
   <Builder>
     <Entities datatype="tokens">
-      structures/nation/construction_materials_factory
+      -structures/{civ}/civil_centre
+      -structures/{civ}/crannog
+      -structures/{civ}/military_colony
+      -structures/{civ}/encampment
+      -structures/{civ}/house
+      -structures/{civ}/ice_house
+      -structures/{civ}/pyramid_small
+      -structures/{civ}/apartment
+      -structures/{civ}/storehouse
+      -structures/{civ}/farmstead
+      -structures/{civ}/field
+      -structures/{civ}/corral
+      -structures/{civ}/dock
+      -structures/{civ}/kennel
+      -structures/{civ}/barracks
+      -structures/{civ}/stable
+      -structures/{civ}/great_hall
+      -structures/{civ}/elephant_stable
+      -structures/{civ}/forge
+      -structures/{civ}/temple
+      -structures/{civ}/market
+      -structures/{civ}/ministry
+      -structures/{civ}/outpost
+      -structures/{civ}/sentry_tower
+      -structures/{civ}/defense_tower
+      -structures/{civ}/arsenal
+      -structures/{civ}/academy
+      -structures/{civ}/fortress
+      -structures/wallset_palisade
+      -structures/{civ}/wallset_palisade
+      -structures/{civ}/wallset_siege
+      -structures/{civ}/wallset_stone
+      -structures/{civ}/theater
+      -structures/{civ}/tachara
+      -structures/{civ}/wonder
+      structures/nation/grain_field
+      structures/nation/farmstead
+      structures/nation/logging_camp
+      structures/nation/quarry
+      structures/nation/mine
+      structures/nation/town_house
+      structures/nation/town_market
+      structures/nation/town_storehouse
+      structures/nation/town_barracks
       structures/nation/regional_administration
+      structures/nation/construction_materials_factory
+      structures/nation/trade_depot
+      structures/nation/cocoa_grove
+      structures/nation/cocoa_store
       structures/nation/foreign_administration
     </Entities>
   </Builder>
   <Identity>
     <GenericName>Farmer</GenericName>
     <SpecificName>Farmer</SpecificName>
+    <Classes datatype="tokens">NationWorker</Classes>
   </Identity>
   <InitialGather>
     <Target>50</Target>

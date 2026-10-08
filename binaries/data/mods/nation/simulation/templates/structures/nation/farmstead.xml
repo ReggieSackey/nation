@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Entity parent="structures/athen/farmstead">
+  <BuildRestrictions>
+    <Territory>sovereign</Territory>
+  </BuildRestrictions>
   <Identity>
     <GenericName>Farmstead</GenericName>
     <SpecificName>Farmstead</SpecificName>
@@ -7,4 +10,5 @@
   <ProductionQueue disable=""/>
   <Researcher disable=""/>
   <TerritoryDecay disable=""/>
+  <TerritoryInfluence disable=""/>
 </Entity>

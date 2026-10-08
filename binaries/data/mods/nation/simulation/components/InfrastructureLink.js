@@ -12,6 +12,16 @@ InfrastructureLink.prototype.Schema =
 		"<element name='Condition' a:help='Initial operational condition from 0 to 100. Omitted means 100.'>" +
 			"<ref name='nonNegativeDecimal'/>" +
 		"</element>" +
+	"</optional>" +
+	"<optional>" +
+		"<element name='MovementWidth' a:help='Half of this width around the endpoint-to-endpoint segment is the road corridor, in metres. Omitted means this link gives no movement bonus.'>" +
+			"<ref name='positiveDecimal'/>" +
+		"</element>" +
+	"</optional>" +
+	"<optional>" +
+		"<element name='MovementSpeedBonus' a:help='Maximum walk-speed multiplier bonus at condition 100, as a percentage. The live bonus scales linearly with condition.'>" +
+			"<ref name='positiveDecimal'/>" +
+		"</element>" +
 	"</optional>";
 
 InfrastructureLink.prototype.Init = function()
@@ -74,6 +84,38 @@ InfrastructureLink.prototype.IsUsable = function()
 InfrastructureLink.prototype.GetCondition = function()
 {
 	return this.condition;
+};
+
+/**
+ * Corridor width in metres for physical road movement, or 0 when this link
+ * gives no movement bonus.
+ * @return {number}
+ */
+InfrastructureLink.prototype.GetMovementWidth = function()
+{
+	if (this.movementWidth === undefined)
+	{
+		const width = this.template && this.template.MovementWidth !== undefined ?
+			+this.template.MovementWidth : 0;
+		this.movementWidth = Number.isFinite(width) && width > 0 ? width : 0;
+	}
+	return this.movementWidth;
+};
+
+/**
+ * Maximum walk-speed bonus fraction at condition 100 (0.25 means +25%), or 0
+ * when this link gives no movement bonus.
+ * @return {number}
+ */
+InfrastructureLink.prototype.GetMovementSpeedBonus = function()
+{
+	if (this.movementBonus === undefined)
+	{
+		const bonus = this.template && this.template.MovementSpeedBonus !== undefined ?
+			+this.template.MovementSpeedBonus : 0;
+		this.movementBonus = Number.isFinite(bonus) && bonus > 0 ? bonus / 100 : 0;
+	}
+	return this.movementBonus;
 };
 
 /**

@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<Entity parent="units/athen/support_female_citizen">
+<Entity parent="units/nation/farmer">
   <Builder>
     <Entities datatype="tokens">
-      structures/nation/construction_materials_factory
-      structures/nation/regional_administration
-      structures/nation/foreign_administration
+      -structures/nation/grain_field
+      -structures/nation/farmstead
     </Entities>
   </Builder>
   <Identity>

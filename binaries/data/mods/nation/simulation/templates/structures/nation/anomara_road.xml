@@ -7,5 +7,7 @@
     <From>30</From>
     <To>33</To>
     <Condition>100</Condition>
+    <MovementWidth>10</MovementWidth>
+    <MovementSpeedBonus>25</MovementSpeedBonus>
   </InfrastructureLink>
 </Entity>

@@ -32,5 +32,7 @@
   <InfrastructureLink>
     <From>30</From>
     <To>32</To>
+    <MovementWidth>10</MovementWidth>
+    <MovementSpeedBonus>25</MovementSpeedBonus>
   </InfrastructureLink>
 </Entity>
