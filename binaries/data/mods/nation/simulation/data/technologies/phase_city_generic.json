@@ -32,13 +32,13 @@
 			}
 		]
 	},
-	"requirementsTooltip": "Requires two markets, a barracks, and a court. Requires 40,000 sovereign people and 800,000 treasury.",
+	"requirementsTooltip": "Requires two markets, a barracks, and a court. Requires 30,000 sovereign people and 800,000 treasury.",
 	"supersedes": "phase_town_generic",
 	"replaces": [
 		"phase_city"
 	],
 	"icon": "city_phase.png",
 	"researchTime": 60,
-	"tooltip": "Research Advanced State at the civil centre. Costs 800 food, 400 wood, 350 stone, and 250 metal. Also requires 40,000 sovereign people and 800,000 treasury.",
+	"tooltip": "Research Advanced State at the civil centre. Costs 800 food, 400 wood, 350 stone, and 250 metal. Also requires 30,000 sovereign people and 800,000 treasury.",
 	"soundComplete": "interface/alarm/alarm_phase.xml"
 }

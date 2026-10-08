@@ -4,7 +4,7 @@
     <GenericName>National Project</GenericName>
     <SpecificName>National Development Monument</SpecificName>
     <Classes datatype="tokens">NationNationalProject</Classes>
-    <Tooltip>Requires Advanced State, 45,000 sovereign people, 1,500,000 treasury, and its listed resources. Completion wins the game.</Tooltip>
+    <Tooltip>Requires Advanced State, 33,000 sovereign people, 1,500,000 treasury, and its listed resources. Completion wins the game.</Tooltip>
     <Requirements>
       <Techs datatype="tokens">phase_city</Techs>
     </Requirements>

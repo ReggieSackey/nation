@@ -3,7 +3,7 @@
 var NationNationalProject = {
 	"template": "structures/nation/national_project",
 	"treasury": 1500000,
-	"people": 45000
+	"people": 33000
 };
 
 function AttachNationNationalProjectToConstruct()

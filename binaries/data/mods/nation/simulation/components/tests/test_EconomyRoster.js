@@ -24,6 +24,7 @@ const domesticRoster = [
 	"structures/nation/town_market",
 	"structures/nation/town_storehouse",
 	"structures/nation/town_barracks",
+	"structures/nation/court",
 	"structures/nation/regional_administration",
 	"structures/nation/national_project",
 	"structures/nation/trade_depot"
@@ -79,6 +80,7 @@ const sovereignBuildings = [
 	"town_market",
 	"town_storehouse",
 	"town_barracks",
+	"court",
 	"regional_administration",
 	"national_project",
 	"trade_depot",

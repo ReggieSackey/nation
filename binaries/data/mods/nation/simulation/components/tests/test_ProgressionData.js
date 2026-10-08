@@ -26,6 +26,8 @@ for (const name of ["phase_city_athen", "phase_city_generic"])
 	TS_ASSERT_EQUALS(phase.cost.stone, 350);
 	TS_ASSERT_EQUALS(phase.cost.metal, 250);
 	TS_ASSERT_EQUALS(phase.cost.construction_materials, undefined);
+	TS_ASSERT(phase.requirementsTooltip.includes("30,000 sovereign people"));
+	TS_ASSERT(phase.tooltip.includes("30,000 sovereign people"));
 }
 
 const project = fs.readFileSync(
@@ -37,3 +39,4 @@ TS_ASSERT(project.includes("<wood>1000</wood>"));
 TS_ASSERT(project.includes("<stone>1200</stone>"));
 TS_ASSERT(project.includes("<metal>800</metal>"));
 TS_ASSERT(!project.includes("construction_materials"));
+TS_ASSERT(project.includes("33,000 sovereign people"));

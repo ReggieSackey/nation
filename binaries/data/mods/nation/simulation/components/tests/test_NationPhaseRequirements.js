@@ -27,12 +27,12 @@ AddMock(1, IID_Player, {
 	"RefundResources": () => { ++refunded; }
 });
 AddMock(SYSTEM_ENTITY, IID_GovernmentFinance, {
-	"CanAfford": () => treasury >= 300000,
-	"Spend": () =>
+	"CanAfford": (player, amount) => treasury >= amount,
+	"Spend": (player, amount) =>
 	{
-		if (treasury < 300000)
+		if (treasury < amount)
 			return false;
-		treasury -= 300000;
+		treasury -= amount;
 		return true;
 	},
 	"AddFunds": (player, amount) => { treasury += amount; }
@@ -73,3 +73,15 @@ queueFailure.queueSucceeds = false;
 treasury = 300000;
 TS_ASSERT(!queueFailure.Queue({}));
 TS_ASSERT_EQUALS(treasury, 300000);
+
+treasury = 800000;
+people = 30000;
+TS_ASSERT(manager.CanResearch("phase_city_athen"));
+people = 29999;
+TS_ASSERT(!manager.CanResearch("phase_city_athen"));
+people = 30000;
+const advanced = new TechnologyManager.prototype.Technology("phase_city_athen", 1);
+advanced.queueSucceeds = true;
+TS_ASSERT(advanced.Queue({}));
+TS_ASSERT_EQUALS(treasury, 0);
+TS_ASSERT_EQUALS(advanced.nationTreasurySpent, 800000);

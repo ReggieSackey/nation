@@ -3,7 +3,7 @@ Engine.LoadComponentScript("interfaces/NationSettlementManager.js");
 Engine.LoadComponentScript("interfaces/TechnologyManager.js");
 
 let phaseReady = false;
-let people = 45000;
+let people = 33000;
 let treasury = 1500000;
 let foundations = 0;
 let constructionSucceeds = true;
@@ -41,9 +41,9 @@ const data = { "cmpPlayer": {}, "controlAllUnits": false };
 TS_ASSERT_EQUALS(g_Commands.construct(1, project, data), false);
 TS_ASSERT_EQUALS(treasury, 1500000);
 phaseReady = true;
-people = 44999;
+people = 32999;
 TS_ASSERT_EQUALS(g_Commands.construct(1, project, data), false);
-people = 45000;
+people = 33000;
 treasury = 1499999;
 TS_ASSERT_EQUALS(g_Commands.construct(1, project, data), false);
 

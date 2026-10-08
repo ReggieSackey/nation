@@ -4,8 +4,8 @@
 var NationPhaseRequirements = {
 	"phase_town_athen": { "treasury": 300000, "people": 20000 },
 	"phase_town_generic": { "treasury": 300000, "people": 20000 },
-	"phase_city_athen": { "treasury": 800000, "people": 40000 },
-	"phase_city_generic": { "treasury": 800000, "people": 40000 }
+	"phase_city_athen": { "treasury": 800000, "people": 30000 },
+	"phase_city_generic": { "treasury": 800000, "people": 30000 }
 };
 
 function NationPhaseReady(tech, playerEntity)
