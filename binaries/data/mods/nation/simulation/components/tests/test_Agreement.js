@@ -315,8 +315,15 @@ TS_ASSERT_EQUALS(accepted.Accept(2, serialId), false);
 TS_ASSERT_EQUALS(g_Players[1].stock.wood, 400);
 TS_ASSERT_EQUALS(saved.status, "accepted");
 
+const createdSales = [];
 AddMock(SYSTEM_ENTITY, IID_TradeContractManager, {
-	KnownResource: code => ["food", "wood", "stone", "metal"].indexOf(code) !== -1
+	KnownResource: code => ["food", "wood", "stone", "metal"].indexOf(code) !== -1,
+	Create: (proposalId, sale) =>
+	{
+		createdSales.push({ proposalId, sale });
+		return createdSales.length;
+	},
+	Drop: () => {}
 });
 for (const code of ["food", "wood", "stone", "metal"])
 {
@@ -326,6 +333,25 @@ for (const code of ["food", "wood", "stone", "metal"])
 	TS_ASSERT(sale);
 	TS_ASSERT_EQUALS(sale.offer[0].resource, code);
 	TS_ASSERT_EQUALS(sale.offer[0].quantity, 150);
+}
+for (const code of ["food", "wood", "stone", "metal"])
+{
+	resetBalances();
+	const sellerBefore = g_Players[1].stock[code];
+	const buyerBefore = g_Players[2].stock[code];
+	const sellerTreasury = cmpFinance.GetTreasury(1);
+	const buyerTreasury = cmpFinance.GetTreasury(2);
+	const id = cmpAgreements.Propose(1, 2, [{
+		type: "resource_sale", resource: code, quantity: 150, totalPrice: 300
+	}], []);
+	TS_ASSERT(id > 0);
+	TS_ASSERT_EQUALS(cmpAgreements.Accept(2, id), true);
+	TS_ASSERT_EQUALS(createdSales[createdSales.length - 1].proposalId, id);
+	TS_ASSERT_EQUALS(createdSales[createdSales.length - 1].sale.resource, code);
+	TS_ASSERT_EQUALS(g_Players[1].stock[code], sellerBefore);
+	TS_ASSERT_EQUALS(g_Players[2].stock[code], buyerBefore);
+	TS_ASSERT_EQUALS(cmpFinance.GetTreasury(1), sellerTreasury);
+	TS_ASSERT_EQUALS(cmpFinance.GetTreasury(2), buyerTreasury);
 }
 TS_ASSERT_EQUALS(cmpAgreements.Normalize(1, 2, [{
 	type: "commodity_sale", commodity: "cocoa", quantity: 150, totalPrice: 300

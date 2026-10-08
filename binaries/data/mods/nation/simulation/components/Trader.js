@@ -1,7 +1,7 @@
 // Nation overrides the upstream trader.
 // Route assignment, market pairing, diplomacy checks, and physical approach stay.
 // Completing a leg does not mint food, wood, stone, or metal.
-// It notifies TradeContractManager so a commodity contract can settle from real stock.
+// It notifies TradeContractManager so a resource contract can settle from real stock.
 
 function Trader() {}
 

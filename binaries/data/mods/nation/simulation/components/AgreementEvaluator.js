@@ -627,8 +627,8 @@ AgreementEvaluator.prototype.SaleRouteOpen = function(item)
 };
 
 /**
- * Buyer benefit is the commodity. Buyer cost is the promised payment.
- * Seller benefit is the payment. Seller cost is the commodity.
+ * Buyer benefit is the resource. Buyer cost is the promised payment.
+ * Seller benefit is the payment. Seller cost is the resource.
  * A missing route shrinks a wanted deal and worsens an unwanted one.
  * @return {number}
  */

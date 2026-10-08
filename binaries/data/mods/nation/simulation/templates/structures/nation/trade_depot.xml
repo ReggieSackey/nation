@@ -6,7 +6,7 @@
   <Identity>
     <GenericName>Trade Depot</GenericName>
     <SpecificName>Trade Depot</SpecificName>
-    <Tooltip>Physical endpoint for a bilateral commodity contract. It does not project territorial control.</Tooltip>
+    <Tooltip>Physical endpoint for a bilateral resource contract. It does not project territorial control.</Tooltip>
     <Icon>structures/market.png</Icon>
   </Identity>
   <TerritoryInfluence disable=""/>
