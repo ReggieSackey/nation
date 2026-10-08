@@ -20,6 +20,7 @@ RebellionManager.prototype.RequiredExtremeIntervals = 2;
 RebellionManager.prototype.GroupSize = 3;
 
 RebellionManager.prototype.RebelTemplate = "units/nation/rebel_fighter";
+RebellionManager.prototype.ControlAnchorTemplate = "special/nation/rebel_control_anchor";
 
 /**
  * Deterministic offsets from the settlement position, in world metres.
@@ -46,6 +47,13 @@ RebellionManager.prototype.OnUpdate = function()
 {
 	AttachRebellionToSimulationState();
 	AttachRebellionToEntityState();
+	const ids = Object.keys(this.records).map(id => +id).sort((a, b) => a - b);
+	for (const ent of ids)
+	{
+		const record = this.records[ent];
+		if (record && record.active && this.LivingRebels(record).length)
+			this.EnsureControlAnchor(ent, record);
+	}
 };
 
 RebellionManager.prototype.CreateRecord = function()
@@ -54,7 +62,8 @@ RebellionManager.prototype.CreateRecord = function()
 		"extremeIntervals": 0,
 		"active": false,
 		"rebels": [],
-		"opponent": 0
+		"opponent": 0,
+		"controlAnchor": 0
 	};
 };
 
@@ -126,9 +135,37 @@ RebellionManager.prototype.Prune = function(record)
 	record.rebels = living;
 	if (!cleared)
 		return false;
+	if (record.controlAnchor)
+		Engine.DestroyEntity(record.controlAnchor);
 	record.active = false;
 	record.extremeIntervals = 0;
 	record.opponent = 0;
+	record.controlAnchor = 0;
+	return true;
+};
+
+RebellionManager.prototype.EnsureControlAnchor = function(ent, record)
+{
+	if (record.controlAnchor && Engine.QueryInterface(record.controlAnchor, IID_Ownership))
+		return true;
+	const cmpPosition = Engine.QueryInterface(ent, IID_Position);
+	if (!cmpPosition || !cmpPosition.GetPosition2D)
+		return false;
+	const pos = cmpPosition.GetPosition2D();
+	if (!pos || !Number.isFinite(pos.x) || !Number.isFinite(pos.y))
+		return false;
+	const anchor = Engine.AddEntity(this.ControlAnchorTemplate);
+	const cmpOwnership = anchor && Engine.QueryInterface(anchor, IID_Ownership);
+	const cmpAnchorPosition = anchor && Engine.QueryInterface(anchor, IID_Position);
+	if (!anchor || !cmpOwnership || !cmpOwnership.SetOwner || !cmpAnchorPosition || !cmpAnchorPosition.JumpTo)
+	{
+		if (anchor)
+			Engine.DestroyEntity(anchor);
+		return false;
+	}
+	cmpOwnership.SetOwner(this.rebelPlayer);
+	cmpAnchorPosition.JumpTo(pos.x, pos.y);
+	record.controlAnchor = anchor;
 	return true;
 };
 
@@ -210,6 +247,13 @@ RebellionManager.prototype.SpawnGroup = function(ent, cmpSettlement, record)
 	const pos = cmpPosition.GetPosition2D();
 	if (!pos || !Number.isFinite(pos.x) || !Number.isFinite(pos.y))
 		return false;
+	const cmpTerritory = Engine.QueryInterface(SYSTEM_ENTITY, IID_TerritoryManager);
+	if (cmpTerritory)
+	{
+		const controller = cmpTerritory.GetOwner(pos.x, pos.y);
+		if (controller && controller !== sovereign && controller !== this.rebelPlayer)
+			return false;
+	}
 
 	const spawned = [];
 	for (const offset of this.SpawnOffsets)
@@ -232,7 +276,13 @@ RebellionManager.prototype.SpawnGroup = function(ent, cmpSettlement, record)
 	record.rebels = spawned;
 	record.active = true;
 	record.opponent = sovereign;
-	return true;
+	if (this.EnsureControlAnchor(ent, record))
+		return true;
+	this.Rollback(spawned);
+	record.rebels = [];
+	record.active = false;
+	record.opponent = 0;
+	return false;
 };
 
 /**

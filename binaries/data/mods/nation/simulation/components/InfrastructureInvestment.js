@@ -136,7 +136,8 @@ InfrastructureInvestment.prototype.EndpointsAuthorized = function(playerId, from
 	if (!from || !to)
 		return false;
 
-	return from.GetSovereignOwner() === playerId && to.GetSovereignOwner() === playerId;
+	return from.GetSovereignOwner() === playerId && to.GetSovereignOwner() === playerId &&
+		from.GetEffectiveController() === playerId && to.GetEffectiveController() === playerId;
 };
 
 /**
@@ -148,7 +149,22 @@ InfrastructureInvestment.prototype.HasAuthority = function(playerId, cmpLink)
 	if (!cmpLink || !Number.isInteger(playerId) || playerId <= 0)
 		return false;
 	const cmpOwnership = Engine.QueryInterface(cmpLink.entity, IID_Ownership);
-	return !!(cmpOwnership && cmpOwnership.GetOwner() === playerId);
+	if (!cmpOwnership || cmpOwnership.GetOwner() !== playerId)
+		return false;
+	const cmpPosition = Engine.QueryInterface(cmpLink.entity, IID_Position);
+	const cmpSovereignty = Engine.QueryInterface(SYSTEM_ENTITY, IID_Sovereignty);
+	const cmpTerritory = Engine.QueryInterface(SYSTEM_ENTITY, IID_TerritoryManager);
+	// Tests and minimal maps without territorial components retain the existing
+	// ownership-only behavior; real matches always provide both components.
+	if (!cmpSovereignty || !cmpTerritory)
+		return true;
+	if (!cmpPosition || !cmpPosition.GetPosition2D)
+		return false;
+	const pos = cmpPosition.GetPosition2D();
+	if (!pos || cmpSovereignty.GetSovereignOwner({ "x": pos.x, "z": pos.y }) !== playerId)
+		return false;
+	const controller = cmpTerritory.GetOwner(pos.x, pos.y);
+	return controller === 0 || controller === playerId;
 };
 
 /**

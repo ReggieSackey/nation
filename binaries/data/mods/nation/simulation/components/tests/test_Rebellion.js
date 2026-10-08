@@ -90,6 +90,7 @@ let g_Settlements = [];
 let g_Links = [];
 let g_Producers = [];
 let g_Spawned = [];
+let g_Anchors = [];
 let g_NextRebel = 200;
 let g_RebelHitpoints = {};
 let g_RebelOwner = {};
@@ -107,7 +108,10 @@ Engine.GetEntitiesWithInterface = function(iid)
 Engine.AddEntity = function(template)
 {
 	const id = g_NextRebel++;
-	g_Spawned.push({ "id": id, "template": template });
+	if (template === "units/nation/rebel_fighter")
+		g_Spawned.push({ "id": id, "template": template });
+	else
+		g_Anchors.push({ "id": id, "template": template });
 	g_RebelHitpoints[id] = 100;
 	g_RebelOwner[id] = INVALID_PLAYER;
 	g_RebelPos[id] = null;
@@ -158,6 +162,7 @@ function start(food)
 	g_Links = [];
 	g_Producers = [];
 	g_Spawned = [];
+	g_Anchors = [];
 	g_NextRebel = 200;
 	g_RebelHitpoints = {};
 	g_RebelOwner = {};
@@ -270,6 +275,10 @@ TS_ASSERT_EQUALS(status(32).active, true);
 TS_ASSERT_EQUALS(status(32).livingRebels, 3);
 TS_ASSERT_EQUALS(status(32).opponent, 1);
 TS_ASSERT_EQUALS(g_Spawned.length, 3);
+TS_ASSERT_EQUALS(g_Anchors.length, 1);
+TS_ASSERT_EQUALS(g_Anchors[0].template, "special/nation/rebel_control_anchor");
+TS_ASSERT_EQUALS(status(32).active, true);
+TS_ASSERT_EQUALS(world.cmpRebellion.records[32].controlAnchor, g_Anchors[0].id);
 TS_ASSERT_EQUALS(g_Spawned[0].template, "units/nation/rebel_fighter");
 TS_ASSERT_EQUALS(g_RebelOwner[g_Spawned[0].id], 3);
 TS_ASSERT_EQUALS(g_RebelOwner[g_Spawned[1].id], 3);

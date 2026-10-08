@@ -344,6 +344,8 @@ SettlementConnectivity.prototype.ApplyConnectivityGrowth = function()
 		const cmpSettlement = Engine.QueryInterface(ent, IID_NationSettlement);
 		if (!cmpSettlement || cmpSettlement.GetIsCapital())
 			continue;
+		if (cmpSettlement.GetEffectiveController() !== cmpSettlement.GetSovereignOwner())
+			continue;
 		if (!this.IsConnectedToCapital(ent))
 			continue;
 		cmpSettlement.ChangeStateIntegration(this.IntegrationGain);
