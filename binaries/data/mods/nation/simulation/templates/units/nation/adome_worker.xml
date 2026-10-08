@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Entity parent="units/spart/support_female_citizen">
+  <Builder>
+    <Entities datatype="tokens">
+      structures/nation/grain_field
+      structures/nation/farmstead
+      structures/nation/logging_camp
+      structures/nation/quarry
+      structures/nation/mine
+      structures/nation/neighbor_house
+      structures/nation/neighbor_market
+      structures/nation/neighbor_barracks
+      structures/nation/town_storehouse
+      structures/nation/foreign_administration
+    </Entities>
+  </Builder>
+  <Identity>
+    <Civ>spart</Civ>
+    <GenericName>Adoméan Worker</GenericName>
+    <SpecificName>Adoméan Worker</SpecificName>
+    <Classes datatype="tokens">NationWorker</Classes>
+  </Identity>
+</Entity>

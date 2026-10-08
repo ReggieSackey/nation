@@ -62,12 +62,16 @@
     {
       "Civ": "spart",
       "Name": "Adomé",
+      "AI": "petra",
+      "AIDiff": 3,
+      "AIBehavior": "balanced",
+      "PopulationLimit": 120,
       "Diplomacy": [-1, 0, 1, 0],
       "Resources": {
         "food": 30000,
-        "wood": 300,
-        "stone": 300,
-        "metal": 300
+        "wood": 5000,
+        "stone": 3000,
+        "metal": 3000
       }
     },
     {
@@ -85,6 +89,11 @@
     }
   ],
   "RebelPlayer": 3,
+  "AdomeStrategy": {
+    "player": 2,
+    "opponent": 1,
+    "startingTechnology": "phase_city_generic"
+  },
   "AgreementResponders": [2],
   "ForeignActors": [
     {
@@ -1410,6 +1419,120 @@
 			<Player>2</Player>
 			<Position x="1248" z="856"/>
 			<Orientation y="2.0"/>
+		</Entity>
+		<Entity uid="26">
+			<Template>units/nation/adome_worker</Template>
+			<Player>2</Player>
+			<Position x="1280" z="850"/>
+			<Orientation y="0"/>
+		</Entity>
+		<Entity uid="27">
+			<Template>units/nation/adome_worker</Template>
+			<Player>2</Player>
+			<Position x="1288" z="850"/>
+			<Orientation y="0"/>
+		</Entity>
+		<Entity uid="28">
+			<Template>units/nation/adome_worker</Template>
+			<Player>2</Player>
+			<Position x="1296" z="850"/>
+			<Orientation y="0"/>
+		</Entity>
+		<Entity uid="29">
+			<Template>units/nation/adome_worker</Template>
+			<Player>2</Player>
+			<Position x="1304" z="850"/>
+			<Orientation y="0"/>
+		</Entity>
+		<Entity uid="140">
+			<Template>units/nation/adome_worker</Template>
+			<Player>2</Player>
+			<Position x="1312" z="850"/>
+			<Orientation y="0"/>
+		</Entity>
+		<Entity uid="141">
+			<Template>units/nation/adome_worker</Template>
+			<Player>2</Player>
+			<Position x="1320" z="850"/>
+			<Orientation y="0"/>
+		</Entity>
+		<Entity uid="142">
+			<Template>units/spart/infantry_spearman_b</Template>
+			<Player>2</Player>
+			<Position x="1260" z="840"/>
+			<Orientation y="2.0"/>
+		</Entity>
+		<Entity uid="143">
+			<Template>units/spart/infantry_spearman_b</Template>
+			<Player>2</Player>
+			<Position x="1268" z="848"/>
+			<Orientation y="2.0"/>
+		</Entity>
+		<Entity uid="144">
+			<Template>units/spart/infantry_spearman_b</Template>
+			<Player>2</Player>
+			<Position x="1260" z="856"/>
+			<Orientation y="2.0"/>
+		</Entity>
+		<Entity uid="145">
+			<Template>units/spart/infantry_spearman_b</Template>
+			<Player>2</Player>
+			<Position x="1268" z="864"/>
+			<Orientation y="2.0"/>
+		</Entity>
+		<Entity uid="146">
+			<Template>units/spart/infantry_spearman_b</Template>
+			<Player>2</Player>
+			<Position x="1276" z="864"/>
+			<Orientation y="2.0"/>
+		</Entity>
+		<Entity uid="348">
+			<Template>gaia/fruit/berry_01</Template>
+			<Player>0</Player>
+			<Position x="1240" z="940"/>
+			<Orientation y="0"/>
+		</Entity>
+		<Entity uid="349">
+			<Template>gaia/fruit/berry_01</Template>
+			<Player>0</Player>
+			<Position x="1252" z="946"/>
+			<Orientation y="0"/>
+		</Entity>
+		<Entity uid="350">
+			<Template>gaia/tree/acacia</Template>
+			<Player>0</Player>
+			<Position x="1280" z="960"/>
+			<Orientation y="0"/>
+		</Entity>
+		<Entity uid="351">
+			<Template>gaia/tree/acacia</Template>
+			<Player>0</Player>
+			<Position x="1292" z="964"/>
+			<Orientation y="0"/>
+		</Entity>
+		<Entity uid="352">
+			<Template>gaia/tree/acacia</Template>
+			<Player>0</Player>
+			<Position x="1304" z="960"/>
+			<Orientation y="0"/>
+		</Entity>
+		<Entity uid="353">
+			<Template>gaia/tree/acacia</Template>
+			<Player>0</Player>
+			<Position x="1316" z="964"/>
+			<Orientation y="0"/>
+		</Entity>
+		<Entity uid="354">
+			<Template>gaia/rock/savanna_large</Template>
+			<Player>0</Player>
+			<Position x="1350" z="950"/>
+			<Orientation y="0"/>
+		</Entity>
+		<Entity uid="355">
+			<Template>gaia/ore/savanna_large</Template>
+			<Player>0</Player>
+			<Position x="1390" z="930"/>
+			<Orientation y="0"/>
 		</Entity>
 	</Entities>
 </Scenario>

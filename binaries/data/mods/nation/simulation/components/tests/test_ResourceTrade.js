@@ -16,6 +16,7 @@ const stock = {
 	2: { food: 0, wood: 0, stone: 0, metal: 0 }
 };
 const players = {};
+let enemies = false;
 for (const id of [1, 2])
 	players[id] = {
 		GetResourceCounts: () => stock[id],
@@ -28,7 +29,7 @@ for (const id of [1, 2])
 			return true;
 		},
 		AddResource: (code, amount) => { stock[id][code] += amount; },
-		IsEnemy: () => false
+		IsEnemy: () => enemies
 	};
 global.QueryPlayerIDInterface = id => players[id] || null;
 AddMock(80, IID_Market, {});
@@ -152,3 +153,31 @@ const savedAfterDelivery = restored.Serialize();
 restored.Deserialize(savedAfterDelivery);
 TS_ASSERT_EQUALS(restored.Find(transitResume.id).quantityDelivered, 20);
 TS_ASSERT_EQUALS(restored.TryDeliver(transitResume.id).delivered, 0);
+
+for (const existing of contracts.contracts)
+	existing.trader = 0;
+const wartimeDeparture = openSale("food", 20, 100);
+stock[1].food = 20;
+enemies = true;
+TS_ASSERT_EQUALS(contracts.PrepareDeparture(82, 80, 81), "hold");
+TS_ASSERT_EQUALS(wartimeDeparture.blockReason, "enemies");
+TS_ASSERT_EQUALS(wartimeDeparture.cargo, null);
+TS_ASSERT_EQUALS(stock[1].food, 20);
+
+wartimeDeparture.trader = 0;
+enemies = false;
+const wartimeArrival = openSale("stone", 20, 100);
+stock[1].stone = 20;
+const buyerStone = stock[2].stone;
+const sellerTreasury = finance.GetTreasury(1);
+const buyerTreasury = finance.GetTreasury(2);
+TS_ASSERT_EQUALS(contracts.PrepareDeparture(82, 80, 81), "outbound");
+enemies = true;
+const refused = contracts.TryDeliver(wartimeArrival.id);
+TS_ASSERT_EQUALS(refused.delivered, 0);
+TS_ASSERT_EQUALS(refused.paid, 0);
+TS_ASSERT_EQUALS(refused.reason, "enemies");
+TS_ASSERT_EQUALS(wartimeArrival.cargo, null);
+TS_ASSERT_EQUALS(stock[2].stone, buyerStone);
+TS_ASSERT_EQUALS(finance.GetTreasury(1), sellerTreasury);
+TS_ASSERT_EQUALS(finance.GetTreasury(2), buyerTreasury);

@@ -5,14 +5,13 @@
     <Territory>sovereign</Territory>
   </BuildRestrictions>
   <TerritoryDecay disable=""/>
-  <TerritoryInfluence disable=""/>
   <Trainer>
     <Entities datatype="tokens">
+      -units/{native}/support_civilian
       -units/{civ}/infantry_spearman_b
       -units/{civ}/infantry_javelineer_b
       -units/{civ}/cavalry_javelineer_b
-      units/nation/farmer
-      units/nation/extraction_worker
+      units/nation/adome_worker
     </Entities>
   </Trainer>
 </Entity>

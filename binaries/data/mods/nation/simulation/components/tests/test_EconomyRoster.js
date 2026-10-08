@@ -84,8 +84,7 @@ const sovereignBuildings = [
 	"regional_administration",
 	"national_project",
 	"trade_depot",
-	"civil_centre",
-	"neighbor_civil_centre"
+	"civil_centre"
 ];
 
 const inheritedSovereign = new Set();
@@ -116,6 +115,13 @@ const foreignXml = readTemplate("structures/nation/foreign_administration.xml");
 TS_ASSERT(!foreignXml.includes("TerritoryInfluence disable"));
 TS_ASSERT(!foreignXml.includes("Territory>sovereign"));
 
+// Avémé's physical civic centre projects ordinary effective control so Petra
+// can identify and develop its base. Legal sovereignty remains authoritative.
+const neighborCivic = readTemplate("structures/nation/neighbor_civil_centre.xml");
+TS_ASSERT(neighborCivic.includes("<Territory>sovereign</Territory>"));
+TS_ASSERT(neighborCivic.includes("TerritoryDecay disable"));
+TS_ASSERT(!neighborCivic.includes("TerritoryInfluence disable"));
+
 // ------------------------------------------------------------------
 // 5. Government House trains Nation workers.
 // ------------------------------------------------------------------
@@ -128,8 +134,26 @@ TS_ASSERT(cc.includes("-units/{civ}/infantry_slinger_b"));
 TS_ASSERT(cc.includes("-units/{civ}/cavalry_javelineer_b"));
 
 const neighborCc = readTemplate("structures/nation/neighbor_civil_centre.xml");
-TS_ASSERT(neighborCc.includes("units/nation/farmer"));
+TS_ASSERT(neighborCc.includes("units/nation/adome_worker"));
+TS_ASSERT(neighborCc.includes("-units/{native}/support_civilian"));
 TS_ASSERT(neighborCc.includes("-units/{civ}/infantry_spearman_b"));
+
+const adomeWorker = readTemplate("units/nation/adome_worker.xml");
+TS_ASSERT(adomeWorker.includes('parent="units/spart/support_female_citizen"'));
+TS_ASSERT(adomeWorker.includes("NationWorker"));
+for (const building of [
+	"structures/nation/grain_field",
+	"structures/nation/farmstead",
+	"structures/nation/logging_camp",
+	"structures/nation/quarry",
+	"structures/nation/mine",
+	"structures/nation/neighbor_house",
+	"structures/nation/neighbor_market",
+	"structures/nation/neighbor_barracks",
+	"structures/nation/town_storehouse",
+	"structures/nation/foreign_administration"
+])
+	TS_ASSERT(adomeWorker.includes(building));
 
 // ------------------------------------------------------------------
 // 6. Barracks trains the Nation soldier, not Athenians.

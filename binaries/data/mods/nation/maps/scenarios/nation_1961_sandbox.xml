@@ -57,8 +57,16 @@
     {
       "Civ": "spart",
       "Name": "Neighbor",
+      "AI": "petra",
+      "AIDiff": 3,
+      "AIBehavior": "balanced",
+      "PopulationLimit": 40,
       "Diplomacy": [-1, 0, 1, 0, 0],
       "Resources": {
+        "food": 5000,
+        "wood": 2000,
+        "stone": 1000,
+        "metal": 1000
       }
     },
     {
@@ -80,6 +88,11 @@
     }
   ],
   "RebelPlayer": 3,
+  "AdomeStrategy": {
+    "enabled": false,
+    "player": 2,
+    "opponent": 1
+  },
   "RevealMap": true,
   "MilitaryAccess": [
     { "from": 1, "to": 2, "military": false },
@@ -214,6 +227,30 @@
 			<Player>2</Player>
 			<Position x="390" z="378"/>
 			<Orientation y="2.2"/>
+		</Entity>
+		<Entity uid="24">
+			<Template>units/nation/adome_worker</Template>
+			<Player>2</Player>
+			<Position x="392" z="350"/>
+			<Orientation y="0"/>
+		</Entity>
+		<Entity uid="25">
+			<Template>units/nation/adome_worker</Template>
+			<Player>2</Player>
+			<Position x="400" z="350"/>
+			<Orientation y="0"/>
+		</Entity>
+		<Entity uid="26">
+			<Template>units/nation/adome_worker</Template>
+			<Player>2</Player>
+			<Position x="408" z="350"/>
+			<Orientation y="0"/>
+		</Entity>
+		<Entity uid="27">
+			<Template>units/nation/adome_worker</Template>
+			<Player>2</Player>
+			<Position x="416" z="350"/>
+			<Orientation y="0"/>
 		</Entity>
 		<Entity uid="30">
 			<Template>structures/nation/capital</Template>

@@ -158,8 +158,8 @@ TS_ASSERT_EQUALS(g_Commands.construct(1, {
 TS_ASSERT_EQUALS(g_Calls.length, 2);
 
 // ---------------------------------------------------------------
-// Templates: no routine domestic territory influence, no decay,
-// sovereign placement; the foreign office keeps its influence.
+// Densiran domestic administration has no routine territory influence. Avémé's
+// civic centre and the foreign office project effective control physically.
 // ---------------------------------------------------------------
 
 const templateDir = "/Users/reg/Documents/GitHub/nation/binaries/data/mods/nation/simulation/templates";
@@ -193,7 +193,7 @@ const neighborCentre = fs.readFileSync(
 	path.join(templateDir, "structures/nation/neighbor_civil_centre.xml"),
 	"utf8");
 TS_ASSERT(neighborCentre.includes("<Territory>sovereign</Territory>"));
-TS_ASSERT(neighborCentre.includes("TerritoryInfluence disable"));
+TS_ASSERT(!neighborCentre.includes("TerritoryInfluence disable"));
 TS_ASSERT(neighborCentre.includes("TerritoryDecay disable"));
 
 const foreignXml = fs.readFileSync(
