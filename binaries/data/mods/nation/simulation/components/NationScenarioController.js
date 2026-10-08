@@ -19,20 +19,10 @@ NationScenarioController.prototype.Init = function()
 	this.active = false;
 	this.player = 0;
 	this.capitalEntity = 0;
-	this.minVictoryTime = 0;
-	this.stableDuration = 0;
-	this.discontentVictoryMax = 0;
 	this.reserveIntervals = 0;
-	this.collapseRebellions = 0;
-	this.collapseRebellionDuration = 0;
-	this.collapseShortageBps = 0;
-	this.collapseTreasuryDuration = 0;
 	this.bands = [];
 	this.outcome = "";
 	this.outcomeReason = "";
-	this.stableSince = -1;
-	this.collapseRebellionSince = -1;
-	this.collapseTreasurySince = -1;
 	this.openingStock = -1;
 	this.shortageOpen = false;
 	this.capitalSeen = false;
@@ -80,14 +70,7 @@ NationScenarioController.prototype.ReadConfig = function(config)
 	const bands = config.discontentBands;
 	if (!Number.isInteger(player) || player <= 0 ||
 		!Number.isInteger(capital) || capital <= 0 ||
-		!this.IsPositiveInt(config.minVictoryTime) ||
-		!this.IsPositiveInt(config.stableDuration) ||
-		!this.IsPositiveInt(config.discontentVictoryMax) || config.discontentVictoryMax > 100 ||
 		!this.IsPositiveInt(config.reserveIntervals) ||
-		!this.IsPositiveInt(config.collapseRebellions) ||
-		!this.IsPositiveInt(config.collapseRebellionDuration) ||
-		!this.IsPositiveInt(config.collapseShortageBps) || config.collapseShortageBps > 10000 ||
-		!this.IsPositiveInt(config.collapseTreasuryDuration) ||
 		!Array.isArray(bands) || !bands.length)
 	{
 		error("NationScenarioController: food crisis config is incomplete");
@@ -109,14 +92,7 @@ NationScenarioController.prototype.ReadConfig = function(config)
 
 	this.player = player;
 	this.capitalEntity = capital;
-	this.minVictoryTime = config.minVictoryTime;
-	this.stableDuration = config.stableDuration;
-	this.discontentVictoryMax = config.discontentVictoryMax;
 	this.reserveIntervals = config.reserveIntervals;
-	this.collapseRebellions = config.collapseRebellions;
-	this.collapseRebellionDuration = config.collapseRebellionDuration;
-	this.collapseShortageBps = config.collapseShortageBps;
-	this.collapseTreasuryDuration = config.collapseTreasuryDuration;
 	this.bands = parsedBands;
 	this.active = true;
 	return true;
@@ -461,7 +437,7 @@ NationScenarioController.prototype.GetView = function()
 NationScenarioController.prototype.StatusLine = function(world)
 {
 	if (this.outcome === "victory")
-		return "The immediate food crisis has passed.";
+		return "The National Project is complete.";
 	if (this.outcome === "loss")
 		return this.outcomeReason;
 	if (world.unmet > 0)
@@ -473,9 +449,7 @@ NationScenarioController.prototype.StatusLine = function(world)
 			return "Unrest is spreading.";
 	if (world.food < world.required * this.reserveIntervals)
 		return "Food reserves are thin.";
-	if (world.time < this.minVictoryTime)
-		return "Hold the country together.";
-	return "The country is holding.";
+	return "Build the country toward the National Project.";
 };
 
 NationScenarioController.prototype.Notify = function(message)
@@ -595,61 +569,7 @@ NationScenarioController.prototype.Observe = function()
 		this.previousActive[settlement.id] = settlement.rebellion;
 	}
 
-	if (world.capitalHitpoints !== null && world.capitalHitpoints > 0)
-		this.capitalSeen = true;
-	if (this.capitalSeen && !(world.capitalHitpoints > 0))
-	{
-		this.Finish("loss", "The capital has fallen.", world);
-		return;
-	}
 
-	if (world.activeRebellions >= this.collapseRebellions)
-	{
-		if (this.collapseRebellionSince < 0)
-			this.collapseRebellionSince = world.time;
-		else if (world.time - this.collapseRebellionSince >= this.collapseRebellionDuration)
-		{
-			this.Finish("loss", "Armed rebellion has spread through the country.", world);
-			return;
-		}
-	}
-	else
-		this.collapseRebellionSince = -1;
-
-	if (world.treasury <= 0 && world.shortageBps >= this.collapseShortageBps)
-	{
-		if (this.collapseTreasurySince < 0)
-			this.collapseTreasurySince = world.time;
-		else if (world.time - this.collapseTreasurySince >= this.collapseTreasuryDuration)
-		{
-			this.Finish("loss", "The treasury is empty and the food shortage has not lifted.", world);
-			return;
-		}
-	}
-	else
-		this.collapseTreasurySince = -1;
-
-	let calm = true;
-	for (let i = 0; i < world.settlements.length; ++i)
-		if (world.settlements[i].discontent >= this.discontentVictoryMax)
-			calm = false;
-	const holding = world.time >= this.minVictoryTime &&
-		world.unmet === 0 &&
-		world.shortageBps === 0 &&
-		world.food >= world.required * this.reserveIntervals &&
-		world.activeRebellions === 0 &&
-		world.treasury > 0 &&
-		calm;
-
-	if (!holding)
-	{
-		this.stableSince = -1;
-		return;
-	}
-	if (this.stableSince < 0)
-		this.stableSince = world.time;
-	else if (world.time - this.stableSince >= this.stableDuration)
-		this.Finish("victory", "The immediate food crisis has passed.", world);
 };
 
 Engine.RegisterSystemComponentType(

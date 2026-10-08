@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Entity parent="structures/athen/barracks">
   <Identity>
+    <Classes datatype="tokens">NationBarracks</Classes>
     <GenericName>Barracks</GenericName>
     <SpecificName>Barracks</SpecificName>
   </Identity>

@@ -56,8 +56,7 @@
         "food": 4200,
         "wood": 400,
         "stone": 300,
-        "metal": 200,
-        "construction_materials": 0
+        "metal": 200
       }
     },
     {
@@ -68,8 +67,7 @@
         "food": 30000,
         "wood": 300,
         "stone": 300,
-        "metal": 300,
-        "construction_materials": 0
+        "metal": 300
       }
     },
     {
@@ -82,8 +80,7 @@
         "food": 0,
         "wood": 0,
         "stone": 0,
-        "metal": 0,
-        "construction_materials": 0
+        "metal": 0
       }
     }
   ],
@@ -146,16 +143,10 @@
     "id": "food_crisis",
     "player": 1,
     "capitalEntity": 10,
-    "minVictoryTime": 720000,
-    "stableDuration": 120000,
-    "discontentVictoryMax": 60,
     "reserveIntervals": 3,
-    "collapseRebellions": 2,
-    "collapseRebellionDuration": 180000,
-    "collapseShortageBps": 8000,
-    "collapseTreasuryDuration": 120000,
     "discontentBands": [50, 70, 80]
   },
+  "NationEndgame": { "player": 1, "palaceEntity": 10 },
   "VictoryConditions": []
 }
 ]]></ScriptSettings>
@@ -507,18 +498,6 @@
 			<Player>1</Player>
 			<Position x="688" z="160"/>
 			<Orientation y="0.2"/>
-		</Entity>
-		<Entity uid="252">
-			<Template>structures/nation/cocoa_grove</Template>
-			<Player>1</Player>
-			<Position x="868" z="176"/>
-			<Orientation y="-0.4"/>
-		</Entity>
-		<Entity uid="253">
-			<Template>structures/nation/cocoa_store</Template>
-			<Player>1</Player>
-			<Position x="862" z="248"/>
-			<Orientation y="1.4"/>
 		</Entity>
 		<Entity uid="254">
 			<Template>structures/nation/town_market</Template>

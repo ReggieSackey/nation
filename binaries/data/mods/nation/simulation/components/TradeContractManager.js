@@ -48,6 +48,31 @@ TradeContractManager.prototype.Deserialize = function(data)
 		this.contracts = clone(data.contracts);
 };
 
+TradeContractManager.prototype.OnDeserialized = function()
+{
+	for (let i = 0; i < this.contracts.length; ++i)
+	{
+		const contract = this.contracts[i];
+		if (contract.status !== "fulfilled" && contract.trader && !contract.cargo && contract.blockReason)
+			this.ScheduleResume(contract.id);
+	}
+};
+
+/** Lost traders destroy their physical cargo, without restoring seller stock. */
+TradeContractManager.prototype.OnGlobalDestroy = function(msg)
+{
+	for (let i = 0; i < this.contracts.length; ++i)
+	{
+		const contract = this.contracts[i];
+		if (contract.trader !== msg.entity)
+			continue;
+		contract.cargo = null;
+		contract.trader = 0;
+		if (contract.status !== "fulfilled")
+			this.NoteBlock(contract, "no_trader");
+	}
+};
+
 /**
  * @return {Object|null}
  */
@@ -217,6 +242,7 @@ TradeContractManager.prototype.Create = function(agreementId, item)
 		"resource": item.resource,
 		"quantityAgreed": item.quantity,
 		"quantityDelivered": 0,
+		"cargo": null,
 		"totalPrice": item.totalPrice,
 		"amountPaid": 0,
 		"status": "active",
@@ -241,7 +267,7 @@ TradeContractManager.prototype.Drop = function(id)
 		const contract = this.contracts[i];
 		if (contract.id !== id)
 			continue;
-		if (contract.quantityDelivered !== 0 || contract.amountPaid !== 0)
+		if (contract.quantityDelivered !== 0 || contract.amountPaid !== 0 || contract.cargo)
 			return false;
 		this.contracts.splice(i, 1);
 		return true;
@@ -281,11 +307,14 @@ TradeContractManager.prototype.EntityAlive = function(ent)
 TradeContractManager.prototype.Assign = function(player, contractId, trader, sellerMarket, buyerMarket)
 {
 	const contract = this.Find(contractId);
-	if (!contract || contract.status === "fulfilled")
+	if (!contract || contract.status === "fulfilled" || contract.cargo)
 		return false;
 	if (player !== contract.seller && player !== contract.buyer)
 		return false;
 	if (!trader || !sellerMarket || !buyerMarket || sellerMarket === buyerMarket)
+		return false;
+	const assigned = this.FindByTrader(trader);
+	if (assigned && assigned.id !== contractId)
 		return false;
 	if (!Engine.QueryInterface(sellerMarket, IID_Market) || !Engine.QueryInterface(buyerMarket, IID_Market))
 		return false;
@@ -338,9 +367,8 @@ TradeContractManager.prototype.PaymentFor = function(contract, nextDelivered)
 };
 
 /**
- * One arrival. Nothing moves unless the whole transfer can be written.
- * Cargo leaves the seller's ordinary stockpile only here, at successful dispatch.
- * @return {Object}
+ * Settle only cargo that was removed from the seller at outbound departure.
+ * A failed arrival loses the cargo; the unfulfilled promise remains open.
  */
 TradeContractManager.prototype.TryDeliver = function(contractId)
 {
@@ -349,18 +377,18 @@ TradeContractManager.prototype.TryDeliver = function(contractId)
 	if (!contract)
 		return none;
 	if (contract.status === "fulfilled")
-	{
-		none.reason = "fulfilled";
-		return none;
-	}
+		return { "delivered": 0, "paid": 0, "reason": "fulfilled" };
+	if (!contract.cargo)
+		return { "delivered": 0, "paid": 0, "reason": "no_cargo" };
 
 	const refuse = (reason, missing) =>
 	{
+		contract.cargo = null;
+		this.ReleaseJourney(contract);
 		contract.blockReason = reason;
 		contract.missingTransit = missing ? missing.slice() : [];
 		return { "delivered": 0, "paid": 0, "reason": reason };
 	};
-
 	if (!contract.trader || !this.EntityAlive(contract.trader))
 		return refuse("no_trader");
 	if (!contract.sellerMarket || !contract.buyerMarket ||
@@ -374,85 +402,39 @@ TradeContractManager.prototype.TryDeliver = function(contractId)
 		return refuse("no_access");
 	if (this.Enemies(contract.seller, contract.buyer))
 		return refuse("enemies");
-
 	const journey = this.ActiveJourney(contract);
-	let lot = 0;
-	if (journey)
-	{
-		const assessed = this.AssessJourney(contract, journey);
-		this.ReleaseJourney(contract);
-		if (!assessed.operational)
-			return refuse("no_route");
-		if (!assessed.legallyUsable)
-			return refuse("missing_transit", assessed.missingTransit);
-		lot = Math.floor(this.LotSize * assessed.condition / 100);
-	}
-	else
-	{
-		const usable = this.UsableCorridor(contract);
-		if (!usable.connected)
-		{
-			const described = this.DescribedCorridor(contract);
-			if (described.connected && described.missingTransit.length)
-				return refuse("missing_transit", described.missingTransit);
-			return refuse("no_route");
-		}
-		lot = Math.floor(this.LotSize * usable.condition / 100);
-	}
-	if (lot <= 0)
+	if (!journey)
 		return refuse("no_route");
+	const assessed = this.AssessJourney(contract, journey);
+	if (!assessed.operational)
+		return refuse("no_route");
+	if (!assessed.legallyUsable)
+		return refuse("missing_transit", assessed.missingTransit);
 
-	const cmpFinance = Engine.QueryInterface(SYSTEM_ENTITY, IID_GovernmentFinance);
-	if (!cmpFinance)
-		return refuse("no_capacity");
-
-	const remaining = contract.quantityAgreed - contract.quantityDelivered;
-	const stock = this.StockOf(contract.seller, contract.resource);
-	const qty = Math.min(lot, remaining, stock);
-	if (qty <= 0)
-		return refuse("no_supply");
-
+	const qty = contract.cargo.quantity;
 	const payment = this.PaymentFor(contract, contract.quantityDelivered + qty);
-	if (payment < 0)
+	const cmpFinance = Engine.QueryInterface(SYSTEM_ENTITY, IID_GovernmentFinance);
+	if (!cmpFinance || payment < 0 || !cmpFinance.CanAfford(contract.buyer, payment))
 		return refuse("buyer_cannot_pay");
-	if (payment > 0 && !cmpFinance.CanAfford(contract.buyer, payment))
-	{
-		contract.status = "blocked";
-		return refuse("buyer_cannot_pay");
-	}
-
-	// Dispatch: the exported quantity leaves the seller's ordinary stockpile now.
-	// The same units cannot be spent domestically or delivered twice.
-	if (!this.TakeStock(contract.seller, contract.resource, qty))
-		return refuse("no_supply");
+	if (!this.GiveStock(contract.buyer, contract.resource, qty))
+		return refuse("no_capacity");
 	if (payment > 0 && !cmpFinance.Spend(contract.buyer, payment))
 	{
-		this.GiveStock(contract.seller, contract.resource, qty);
-		contract.status = "blocked";
+		this.TakeStock(contract.buyer, contract.resource, qty);
 		return refuse("buyer_cannot_pay");
-	}
-	if (!this.GiveStock(contract.buyer, contract.resource, qty))
-	{
-		this.GiveStock(contract.seller, contract.resource, qty);
-		if (payment > 0)
-			cmpFinance.AddFunds(contract.buyer, payment);
-		return refuse("no_supply");
 	}
 	if (payment > 0 && !cmpFinance.AddFunds(contract.seller, payment))
 	{
 		this.TakeStock(contract.buyer, contract.resource, qty);
-		this.GiveStock(contract.seller, contract.resource, qty);
-		if (payment > 0)
-			cmpFinance.AddFunds(contract.buyer, payment);
+		cmpFinance.AddFunds(contract.buyer, payment);
 		return refuse("buyer_cannot_pay");
 	}
-
 	contract.quantityDelivered += qty;
 	contract.amountPaid += payment;
-	if (contract.quantityDelivered === contract.quantityAgreed && contract.amountPaid === contract.totalPrice)
-		contract.status = "fulfilled";
-	else
-		contract.status = "active";
+	contract.cargo = null;
+	this.ReleaseJourney(contract);
+	contract.status = contract.quantityDelivered === contract.quantityAgreed &&
+		contract.amountPaid === contract.totalPrice ? "fulfilled" : "active";
 	contract.blockReason = "";
 	contract.missingTransit = [];
 	return { "delivered": qty, "paid": payment, "reason": "settled" };
@@ -729,6 +711,20 @@ TradeContractManager.prototype.PrepareDeparture = function(trader, currentMarket
 		if (described.connected && described.missingTransit.length)
 			return this.HoldDeparture(contract, "missing_transit", described.missingTransit);
 		return this.HoldDeparture(contract, "no_route");
+	}
+
+	if (direction === "outbound")
+	{
+		if (contract.cargo)
+			return this.HoldDeparture(contract, "cargo_in_transit");
+		const capacity = Math.floor(this.LotSize * usable.condition / 100);
+		const remaining = contract.quantityAgreed - contract.quantityDelivered;
+		const qty = Math.min(capacity, remaining, this.StockOf(contract.seller, contract.resource));
+		if (qty <= 0)
+			return this.HoldDeparture(contract, remaining <= 0 ? "fulfilled" : "no_supply");
+		if (!this.TakeStock(contract.seller, contract.resource, qty))
+			return this.HoldDeparture(contract, "no_supply");
+		contract.cargo = { "resource": contract.resource, "quantity": qty };
 	}
 
 	let points = [];

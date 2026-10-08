@@ -196,11 +196,6 @@ TS_ASSERT(neighborCentre.includes("<Territory>sovereign</Territory>"));
 TS_ASSERT(neighborCentre.includes("TerritoryInfluence disable"));
 TS_ASSERT(neighborCentre.includes("TerritoryDecay disable"));
 
-const factoryXml = fs.readFileSync(
-	path.join(templateDir, "structures/nation/construction_materials_factory.xml"),
-	"utf8");
-TS_ASSERT(factoryXml.includes("<Territory>sovereign</Territory>"));
-
 const foreignXml = fs.readFileSync(
 	path.join(templateDir, "structures/nation/foreign_administration.xml"),
 	"utf8");

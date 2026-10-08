@@ -5,16 +5,40 @@
 	},
 	"description": "A high-capacity state able to take on major administrative projects.",
 	"cost": {
-		"construction_materials": 50
+		"food": 800,
+		"wood": 400,
+		"stone": 350,
+		"metal": 250
 	},
 	"requirements": {
-		"entity": { "class": "NationConstructionMaterialsFactory", "number": 2 }
+		"all": [
+			{
+				"entity": {
+					"class": "NationMarket",
+					"number": 2
+				}
+			},
+			{
+				"entity": {
+					"class": "NationBarracks",
+					"number": 1
+				}
+			},
+			{
+				"entity": {
+					"class": "NationCourt",
+					"number": 1
+				}
+			}
+		]
 	},
-	"requirementsTooltip": "Requires the development program and two construction-materials factories.",
+	"requirementsTooltip": "Requires two markets, a barracks, and a court. Requires 40,000 sovereign people and 800,000 treasury.",
 	"supersedes": "phase_town_generic",
-	"replaces": ["phase_city"],
+	"replaces": [
+		"phase_city"
+	],
 	"icon": "city_phase.png",
 	"researchTime": 60,
-	"tooltip": "Research the advanced-state program at the civil centre. Costs 50 construction materials and takes 60 seconds. Unlocks regional administration.",
+	"tooltip": "Research Advanced State at the civil centre. Costs 800 food, 400 wood, 350 stone, and 250 metal. Also requires 40,000 sovereign people and 800,000 treasury.",
 	"soundComplete": "interface/alarm/alarm_phase.xml"
 }

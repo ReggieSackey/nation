@@ -51,8 +51,7 @@
       "Name": "Nation",
       "Diplomacy": [-1, 1, 0, -1, 0],
       "Resources": {
-        "food": 1000,
-        "construction_materials": 0
+        "food": 1000
       }
     },
     {
@@ -60,7 +59,6 @@
       "Name": "Neighbor",
       "Diplomacy": [-1, 0, 1, 0, 0],
       "Resources": {
-        "construction_materials": 0
       }
     },
     {
@@ -70,7 +68,6 @@
       "Color": { "r": 120, "g": 32, "b": 32 },
       "Diplomacy": [-1, -1, 0, 1, 0],
       "Resources": {
-        "construction_materials": 0
       }
     },
     {
@@ -79,7 +76,6 @@
       "Color": { "r": 40, "g": 90, "b": 140 },
       "Diplomacy": [-1, 0, 0, -1, 1],
       "Resources": {
-        "construction_materials": 0
       }
     }
   ],
@@ -166,9 +162,8 @@
     { "player": 2, "treasury": 5000000 },
     { "player": 4, "treasury": 2000000 }
   ],
-  "VictoryConditions": [
-    "conquest"
-  ]
+  "NationEndgame": { "player": 1, "palaceEntity": 10 },
+  "VictoryConditions": []
 }
 ]]></ScriptSettings>
 	<Entities>
@@ -320,12 +315,6 @@
 			<Template>units/nation/miner</Template>
 			<Player>1</Player>
 			<Position x="156" z="140"/>
-			<Orientation y="0"/>
-		</Entity>
-		<Entity uid="70">
-			<Template>structures/nation/construction_materials_factory</Template>
-			<Player>1</Player>
-			<Position x="210" z="250"/>
 			<Orientation y="0"/>
 		</Entity>
 		<Entity uid="80">

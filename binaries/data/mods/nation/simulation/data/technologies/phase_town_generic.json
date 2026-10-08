@@ -5,21 +5,40 @@
 	},
 	"description": "A national program that expands industry and the projects the state can undertake.",
 	"cost": {
-		"construction_materials": 20
+		"food": 300,
+		"wood": 200,
+		"stone": 150,
+		"metal": 100
 	},
 	"requirements": {
 		"all": [
-			{ "entity": { "class": "NationLoggingCamp", "number": 1 } },
-			{ "entity": { "class": "NationQuarry", "number": 1 } },
-			{ "entity": { "class": "NationMine", "number": 1 } },
-			{ "entity": { "class": "NationConstructionMaterialsFactory", "number": 1 } }
+			{
+				"entity": {
+					"class": "NationLoggingCamp",
+					"number": 1
+				}
+			},
+			{
+				"entity": {
+					"class": "NationQuarry",
+					"number": 1
+				}
+			},
+			{
+				"entity": {
+					"class": "NationMine",
+					"number": 1
+				}
+			}
 		]
 	},
-	"requirementsTooltip": "Requires a logging camp, a quarry, a mine, and a construction-materials factory.",
+	"requirementsTooltip": "Requires a logging camp, a quarry, and a mine. Requires 20,000 sovereign people and 300,000 treasury.",
 	"supersedes": "phase_village",
-	"replaces": ["phase_town"],
+	"replaces": [
+		"phase_town"
+	],
 	"icon": "town_phase.png",
 	"researchTime": 30,
-	"tooltip": "Research the development program at the civil centre. Costs 20 construction materials and takes 30 seconds. Unlocks further construction-materials factories.",
+	"tooltip": "Research Development at the civil centre. Costs 300 food, 200 wood, 150 stone, and 100 metal. Also requires 20,000 sovereign people and 300,000 treasury.",
 	"soundComplete": "interface/alarm/alarm_phase.xml"
 }

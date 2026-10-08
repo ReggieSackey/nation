@@ -32,8 +32,6 @@ function updateNationFoodStatus()
 	const rebellions = Number.isInteger(state.nationActiveRebellions) ? state.nationActiveRebellions : 0;
 	const units = Number.isFinite(state.popCount) ? state.popCount : 0;
 	const slots = Number.isFinite(state.popLimit) ? state.popLimit : 0;
-	const materials = state.resourceCounts && Number.isFinite(state.resourceCounts.construction_materials) ?
-		state.resourceCounts.construction_materials : 0;
 	const phaseNames = {
 		"village": "Consolidation",
 		"town": "Development",
@@ -48,8 +46,7 @@ function updateNationFoodStatus()
 		"    National discontent: " + discontent + "%" +
 		"    Active rebellions: " + rebellions +
 		"\nState capacity: " + phase +
-		"    Representative units: " + nationFoodAmount(units) + " / " + nationFoodAmount(slots) +
-		"    Construction materials: " + nationFoodAmount(Math.floor(materials));
+		"    Representative units: " + nationFoodAmount(units) + " / " + nationFoodAmount(slots);
 }
 
 registerSimulationUpdateHandler(updateNationFoodStatus);

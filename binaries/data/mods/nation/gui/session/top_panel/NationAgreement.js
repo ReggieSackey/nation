@@ -178,15 +178,16 @@ function nationAgreementAdd(type, resource)
 		return;
 	}
 
-	if (type === "commodity_sale")
+	if (type === "resource_sale")
 	{
 		const price = nationAgreementField("nationAgreementPrice", 0, false);
-		const commodity = "cocoa";
+		if (["food", "wood", "stone", "metal"].indexOf(resource) === -1)
+			return;
 		if (!price)
 			return;
 		list.push({
-			"type": "commodity_sale",
-			"commodity": commodity,
+			"type": "resource_sale",
+			"resource": resource,
 			"quantity": amount,
 			"totalPrice": price
 		});
@@ -247,9 +248,9 @@ function nationAgreementDescribe(items, provider, beneficiary)
 				" bps, " + item.installments + " installments, grace " + item.graceIntervals);
 		else if (item.type === "debt_forgiveness")
 			lines.push("    forgive " + item.amount + " of debt #" + item.debtId);
-		else if (item.type === "commodity_sale")
+		else if (item.type === "resource_sale")
 			lines.push("    " + nationAgreementName(provider) + " sells " + nationAgreementName(beneficiary) +
-				" " + item.quantity + " " + item.commodity + " for " + item.totalPrice);
+				" " + item.quantity + " " + item.resource + " for " + item.totalPrice);
 	}
 	return lines.join("\n");
 }
@@ -263,6 +264,10 @@ function nationAgreementBind()
 	if (!open || g_NationAgreementBound)
 		return;
 	g_NationAgreementBound = true;
+	const saleResource = Engine.GetGUIObjectByName("nationAgreementSaleResource");
+	saleResource.list = ["Food", "Wood", "Stone", "Metal"];
+	saleResource.list_data = ["food", "wood", "stone", "metal"];
+	saleResource.selected = 0;
 	open.onPress = function()
 	{
 		const dialog = Engine.GetGUIObjectByName("nationAgreementDialog");
@@ -320,9 +325,9 @@ function nationAgreementBind()
 	{
 		nationAgreementAdd("debt_forgiveness");
 	};
-	Engine.GetGUIObjectByName("nationAgreementCommodity").onPress = function()
+	Engine.GetGUIObjectByName("nationAgreementResourceSale").onPress = function()
 	{
-		nationAgreementAdd("commodity_sale");
+		nationAgreementAdd("resource_sale", Engine.GetGUIObjectByName("nationAgreementSaleResource").list_data[Engine.GetGUIObjectByName("nationAgreementSaleResource").selected]);
 	};
 	Engine.GetGUIObjectByName("nationAgreementDebtPick").onPress = function()
 	{
@@ -434,7 +439,7 @@ function updateNationAgreement()
 	}
 	Engine.GetGUIObjectByName("nationAgreementMilitary").hidden = foreign;
 	Engine.GetGUIObjectByName("nationAgreementTrade").hidden = foreign;
-	Engine.GetGUIObjectByName("nationAgreementCommodity").hidden = foreign;
+	Engine.GetGUIObjectByName("nationAgreementResourceSale").hidden = foreign;
 
 	const provider = g_NationAgreementDraft.side === "request" ? partner : g_ViewedPlayer;
 	const beneficiary = g_NationAgreementDraft.side === "request" ? g_ViewedPlayer : partner;
@@ -458,11 +463,11 @@ function updateNationAgreement()
 	const treasury = provider ? nationAgreementTreasury(provider) : 0;
 	const seller = g_NationAgreementDraft.side === "offer" ? g_ViewedPlayer : partner;
 	const sellerState = !foreign && seller && g_SimState.players[seller];
-	const cocoaStock = sellerState && sellerState.nationCommodityStock && sellerState.nationCommodityStock.cocoa || 0;
+	const stock = sellerState && sellerState.resourceCounts || {};
 	Engine.GetGUIObjectByName("nationAgreementAvailable").caption =
 		(g_NationAgreementDraft.side === "request" ? "Requesting from " : "Offering from ") +
 		nationAgreementName(provider) + "   treasury " + treasury +
-		"   Current stock: " + cocoaStock;
+		"   Stock: " + ["food", "wood", "stone", "metal"].map(code => code + " " + (stock[code] || 0)).join("  ");
 
 	const debtLines = [];
 	const debts = g_SimState.nationDebts || [];
@@ -550,7 +555,7 @@ function updateNationAgreement()
 			block = " — Missing transit rights through " + (names.length ? names.join(", ") : "another state");
 		}
 		contractLines.push("Contract " + contract.id + ": " + nationAgreementName(contract.seller) +
-			" -> " + nationAgreementName(contract.buyer) + " " + contract.commodity +
+			" -> " + nationAgreementName(contract.buyer) + " " + contract.resource +
 			" " + contract.quantityDelivered + "/" + contract.quantityAgreed +
 			" paid " + contract.amountPaid + "/" + contract.totalPrice +
 			" (" + contract.status + ")" + block);

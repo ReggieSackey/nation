@@ -47,10 +47,8 @@
       structures/nation/town_storehouse
       structures/nation/town_barracks
       structures/nation/regional_administration
-      structures/nation/construction_materials_factory
+      structures/nation/national_project
       structures/nation/trade_depot
-      structures/nation/cocoa_grove
-      structures/nation/cocoa_store
       structures/nation/foreign_administration
     </Entities>
   </Builder>

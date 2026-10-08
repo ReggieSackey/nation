@@ -3,11 +3,12 @@ Engine.LoadComponentScript("interfaces/GovernmentFinance.js");
 Engine.LoadComponentScript("interfaces/DiplomaticAccess.js");
 Engine.LoadComponentScript("interfaces/TradeAccess.js");
 Engine.LoadComponentScript("interfaces/AgreementManager.js");
+Engine.LoadComponentScript("interfaces/TradeContractManager.js");
 Engine.LoadComponentScript("GovernmentFinance.js");
 Engine.LoadComponentScript("DiplomaticAccess.js");
 Engine.LoadComponentScript("TradeAccess.js");
 
-const g_Codes = ["food", "wood", "stone", "metal", "construction_materials"];
+const g_Codes = ["food", "wood", "stone", "metal"];
 global.Resources = {
 	"GetCodes": () => g_Codes.slice(),
 	"GetResource": code => ({ "name": code })
@@ -30,8 +31,7 @@ function makePlayer()
 		"food": 0,
 		"wood": 0,
 		"stone": 0,
-		"metal": 0,
-		"construction_materials": 0
+		"metal": 0
 	};
 	return {
 		"stock": stock,
@@ -88,15 +88,13 @@ function resetBalances()
 		"food": 1000,
 		"wood": 500,
 		"stone": 400,
-		"metal": 200,
-		"construction_materials": 80
+		"metal": 200
 	});
 	stock(2, {
 		"food": 100,
 		"wood": 50,
 		"stone": 40,
-		"metal": 600,
-		"construction_materials": 10
+		"metal": 600
 	});
 	treasury(1, 1000000);
 	treasury(2, 200000);
@@ -110,12 +108,10 @@ function unchanged()
 	TS_ASSERT_EQUALS(g_Players[1].stock.wood, 500);
 	TS_ASSERT_EQUALS(g_Players[1].stock.stone, 400);
 	TS_ASSERT_EQUALS(g_Players[1].stock.metal, 200);
-	TS_ASSERT_EQUALS(g_Players[1].stock.construction_materials, 80);
 	TS_ASSERT_EQUALS(g_Players[2].stock.food, 100);
 	TS_ASSERT_EQUALS(g_Players[2].stock.wood, 50);
 	TS_ASSERT_EQUALS(g_Players[2].stock.stone, 40);
 	TS_ASSERT_EQUALS(g_Players[2].stock.metal, 600);
-	TS_ASSERT_EQUALS(g_Players[2].stock.construction_materials, 10);
 	TS_ASSERT_EQUALS(cmpFinance.GetTreasury(1), 1000000);
 	TS_ASSERT_EQUALS(cmpFinance.GetTreasury(2), 200000);
 	TS_ASSERT_EQUALS(cmpAccess.HasMilitaryAccess(2, 1), false);
@@ -140,7 +136,7 @@ TS_ASSERT_EQUALS(cmpAgreements.Propose(1, 2, [{ "type": "resource", "resource": 
 TS_ASSERT_EQUALS(cmpAgreements.GetProposals().length, 0);
 unchanged();
 
-const codes = ["food", "wood", "stone", "metal", "construction_materials"];
+const codes = ["food", "wood", "stone", "metal"];
 for (let i = 0; i < codes.length; ++i)
 {
 	resetBalances();
@@ -318,3 +314,19 @@ TS_ASSERT_EQUALS(accepted.Find(serialId).status, "accepted");
 TS_ASSERT_EQUALS(accepted.Accept(2, serialId), false);
 TS_ASSERT_EQUALS(g_Players[1].stock.wood, 400);
 TS_ASSERT_EQUALS(saved.status, "accepted");
+
+AddMock(SYSTEM_ENTITY, IID_TradeContractManager, {
+	KnownResource: code => ["food", "wood", "stone", "metal"].indexOf(code) !== -1
+});
+for (const code of ["food", "wood", "stone", "metal"])
+{
+	const sale = cmpAgreements.Normalize(1, 2, [{
+		type: "resource_sale", resource: code, quantity: 150, totalPrice: 300
+	}], []);
+	TS_ASSERT(sale);
+	TS_ASSERT_EQUALS(sale.offer[0].resource, code);
+	TS_ASSERT_EQUALS(sale.offer[0].quantity, 150);
+}
+TS_ASSERT_EQUALS(cmpAgreements.Normalize(1, 2, [{
+	type: "commodity_sale", commodity: "cocoa", quantity: 150, totalPrice: 300
+}], []), null);

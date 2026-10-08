@@ -246,15 +246,15 @@ AgreementManager.prototype.NormalizeSide = function(items, provider, beneficiary
 				"beneficiary": beneficiary
 			});
 		}
-		else if (item.type === "commodity_sale")
+		else if (item.type === "resource_sale")
 		{
 			// Quantity may exceed stock. Payment is not collected at signing.
-			if (!this.KnownCommodity(item.commodity) || !this.IsPositiveInt(item.quantity) ||
+			if (!this.KnownTradeResource(item.resource) || !this.IsPositiveInt(item.quantity) ||
 				!this.IsPositiveInt(item.totalPrice))
 				return null;
 			sales.push({
-				"type": "commodity_sale",
-				"commodity": item.commodity,
+				"type": "resource_sale",
+				"resource": item.resource,
 				"quantity": item.quantity,
 				"totalPrice": item.totalPrice,
 				"provider": provider,
@@ -307,9 +307,9 @@ AgreementManager.prototype.NormalizeSide = function(items, provider, beneficiary
 
 	sales.sort((left, right) =>
 	{
-		if (left.commodity < right.commodity)
+		if (left.resource < right.resource)
 			return -1;
-		if (left.commodity > right.commodity)
+		if (left.resource > right.resource)
 			return 1;
 		return left.quantity - right.quantity || left.totalPrice - right.totalPrice;
 	});
@@ -338,7 +338,7 @@ AgreementManager.prototype.Normalize = function(proposer, recipient, offer, requ
 		for (let i = 0; i < items.length; ++i)
 			if (items[i].type === "resource" || items[i].type === "military_access" ||
 				items[i].type === "trade_access" || items[i].type === "transit_rights" ||
-				items[i].type === "commodity_sale")
+				items[i].type === "resource_sale")
 				return null;
 	}
 
@@ -409,7 +409,7 @@ AgreementManager.prototype.Duties = function(proposal)
 		}
 		else if (item.type === "debt_forgiveness")
 			forgiveness.push(item);
-		else if (item.type === "commodity_sale")
+		else if (item.type === "resource_sale")
 			sales.push(item);
 		else if (item.type === "military_access")
 			military.push({ "from": item.beneficiary, "to": item.provider });
@@ -436,9 +436,9 @@ AgreementManager.prototype.Duties = function(proposal)
 	forgiveness.sort((left, right) => left.debtId - right.debtId);
 	sales.sort((left, right) =>
 	{
-		if (left.commodity < right.commodity)
+		if (left.resource < right.resource)
 			return -1;
-		if (left.commodity > right.commodity)
+		if (left.resource > right.resource)
 			return 1;
 		return left.quantity - right.quantity || left.totalPrice - right.totalPrice ||
 			left.provider - right.provider || left.beneficiary - right.beneficiary;
@@ -877,21 +877,8 @@ function AttachAgreementsToSimulationState()
 		if (cmpFinance)
 			for (let playerId = 1; playerId < state.players.length; ++playerId)
 				state.players[playerId].nationTreasury = cmpFinance.GetTreasury(playerId);
-		const cmpInventory = typeof IID_CommodityInventory !== "undefined" &&
-			Engine.QueryInterface(SYSTEM_ENTITY, IID_CommodityInventory);
 		const cmpContracts = typeof IID_TradeContractManager !== "undefined" &&
 			Engine.QueryInterface(SYSTEM_ENTITY, IID_TradeContractManager);
-		if (cmpInventory)
-		{
-			state.nationCommodities = cmpInventory.Catalog();
-			for (let playerId = 1; playerId < state.players.length; ++playerId)
-				state.players[playerId].nationCommodityStock = {};
-			const catalog = state.nationCommodities;
-			for (let playerId = 1; playerId < state.players.length; ++playerId)
-				for (let i = 0; i < catalog.length; ++i)
-					state.players[playerId].nationCommodityStock[catalog[i].code] =
-						cmpInventory.GetStock(playerId, catalog[i].code);
-		}
 		if (cmpContracts)
 			state.nationTradeContracts = cmpContracts.GetContracts();
 		return state;

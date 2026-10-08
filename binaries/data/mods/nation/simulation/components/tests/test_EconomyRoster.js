@@ -25,7 +25,7 @@ const domesticRoster = [
 	"structures/nation/town_storehouse",
 	"structures/nation/town_barracks",
 	"structures/nation/regional_administration",
-	"structures/nation/construction_materials_factory",
+	"structures/nation/national_project",
 	"structures/nation/trade_depot"
 ];
 
@@ -42,9 +42,9 @@ TS_ASSERT(extraction.includes("-structures/nation/farmstead"));
 for (const removal of extraction.match(/-structures\/nation\/[a-z_]+/g) || [])
 	TS_ASSERT(["-structures/nation/grain_field", "-structures/nation/farmstead"].includes(removal));
 
-// Cocoa structures remain builder-accessible consistently with the cocoa system.
-TS_ASSERT(farmer.includes("structures/nation/cocoa_grove"));
-TS_ASSERT(farmer.includes("structures/nation/cocoa_store"));
+TS_ASSERT(!farmer.includes("structures/nation/cocoa_grove"));
+TS_ASSERT(!farmer.includes("structures/nation/cocoa_store"));
+TS_ASSERT(!farmer.includes("structures/nation/construction_materials_factory"));
 
 // The extraction worker removes the farm-only structures explicitly.
 TS_ASSERT(extraction.includes("-structures/nation/grain_field"));
@@ -80,15 +80,13 @@ const sovereignBuildings = [
 	"town_storehouse",
 	"town_barracks",
 	"regional_administration",
-	"construction_materials_factory",
+	"national_project",
 	"trade_depot",
-	"cocoa_grove",
-	"cocoa_store",
 	"civil_centre",
 	"neighbor_civil_centre"
 ];
 
-const inheritedSovereign = new Set(["cocoa_grove", "cocoa_store"]);
+const inheritedSovereign = new Set();
 
 for (const name of sovereignBuildings)
 {

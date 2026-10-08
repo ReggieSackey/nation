@@ -34,12 +34,6 @@ AgreementEvaluator.prototype.CashReference = 500000;
 AgreementEvaluator.prototype.ShortageDivisor = 2500;
 AgreementEvaluator.prototype.SurplusIntervals = 8;
 AgreementEvaluator.prototype.SurplusFactor = 0.5;
-AgreementEvaluator.prototype.DevelopmentCost = 20;
-AgreementEvaluator.prototype.AdvancedCost = 50;
-AgreementEvaluator.prototype.MaterialsSurplus = 200;
-AgreementEvaluator.prototype.NeededMaterialsFactor = 2.5;
-AgreementEvaluator.prototype.SurplusMaterialsFactor = 0.6;
-AgreementEvaluator.prototype.ConstrainedFactor = 2.5;
 AgreementEvaluator.prototype.ImpossibleCost = 5000;
 
 AgreementEvaluator.prototype.MilitaryReceive = 25;
@@ -84,8 +78,6 @@ AgreementEvaluator.prototype.ResourceProfile = function(code)
 		return { "scale": 1, "reference": 300 };
 	if (code === "metal")
 		return { "scale": 1, "reference": 200 };
-	if (code === "construction_materials")
-		return { "scale": 2, "reference": 80 };
 	return { "scale": 1, "reference": 200 };
 };
 
@@ -278,51 +270,6 @@ AgreementEvaluator.prototype.Phase = function(playerId)
 		if (cmpTech.IsTechnologyResearched(town[i]))
 			return "development";
 	return "consolidation";
-};
-
-/**
- * @return {number}
- */
-AgreementEvaluator.prototype.MaterialsFactor = function(playerId, stock)
-{
-	const phase = this.Phase(playerId);
-	if (phase === "advanced")
-		return stock >= this.MaterialsSurplus ? this.SurplusMaterialsFactor : 1;
-
-	const next = phase === "development" ? this.AdvancedCost : this.DevelopmentCost;
-	if (stock < next)
-		return this.NeededMaterialsFactor;
-	if (stock < next * 2)
-		return 1.5;
-	return 1;
-};
-
-/**
- * Owned factories that cannot run because this input is short.
- * @return {number}
- */
-AgreementEvaluator.prototype.InputPressure = function(playerId, code, stock)
-{
-	if (code !== "wood" && code !== "stone" && code !== "metal")
-		return 1;
-	if (typeof Engine.GetEntitiesWithInterface !== "function" || typeof IID_IndustrialProduction === "undefined")
-		return 1;
-
-	const entities = Engine.GetEntitiesWithInterface(IID_IndustrialProduction) || [];
-	for (let i = 0; i < entities.length; ++i)
-	{
-		const cmpOwnership = Engine.QueryInterface(entities[i], IID_Ownership);
-		if (!cmpOwnership || cmpOwnership.GetOwner() !== playerId)
-			continue;
-		const cmpProduction = Engine.QueryInterface(entities[i], IID_IndustrialProduction);
-		if (!cmpProduction || !cmpProduction.template)
-			continue;
-		const inputs = cmpProduction.Amounts ?
-			cmpProduction.Amounts(cmpProduction.template.Inputs) : cmpProduction.template.Inputs;
-		if (inputs && inputs[code] > 0 && stock < inputs[code])
-			return this.ConstrainedFactor;
-	}
-	return 1;
 };
 
 /**
@@ -685,22 +632,16 @@ AgreementEvaluator.prototype.SaleRouteOpen = function(item)
  * A missing route shrinks a wanted deal and worsens an unwanted one.
  * @return {number}
  */
-AgreementEvaluator.prototype.CommoditySaleUtility = function(item, evaluatingPlayer, treasury, received)
+AgreementEvaluator.prototype.ResourceSaleUtility = function(item, evaluatingPlayer, treasury, received)
 {
-	if (typeof IID_CommodityInventory === "undefined")
-		return 0;
-	const cmpInventory = Engine.QueryInterface(SYSTEM_ENTITY, IID_CommodityInventory);
-	const spec = cmpInventory && cmpInventory.Get(item.commodity);
-	if (!spec)
-		return 0;
-
-	const stock = cmpInventory.GetStock(evaluatingPlayer, item.commodity);
-	const pivot = spec.referenceStock;
-	const factor = received ?
-		(pivot + item.quantity) / (pivot + stock) :
-		(pivot + item.quantity) / (pivot + Math.max(stock - item.quantity, 0));
-	const worth = Math.max(1, Math.round(spec.referenceValue * item.quantity * factor));
-	const commodityPoints = Math.round(this.CashMagnitude(0, worth));
+	const stock = this.Stock(evaluatingPlayer, item.resource);
+	const profile = this.ResourceProfile(item.resource);
+	const from = received ? stock : Math.max(0, stock - item.quantity);
+	const to = received ? stock + item.quantity : stock;
+	let worth = this.RangeValue(profile.scale, profile.reference, from, to);
+	if (item.resource === "food")
+		worth *= this.FoodSecurity(evaluatingPlayer, stock);
+	const resourcePoints = Math.round(worth);
 
 	let pricePoints = 0;
 	if (received)
@@ -714,7 +655,7 @@ AgreementEvaluator.prototype.CommoditySaleUtility = function(item, evaluatingPla
 	else
 		pricePoints = Math.round(this.CashMagnitude(treasury, item.totalPrice));
 
-	let utility = received ? commodityPoints - pricePoints : pricePoints - commodityPoints;
+	let utility = received ? resourcePoints - pricePoints : pricePoints - resourcePoints;
 	const legal = this.SaleLegallyOpen(item.provider, item.beneficiary);
 	const physical = this.BestCommercialRoute(item.provider, item.beneficiary);
 	const usable = this.BestUsableCommercialRoute(
@@ -766,15 +707,15 @@ AgreementEvaluator.prototype.ScoreItem = function(item, evaluatingPlayer, stock,
 	const foreign = NationParticipantKey(item.provider).indexOf("foreign_actor:") === 0 ||
 		NationParticipantKey(item.beneficiary).indexOf("foreign_actor:") === 0;
 	if (foreign && (item.type === "resource" || item.type === "military_access" ||
-		item.type === "trade_access" || item.type === "transit_rights" || item.type === "commodity_sale"))
+		item.type === "trade_access" || item.type === "transit_rights" || item.type === "resource_sale"))
 		return row;
 
-	if (item.type === "commodity_sale")
+	if (item.type === "resource_sale")
 	{
-		row.commodity = item.commodity;
+		row.resource = item.resource;
 		row.quantity = item.quantity;
 		row.totalPrice = item.totalPrice;
-		row.utility = this.CommoditySaleUtility(item, evaluatingPlayer, treasury, received);
+		row.utility = this.ResourceSaleUtility(item, evaluatingPlayer, treasury, received);
 		return row;
 	}
 
@@ -876,10 +817,6 @@ AgreementEvaluator.prototype.ScoreItem = function(item, evaluatingPlayer, stock,
 	let span = this.RangeValue(profile.scale, profile.reference, Math.min(from, to), Math.max(from, to));
 	if (item.resource === "food")
 		span *= this.FoodSecurity(evaluatingPlayer, held);
-	else if (item.resource === "construction_materials")
-		span *= this.MaterialsFactor(evaluatingPlayer, held);
-	else
-		span *= this.InputPressure(evaluatingPlayer, item.resource, held);
 	row.utility = Math.round(received ? span : -span);
 	return row;
 };
@@ -903,8 +840,8 @@ AgreementEvaluator.prototype.SortItems = function(items)
 			return -1;
 		if (left.type > right.type)
 			return 1;
-		const leftCode = left.resource || left.commodity || "";
-		const rightCode = right.resource || right.commodity || "";
+		const leftCode = left.resource || "";
+		const rightCode = right.resource || "";
 		if (leftCode < rightCode)
 			return -1;
 		if (leftCode > rightCode)

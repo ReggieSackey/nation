@@ -62,12 +62,13 @@
 		<object name="nationAgreementGrace" type="input" style="ModernInput" size="300 208 434 232" tooltip_style="sessionToolTip">
 			<translatableAttribute id="tooltip">Grace intervals. Interest accrues. No payment is collected.</translatableAttribute>
 		</object>
-		<object name="nationAgreementCommodity" type="button" style="StoneButton" size="16 236 200 260" tooltip_style="sessionToolTip">
-			<translatableAttribute id="caption">Commodity Sale</translatableAttribute>
-			<translatableAttribute id="tooltip">Sell cocoa for a total price paid as goods are delivered. Quantity may exceed current stock.</translatableAttribute>
+		<object name="nationAgreementResourceSale" type="button" style="StoneButton" size="16 236 200 260" tooltip_style="sessionToolTip">
+			<translatableAttribute id="caption">Resource Sale</translatableAttribute>
+			<translatableAttribute id="tooltip">Sell food, wood, stone, or metal for a total price paid on delivery. Quantity may exceed current stock.</translatableAttribute>
 		</object>
+		<object name="nationAgreementSaleResource" type="dropdown" style="ModernDropDown" size="424 236 544 260"/>
 		<object name="nationAgreementPrice" type="input" style="ModernInput" size="208 236 420 260" tooltip_style="sessionToolTip">
-			<translatableAttribute id="tooltip">Total price for the commodity quantity. Nothing is paid at signing.</translatableAttribute>
+			<translatableAttribute id="tooltip">Total price for the resource quantity. Nothing is paid at signing.</translatableAttribute>
 		</object>
 
 		<object name="nationAgreementDebt" type="text" style="resourceText" size="16 264 100%-16 292"/>

@@ -40,9 +40,6 @@ Engine.LoadComponentScript("interfaces/SettlementConnectivity.js");
 Engine.LoadComponentScript("interfaces/InfrastructureLink.js");
 Engine.LoadComponentScript("interfaces/TransportEfficiency.js");
 Engine.LoadComponentScript("interfaces/GovernmentFinance.js");
-Engine.LoadComponentScript("interfaces/CommodityProducer.js");
-Engine.LoadComponentScript("interfaces/CommodityProductionManager.js");
-Engine.LoadComponentScript("interfaces/CommodityExportManager.js");
 Engine.LoadComponentScript("interfaces/InfrastructureInvestment.js");
 Engine.LoadComponentScript("Timer.js");
 Engine.LoadComponentScript("Player.js");
@@ -54,9 +51,6 @@ Engine.LoadComponentScript("SettlementConnectivity.js");
 Engine.LoadComponentScript("InfrastructureLink.js");
 Engine.LoadComponentScript("TransportEfficiency.js");
 Engine.LoadComponentScript("GovernmentFinance.js");
-Engine.LoadComponentScript("CommodityProducer.js");
-Engine.LoadComponentScript("CommodityProductionManager.js");
-Engine.LoadComponentScript("CommodityExportManager.js");
 Engine.LoadComponentScript("InfrastructureInvestment.js");
 Engine.LoadComponentScript("SettlementDiscontent.js");
 Engine.LoadComponentScript("RebellionManager.js");
@@ -107,9 +101,7 @@ Engine.GetEntitiesWithInterface = function(iid)
 		return g_Settlements.slice();
 	if (iid === IID_InfrastructureLink)
 		return g_Links.slice();
-	if (iid === IID_CommodityProducer)
-		return g_Producers.slice();
-	return [];
+		return [];
 };
 
 Engine.AddEntity = function(template)
@@ -418,22 +410,13 @@ global.InitAttributes = {
 const cmpConnectivity = ConstructComponent(SYSTEM_ENTITY, "SettlementConnectivity");
 const cmpTransport = ConstructComponent(SYSTEM_ENTITY, "TransportEfficiency");
 const cmpFinance = ConstructComponent(SYSTEM_ENTITY, "GovernmentFinance");
-const cmpProduction = ConstructComponent(SYSTEM_ENTITY, "CommodityProductionManager");
-const cmpExport = ConstructComponent(SYSTEM_ENTITY, "CommodityExportManager");
 const cmpInvestment = ConstructComponent(SYSTEM_ENTITY, "InfrastructureInvestment");
 cmpFinance.OnInitGame();
 cmpConnectivity.OnInitGame();
-g_Producers.push(33);
-const cmpCocoa = ConstructComponent(33, "CommodityProducer", {
-	"Commodity": "cocoa",
-	"ProductionPerTick": "100",
-	"Stock": "200"
-});
 const westernRoad = physicalRoad(41, 30, 32);
 const northernRoad = physicalRoad(40, 30, 31);
 TS_ASSERT_EQUALS(cmpConnectivity.IsConnectedToCapital(32), true);
 TS_ASSERT_EQUALS(cmpTransport.GetEfficiency(33), 1);
-TS_ASSERT_EQUALS(cmpExport.ExportAmount(33, cmpCocoa.GetStock()), 200);
 
 western().SetDiscontent(100);
 evaluate();
@@ -463,21 +446,9 @@ TS_ASSERT_EQUALS(cmpConnectivity.IsConnectedToCapital(31), false);
 TS_ASSERT_EQUALS(cmpConnectivity.IsConnectedToCapital(33), false);
 TS_ASSERT_EQUALS(cmpTransport.GetEfficiency(33), 0);
 TS_ASSERT_EQUALS(cmpTransport.GetRouteCondition(33), 0);
-cmpProduction.ApplyProduction();
-TS_ASSERT_EQUALS(cmpCocoa.GetStock(), 300);
-const treasuryBefore = cmpFinance.GetTreasury(1);
-cmpExport.ApplyExports();
-TS_ASSERT_EQUALS(cmpExport.GetTotalExported(1, "cocoa"), 0);
-TS_ASSERT_EQUALS(cmpCocoa.GetStock(), 300);
-TS_ASSERT_EQUALS(cmpFinance.GetTreasury(1), treasuryBefore);
-
 TS_ASSERT_EQUALS(cmpInvestment.Repair(1, 40), true);
 TS_ASSERT_EQUALS(northernRoad.cmpLink.GetCondition(), 100);
 TS_ASSERT_EQUALS(cmpTransport.GetEfficiency(33), 1);
-cmpExport.ApplyExports();
-TS_ASSERT_EQUALS(cmpExport.GetTotalExported(1, "cocoa"), 300);
-TS_ASSERT_EQUALS(cmpCocoa.GetStock(), 0);
-TS_ASSERT_EQUALS(cmpFinance.GetTreasury(1), treasuryBefore - 1000000 + 3000);
 TS_ASSERT_EQUALS(western().GetDiscontent(), 100);
 TS_ASSERT_EQUALS(western().GetStateIntegration(), 20);
 

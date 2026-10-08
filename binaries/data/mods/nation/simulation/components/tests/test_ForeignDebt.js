@@ -17,7 +17,7 @@ Engine.LoadComponentScript("DebtLedger.js");
 Engine.LoadComponentScript("AgreementEvaluator.js");
 Engine.LoadComponentScript("AgreementAI.js");
 
-const g_Codes = ["food", "wood", "stone", "metal", "construction_materials"];
+const g_Codes = ["food", "wood", "stone", "metal"];
 global.Resources = {
 	"GetCodes": () => g_Codes.slice(),
 	"GetResource": code => ({ "name": code })
@@ -39,8 +39,7 @@ function makePlayer()
 		"food": 1000,
 		"wood": 500,
 		"stone": 400,
-		"metal": 200,
-		"construction_materials": 0
+		"metal": 200
 	};
 	return {
 		"stock": stock,

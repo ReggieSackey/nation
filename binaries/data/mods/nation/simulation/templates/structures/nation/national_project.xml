@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Entity parent="structures/athen/wonder">
+  <Identity>
+    <GenericName>National Project</GenericName>
+    <SpecificName>National Development Monument</SpecificName>
+    <Classes datatype="tokens">NationNationalProject</Classes>
+    <Tooltip>Requires Advanced State, 45,000 sovereign people, 1,500,000 treasury, and its listed resources. Completion wins the game.</Tooltip>
+    <Requirements>
+      <Techs datatype="tokens">phase_city</Techs>
+    </Requirements>
+  </Identity>
+  <BuildRestrictions>
+    <Territory>sovereign</Territory>
+    <MatchLimit>1</MatchLimit>
+  </BuildRestrictions>
+  <Cost>
+    <BuildTime>600</BuildTime>
+    <Resources>
+      <food>1500</food>
+      <wood>1000</wood>
+      <stone>1200</stone>
+      <metal>800</metal>
+    </Resources>
+  </Cost>
+  <Auras disable=""/>
+  <ResourceTrickle disable=""/>
+  <TerritoryInfluence disable=""/>
+  <TerritoryDecay disable=""/>
+</Entity>

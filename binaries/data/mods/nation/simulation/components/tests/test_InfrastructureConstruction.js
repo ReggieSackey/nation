@@ -11,10 +11,6 @@ Engine.LoadComponentScript("interfaces/TransportEfficiency.js");
 Engine.LoadComponentScript("TransportEfficiency.js");
 Engine.LoadComponentScript("interfaces/GovernmentFinance.js");
 Engine.LoadComponentScript("GovernmentFinance.js");
-Engine.LoadComponentScript("interfaces/CommodityProducer.js");
-Engine.LoadComponentScript("CommodityProducer.js");
-Engine.LoadComponentScript("interfaces/CommodityExportManager.js");
-Engine.LoadComponentScript("CommodityExportManager.js");
 Engine.LoadComponentScript("interfaces/InfrastructureInvestment.js");
 Engine.LoadComponentScript("InfrastructureInvestment.js");
 
@@ -71,9 +67,7 @@ Engine.GetEntitiesWithInterface = function(iid)
 		return g_SettlementIds.slice();
 	if (iid === IID_InfrastructureLink)
 		return g_LinkIds.slice();
-	if (iid === IID_CommodityProducer)
-		return g_ProducerIds.slice();
-	return [];
+		return [];
 };
 
 const g_DestroyEntity = Engine.DestroyEntity;
@@ -168,7 +162,6 @@ function start(treasury, projects, links)
 	const cmpConnectivity = ConstructComponent(SYSTEM_ENTITY, "SettlementConnectivity");
 	const cmpTransport = ConstructComponent(SYSTEM_ENTITY, "TransportEfficiency");
 	const cmpFinance = ConstructComponent(SYSTEM_ENTITY, "GovernmentFinance");
-	const cmpExport = ConstructComponent(SYSTEM_ENTITY, "CommodityExportManager");
 	const cmpInvestment = ConstructComponent(SYSTEM_ENTITY, "InfrastructureInvestment");
 	global.InitAttributes = {
 		"settings": {
@@ -187,8 +180,7 @@ function start(treasury, projects, links)
 		"cmpConnectivity": cmpConnectivity,
 		"cmpTransport": cmpTransport,
 		"cmpFinance": cmpFinance,
-		"cmpExport": cmpExport,
-		"cmpInvestment": cmpInvestment
+				"cmpInvestment": cmpInvestment
 	};
 }
 
@@ -351,12 +343,6 @@ settlement(33, "Southern Village", 0, 55, 180, false);
 g_LinkIds.push(40);
 ConstructComponent(40, "InfrastructureLink", { "From": "30", "To": "31" });
 begin(world);
-g_ProducerIds.push(33);
-const cocoa = ConstructComponent(33, "CommodityProducer", {
-	"Commodity": "cocoa",
-	"ProductionPerTick": "100",
-	"Stock": "200"
-});
 const southernPath = world.cmpConnectivity.GetPathToCapital(33);
 TS_ASSERT_EQUALS(southernPath.length, 3);
 TS_ASSERT_EQUALS(southernPath[0], 33);
@@ -374,10 +360,6 @@ TS_ASSERT_EQUALS(Engine.QueryInterface(westernLink, IID_InfrastructureLink).SetC
 TS_ASSERT_EQUALS(world.cmpConnectivity.IsConnectedToCapital(32), false);
 TS_ASSERT_EQUALS(world.cmpConnectivity.IsConnectedToCapital(33), true);
 TS_ASSERT_EQUALS(world.cmpTransport.GetEfficiency(33), 1);
-world.cmpExport.ApplyExports();
-TS_ASSERT_EQUALS(cocoa.GetStock(), 0);
-TS_ASSERT_EQUALS(world.cmpExport.GetTotalExported(1, "cocoa"), 200);
-TS_ASSERT_EQUALS(world.cmpFinance.GetTreasury(1), 8000000 + 2000);
 
 world = start(10000000, [westernProject]);
 settlement(30, "Capital", 0, 90, 90, true);

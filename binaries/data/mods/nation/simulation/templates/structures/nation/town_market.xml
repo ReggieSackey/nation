@@ -4,6 +4,7 @@
     <Territory>sovereign</Territory>
   </BuildRestrictions>
   <Identity>
+    <Classes datatype="tokens">NationMarket</Classes>
     <GenericName>Market</GenericName>
     <SpecificName>Market</SpecificName>
   </Identity>

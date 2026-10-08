@@ -11,10 +11,6 @@ Engine.LoadComponentScript("interfaces/TransportEfficiency.js");
 Engine.LoadComponentScript("TransportEfficiency.js");
 Engine.LoadComponentScript("interfaces/GovernmentFinance.js");
 Engine.LoadComponentScript("GovernmentFinance.js");
-Engine.LoadComponentScript("interfaces/CommodityProducer.js");
-Engine.LoadComponentScript("CommodityProducer.js");
-Engine.LoadComponentScript("interfaces/CommodityExportManager.js");
-Engine.LoadComponentScript("CommodityExportManager.js");
 Engine.LoadComponentScript("interfaces/InfrastructureInvestment.js");
 Engine.LoadComponentScript("InfrastructureInvestment.js");
 
@@ -41,9 +37,7 @@ Engine.GetEntitiesWithInterface = function(iid)
 		return g_SettlementIds.slice();
 	if (iid === IID_InfrastructureLink)
 		return g_LinkIds.slice();
-	if (iid === IID_CommodityProducer)
-		return g_ProducerIds.slice();
-	return [];
+		return [];
 };
 
 function place(entity, x)
@@ -83,7 +77,6 @@ function start(treasury)
 	const cmpConnectivity = ConstructComponent(SYSTEM_ENTITY, "SettlementConnectivity");
 	const cmpTransport = ConstructComponent(SYSTEM_ENTITY, "TransportEfficiency");
 	const cmpFinance = ConstructComponent(SYSTEM_ENTITY, "GovernmentFinance");
-	const cmpExport = ConstructComponent(SYSTEM_ENTITY, "CommodityExportManager");
 	const cmpInvestment = ConstructComponent(SYSTEM_ENTITY, "InfrastructureInvestment");
 	global.InitAttributes = {
 		"settings": {
@@ -106,8 +99,7 @@ function start(treasury)
 		"cmpConnectivity": cmpConnectivity,
 		"cmpTransport": cmpTransport,
 		"cmpFinance": cmpFinance,
-		"cmpExport": cmpExport,
-		"cmpInvestment": cmpInvestment,
+				"cmpInvestment": cmpInvestment,
 		"road": road
 	};
 }
@@ -203,37 +195,20 @@ TS_ASSERT_EQUALS(world.cmpTransport.GetEfficiency(33), 1);
 
 world = start(10000000);
 TS_ASSERT_EQUALS(world.road.SetCondition(0), true);
-g_ProducerIds.push(33);
-const cocoa = ConstructComponent(33, "CommodityProducer", {
-	"Commodity": "cocoa",
-	"ProductionPerTick": "100",
-	"Stock": "300"
-});
-world.cmpExport.ApplyExports();
-TS_ASSERT_EQUALS(cocoa.GetStock(), 300);
-TS_ASSERT_EQUALS(world.cmpFinance.GetTreasury(1), 10000000);
-TS_ASSERT_EQUALS(world.cmpInvestment.Repair(1, 40), true);
-TS_ASSERT_EQUALS(cocoa.GetStock(), 300);
-TS_ASSERT_EQUALS(world.cmpFinance.GetTreasury(1), 9000000);
-world.cmpExport.ApplyExports();
-TS_ASSERT_EQUALS(cocoa.GetStock(), 0);
-TS_ASSERT_EQUALS(world.cmpExport.GetTotalExported(1, "cocoa"), 300);
-TS_ASSERT_EQUALS(world.cmpFinance.GetTreasury(1), 9003000);
-
 TS_ASSERT_EQUALS(world.cmpInvestment.Repair(0, 40), false);
 TS_ASSERT_EQUALS(world.cmpInvestment.Repair(-1, 40), false);
 TS_ASSERT_EQUALS(world.cmpInvestment.Repair(1, 0), false);
 TS_ASSERT_EQUALS(world.cmpInvestment.Repair(1, 99), false);
 TS_ASSERT_EQUALS(world.cmpInvestment.Repair(1.5, 40), false);
-TS_ASSERT_EQUALS(world.road.GetCondition(), 100);
-TS_ASSERT_EQUALS(world.cmpFinance.GetTreasury(1), 9003000);
+TS_ASSERT_EQUALS(world.road.GetCondition(), 0);
+TS_ASSERT_EQUALS(world.cmpFinance.GetTreasury(1), 10000000);
 
 g_Commands = {};
 RegisterInfrastructureRepairCommand();
 TS_ASSERT_EQUALS(world.road.SetCondition(75), true);
 g_Commands["nation-repair-infrastructure"](1, { "entity": "nope" });
 TS_ASSERT_EQUALS(world.road.GetCondition(), 75);
-TS_ASSERT_EQUALS(world.cmpFinance.GetTreasury(1), 9003000);
+TS_ASSERT_EQUALS(world.cmpFinance.GetTreasury(1), 10000000);
 g_Commands["nation-repair-infrastructure"](1, {});
 TS_ASSERT_EQUALS(world.road.GetCondition(), 75);
 g_Commands["nation-repair-infrastructure"](2, { "entity": 40 });
@@ -241,7 +216,7 @@ TS_ASSERT_EQUALS(world.road.GetCondition(), 75);
 TS_ASSERT_EQUALS(world.cmpFinance.GetTreasury(2), 10000000);
 g_Commands["nation-repair-infrastructure"](1, { "entity": 40 });
 TS_ASSERT_EQUALS(world.road.GetCondition(), 100);
-TS_ASSERT_EQUALS(world.cmpFinance.GetTreasury(1), 9003000 - 250000);
+TS_ASSERT_EQUALS(world.cmpFinance.GetTreasury(1), 9750000);
 
 world = start(10000000);
 TS_ASSERT_EQUALS(world.road.SetCondition(50), true);

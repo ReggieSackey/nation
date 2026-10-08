@@ -10,7 +10,6 @@ Engine.LoadComponentScript("interfaces/AgreementManager.js");
 Engine.LoadComponentScript("interfaces/AgreementEvaluator.js");
 Engine.LoadComponentScript("interfaces/AgreementAI.js");
 Engine.RegisterInterface("Ownership");
-Engine.RegisterInterface("IndustrialProduction");
 Engine.LoadComponentScript("Timer.js");
 Engine.LoadComponentScript("GovernmentFinance.js");
 Engine.LoadComponentScript("DiplomaticAccess.js");
@@ -19,7 +18,7 @@ Engine.LoadComponentScript("AgreementManager.js");
 Engine.LoadComponentScript("AgreementEvaluator.js");
 Engine.LoadComponentScript("AgreementAI.js");
 
-const g_Codes = ["food", "wood", "stone", "metal", "construction_materials"];
+const g_Codes = ["food", "wood", "stone", "metal"];
 global.Resources = {
 	"GetCodes": () => g_Codes.slice(),
 	"GetResource": code => ({ "name": code })
@@ -50,8 +49,6 @@ AddMock(SYSTEM_ENTITY, IID_PopulationFoodConsumption, {
 
 Engine.GetEntitiesWithInterface = function(iid)
 {
-	if (iid === IID_IndustrialProduction)
-		return g_Factories.slice();
 	return [];
 };
 
@@ -61,8 +58,7 @@ function makePlayer()
 		"food": 0,
 		"wood": 0,
 		"stone": 0,
-		"metal": 0,
-		"construction_materials": 0
+		"metal": 0
 	};
 	const tech = {
 		"researched": {},
@@ -188,24 +184,10 @@ const richCash = cmpEvaluator.EvaluateItem({
 }, 2).utility;
 TS_ASSERT(poorCash > richCash * 5);
 
-g_Players[2].stock.construction_materials = 0;
-g_Players[2].tech.researched = {};
-const earlyMaterials = cmpEvaluator.EvaluateItem(resource(1, 2, "construction_materials", 20), 2).utility;
-g_Players[2].tech.researched.phase_city = true;
-g_Players[2].stock.construction_materials = 500;
-const lateMaterials = cmpEvaluator.EvaluateItem(resource(1, 2, "construction_materials", 20), 2).utility;
-TS_ASSERT(earlyMaterials > lateMaterials * 5);
-
 g_Factories = [];
 g_Players[2].stock.metal = 2000;
 const surplusMetal = cmpEvaluator.EvaluateItem(resource(1, 2, "metal", 100), 2).utility;
 g_Players[2].stock.metal = 0;
-AddMock(70, IID_Ownership, { "GetOwner": () => 2 });
-AddMock(70, IID_IndustrialProduction, {
-	"Amounts": node => node,
-	"template": { "Inputs": { "metal": 5, "wood": 10, "stone": 10 } }
-});
-g_Factories = [70];
 const shortMetal = cmpEvaluator.EvaluateItem(resource(1, 2, "metal", 100), 2).utility;
 TS_ASSERT(shortMetal > surplusMetal * 5);
 g_Factories = [];
